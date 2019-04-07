@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    tools:context=".MainActivity">
+
+    <HorizontalScrollView
+        android:id="@+id/scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
+        android:animateLayoutChanges="true"
+        android:animationCache="true"
+        android:clickable="true"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.142">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="55dp">
+
+            <TextView
+                android:id="@+id/textStr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="8dp"
+                android:scrollbarSize="0dp"
+                android:scrollbars="none"
+                android:textAlignment="textEnd"
+                android:textColor="@android:color/black"
+                android:textSize="46sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.114" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/txtAns"
+        android:layout_width="846dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
+        android:textAlignment="textEnd"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.466"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.306" />
+
+    <TableLayout
+        android:id="@+id/tbl"
+        android:layout_width="0dp"
+        android:layout_height="270dp"
+        android:layout_alignTop="@+id/scrollview"
+        android:layout_alignEnd="@+id/scrollview"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+
+        <TableRow
+            android:id="@+id/tblR5"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnDelAll"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:background="@android:color/black"
+                android:onClick="delall"
+                android:text="C"
+                android:textColor="@android:color/background_light"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnActions"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="gotoactions"
+                android:text="@string/threedots"
+                android:textAllCaps="false"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.25"
+                android:onClick="delSymbol"
+                android:text="@string/delSymb"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tblR1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn7"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="7"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn8"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="8"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn9"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="9"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnMult"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="@string/multiply"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tblR2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn4"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="4"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn5"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="5"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn6"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="6"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnDiv"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="@string/div"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tblR3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/btn1"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="1"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn2"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="2"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btn3"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="3"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnPlus"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="+"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tblR4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnZero"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="0"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnDot"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="."
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnCalc"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:background="@android:color/holo_orange_dark"
+                android:onClick="equallu"
+                android:text="="
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+            <Button
+                android:id="@+id/btnMinus"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.25"
+                android:onClick="onClick"
+                android:text="-"
+                android:textSize="30sp"
+                tools:layout_editor_absoluteX="55dp"
+                tools:layout_editor_absoluteY="448dp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+        <TextView
+            android:id="@+id/lblVer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="Version: "
+            android:textAlignment="center"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.998" />
+
+</android.support.constraint.ConstraintLayout>

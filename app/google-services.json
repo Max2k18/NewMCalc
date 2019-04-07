@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "669428254565",
+    "firebase_url": "https://new-mcalc.firebaseio.com",
+    "project_id": "new-mcalc",
+    "storage_bucket": "new-mcalc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669428254565:android:52711dec8d0c69d1",
+        "android_client_info": {
+          "package_name": "com.maxsavteam.newmcalc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669428254565-kflgbltv4a4o8hrhm6e9kna3vqvd4i3g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maxsavteam.newmcalc",
+            "certificate_hash": "ff75d9294e409764b72d8089397084fd575897f6"
+          }
+        },
+        {
+          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

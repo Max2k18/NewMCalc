@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">Настройки</string>
+    <string name="therenothing">Здесь нечего показывать...</string>
+    <string name="updateavail">Доступно обновление</string>
+    <string name="installvia">Установите прилоежние через установщик пакетов.</string>
+    <string name="downloaded">Скачано!</string>
+    <string name="downloaderr">Ошибка скачивания!</string>
+    <string name="downloading">Скачивание...</string>
+    <string name="version">"Версия: "</string>
+    <string name="pleaseupdate">Доступно обновление. Пожалуйста, обновите приложение в настройках (нажмите на три точки в левом верхнем углу экрана -> Настройки)</string>
+    <string name="chooseaction">Выберите действие</string>
+</resources>
