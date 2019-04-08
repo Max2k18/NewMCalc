@@ -59,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if(sp.getBoolean("toChoose", false)){
             sp.edit().remove("toChoose").apply();
-            add_text(sp.getString("chooseValue", ""));
+            if(!sp.getString("chooseValue", "").equals(""))
+                add_text(sp.getString("chooseValue", ""));
             sp.edit().remove("chooseValue").apply();
         }
         isOtherActivityOpened = false;
@@ -273,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
             s = Character.toString(str[i]);
             if(s.equals(Character.toString('P'))){
                 BigDecimal f = new BigDecimal(3.14159265);
-                if(isdigit(stri.charAt(i-1))){
+                if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
                 }
                 s1.push(f.divide(new BigDecimal(1), 8, RoundingMode.HALF_EVEN));
@@ -422,8 +423,11 @@ public class MainActivity extends AppCompatActivity {
                         t.setText(txt + btntxt);
                         return;
                     }
+                }else{
+                    t.setText(txt + btntxt);
                 }
             }
+            return;
         }
 
         if(btntxt.equals(".")){
@@ -450,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
             if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !btntxt.equals(".") && !isdigit(btntxt.toCharArray()[0])))){
                 t.setText(txt + btntxt);
             }else{
-                if(txt != ""){
+                if(!txt.equals("")){
                     if(!isdigit(btntxt.charAt(0)) && btntxt != "."){
 
                         if(!isdigit(txt.charAt(len-1))){
@@ -465,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }else{
-                    if(isdigit(btntxt.charAt(0)) || (btntxt == "-")){
+                    if(isdigit(btntxt.charAt(0)) || (btntxt.equals("-"))){
                         t.setText(btntxt);
                     }
                 }
@@ -485,8 +489,8 @@ public class MainActivity extends AppCompatActivity {
         sp.edit().putInt("btnWeight", btn8.getHeight()).apply();
         sp.edit().putInt("btnWidth", btn8.getWidth()).apply();
         sp.edit().putBoolean("toChoose", true).apply();
-        Intent startnew = new Intent(getApplicationContext(), chooseactions.class);
-        startActivity(startnew);
+        Intent resultIntent = new Intent(getApplicationContext(), chooseactions.class);
+        startActivity(resultIntent);
     }
 
     public void onClick(View v){
