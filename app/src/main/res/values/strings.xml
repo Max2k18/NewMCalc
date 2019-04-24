@@ -16,4 +16,35 @@
     <string name="pleaseupdate">An update is available. Please update the application in the settings (click on the three points in the upper left corner of the screen -> Settings)</string>
     <string name="threedots" translatable="false">...</string>
     <string name="chooseaction">Choose action</string>
+    <string name="txtfrom">from</string>
+    <string name="txtto">to</string>
+    <string name="choosenum">Select the number</string>
+    <string name="generate">Generate</string>
+    <string name="randomgen">Random Number Generator</string>
+    <string name="minintexception">The minimum value must be greater than the minimum Integer value (-2,147,483,648).</string>
+    <string name="maxintexception">Values must be between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807.</string>
+    <string name="btnCopy">Copy</string>
+    <string name="copied">Copied to clipboard</string>
+    <string name="invalidstateforsin">Invalid statement</string>
+    <string name="invalidfor">for</string>
+    <string name="build">Build:</string>
+    <string name="hitory">History</string>
+    <string name="checking_history">Checking history…</string>
+    <string name="history_not_found">History not found</string>
+    <string name="passgen">Password Generator</string>
+    <string name="sqrt" translatable="false">√</string>
+    <string name="add_chars">Additional characters</string>
+    <string name="succesful">Successfully!</string>
+    <string name="savedto">Saved to</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="exit">Exit</string>
+    <string name="areyousureexit">Would you like to go out?</string>
+    <string name="updateavailable">Would you like to download and install the update? If not, you can upgrade at a convenient time in the settings (three points from the top left -> Settings)</string>
+    <string name="donot_remind_for_this_ver">Do not remind for this version</string>
+    <string name="about_text">This application is created entirely by one person. His name is Max Savitsky(It\'s me). All systems, all core, everything is done by me.</string>
+    <string name="about">About app</string>
+    <string name="cls_history">Clear history</string>
+    <string name="confirm_cls_history">Do you really want to clear the history?</string>
+    <string name="confirm">Confirm</string>
 </resources>

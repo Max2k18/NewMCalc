@@ -2,9 +2,35 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_random"
+        android:orderInCategory="100"
+        android:title="@string/randomgen"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_pass"
+        android:orderInCategory="100"
+        android:title="@string/passgen"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_history"
+        android:orderInCategory="100"
+        android:title="@string/hitory"
+        app:showAsAction="never"
+        />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/settings"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="100"
+        android:title="@string/about"
         app:showAsAction="never"/>
 </menu>

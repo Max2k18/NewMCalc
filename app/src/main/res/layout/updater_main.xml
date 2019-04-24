@@ -7,6 +7,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/linearLayout4"
         android:layout_width="395dp"
         android:layout_height="715dp"
         android:layout_marginStart="8dp"
@@ -20,22 +21,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/txtNothingToShow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/therenothing"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="24sp" />
-
         <LinearLayout
             android:id="@+id/layoutUpdate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/txtUpdate"
@@ -46,14 +38,72 @@
                 android:textColor="@android:color/black"
                 android:textSize="24sp" />
 
-            <ImageButton
-                android:id="@+id/imageButton"
-                style="@android:style/Widget.DeviceDefault.Light.ImageButton"
+            <ImageView
+                android:id="@+id/imageView2"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:onClick="update"
-                android:scaleType="centerInside"
                 app:srcCompat="@drawable/update" />
+
+            <TextView
+                android:id="@+id/indent2"
+                android:layout_width="79dp"
+                android:layout_height="20dp" />
+
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnClsHistory"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="clear_history"
+            android:text="@string/cls_history"
+            android:textAllCaps="false"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.79">
+
+        <ImageButton
+            android:id="@+id/imgBtnVk"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#F9F9F9"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/vk" />
+
+        <ImageButton
+            android:id="@+id/imgBtnInsta"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#F9F9F9"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/instagram" />
+
+        <ImageButton
+            android:id="@+id/imgBtnTw"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="#F9F9F9"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/twitter" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
