@@ -110,6 +110,8 @@ public class Updater extends AppCompatActivity {
         }
     };
 
+    AlertDialog dl;
+
     public void social(View v){
         Intent in = new Intent(Intent.ACTION_VIEW);
         if(v.getId() == R.id.imgBtnVk){
@@ -118,13 +120,14 @@ public class Updater extends AppCompatActivity {
             in.setData(Uri.parse("https://instagram.com/" + insta));
         }else if(v.getId() == R.id.imgBtnTw){
             in.setData(Uri.parse("https://twitter.com/" + tw));
+        }else if(v.getId() == R.id.imgBtnWeb){
+            in.setData(Uri.parse("https://maxsavteam.tk/"));
         }
         startActivity(in);
     }
 
     public void clear_history(View v){
-        sp.edit().putString("history", "").apply();
-        findViewById(R.id.btnClsHistory).setVisibility(View.GONE);
+        dl.show();
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +154,25 @@ public class Updater extends AppCompatActivity {
                 newversion = "";
             }
         });
+
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setTitle(R.string.confirm)
+                .setMessage(R.string.confirm_cls_history)
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        sp.edit().putString("history", "").apply();
+                        findViewById(R.id.btnClsHistory).setVisibility(View.GONE);
+                    }
+                }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        dl = build.create();
 
         if(!sp.getString("history", "").equals("")){
             findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);

@@ -28,8 +28,7 @@
             android:noHistory="true" />
         <activity
             android:name=".chooseactions"
-            android:noHistory="true">
-        </activity>
+            android:noHistory="true"/>
         <activity
             android:name=".Updater"
             android:noHistory="true">

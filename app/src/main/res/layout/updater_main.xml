@@ -57,6 +57,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/forcls"
             android:onClick="clear_history"
             android:text="@string/cls_history"
             android:textAllCaps="false"
@@ -66,6 +67,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -78,8 +80,8 @@
 
         <ImageButton
             android:id="@+id/imgBtnVk"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:layout_weight="1"
             android:background="#F9F9F9"
             android:onClick="social"
@@ -88,8 +90,8 @@
 
         <ImageButton
             android:id="@+id/imgBtnInsta"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:layout_weight="1"
             android:background="#F9F9F9"
             android:onClick="social"
@@ -98,12 +100,42 @@
 
         <ImageButton
             android:id="@+id/imgBtnTw"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:layout_weight="1"
             android:background="#F9F9F9"
             android:onClick="social"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/twitter" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgBtnWeb"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="social"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
+        app:layout_constraintVertical_bias="0.227"
+        app:srcCompat="@drawable/website" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="©MaxSav Team, 2018-2019"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.99" />
 </android.support.constraint.ConstraintLayout>

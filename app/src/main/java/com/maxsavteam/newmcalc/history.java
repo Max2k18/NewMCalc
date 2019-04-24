@@ -75,7 +75,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         ArrayList< ArrayList<String> > str = new ArrayList<>();
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");
-        if(Objects.equals(his, "not")){
+        if(Objects.equals(his, "not") || Objects.requireNonNull(his).equals("")){
             setContentView(R.layout.history_notfound);
         }else{
             int i = 0;

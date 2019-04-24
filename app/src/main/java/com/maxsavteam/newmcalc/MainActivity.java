@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         try {
-            Thread.sleep(750);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
