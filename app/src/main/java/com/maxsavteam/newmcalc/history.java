@@ -1,25 +1,18 @@
 package com.maxsavteam.newmcalc;
 
 import android.content.SharedPreferences;
-import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class history extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
