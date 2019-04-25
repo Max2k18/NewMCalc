@@ -40,4 +40,5 @@
     <string name="cls_history">Очистить историю</string>
     <string name="confirm_cls_history">Вы действительно хотите очистить историю?</string>
     <string name="confirm">Подтверждение</string>
+    <string name="developer_in">Разработчик в</string>
 </resources>

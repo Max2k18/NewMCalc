@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 public class Updater extends AppCompatActivity {
 
@@ -79,13 +80,29 @@ public class Updater extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    String vk = "maksin.colf", insta = "maksin.colf/", facebook = "profile.php?id=100022307565005", tw = "maks_savitsky";
+    String vk = "maksin.colf", insta = "maksin.colf/", facebook = "profile.php?id=100022307565005", tw = "maks_savitsky", site = "maxsavteam.tk";
 
     ValueEventListener list = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            vk = dataSnapshot.getValue(String.class);
-            Toast.makeText(getApplicationContext(), vk, Toast.LENGTH_SHORT).show();
+            switch (Objects.requireNonNull(dataSnapshot.getKey())) {
+                case "vk":
+                    vk = dataSnapshot.getValue(String.class);
+                    break;
+                case "insta":
+                    insta = dataSnapshot.getValue(String.class);
+                    break;
+                case "twitter":
+                    tw = dataSnapshot.getValue(String.class);
+                    break;
+                case "facebook":
+                    facebook = dataSnapshot.getValue(String.class);
+                    break;
+                case "site":
+                    site = dataSnapshot.getValue(String.class);
+                    break;
+            }
+
         }
 
         @Override
@@ -105,7 +122,7 @@ public class Updater extends AppCompatActivity {
         }else if(v.getId() == R.id.imgBtnTw){
             in.setData(Uri.parse("https://twitter.com/" + tw));
         }else if(v.getId() == R.id.imgBtnWeb){
-            in.setData(Uri.parse("https://maxsavteam.tk/"));
+            in.setData(Uri.parse("https://" + site));
         }
         startActivity(in);
     }
@@ -173,6 +190,17 @@ public class Updater extends AppCompatActivity {
             new DownloadingTask().execute();
             return;
         }
+
+        DatabaseReference dbm = db.getReference("vk");
+        dbm.addValueEventListener(list);
+        dbm = db.getReference("insta");
+        dbm.addValueEventListener(list);
+        dbm = db.getReference("facebook");
+        dbm.addValueEventListener(list);
+        dbm = db.getReference("twitter");
+        dbm.addValueEventListener(list);
+        dbm = db.getReference("site");
+        dbm.addValueEventListener(list);
 
         String vercode = Integer.toString(BuildConfig.VERSION_CODE);
         ref.addValueEventListener(new ValueEventListener() {
