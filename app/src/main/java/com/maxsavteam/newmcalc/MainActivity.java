@@ -667,7 +667,7 @@ public class MainActivity extends AppCompatActivity {
         if(actions == 0){
             return;
         }else{
-            if(actions == 1 && (digits == 1 || digits == 0)){
+            if(!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0)){
                 return;
             }
         }
@@ -979,10 +979,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void equallu(String type){
-        TextView txt = findViewById(R.id.txtAns);
-        txt.setText("");
-        txt.setContentDescription("");
-        txt = findViewById(R.id.textStr);
+        TextView txt = findViewById(R.id.textStr);
         String stri = txt.getText().toString();
         int len = stri.length();
         if(len != 0 && stri.charAt(len-1) == '^' && type.equals("all")){
@@ -1355,8 +1352,6 @@ public class MainActivity extends AppCompatActivity {
     public void delall(View v){
         TextView t = findViewById(R.id.textStr);
         t.setText("");
-        t = findViewById(R.id.txtAns);
-        t.setText("");
         t = findViewById(R.id.textAns2);
         HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
         scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
@@ -1379,10 +1374,6 @@ public class MainActivity extends AppCompatActivity {
             text = text.substring(0, text.length()-1);
             txt.setText(text);
             equallu("not");
-        }
-        if(text.equals("")){
-            TextView ans = findViewById(R.id.txtAns);
-            ans.setText("");
         }
         if(txt.getText().toString().equals("")){
             t = findViewById(R.id.textAns2);
