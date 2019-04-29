@@ -48,4 +48,13 @@
     <string name="confirm_cls_history">Do you really want to clear the history?</string>
     <string name="confirm">Confirm</string>
     <string name="developer_in">Developer in</string>
+    <string name="dev_update">An update is available for testers. Would you like to download?</string>
+    <string name="get_builds_text">Do not want to join the team of application testers? You will receive new versions in which only error information will be collected. You can cancel the receipt of assemblies at any time in the settings.</string>
+    <string name="join">Join</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="stop_receive">Stop receiving test versions</string>
+    <string name="stop_receive_mes">Are you sure you want to stop receiving test builds? The version will remain the same with the next release of the stable version. You will return to the stable update branch. To become a tester again, you will have to reinstall the application or reset all application data.</string>
+    <string name="updateavail_tc">An update is available for testers</string>
+    <string name="report_problem">Report a problem</string>
+    <string name="donot_clear_info_email">Please do not erase the recorded information in the message. It is very important for us to understand where we look for a mistake (you can describe it in more detail)</string>
 </resources>

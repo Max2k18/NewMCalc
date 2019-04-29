@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc;
 
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -48,12 +50,14 @@ public class chooseactions extends AppCompatActivity {
         height = sp.getInt("btnHeight", 100);
         width = sp.getInt("btnWidth", 100);
         //setButtons();
-        getSupportActionBar().setTitle(getResources().getString(R.string.chooseaction));
         try{
+            getSupportActionBar().setTitle(getResources().getString(R.string.chooseaction));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch(Exception e){
-            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 

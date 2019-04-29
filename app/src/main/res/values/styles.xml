@@ -8,4 +8,14 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="RoundedButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="background">@drawable/btn_rounded</item>
+    </style>
+
+    <style name="btns" parent="Widget.AppCompat.Button">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/redbackground</item>
+    </style>
+
 </resources>

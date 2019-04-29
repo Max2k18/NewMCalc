@@ -6,6 +6,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.drm.DrmStore;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +39,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -68,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
     public String original = "";
     public int newvercode = 0;
     public String newVer = "\b";
+    AlertDialog dl, al;
+    public String newDevVer = "";
+
+    public int newCodeDev = 0;
+    public Integer versionSt = 0;
 
     @Override
     protected void onPause(){
@@ -217,6 +225,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings: {
                 resultIntent = new Intent(getApplicationContext(), Updater.class);
                 resultIntent.putExtra("action", "simple");
+                if(uptype.equals("simple"))
+                    resultIntent.putExtra("update_path", "/NewMCalc.apk");
+                else
+                    resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
                 startActivity(resultIntent);
                 overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
                 return true;
@@ -254,7 +266,72 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-    AlertDialog dl;
+
+    String uptype = "simple";
+
+    protected void sh_dl_update(int versionMy, int versionNew, String newver, String text, boolean compileWithView){
+        View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
+        CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
+        //mcheck.setOnClickListener(forcheck);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.updateavail)
+                .setMessage(text
+                        + "\n\n" + getResources().getString(R.string.version) + " " + newver + "\n"
+                        + getResources().getString(R.string.build) + " " + versionNew)
+                .setCancelable(false)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        if(mcheck.isChecked()){
+                            sp.edit().putInt("notremindfor", versionNew).apply();
+                        }
+                    }
+                })
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        File file = new File(Environment.getExternalStorageDirectory() + "/" + "MST files/NewMCalc " + newver + ".apk");
+                        if(file.exists()){
+                            if(uptype.equals("simple")){
+                                Intent promptInstall = new Intent(Intent.ACTION_VIEW)
+                                        .setDataAndType(Uri.parse("file://" + file.getPath()),
+                                                "application/vnd.android.package-archive");
+                                startActivity(promptInstall);
+                            }
+                        }else{
+                            Intent in = new Intent(getApplicationContext(), Updater.class);
+                            in.putExtra("action", "update");
+                            if(uptype.equals("dev"))
+                                in.putExtra("update_path", "/forTesters/NewMCalc.apk");
+                            else
+                                in.putExtra("update_path", "/NewMCalc.apk");
+                            startActivity(in);
+                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+                        }
+                    }
+                });
+        if(compileWithView)
+            builder.setView(mView);
+        al = builder.create();
+    }
+
+    protected void check_up(Integer versionMy, Integer versionNew){
+        if(versionNew < newCodeDev && versionMy < newCodeDev){
+            sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
+            uptype = "dev";
+            al.show();
+        }else if(versionNew > versionMy && (versionNew == newCodeDev || newCodeDev == 0)){
+            if(sp.getInt("notremindfor", 0) != versionNew) {
+                uptype = "simple";
+                sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
+                al.show();
+            }
+        }
+    }
+
+
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -268,7 +345,13 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnLongClickListener(returnback);
         Button btn2 = findViewById(R.id.btnZero);
         //FirebaseApp.initializeApp(this);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+        try{
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }catch (Exception e){
+            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+        }
+
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         btn1.setWidth(btn2.getWidth());
         btn1.setHeight(btn2.getHeight());
@@ -308,71 +391,68 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
             }
         });
+
+        DatabaseReference ref = db.getReference("versionCode");
+
+        DatabaseReference refdev = db.getReference("dev/versionCodeDev");
+        DatabaseReference refdevver = db.getReference("dev/versionDev");
+
+        if(sp.getBoolean("isdev", false)){
+            refdevver.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    newDevVer = dataSnapshot.getValue(String.class);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1250);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        DatabaseReference ref = db.getReference("versionCode");
+
+
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot){
-                String value = dataSnapshot.getValue().toString();
+                Long value = dataSnapshot.getValue(Long.class);
                 Integer versionMy = Integer.valueOf(vercode);
-                Integer versionNew = Integer.valueOf(value);
-                if(sp.getInt("notremindfor", 0) != versionNew){
-                    if(versionNew > versionMy){
-                    /*if(!isOtherActivityOpened)
-                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.pleaseupdate),
-                                Toast.LENGTH_LONG).show();*/
-                        View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
-                        CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
-                        //mcheck.setOnClickListener(forcheck);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(R.string.updateavail)
-                                .setMessage(getResources().getString(R.string.updateavailable)
-                                        + "\n\n" + getResources().getString(R.string.version) + " " + newVer + "\n"
-                                        + getResources().getString(R.string.build) + " " + versionNew)
-                                .setCancelable(false)
-                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                        if(mcheck.isChecked()){
-                                            sp.edit().putInt("notremindfor", versionNew).apply();
-                                        }
-                                    }
-                                })
-                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.cancel();
-                                        File file = new File(Environment.getExternalStorageDirectory() + "/" + "MST files/NewMCalc " + newVer + ".apk");
-                                        if(file.exists()){
-                                            Intent promptInstall = new Intent(Intent.ACTION_VIEW)
-                                                    .setDataAndType(Uri.parse("file://" + file.getPath()),
-                                                            "application/vnd.android.package-archive");
-                                            startActivity(promptInstall);
-                                        }else{
-                                            Intent in = new Intent(getApplicationContext(), Updater.class);
-                                            in.putExtra("action", "update");
-                                            startActivity(in);
-                                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                                        }
-                                    }
-                                });
-                        builder.setView(mView);
-                        AlertDialog al = builder.create();
-                        al.show();
-                    }
-                }
+                Integer versionNew = Integer.valueOf(String.valueOf(value));
+                versionSt = versionNew;
+                if (!sp.getBoolean("isdev", false))
+                    check_up(versionMy, versionNew);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
+                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_LONG).show();
             }
         });
+
+        if(sp.getBoolean("isdev", false)){
+            refdev.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String value = dataSnapshot.getValue().toString();
+                    //int versionMy = Integer.valueOf(vercode);
+                    newCodeDev = Integer.valueOf(value);
+                    Integer versionMy = Integer.valueOf(vercode);
+                    Integer versionNew = versionSt;
+                    check_up(versionMy, versionNew);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("firebase", "cancelled");
+                }
+            });
+        }
         FirebaseAnalytics fr = FirebaseAnalytics.getInstance(getApplicationContext());
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
@@ -962,7 +1042,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean isaction(char c){
-        return c == '+' || c == '-'
+        return c == '+'
+                || c == '-'
                 || c == '/'
                 || c == '*'
                 || Character.toString(c).equals(getResources().getString(R.string.multiply))
@@ -1256,11 +1337,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        if(last == '!' && !btntxt.equals(".") && !btntxt.equals("!")){
+            t.setText(txt + btntxt);
+            equallu("not");
+            return;
+        }
+
         if(btntxt.equals(".")){
             if(txt.equals(""))
                 t.setText("0.");
             else
-            if(!isdigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.')
+            if(!isdigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
                 t.setText(txt + "0.");
             else
                 check_dot();

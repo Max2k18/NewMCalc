@@ -7,151 +7,201 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="395dp"
-        android:layout_height="715dp"
+        android:id="@+id/layoutUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="6dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
+
+        <TextView
+            android:id="@+id/txtUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/updateavail"
+            android:textColor="@android:color/black"
+            android:textSize="24sp" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:onClick="update"
+            app:srcCompat="@drawable/update" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center"
+        android:layout_weight="0.5"
+        android:gravity="bottom|center_horizontal"
         android:orientation="vertical"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.99">
+
+        <TextView
+            android:id="@+id/txtDeveloperIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/developer_in"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
 
         <LinearLayout
-            android:id="@+id/layoutUpdate"
-            android:layout_width="match_parent"
+            android:id="@+id/linearLayout5"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/txtUpdate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/updateavail"
-                android:textAlignment="center"
-                android:textColor="@android:color/black"
-                android:textSize="24sp" />
+            <ImageButton
+                android:id="@+id/imgBtnVk"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:background="#F9F9F9"
+                android:onClick="social"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/vk" />
 
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:onClick="update"
-                app:srcCompat="@drawable/update" />
+            <ImageButton
+                android:id="@+id/imgBtnInsta"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:background="#F9F9F9"
+                android:onClick="social"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/instagram" />
 
-            <TextView
-                android:id="@+id/indent2"
-                android:layout_width="79dp"
-                android:layout_height="20dp" />
+            <ImageButton
+                android:id="@+id/imgBtnTw"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_weight="1"
+                android:background="#F9F9F9"
+                android:onClick="social"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/twitter" />
 
         </LinearLayout>
 
         <Button
-            android:id="@+id/btnClsHistory"
+            android:id="@+id/btnReport"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/forcls"
+            android:onClick="report"
+            android:text="@string/report_problem" />
+
+        <ImageView
+            android:id="@+id/imgBtnWeb"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:onClick="social"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.157"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/website" />
+
+        <TextView
+            android:id="@+id/txtxCopyRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="©MaxSav Team, 2018-2019"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.506"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.99" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center|center_horizontal|center_vertical"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.96">
+
+        <Button
+            android:id="@+id/btnClsHistory"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/btn_rounded"
+            android:backgroundTint="@color/forcls"
             android:onClick="clear_history"
             android:text="@string/cls_history"
             android:textAllCaps="false"
+            android:textColor="@color/black"
             android:textSize="18sp"
-            android:visibility="gone" />
+            android:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnStopReceive"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="72dp"
+            android:layout_marginEnd="72dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/btn_rounded"
+            android:backgroundTint="@color/redbackground"
+            android:onClick="stop_receive"
+            android:text="@string/stop_receive"
+            android:textColor="@color/white"
+            android:visibility="invisible" />
+
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/developer_in"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.79">
-
-        <ImageButton
-            android:id="@+id/imgBtnVk"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_weight="1"
-            android:background="#F9F9F9"
-            android:onClick="social"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/vk" />
-
-        <ImageButton
-            android:id="@+id/imgBtnInsta"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_weight="1"
-            android:background="#F9F9F9"
-            android:onClick="social"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/instagram" />
-
-        <ImageButton
-            android:id="@+id/imgBtnTw"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_weight="1"
-            android:background="#F9F9F9"
-            android:onClick="social"
-            android:scaleType="centerInside"
-            app:srcCompat="@drawable/twitter" />
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/imgBtnWeb"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:onClick="social"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
-        app:layout_constraintVertical_bias="0.227"
-        app:srcCompat="@drawable/website" />
-
-    <TextView
-        android:id="@+id/txtxCopyRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="©MaxSav Team, 2018-2019"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.99" />
 </android.support.constraint.ConstraintLayout>

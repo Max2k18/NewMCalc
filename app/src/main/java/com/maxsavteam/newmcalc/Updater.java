@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -49,6 +50,7 @@ public class Updater extends AppCompatActivity {
     String file_url_path = "http://maxsavteam.tk/apk/NewMCalc.apk";
 
     SharedPreferences sp;
+    AlertDialog deval;
 
     String newversion;
     File outputFile = null;
@@ -113,6 +115,18 @@ public class Updater extends AppCompatActivity {
 
     AlertDialog dl;
 
+
+    View.OnClickListener notJoin = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            //findViewById(R.id.layDev).setVisibility(View.GONE);
+            sp.edit().putBoolean("show_laydev", false).apply();
+            deval.cancel();
+        }
+    };
+
+
+
     public void social(View v){
         Intent in = new Intent(Intent.ACTION_VIEW);
         if(v.getId() == R.id.imgBtnVk){
@@ -131,19 +145,128 @@ public class Updater extends AppCompatActivity {
         dl.show();
     }
 
+    View.OnLongClickListener show_join = new View.OnLongClickListener(){
+        @Override
+        public boolean onLongClick(View v){
+            sp.edit().remove("stop_receive_all").apply();
+            sp.edit().remove("show_laydev").apply();
+            Toast.makeText(getApplicationContext(), "You can join to testers community", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+    };
+
+    View.OnClickListener join = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            /*setContentView(R.layout.layout_updater);
+            TextView t = findViewById(R.id.txtDownloading);
+            t.setText(R.string.please_wait);*/
+            sp.edit().putBoolean("isdev", true).apply();
+            /*try{
+                Thread.sleep(1500);
+            }catch(Exception e){
+                e.printStackTrace();
+            }*/
+            setContentView(R.layout.updater_main);
+            //findViewById(R.id.layDev).setVisibility(View.GONE);
+            sp.edit().putBoolean("show_laydev", false).apply();
+            findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
+            deval.cancel();
+            Toast.makeText(getApplicationContext(), "Now you are a tester!\nTo apply the settings, restart the application.", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    AlertDialog report_al;
+    Intent send = new Intent(Intent.ACTION_SEND);
+
+    public void report(View v){
+        send.putExtra(Intent.EXTRA_EMAIL, "maxsavsu@gmail.com");
+        send.putExtra(Intent.EXTRA_SUBJECT, "Problem in New MCalc");
+        send.putExtra(Intent.EXTRA_TEXT, "[" + BuildConfig.VERSION_NAME + "," + BuildConfig.VERSION_CODE + "]\nProblem:\n");
+        send.setType("message/rfc822");
+        report_al.show();
+        //Toast.makeText(getApplicationContext(), R.string.donot_clear_info_email, Toast.LENGTH_LONG).show();
+    }
+
+    public void stop_receive(View v){
+        AlertDialog.Builder build = new AlertDialog.Builder(Updater.this);
+        build.setTitle(R.string.confirm)
+                .setMessage(R.string.stop_receive_mes)
+                .setCancelable(false)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //findViewById(R.id.layDev).setVisibility(View.GONE);
+                        sp.edit().putBoolean("show_laydev", false).apply();
+                        sp.edit().putBoolean("isdev", false).apply();
+                        sp.edit().putBoolean("stop_receive_all", true).apply();
+                        findViewById(R.id.btnStopReceive).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.layoutUpdate).setVisibility(View.INVISIBLE);
+                    }
+                });
+        AlertDialog dialog = build.create();
+        dialog.show();
+    }
+
+    String up_path = "";
+    String up_type = "simple", newDevVer = "";
+    int newCodeDev = 0;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.updater_main);
         getSupportActionBar().setTitle(getResources().getString(R.string.settings));
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        findViewById(R.id.imgBtnWeb).setOnLongClickListener(show_join);
+
+        if(sp.getBoolean("isdev", false)){
+            if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
+                findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
+            //findViewById(R.id.layDev).setVisibility(View.GONE);
+        }else{
+            if(sp.getBoolean("show_laydev", true)){
+                View mView = getLayoutInflater().inflate(R.layout.join_testers, null);
+                mView.findViewById(R.id.btnNotJoin).setOnClickListener(notJoin);
+                mView.findViewById(R.id.btnGetBuilds).setOnClickListener(join);
+                AlertDialog.Builder builddev = new AlertDialog.Builder(this);
+                builddev.setView(mView).setCancelable(false);
+                deval = builddev.create();
+                deval.show();
+            }
+        }
        // StrictMode.enableDefaults();
         try{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
         }
+        DatabaseReference devCode = db.getReference("dev/versionCodeDev");
+        DatabaseReference devVer = db.getReference("dev/versionDev");
+
+
+        if(sp.getBoolean("isdev", false)){
+            devVer.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    newDevVer = dataSnapshot.getValue(String.class);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
         refCount.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -165,7 +288,7 @@ public class Updater extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                         sp.edit().putString("history", "").apply();
-                        findViewById(R.id.btnClsHistory).setVisibility(View.GONE);
+                        findViewById(R.id.btnClsHistory).setVisibility(View.INVISIBLE);
                     }
                 }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
@@ -174,6 +297,15 @@ public class Updater extends AppCompatActivity {
                     }
                 });
         dl = build.create();
+        build = new AlertDialog.Builder(this);
+        build.setCancelable(true).setMessage(R.string.donot_clear_info_email).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                startActivity(Intent.createChooser(send, "Choose email client"));
+            }
+        });
+        report_al = build.create();
 
         if(!sp.getString("history", "").equals("")){
             findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);
@@ -190,18 +322,41 @@ public class Updater extends AppCompatActivity {
             new DownloadingTask().execute();
             return;
         }
+        up_path = action.getStringExtra("update_path");
 
-        DatabaseReference dbm = db.getReference("vk");
+        DatabaseReference dbm = db.getReference("links/vk");
         dbm.addValueEventListener(list);
-        dbm = db.getReference("insta");
+        dbm = db.getReference("links/insta");
         dbm.addValueEventListener(list);
-        dbm = db.getReference("facebook");
+        dbm = db.getReference("links/facebook");
         dbm.addValueEventListener(list);
-        dbm = db.getReference("twitter");
+        dbm = db.getReference("links/twitter");
         dbm.addValueEventListener(list);
-        dbm = db.getReference("site");
+        dbm = db.getReference("links/site");
         dbm.addValueEventListener(list);
 
+        if (sp.getBoolean("isdev", false)){
+            devCode.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String value = dataSnapshot.getValue().toString();
+                    //int versionMy = Integer.valueOf(vercode);
+                    newCodeDev = Integer.valueOf(value);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        if(sp.getBoolean("isdev", false)){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         String vercode = Integer.toString(BuildConfig.VERSION_CODE);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -209,9 +364,19 @@ public class Updater extends AppCompatActivity {
                 String value = dataSnapshot.getValue().toString();
                 Integer versionMy = Integer.valueOf(vercode);
                 Integer versionNew = Integer.valueOf(value);
-                if(versionNew > versionMy){
+                TextView up = findViewById(R.id.txtUpdate);
+                if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
+                    up_type = "simple";
+                    up_path = "/NewMCalc.apk";
                     LinearLayout l = findViewById(R.id.layoutUpdate);
                     l.setVisibility(LinearLayout.VISIBLE);
+                    up.setText(R.string.updateavail);
+                }else if(versionNew < newCodeDev && versionMy < newCodeDev){
+                    up_type = "dev";
+                    up_path = "/forTesters/NewMCalc.apk";
+                    LinearLayout l = findViewById(R.id.layoutUpdate);
+                    l.setVisibility(LinearLayout.VISIBLE);
+                    up.setText(R.string.updateavail_tc);
                 }
             }
 
@@ -297,7 +462,7 @@ public class Updater extends AppCompatActivity {
                 if(permissionStatus == PackageManager.PERMISSION_GRANTED){
                     boolean success = false;
                     //That is url file you want to download
-                    URL url = new URL("https://maxsavteam.tk/apk/NewMCalc.apk");
+                    URL url = new URL("https://maxsavteam.tk/apk" + up_path);
                     HttpURLConnection c = (HttpURLConnection) url.openConnection();
                     c.setRequestMethod("GET");
                     c.connect();
