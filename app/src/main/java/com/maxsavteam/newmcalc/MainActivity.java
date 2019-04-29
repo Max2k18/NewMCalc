@@ -603,8 +603,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
             ans = BigDecimal.valueOf(ansd);
-
-            ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+            if(!ans.equals(BigDecimal.valueOf(0.0)))
+                ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
 
             String answer = ans.toString();
             int len = answer.length();
