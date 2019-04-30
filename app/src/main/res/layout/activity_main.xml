@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="22dp"
+        android:layout_marginEnd="54dp"
         android:layout_marginBottom="8dp"
         android:animateLayoutChanges="true"
         android:animationCache="true"
@@ -75,7 +75,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
                 android:layout_marginBottom="8dp"
                 android:scrollbarSize="0dp"
                 android:scrollbars="none"
@@ -124,11 +123,11 @@
 
             <Button
                 android:id="@+id/btnDelAll"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0.3"
-                android:background="@color/black"
+                android:backgroundTint="@color/black"
                 android:onClick="delall"
                 android:text="C"
                 android:textColor="@android:color/background_light"
@@ -141,7 +140,7 @@
                 android:id="@+id/btnActions"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0.3"
                 android:onClick="gotoactions"
                 android:text="@string/threedots"
@@ -342,7 +341,7 @@
         <TableRow
             android:id="@+id/tblR4"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="0.2"
             android:gravity="center"
             android:orientation="horizontal">
@@ -373,13 +372,14 @@
 
             <Button
                 android:id="@+id/btnCalc"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:background="@android:color/holo_orange_dark"
+                android:backgroundTint="@android:color/holo_orange_dark"
                 android:onClick="call_equally"
                 android:text="="
+                android:textColor="@color/black"
                 android:textSize="30sp"
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />

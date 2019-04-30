@@ -77,12 +77,12 @@
 
         <LinearLayout
             android:id="@+id/layoutLinear"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.8"
             android:gravity="center"
             android:orientation="horizontal"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:weightSum="0.5">
 
             <TextView
                 android:id="@+id/txtAnswer"
@@ -109,9 +109,10 @@
 
         <Button
             android:id="@+id/btnGen"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/forgenbtn"
+            android:backgroundTint="@color/forgenbtn"
             android:onClick="generate"
             android:text="@string/generate"
             android:textAlignment="center"

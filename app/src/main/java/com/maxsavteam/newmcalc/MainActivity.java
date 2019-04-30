@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -322,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
             sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
             uptype = "dev";
             al.show();
-        }else if(versionNew > versionMy && (versionNew == newCodeDev || newCodeDev == 0)){
+        }else if(versionNew > versionMy && versionNew >= newCodeDev){
             if(sp.getInt("notremindfor", 0) != versionNew) {
                 uptype = "simple";
                 sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
@@ -378,6 +379,28 @@ public class MainActivity extends AppCompatActivity {
         dl = builder.create();
 
         String vercode = Integer.toString(BuildConfig.VERSION_CODE);
+
+        if(sp.getBoolean("saveResult", false)){
+            if(!sp.getString("saveResultText", "none").equals("none")){
+                String text = sp.getString("saveResultText", "none");
+                int i = 0;
+                String ex = "", ans = "";
+                while(i < text.length() && text.charAt(i) != ';'){
+                    ex += text.charAt(i);
+                    i++;
+                }
+                ver = findViewById(R.id.textAns2);
+                ver.setText(ex);
+                i++;
+                while(i < text.length() && text.charAt(i) != ';'){
+                    ans += text.charAt(i);
+                    i++;
+                }
+                ver = findViewById(R.id.textStr);
+                ver.setText(ans);
+                ver.setSelected(false);
+            }
+        }
 
         refVer.addValueEventListener(new ValueEventListener() {
             @Override
@@ -1024,7 +1047,8 @@ public class MainActivity extends AppCompatActivity {
                 if(his.indexOf(original + "," + s1.peek().toString() + ";") != 0)
                     his = original + "," + s1.peek().toString() + ";" + his;
                 sp.edit().putString("history", his).apply();
-
+                if(sp.getBoolean("saveResult", false))
+                    sp.edit().putString("saveResultText", original + ";" + s1.peek().toString()).apply();
             }else if(type.equals("not")){
                 TextView preans = findViewById(R.id.textAns2);
                 preans.setText(s1.peek().toString());

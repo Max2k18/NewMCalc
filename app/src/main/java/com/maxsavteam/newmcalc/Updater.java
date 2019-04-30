@@ -17,10 +17,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -127,20 +129,22 @@ public class Updater extends AppCompatActivity {
 
 
 
-    public void social(View v){
-        Intent in = new Intent(Intent.ACTION_VIEW);
-        if(v.getId() == R.id.imgBtnVk){
-            in.setData(Uri.parse("https://vk.com/" + vk));
-        }else if(v.getId() == R.id.imgBtnInsta){
-            in.setData(Uri.parse("https://instagram.com/" + insta));
-        }else if(v.getId() == R.id.imgBtnTw){
-            in.setData(Uri.parse("https://twitter.com/" + tw));
-        }else if(v.getId() == R.id.imgBtnWeb){
-            in.setData(Uri.parse("https://" + site));
+    View.OnClickListener social = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent in = new Intent(Intent.ACTION_VIEW);
+            if(v.getId() == R.id.imgBtnVk){
+                in.setData(Uri.parse("https://vk.com/" + vk));
+            }else if(v.getId() == R.id.imgBtnInsta){
+                in.setData(Uri.parse("https://instagram.com/" + insta));
+            }else if(v.getId() == R.id.imgBtnTw){
+                in.setData(Uri.parse("https://twitter.com/" + tw));
+            }else if(v.getId() == R.id.imgBtnWeb){
+                in.setData(Uri.parse("https://" + site));
+            }
+            startActivity(in);
         }
-        startActivity(in);
-    }
-
+    };
     public void clear_history(View v){
         dl.show();
     }
@@ -214,6 +218,27 @@ public class Updater extends AppCompatActivity {
         dialog.show();
     }
 
+    public void switchSave(View v){
+        Switch sw = findViewById(R.id.switchSaveOnExit);
+        sp.edit().putBoolean("saveResult", sw.isChecked()).apply();
+        if(sw.isChecked()){
+            sw.setText(R.string.switchSaveOn);
+        }else{
+            sw.setText(R.string.switchSaveOff);
+            sp.edit().remove("saveResult").apply();
+        }
+    }
+    View mv;
+
+    public void sh_about_dev(View v){
+        AlertDialog.Builder build = new AlertDialog.Builder(this);
+        build.setCancelable(true).setTitle(R.string.about_dev);
+        build.setView(mv);
+        AlertDialog d = build.create();
+        LinearLayout ll = mv.findViewById(R.id.linearLayout8);
+        d.show();
+    }
+
     String up_path = "";
     String up_type = "simple", newDevVer = "";
     int newCodeDev = 0;
@@ -223,7 +248,12 @@ public class Updater extends AppCompatActivity {
         setContentView(R.layout.updater_main);
         getSupportActionBar().setTitle(getResources().getString(R.string.settings));
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        findViewById(R.id.imgBtnWeb).setOnLongClickListener(show_join);
+        //findViewById(R.id.imgBtnWeb).setOnLongClickListener(show_join);
+        mv =  getLayoutInflater().inflate(R.layout.about_developer, null);
+        mv.findViewById(R.id.imgBtnWeb).setOnLongClickListener(show_join);
+        mv.findViewById(R.id.imgBtnInsta).setOnClickListener(social);
+        mv.findViewById(R.id.imgBtnTw).setOnClickListener(social);
+        mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
 
         if(sp.getBoolean("isdev", false)){
             if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
@@ -241,6 +271,13 @@ public class Updater extends AppCompatActivity {
             }
         }
        // StrictMode.enableDefaults();
+        Switch sw = findViewById(R.id.switchSaveOnExit);
+        sw.setChecked(sp.getBoolean("saveResult", false));
+        if(sw.isChecked()){
+            sw.setText(R.string.switchSaveOn);
+        }else{
+            sw.setText(R.string.switchSaveOff);
+        }
         try{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
