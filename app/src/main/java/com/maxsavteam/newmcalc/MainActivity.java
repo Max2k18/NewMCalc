@@ -302,12 +302,18 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(promptInstall);
                             }
                         }else{
-                            Intent in = new Intent(getApplicationContext(), Updater.class);
+                            Intent in = new Intent(MainActivity.this, Updater.class);
                             in.putExtra("action", "update");
-                            if(uptype.equals("dev"))
+                            in.putExtra("upVerName", newDevVer);
+                            if(uptype.equals("dev")){
+                                in.putExtra("upVerName", newDevVer);
                                 in.putExtra("update_path", "/forTesters/NewMCalc.apk");
-                            else
+                            }
+                            else{
+                                in.putExtra("upVerName", newver);
                                 in.putExtra("update_path", "/NewMCalc.apk");
+                            }
+
                             startActivity(in);
                             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
                         }
@@ -341,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
         btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
         TextView ver = findViewById(R.id.lblVer);
-        ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE);
+        ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
         Button btn1 = findViewById(R.id.btnCalc);
         btn1.setOnLongClickListener(returnback);
         Button btn2 = findViewById(R.id.btnZero);
@@ -1491,6 +1497,7 @@ public class MainActivity extends AppCompatActivity {
             HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
             scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
             t.setText("");
+            sp.edit().remove("saveResultText").apply();
         }
     }
 

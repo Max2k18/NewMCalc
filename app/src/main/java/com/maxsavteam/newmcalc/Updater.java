@@ -192,6 +192,8 @@ public class Updater extends AppCompatActivity {
         //Toast.makeText(getApplicationContext(), R.string.donot_clear_info_email, Toast.LENGTH_LONG).show();
     }
 
+    Intent action;
+
     public void stop_receive(View v){
         AlertDialog.Builder build = new AlertDialog.Builder(Updater.this);
         build.setTitle(R.string.confirm)
@@ -239,7 +241,7 @@ public class Updater extends AppCompatActivity {
         d.show();
     }
 
-    String up_path = "";
+    String up_path = "", up_ver = "";
     String up_type = "simple", newDevVer = "";
     int newCodeDev = 0;
 
@@ -347,81 +349,86 @@ public class Updater extends AppCompatActivity {
         if(!sp.getString("history", "").equals("")){
             findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);
         }
-        Intent action = getIntent();
-        if(action.getStringExtra("action").equals("update")){
+
+        action = getIntent();
+        up_path = action.getStringExtra("update_path");
+        up_ver = action.getStringExtra("upVerName");
+        if(action.getStringExtra("action").equals("update")) {
             setContentView(R.layout.layout_updater);
             downloading = true;
-            try{
+            try {
                 Thread.sleep(250);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             new DownloadingTask().execute();
-            return;
-        }
-        up_path = action.getStringExtra("update_path");
+            //return;
+        }else{
+            DatabaseReference dbm = db.getReference("links/vk");
+            dbm.addValueEventListener(list);
+            dbm = db.getReference("links/insta");
+            dbm.addValueEventListener(list);
+            dbm = db.getReference("links/facebook");
+            dbm.addValueEventListener(list);
+            dbm = db.getReference("links/twitter");
+            dbm.addValueEventListener(list);
+            dbm = db.getReference("links/site");
+            dbm.addValueEventListener(list);
 
-        DatabaseReference dbm = db.getReference("links/vk");
-        dbm.addValueEventListener(list);
-        dbm = db.getReference("links/insta");
-        dbm.addValueEventListener(list);
-        dbm = db.getReference("links/facebook");
-        dbm.addValueEventListener(list);
-        dbm = db.getReference("links/twitter");
-        dbm.addValueEventListener(list);
-        dbm = db.getReference("links/site");
-        dbm.addValueEventListener(list);
+            if (sp.getBoolean("isdev", false)){
+                devCode.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        newCodeDev = dataSnapshot.getValue(Integer.TYPE);
+                    }
 
-        if (sp.getBoolean("isdev", false)){
-            devCode.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+            if(sp.getBoolean("isdev", false)){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            String vercode = Integer.toString(BuildConfig.VERSION_CODE);
+            ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String value = dataSnapshot.getValue().toString();
-                    //int versionMy = Integer.valueOf(vercode);
-                    newCodeDev = Integer.valueOf(value);
+                    Integer versionMy = Integer.valueOf(vercode);
+                    Integer versionNew = Integer.valueOf(value);
+                    TextView up = findViewById(R.id.txtUpdate);
+                    if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
+                        up_type = "simple";
+                        up_path = "/NewMCalc.apk";
+                        up_ver = newversion;
+                        LinearLayout l = findViewById(R.id.layoutUpdate);
+                        l.setVisibility(LinearLayout.VISIBLE);
+                        up.setText(R.string.updateavail);
+                    }else if(versionNew < newCodeDev && versionMy < newCodeDev){
+                        up_type = "dev";
+                        up_path = "/forTesters/NewMCalc.apk";
+                        up_ver = newDevVer;
+                        LinearLayout l = findViewById(R.id.layoutUpdate);
+                        l.setVisibility(LinearLayout.VISIBLE);
+                        up.setText(R.string.updateavail_tc);
+                    }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                    Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
                 }
             });
         }
-        if(sp.getBoolean("isdev", false)){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        String vercode = Integer.toString(BuildConfig.VERSION_CODE);
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue().toString();
-                Integer versionMy = Integer.valueOf(vercode);
-                Integer versionNew = Integer.valueOf(value);
-                TextView up = findViewById(R.id.txtUpdate);
-                if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
-                    up_type = "simple";
-                    up_path = "/NewMCalc.apk";
-                    LinearLayout l = findViewById(R.id.layoutUpdate);
-                    l.setVisibility(LinearLayout.VISIBLE);
-                    up.setText(R.string.updateavail);
-                }else if(versionNew < newCodeDev && versionMy < newCodeDev){
-                    up_type = "dev";
-                    up_path = "/forTesters/NewMCalc.apk";
-                    LinearLayout l = findViewById(R.id.layoutUpdate);
-                    l.setVisibility(LinearLayout.VISIBLE);
-                    up.setText(R.string.updateavail_tc);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-            }
-        });
+
+
     }
 
     public void installupdate(String path){
@@ -516,7 +523,7 @@ public class Updater extends AppCompatActivity {
                         success = true;
                     }
                     if(success){
-                        outputFile = new File(apkStorage, "/NewMCalc " + newversion + ".apk");
+                        outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
 
                         if (!outputFile.exists()) {
                             success = outputFile.createNewFile();

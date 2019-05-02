@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
     signingConfigs {
@@ -30,8 +31,9 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 22
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        versionCode 37
-        versionName "0.9.3.alpha_tc"
+        versionCode 38
+        versionName "0.9.4.alpha"
+        buildConfigField "int", "COMPILENAME", "190502"
     }
     buildTypes {
         release {
@@ -57,6 +59,7 @@ android {
 dependencies {
     //implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-perf:16.2.5'
     implementation 'com.google.firebase:firebase-inappmessaging-display:17.1.1'
     implementation 'com.google.firebase:firebase-inappmessaging:17.1.1'
     //noinspection GradleCompatible
