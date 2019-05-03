@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
-                        finish();
+                        finishAndRemoveTask();
                         overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
                     }
                 });
@@ -373,7 +373,10 @@ public class MainActivity extends AppCompatActivity {
         View view = getLayoutInflater().inflate(R.layout.about_layout, null);
         builder.setCancelable(false)
                 .setTitle(R.string.about)
-                .setMessage(getResources().getString(R.string.about_text) + "\n\n" + "©" + "MaxSav Team, 2018-2019")
+                .setMessage(getResources().getString(R.string.about_text)
+                        + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
+                        + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE
+                        + "\nCompileName:" + BuildConfig.COMPILENAME + "\n\n" + "©" + "MaxSav Team, 2018-2019")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

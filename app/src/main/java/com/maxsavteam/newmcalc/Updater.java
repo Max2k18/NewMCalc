@@ -141,6 +141,8 @@ public class Updater extends AppCompatActivity {
                 in.setData(Uri.parse("https://twitter.com/" + tw));
             }else if(v.getId() == R.id.imgBtnWeb){
                 in.setData(Uri.parse("https://" + site));
+            }else if(v.getId() == R.id.btnImgMore){
+                in.setData(Uri.parse("https://" + site + "/Apps.m/"));
             }
             startActivity(in);
         }
@@ -256,6 +258,7 @@ public class Updater extends AppCompatActivity {
         mv.findViewById(R.id.imgBtnInsta).setOnClickListener(social);
         mv.findViewById(R.id.imgBtnTw).setOnClickListener(social);
         mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
+        mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
 
         if(sp.getBoolean("isdev", false)){
             if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))

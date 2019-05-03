@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "669428254565-p79m56jgj4a5oml28l23e08jc25ljaed.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maxsavteam.newmcalc",
+            "certificate_hash": "3de35663d0102ee176a03582099160bc8c2c293b"
+          }
+        },
+        {
           "client_id": "669428254565-kflgbltv4a4o8hrhm6e9kna3vqvd4i3g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -33,20 +41,13 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 2,
           "other_platform_oauth_client": [
             {
               "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
-        },
-        "ads_service": {
-          "status": 2
         }
       }
     }
