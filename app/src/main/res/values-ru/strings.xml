@@ -53,4 +53,7 @@
     <string name="switchSaveOff">Последний результат не будет сохраняться после закрытия приложения.</string>
     <string name="switchSaveOn">Последний результат будет сохраняться после закрытия приложения.</string>
     <string name="about_dev">О Разработчике</string>
+    <string name="update_avail_to_install">Обновление доступно для установки. Установить?</string>
+    <string name="installation">Установка</string>
+    <string name="cannot_update">Извините, но мы не можем выполнить обновление.</string>
 </resources>

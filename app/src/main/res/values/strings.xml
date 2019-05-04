@@ -60,4 +60,7 @@
     <string name="switchSaveOn">The last result will be saved after closing the application.</string>
     <string name="switchSaveOff">The last result will not be saved after closing the application.</string>
     <string name="about_dev">About Developer</string>
+    <string name="update_avail_to_install">The update is available for installation. Install?</string>
+    <string name="installation">Installation</string>
+    <string name="cannot_update">Sorry, but we cannot update.</string>
 </resources>

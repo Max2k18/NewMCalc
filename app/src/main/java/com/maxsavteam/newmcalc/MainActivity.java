@@ -3,8 +3,11 @@ package com.maxsavteam.newmcalc;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.drm.DrmStore;
@@ -302,20 +305,20 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(promptInstall);
                             }
                         }else{
-                            Intent in = new Intent(MainActivity.this, Updater.class);
+                            /*Intent in = new Intent(MainActivity.this, Updater.class);
                             in.putExtra("action", "update");
-                            in.putExtra("upVerName", newDevVer);
+                            in.putExtra("upVerName", newDevVer);*/
+
                             if(uptype.equals("dev")){
-                                in.putExtra("upVerName", newDevVer);
-                                in.putExtra("update_path", "/forTesters/NewMCalc.apk");
+                                /*in.putExtra("upVerName", newDevVer);
+                                in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
+                                ups.run("/forTesters/NewMCalc.apk", newDevVer);
                             }
                             else{
-                                in.putExtra("upVerName", newver);
-                                in.putExtra("update_path", "/NewMCalc.apk");
+                                /*in.putExtra("upVerName", newver);
+                                in.putExtra("update_path", "/NewMCalc.apk");*/
+                                ups.run("/NewMCalc.apk", newver);
                             }
-
-                            startActivity(in);
-                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
                         }
                     }
                 });
@@ -323,17 +326,20 @@ public class MainActivity extends AppCompatActivity {
             builder.setView(mView);
         al = builder.create();
     }
+    update_service ups;
 
     protected void check_up(Integer versionMy, Integer versionNew){
-        if(versionNew < newCodeDev && versionMy < newCodeDev){
-            sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
-            uptype = "dev";
-            al.show();
-        }else if(versionNew > versionMy && versionNew >= newCodeDev){
-            if(sp.getInt("notremindfor", 0) != versionNew) {
-                uptype = "simple";
-                sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
+        if(!ups.isupdating){
+            if(versionNew < newCodeDev && versionMy < newCodeDev){
+                sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
+                uptype = "dev";
                 al.show();
+            }else if(versionNew > versionMy && versionNew >= newCodeDev){
+                if(sp.getInt("notremindfor", 0) != versionNew) {
+                    uptype = "simple";
+                    sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
+                    al.show();
+                }
             }
         }
     }
@@ -352,12 +358,56 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnLongClickListener(returnback);
         Button btn2 = findViewById(R.id.btnZero);
         //FirebaseApp.initializeApp(this);
+        ups = new update_service(MainActivity.this);
         try{
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
+
+        update_service ups = new update_service(this);
+        BroadcastReceiver br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!isOtherActivityOpened){
+                    android.support.v7.app.AlertDialog.Builder b = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
+                    b.setCancelable(false)
+                            .setTitle(R.string.installation)
+                            .setMessage(R.string.update_avail_to_install)
+                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            ups.install();
+                        }
+                    });
+                    android.support.v7.app.AlertDialog inst = b.create();
+                    inst.show();
+                }
+            }
+        };
+        BroadcastReceiver brfail = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!isOtherActivityOpened){
+                    android.support.v7.app.AlertDialog.Builder b = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
+                    b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                }
+            }
+        };
+        registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
+        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
 
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         btn1.setWidth(btn2.getWidth());

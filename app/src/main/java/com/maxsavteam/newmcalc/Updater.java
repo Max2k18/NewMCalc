@@ -1,8 +1,11 @@
 package com.maxsavteam.newmcalc;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -246,7 +249,7 @@ public class Updater extends AppCompatActivity {
     String up_path = "", up_ver = "";
     String up_type = "simple", newDevVer = "";
     int newCodeDev = 0;
-
+    update_service ups;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.updater_main);
@@ -259,6 +262,44 @@ public class Updater extends AppCompatActivity {
         mv.findViewById(R.id.imgBtnTw).setOnClickListener(social);
         mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
         mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
+        ups = new update_service(this);
+        BroadcastReceiver br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AlertDialog.Builder b = new AlertDialog.Builder(Updater.this);
+                b.setCancelable(false)
+                        .setTitle(R.string.installation)
+                        .setMessage(R.string.update_avail_to_install)
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        ups.install();
+                    }
+                });
+                AlertDialog inst = b.create();
+                inst.show();
+            }
+        };
+        BroadcastReceiver brfail = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AlertDialog.Builder b = new AlertDialog.Builder(Updater.this);
+                b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+            }
+        };
+        registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
+        registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ". NEWMCALC_UPDATE_FAIL"));
 
         if(sp.getBoolean("isdev", false)){
             if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
@@ -364,7 +405,6 @@ public class Updater extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            new DownloadingTask().execute();
             //return;
         }else{
             DatabaseReference dbm = db.getReference("links/vk");
@@ -406,20 +446,22 @@ public class Updater extends AppCompatActivity {
                     Integer versionMy = Integer.valueOf(vercode);
                     Integer versionNew = Integer.valueOf(value);
                     TextView up = findViewById(R.id.txtUpdate);
-                    if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
-                        up_type = "simple";
-                        up_path = "/NewMCalc.apk";
-                        up_ver = newversion;
-                        LinearLayout l = findViewById(R.id.layoutUpdate);
-                        l.setVisibility(LinearLayout.VISIBLE);
-                        up.setText(R.string.updateavail);
-                    }else if(versionNew < newCodeDev && versionMy < newCodeDev){
-                        up_type = "dev";
-                        up_path = "/forTesters/NewMCalc.apk";
-                        up_ver = newDevVer;
-                        LinearLayout l = findViewById(R.id.layoutUpdate);
-                        l.setVisibility(LinearLayout.VISIBLE);
-                        up.setText(R.string.updateavail_tc);
+                    if(!ups.isupdating){
+                        if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
+                            up_type = "simple";
+                            up_path = "/NewMCalc.apk";
+                            up_ver = newversion;
+                            LinearLayout l = findViewById(R.id.layoutUpdate);
+                            l.setVisibility(LinearLayout.VISIBLE);
+                            up.setText(R.string.updateavail);
+                        }else if(versionNew < newCodeDev && versionMy < newCodeDev){
+                            up_type = "dev";
+                            up_path = "/forTesters/NewMCalc.apk";
+                            up_ver = newDevVer;
+                            LinearLayout l = findViewById(R.id.layoutUpdate);
+                            l.setVisibility(LinearLayout.VISIBLE);
+                            up.setText(R.string.updateavail_tc);
+                        }
                     }
                 }
 
@@ -434,131 +476,14 @@ public class Updater extends AppCompatActivity {
 
     }
 
-    public void installupdate(String path){
-        Intent promptInstall = new Intent(Intent.ACTION_VIEW)
-                .setDataAndType(Uri.parse("file://" + path),
-                        "application/vnd.android.package-archive");
-        startActivity(promptInstall);
-    }
-
     public void update(View v){
-        setContentView(R.layout.layout_updater);
-        downloading = true;
+        /*setContentView(R.layout.layout_updater);
+        downloading = true;*/
         try{
             Thread.sleep(250);
         }catch(Exception e){
             e.printStackTrace();
         }
-        new DownloadingTask().execute();
-    }
-
-    private class DownloadingTask extends AsyncTask<Void, Void, Void> {
-
-        File apkStorage = null;
-
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            try {
-                if (outputFile != null) {
-                    //Susses Download
-                    setContentView(R.layout.downloaded);
-                    Thread.sleep(1000);
-                    downloading = false;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Updater.this);
-                    builder.setTitle(R.string.succesful)
-                            .setMessage(getResources().getString(R.string.savedto) + " " + outputFile.getPath())
-                            .setCancelable(false)
-                            .setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-                    AlertDialog al = builder.create();
-                    al.show();
-                    installupdate(outputFile.getPath());
-                } else {
-                    //Failed Download
-                    downloading = false;
-                    setContentView(R.layout.downloaded);
-                    TextView t = findViewById(R.id.textViewDownloaded);
-                    t.setText(getResources().getString(R.string.downloaderr));
-                    ImageView img = (ImageView)findViewById(R.id.imageView);
-                    img.setImageResource(R.drawable.error);
-                    t = findViewById(R.id.textView3);
-                    t.setVisibility(View.INVISIBLE);
-                }
-            } catch (Exception e) {
-                Toast.makeText(Updater.this, "Download Failed", Toast.LENGTH_SHORT).show();
-            }
-
-            super.onPostExecute(result);
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            /*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            sp.edit().putInt("notremindfor", 0).apply();*/
-
-            try {
-                int permissionStatus = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-                if(permissionStatus == PackageManager.PERMISSION_GRANTED){
-                    boolean success = false;
-                    //That is url file you want to download
-                    URL url = new URL("https://maxsavteam.tk/apk" + up_path);
-                    HttpURLConnection c = (HttpURLConnection) url.openConnection();
-                    c.setRequestMethod("GET");
-                    c.connect();
-                    //Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
-                    //Creating Path
-                    apkStorage = new File(
-                            Environment.getExternalStorageDirectory().getPath() + "/"
-                                    + "MST files");
-
-                    if (!apkStorage.exists()) {
-                        //Create Folder From Path
-                        success = apkStorage.mkdir();
-                    }else{
-                        success = true;
-                    }
-                    if(success){
-                        outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
-
-                        if (!outputFile.exists()) {
-                            success = outputFile.createNewFile();
-                            Log.e("clipcodes", "File Created");
-                        }
-                        if(success){
-                            FileOutputStream fos = new FileOutputStream(outputFile);
-
-                            InputStream is = c.getInputStream();
-
-
-                            byte[] buffer = new byte[1024];
-                            int len1 = 0;
-                            while ((len1 = is.read(buffer)) != -1) {
-                                fos.write(buffer, 0, len1);
-                            }
-
-                            fos.close();
-                            is.close();
-                        }
-                    }else{
-                        Toast.makeText(getApplicationContext(), "Make dir error", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                //Path And Filename.type
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-            }
-
-            return null;
-        }
+        ups.run(up_path, up_ver);
     }
 }

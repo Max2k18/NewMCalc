@@ -1,5 +1,11 @@
 package com.maxsavteam.newmcalc;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
@@ -67,6 +73,46 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
         }
+
+        update_service ups = new update_service(this);
+        BroadcastReceiver br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AlertDialog.Builder b = new AlertDialog.Builder(history.this);
+                b.setCancelable(false)
+                        .setTitle(R.string.installation)
+                        .setMessage(R.string.update_avail_to_install)
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        ups.install();
+                    }
+                });
+                AlertDialog inst = b.create();
+                inst.show();
+            }
+        };
+        BroadcastReceiver brfail = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                AlertDialog.Builder b = new AlertDialog.Builder(history.this);
+                b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+            }
+        };
+        registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
+        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
+
         ArrayList< ArrayList<String> > str = new ArrayList<>();
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");

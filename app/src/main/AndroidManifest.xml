@@ -22,7 +22,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".history"
-            android:noHistory="true"/>
+            android:noHistory="true">
+            <!--intent-filter>
+                <action android:name="android.intent.action.NEWMCALC_UPDATE_SUC" />
+                <action android:name="android.intent.action.NEWMCALC_UPDATE_FAIL" />
+            </intent-filter-->
+        </activity>
         <activity
             android:name=".numgen" />
         <activity
@@ -33,6 +38,8 @@
             android:noHistory="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.NEWMCALC_UPDATE_SUC" />
+                <action android:name="android.intent.action.NEWMCALC_UPDATE_FAIL" />
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
