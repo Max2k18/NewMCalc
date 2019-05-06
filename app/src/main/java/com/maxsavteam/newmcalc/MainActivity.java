@@ -200,26 +200,51 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(R.string.exit)
-                .setMessage(R.string.areyousureexit)
-                .setCancelable(false)
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        finishAndRemoveTask();
-                        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                    }
-                });
-        AlertDialog al = builder.create();
-        al.show();
+    	if(ups.isup()){
+    		AlertDialog.Builder dialogal = new AlertDialog.Builder(this)
+				    .setTitle(R.string.confirm)
+				    .setMessage(R.string.confirm_exit_on_up)
+				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+						    dialog.cancel();
+					    }
+				    }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+						    dialog.cancel();
+						    if(ups.isup()){
+						    	ups.kill();
+						    }
+                            finishAndRemoveTask();
+                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+					    }
+				    });
+
+    		AlertDialog dal = dialogal.create();
+    		dal.show();
+	    }else{
+		    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		    builder.setTitle(R.string.exit)
+				    .setMessage(R.string.areyousureexit)
+				    .setCancelable(false)
+				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+						    dialog.cancel();
+					    }
+				    })
+				    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+						    dialog.cancel();
+						    finishAndRemoveTask();
+						    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+					    }
+				    });
+		    AlertDialog al = builder.create();
+		    al.show();
+	    }
         //super.onBackPressed();
     }
 
@@ -288,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
     update_service ups;
 
     protected void check_up(Integer versionMy, Integer versionNew){
-        if(!ups.isupdating){
+        if(!ups.isup()){
             if(versionNew < newCodeDev && versionMy < newCodeDev){
                 sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
                 uptype = "dev";
@@ -436,6 +461,7 @@ public class MainActivity extends AppCompatActivity {
         Button btn2 = findViewById(R.id.btnZero);
         //FirebaseApp.initializeApp(this);
         ups = new update_service(MainActivity.this);
+	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         try{
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -498,8 +524,33 @@ public class MainActivity extends AppCompatActivity {
         };
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
+        /*BroadcastReceiver btn_not = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                View mv = getLayoutInflater().inflate(R.layout.update_progress, null);
+                TextView all = mv.findViewById(R.id.txtAll);
+                all.setText(Integer.toString(ups.all) + " of " + Integer.toString(ups.bytes));
+                AlertDialog.Builder build = new AlertDialog.Builder(MainActivity.this);
+                build.setCancelable(false).setNegativeButton(R.string.stop, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ups.kill();
+                        dialog.cancel();
+                    }
+                }).setPositiveButton(R.string.hide, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog dialoge = build.create();
+	            dialoge.setView(mv);
+                dialoge.show();
+                //mv.findViewById(R.id.txtProgress).setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            }
+        };
+        registerReceiver(btn_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));*/
 
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         btn1.setWidth(btn2.getWidth());
         btn1.setHeight(btn2.getHeight());
         btn.setHeight(btn2.getHeight());

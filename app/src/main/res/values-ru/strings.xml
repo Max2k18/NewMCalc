@@ -60,4 +60,7 @@
     <string name="left">Слева</string>
     <string name="right">Справа</string>
     <string name="loc_of_btnadd">Выберите расположение кнопки для показа настроек, истории и т.д.</string>
+    <string name="confirm_exit_on_up">New MCalc обновляется. Хотите остановить обновление и закрыть приложение?</string>
+    <string name="stop">Остановить</string>
+    <string name="hide">Скрыть</string>
 </resources>

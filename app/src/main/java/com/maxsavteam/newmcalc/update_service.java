@@ -45,11 +45,12 @@ class update_service extends View{
     private Context mcon;
     private File apkStorage = null;
     private File outputFile = null;
-    private int bytes = 0;
+    public int bytes = 0;
 
     update_service(Context con){
         super(con);
         mcon = con;
+        isupdating = false;
     }
 
 
@@ -57,20 +58,33 @@ class update_service extends View{
     private String up_path = "";
     private Intent res = new Intent();
     private NotificationManager motman;
-    public boolean isupdating = false;
+    public boolean isupdating;
     private Intent inte;
     private PendingIntent pinte;
     private boolean tostop = false;
+    public int all = 0, cf = 0;
+    private SharedPreferences sp;
+    catch_service cs;
 
     public void kill(){
         tostop = true;
     }
 
+    public boolean isup(){
+        return false;
+    }
+
+    public void create_sp(SharedPreferences s){
+    	sp = s;
+    }
+
     public void run(String up_path0, String up_version){
         up_ver = up_version;
         up_path = up_path0;
-        inte = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
-        pinte = PendingIntent.getService(mcon, 0, inte, 0);
+        inte = new Intent(mcon, catch_service.class);
+        //inte.setData(Uri.parse(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
+        inte.putExtra("action", "NOT_BTN_PRESSED");
+        pinte = PendingIntent.getActivity(mcon, 0, inte, PendingIntent.FLAG_UPDATE_CURRENT);
         /*BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -78,7 +92,7 @@ class update_service extends View{
             }
         };
         mcon.registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));*/
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
+        sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference dbm = db.getReference("bytesCount");
         if(up_path.contains("forTesters")){
@@ -120,7 +134,7 @@ class update_service extends View{
             Notification not = build.build();
             motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
             motman.notify(1, not);
-            isupdating = true;
+            //cs.save_in_sp(true);
             new DownloadingTask().execute();
         }
 
@@ -139,7 +153,7 @@ class update_service extends View{
 
     private void onfail(){
         motman.cancel(1);
-        isupdating = false;
+        //cs.save_in_sp(false);
         res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL");
         mcon.sendBroadcast(res);
     }
@@ -147,14 +161,14 @@ class update_service extends View{
 
     private class DownloadingTask extends AsyncTask<Void, Void, Void> {
         String pr = "";
-        int all = 0, cf = 0;
 
-        protected void sh(int buffer){
+
+        private void sh(int buffer){
             all += buffer;
             NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
             cf = (int) all * 100;
             cf = cf / bytes;
-            builder.setProgress(100, cf, false).setContentText(cf + " of " + 100).setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
+            builder.setProgress(100, cf, false).setContentText(cf + "% of " + 100 + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
             //motman.cancelAll();
             motman.notify(1, builder.build());
         }
@@ -165,12 +179,14 @@ class update_service extends View{
             try {
                 if (outputFile != null) {
                     //Toast.makeText(mcon.getApplicationContext(), pr, Toast.LENGTH_LONG).show();
-                    motman.cancel(1);
-                    isupdating = false;
-                    res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
-                    //AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
-                    //al.show();
-                    mcon.sendBroadcast(res);
+                    if(!tostop){
+                        motman.cancel(1);
+                        //cs.save_in_sp(false);
+                        res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
+                        //AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
+                        //al.show();
+                        mcon.sendBroadcast(res);
+                    }
                 } else {
                     //Failed Download
                     onfail();
@@ -242,6 +258,9 @@ class update_service extends View{
                             is.close();
                             if(tostop){
                                 motman.cancelAll();
+                                if(outputFile.exists()){
+                                    outputFile.delete();
+                                }
                             }
                         }
                     }else{

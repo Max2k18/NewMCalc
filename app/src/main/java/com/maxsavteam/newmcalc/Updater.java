@@ -9,7 +9,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -250,6 +253,7 @@ public class Updater extends AppCompatActivity {
     String up_type = "simple", newDevVer = "";
     int newCodeDev = 0;
     update_service ups;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.updater_main);
@@ -263,6 +267,20 @@ public class Updater extends AppCompatActivity {
         mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
         mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
         ups = new update_service(this);
+        int loc = sp.getInt("btn_add_align", 0);
+        if(loc == 0){
+            Button l = findViewById(R.id.btnLeft);
+            btndr = l.getBackground();
+            l.setBackgroundColor(getResources().getColor(R.color.black));
+            l.setTextColor(getResources().getColor(R.color.white));
+            btnbl = l.getBackground();
+        }else if(loc == 1){
+            Button l = findViewById(R.id.btnRight);
+            btndr = l.getBackground();
+            l.setBackgroundColor(getResources().getColor(R.color.black));
+            l.setTextColor(getResources().getColor(R.color.white));
+            btnbl = l.getBackground();
+        }
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -271,11 +289,11 @@ public class Updater extends AppCompatActivity {
                         .setTitle(R.string.installation)
                         .setMessage(R.string.update_avail_to_install)
                         .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -296,6 +314,8 @@ public class Updater extends AppCompatActivity {
                         dialog.cancel();
                     }
                 });
+                AlertDialog inst = b.create();
+                inst.show();
             }
         };
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
@@ -316,7 +336,7 @@ public class Updater extends AppCompatActivity {
                 deval.show();
             }
         }
-       // StrictMode.enableDefaults();
+        // StrictMode.enableDefaults();
         Switch sw = findViewById(R.id.switchSaveOnExit);
         sw.setChecked(sp.getBoolean("saveResult", false));
         if(sw.isChecked()){
@@ -374,11 +394,11 @@ public class Updater extends AppCompatActivity {
                         findViewById(R.id.btnClsHistory).setVisibility(View.INVISIBLE);
                     }
                 }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
         dl = build.create();
         build = new AlertDialog.Builder(this);
         build.setCancelable(true).setMessage(R.string.donot_clear_info_email).setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -446,7 +466,7 @@ public class Updater extends AppCompatActivity {
                     Integer versionMy = Integer.valueOf(vercode);
                     Integer versionNew = Integer.valueOf(value);
                     TextView up = findViewById(R.id.txtUpdate);
-                    if(!ups.isupdating){
+                    if(!ups.isup()){
                         if(versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)){
                             up_type = "simple";
                             up_path = "/NewMCalc.apk";
@@ -476,9 +496,40 @@ public class Updater extends AppCompatActivity {
 
     }
 
+    public Drawable btndr, btnbl;
+
+    public void choose_btn(View v){
+        Button btn = findViewById(v.getId());
+        Button btn2 = new Button(this);
+        if(v.getId() == R.id.btnRight){
+            btn2 = findViewById(R.id.btnLeft);
+        }else{
+            btn2 = findViewById(R.id.btnRight);
+        }
+        /*ColorDrawable cd = new ColorDrawable();
+        try{
+            cd = (ColorDrawable) btn.getBackground();
+        }catch (Exception e){
+            e.getCause().printStackTrace();
+        }*/
+        if(btn.getBackground() != btnbl){
+            btn2.setBackground(btn.getBackground());
+            btn2.setTextColor(getResources().getColor(R.color.black));
+            btn.setBackgroundColor(getResources().getColor(R.color.black));
+            btn.setTextColor(getResources().getColor(R.color.white));
+            if(btn.getId() == R.id.btnRight){
+                sp.edit().putInt("btn_add_align", 1).apply();
+            }else
+                sp.edit().putInt("btn_add_align", 0).apply();
+            Intent btnal = new Intent(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE");
+            sendBroadcast(btnal);
+        }
+    }
+
     public void update(View v){
         /*setContentView(R.layout.layout_updater);
         downloading = true;*/
+        findViewById(R.id.layoutUpdate).setVisibility(View.INVISIBLE);
         try{
             Thread.sleep(250);
         }catch(Exception e){

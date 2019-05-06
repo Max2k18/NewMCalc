@@ -67,4 +67,7 @@
     <string name="left">Left</string>
     <string name="right">Right</string>
     <string name="loc_of_btnadd">Select the location of the button to display the settings, history, etc.</string>
+    <string name="confirm_exit_on_up">New MCalc is updating. Do you want to stop it and close?</string>
+    <string name="stop">Stop</string>
+    <string name="hide">Hide</string>
 </resources>
