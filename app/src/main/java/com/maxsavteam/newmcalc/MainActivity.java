@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.drm.DrmStore;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,15 +19,20 @@ import android.preference.PreferenceManager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
-import android.widget.Switch;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +47,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -54,17 +57,6 @@ public class MainActivity extends AppCompatActivity {
         static Stack<String> brackets = new Stack<>();
     }*/
     public static Boolean was_error = false;
-
-
-    View.OnLongClickListener fordel = (View v) -> {
-        TextView t = findViewById(R.id.textStr);
-        t.setText("");
-        TextView ans = findViewById(R.id.textAns2);
-        ans.setText("");
-        return true;
-    };
-
-
 
     public boolean isOtherActivityOpened = false;
     public SharedPreferences sp;
@@ -77,9 +69,19 @@ public class MainActivity extends AppCompatActivity {
     public String newVer = "\b";
     AlertDialog dl, al;
     public String newDevVer = "";
+    public boolean add_menu_opened = false;
 
     public int newCodeDev = 0;
     public Integer versionSt = 0;
+
+    View.OnLongClickListener fordel = (View v) -> {
+        TextView t = findViewById(R.id.textStr);
+        t.setText("");
+        TextView ans = findViewById(R.id.textAns2);
+        ans.setText("");
+        sp.edit().remove("saveResultText").apply();
+        return true;
+    };
 
     @Override
     protected void onPause(){
@@ -224,45 +226,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        Intent resultIntent;
-        switch(id){
-            case R.id.action_settings: {
-                resultIntent = new Intent(getApplicationContext(), Updater.class);
-                resultIntent.putExtra("action", "simple");
-                if(uptype.equals("simple"))
-                    resultIntent.putExtra("update_path", "/NewMCalc.apk");
-                else
-                    resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                return true;
-            }
-            case R.id.action_random:{
-                resultIntent = new Intent(getApplicationContext(), numgen.class);
-                resultIntent.putExtra("type", "number");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                return true;
-            }case R.id.action_history:{
-                sp.edit().putString("action", "history").apply();
-                resultIntent = new Intent(getApplicationContext(), history.class);
-                startActivity(resultIntent);
-
-                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                return true;
-            }case R.id.action_pass:
-                resultIntent = new Intent(getApplicationContext(), numgen.class);
-                resultIntent.putExtra("type", "pass");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-                return true;
-            case R.id.about:
-
-                dl.show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (id == R.id.about) {
+            dl.show();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -297,28 +265,19 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                         File file = new File(Environment.getExternalStorageDirectory() + "/" + "MST files/NewMCalc " + newver + ".apk");
-                        if(file.exists()){
-                            if(uptype.equals("simple")){
-                                Intent promptInstall = new Intent(Intent.ACTION_VIEW)
-                                        .setDataAndType(Uri.parse("file://" + file.getPath()),
-                                                "application/vnd.android.package-archive");
-                                startActivity(promptInstall);
-                            }
-                        }else{
-                            /*Intent in = new Intent(MainActivity.this, Updater.class);
-                            in.putExtra("action", "update");
-                            in.putExtra("upVerName", newDevVer);*/
+                        /*Intent in = new Intent(MainActivity.this, Updater.class);
+                        in.putExtra("action", "update");
+                        in.putExtra("upVerName", newDevVer);*/
 
-                            if(uptype.equals("dev")){
-                                /*in.putExtra("upVerName", newDevVer);
-                                in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
-                                ups.run("/forTesters/NewMCalc.apk", newDevVer);
-                            }
-                            else{
-                                /*in.putExtra("upVerName", newver);
-                                in.putExtra("update_path", "/NewMCalc.apk");*/
-                                ups.run("/NewMCalc.apk", newver);
-                            }
+                        if(uptype.equals("dev")){
+                            /*in.putExtra("upVerName", newDevVer);
+                            in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
+                            ups.run("/forTesters/NewMCalc.apk", newDevVer);
+                        }
+                        else{
+                            /*in.putExtra("upVerName", newver);
+                            in.putExtra("update_path", "/NewMCalc.apk");*/
+                            ups.run("/NewMCalc.apk", newver);
                         }
                     }
                 });
@@ -334,16 +293,134 @@ public class MainActivity extends AppCompatActivity {
                 sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
                 uptype = "dev";
                 al.show();
+                dl.cancel();
             }else if(versionNew > versionMy && versionNew >= newCodeDev){
                 if(sp.getInt("notremindfor", 0) != versionNew) {
                     uptype = "simple";
                     sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
                     al.show();
+                    dl.cancel();
                 }
             }
         }
     }
 
+    public void onClickAdd(View v){
+        Intent resultIntent = new Intent();
+        Button sh = findViewById(R.id.btnShAdd);
+        ConstraintLayout cl = findViewById(R.id.constraight);
+
+        findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
+        findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
+        if(v.getId() == R.id.imgBtnSettings){
+            resultIntent = new Intent(getApplicationContext(), Updater.class);
+            resultIntent.putExtra("action", "simple");
+            if(uptype.equals("simple"))
+                resultIntent.putExtra("update_path", "/NewMCalc.apk");
+            else
+                resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(v.getId() == R.id.btnImgNumGen){
+            resultIntent = new Intent(getApplicationContext(), numgen.class);
+            resultIntent.putExtra("type", "number");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(v.getId() == R.id.btnImgHistory){
+            sp.edit().putString("action", "history").apply();
+            resultIntent = new Intent(getApplicationContext(), history.class);
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(v.getId() == R.id.btnImgPassgen){
+            resultIntent = new Intent(getApplicationContext(), numgen.class);
+            resultIntent.putExtra("type", "pass");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }
+        if(sp.getInt("btn_add_align", 0) == 0){
+            show_hide(findViewById(R.id.btnShAdd));
+        }else if(sp.getInt("btn_add_align", 0) == 1){
+            show_hide(findViewById(R.id.btnShAdd2));
+        }
+    }
+
+    public String onshow = "", onhide = "";
+
+    public void show_hide(View v){
+        LinearLayout ll = findViewById(R.id.additional_tools);
+        int loc = sp.getInt("btn_add_align", 0);
+        Button b = findViewById(v.getId());
+        ConstraintLayout cl = findViewById(R.id.constraight);
+        findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
+        findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
+        findViewById(R.id.btnImgHistory).setBackground(cl.getBackground());
+        findViewById(R.id.btnImgPassgen).setBackground(cl.getBackground());
+        int time = 100;
+        RelativeLayout.LayoutParams par = new RelativeLayout.LayoutParams(35, 85);
+        Button sh = findViewById(R.id.btnShAdd);
+        Button sh2 = findViewById(R.id.btnShAdd2);
+        if((b.getText().toString().equals(">") && loc == 0) || (b.getText().toString().equals("<") && loc == 1)){
+            par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35 + 80 * 4, getResources().getDisplayMetrics()),
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
+            //b.setText(onhide);
+            if(loc == 0){
+                b.setText("<");
+            }else if(loc == 1){
+                sh2.setVisibility(View.VISIBLE);
+                sh.setVisibility(View.GONE);
+                sh2.setText(">");
+            }
+            add_menu_opened = true;
+        }else{
+            add_menu_opened = false;
+            par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
+                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
+            //b.setText(onshow);
+            if(loc == 0){
+                sh.setVisibility(View.VISIBLE);
+                sh2.setVisibility(View.GONE);
+                sh.setText(">");
+            }else if(loc == 1){
+                sh.setVisibility(View.VISIBLE);
+                sh2.setVisibility(View.GONE);
+                sh.setText("<");
+            }
+        }
+        ll.setLayoutParams(par);
+    }
+
+    protected void btn_change(){
+        int loc = sp.getInt("btn_add_align", 0);
+        RelativeLayout rl = findViewById(R.id.relativelayout);
+        ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) rl.getLayoutParams();
+        if(loc == 0){
+            onshow = ">";
+            onhide = "<";
+        }else if(loc == 1){
+            onshow = "<";
+            onhide = ">";
+        }
+        Button sh2 = findViewById(R.id.btnShAdd);
+        if(loc == 0){
+            sh2 = findViewById(R.id.btnShAdd);
+            //sh2.setVisibility(View.VISIBLE);
+            //sh2 = findViewById(R.id.btnShAdd2);
+            //sh2.setVisibility(View.GONE);
+            par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
+            rl.setLayoutParams(par);
+            rl.setGravity(Gravity.LEFT);
+            sh2.setText(">");
+        }else if(loc == 1){
+            sh2 = findViewById(R.id.btnShAdd);
+            //sh2.setVisibility(View.VISIBLE);
+            //sh2 = findViewById(R.id.btnShAdd);
+            //sh2.setVisibility(View.GONE);
+            par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
+            rl.setLayoutParams(par);
+            rl.setGravity(Gravity.RIGHT);
+            sh2.setText("<");
+        }
+    }
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -365,6 +442,17 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
+        /*ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) findViewById(R.id.relativelayout).getLayoutParams();
+        par.horizontalBias = 1.0f;
+        findViewById(R.id.relativelayout).setLayoutParams(par);*/
+
+        BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                btn_change();
+            }
+        };
+        registerReceiver(on_btn_align_change, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE"));
 
         update_service ups = new update_service(this);
         BroadcastReceiver br = new BroadcastReceiver() {
@@ -396,18 +484,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if(!isOtherActivityOpened){
-                    android.support.v7.app.AlertDialog.Builder b = new android.support.v7.app.AlertDialog.Builder(MainActivity.this);
+                    AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
                     b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
                         }
                     });
+                    AlertDialog inst = b.create();
+                    inst.show();
                 }
             }
         };
-        registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
-        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
+        registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
+        registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
 
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         btn1.setWidth(btn2.getWidth());
@@ -438,6 +528,7 @@ public class MainActivity extends AppCompatActivity {
         dl = builder.create();
 
         String vercode = Integer.toString(BuildConfig.VERSION_CODE);
+        btn_change();
 
         if(sp.getBoolean("saveResult", false)){
             if(!sp.getString("saveResultText", "none").equals("none")){
@@ -493,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         try {
-            Thread.sleep(1250);
+            Thread.sleep(1350);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -773,6 +864,13 @@ public class MainActivity extends AppCompatActivity {
     public void calc(String stri, String type, int digits, int actions){
         s0.clear();
         s1.clear();
+        if(add_menu_opened){
+            if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else if(sp.getInt("btn_add_align", 0) == 1){
+                show_hide(findViewById(R.id.btnShAdd2));
+            }
+        }
         if(type.equals("all"))
             brackets = 0;
         if(stri.equals("P") || stri.equals("F") || stri.equals("e")){
@@ -1507,6 +1605,13 @@ public class MainActivity extends AppCompatActivity {
         sp.edit().putBoolean("toChoose", true).apply();
         sp.edit().putString("action", "gotoactions").apply();
         Intent resultIntent = new Intent(getApplicationContext(), chooseactions.class);
+        if(add_menu_opened){
+            if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else if(sp.getInt("btn_add_align", 0) == 1){
+                show_hide(findViewById(R.id.btnShAdd2));
+            }
+        }
         startActivity(resultIntent);
         overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
     }
@@ -1517,6 +1622,13 @@ public class MainActivity extends AppCompatActivity {
         String txt = t.getText().toString();
         String btntxt = btn.getText().toString();
         add_text(btntxt);
+        if(add_menu_opened){
+            if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else if(sp.getInt("btn_add_align", 0) == 1){
+                show_hide(findViewById(R.id.btnShAdd2));
+            }
+        }
     }
 
     public void delall(View v){
@@ -1528,6 +1640,14 @@ public class MainActivity extends AppCompatActivity {
         t.setText("");
         brackets = 0;
         was_error = false;
+        sp.edit().remove("saveResultText").apply();
+        if(add_menu_opened){
+            if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else if(sp.getInt("btn_add_align", 0) == 1){
+                show_hide(findViewById(R.id.btnShAdd2));
+            }
+        }
     }
 
     public void delSymbol(View v){
@@ -1551,6 +1671,13 @@ public class MainActivity extends AppCompatActivity {
             scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
             t.setText("");
             sp.edit().remove("saveResultText").apply();
+        }
+        if(add_menu_opened){
+            if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else if(sp.getInt("btn_add_align", 0) == 1){
+                show_hide(findViewById(R.id.btnShAdd2));
+            }
         }
     }
 

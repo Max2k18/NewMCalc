@@ -32,8 +32,8 @@ android {
         targetSdkVersion 22
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 37
-        versionName "0.9.5.alpha_tc"
-        buildConfigField "int", "COMPILENAME", "190502"
+        versionName "0.9.9.beta_tc"
+        buildConfigField "int", "COMPILENAME", "190506"
     }
     buildTypes {
         release {

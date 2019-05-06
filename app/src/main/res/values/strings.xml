@@ -63,4 +63,8 @@
     <string name="update_avail_to_install">The update is available for installation. Install?</string>
     <string name="installation">Installation</string>
     <string name="cannot_update">Sorry, but we cannot update.</string>
+    <string name="update_in_bg">We will start downloading the update in the background. You can continue to use the application. Please do not close it.</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="loc_of_btnadd">Select the location of the button to display the settings, history, etc.</string>
 </resources>

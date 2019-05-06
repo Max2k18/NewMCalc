@@ -56,4 +56,8 @@
     <string name="update_avail_to_install">Обновление доступно для установки. Установить?</string>
     <string name="installation">Установка</string>
     <string name="cannot_update">Извините, но мы не можем выполнить обновление.</string>
+    <string name="update_in_bg">Мы начнём загружать обновление в фоновом режиме. Вы можете продолжать пользоваться приложением. Пожалуйста, не закрывайте его.</string>
+    <string name="left">Слева</string>
+    <string name="right">Справа</string>
+    <string name="loc_of_btnadd">Выберите расположение кнопки для показа настроек, истории и т.д.</string>
 </resources>

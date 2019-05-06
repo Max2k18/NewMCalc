@@ -38,8 +38,6 @@
             android:noHistory="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
-                <action android:name="android.intent.action.NEWMCALC_UPDATE_SUC" />
-                <action android:name="android.intent.action.NEWMCALC_UPDATE_FAIL" />
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
