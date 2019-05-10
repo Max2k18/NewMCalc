@@ -70,4 +70,6 @@
     <string name="confirm_exit_on_up">New MCalc is updating. Do you want to stop it and close?</string>
     <string name="stop">Stop</string>
     <string name="hide">Hide</string>
+    <string name="confirm_stop_update">Would you like to stop the update?</string>
+    <string name="install">Install</string>
 </resources>

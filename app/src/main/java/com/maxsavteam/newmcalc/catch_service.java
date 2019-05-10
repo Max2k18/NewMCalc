@@ -1,35 +1,81 @@
 package com.maxsavteam.newmcalc;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
+import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class catch_service extends AppCompatActivity {
-	SharedPreferences sp;
-	Context con;
-	public void save_in_sp(boolean bool){
-		sp.edit().putBoolean("isupdat", bool).apply();
+
+	update_service ups;
+	public int [] ar;
+
+	TextView pr;
+	TextView all;
+	ProgressBar pb;
+
+	@Override
+	public void onBackPressed(){
+		ups.set_send_progress(false);
+		ups.set_sh_alert(true);
+		ups.kill();
+		finish();
+		overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
 	}
 
-	public boolean isupdate(){
-		return sp.getBoolean("isupdat", false);
+	public void hide(View v){
+		ups.set_send_progress(false);
+		ups.set_sh_alert(true);
+		onBackPressed();
 	}
 
-	public void create(){
-		try{
-			sp = PreferenceManager.getDefaultSharedPreferences(con);
-		}catch (Exception e){
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+	public void stop(View v){
+		ups.set_send_progress(false);
+		ups.set_sh_alert(true);
+		ups.kill();
+		onBackPressed();
+	}
+
+	public void install(View v){
+		ups.kill();
+		ups.install();
+	}
+
+	public void puase_start(View v){
+		Button btn = findViewById(v.getId());
+		if(btn.getText().toString().equals("pause")){
+			pr.setText("Pause...");
+			ups.set_pause(true);
+			ups.set_send_progress(false);
+			pb.setIndeterminate(true);
+			btn.setText("start");
+		}else{
+			ups.set_pause(false);
+			btn.setText("pause");
 		}
 	}
 
-	public void create_sp(SharedPreferences s){
-		sp = s;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
+		if(id == android.R.id.home){
+			onBackPressed();
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -37,12 +83,69 @@ public class catch_service extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		//sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Intent in = getIntent();
-		String aciton = in.getStringExtra("action");
+		String action = in.getStringExtra("action");
 		Intent ser;
-		if(aciton.equals("NOT_BTN_PRESSED")){
-			ser = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
-			sendBroadcast(ser);
-			finish();
+		ups = new update_service(this);
+		try{
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			getSupportActionBar().setTitle("");
+			//getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		}catch(Exception e){
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+
+		}
+		switch (action) {
+			case "NOT_BTN_PRESSED":
+				ser = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
+				sendBroadcast(ser);
+				finish();
+				break;
+			case "on_prepare_pressed":
+				ser = new Intent(BuildConfig.APPLICATION_ID + ".DELETE_NOT");
+				sendBroadcast(ser);
+				finish();
+				break;
+			case "sh_progress":
+				setContentView(R.layout.activity_sh_progress);
+				pr = findViewById(R.id.txtProgress);
+				all = findViewById(R.id.txtAll);
+				pb = findViewById(R.id.pbOnUpdate);
+				ups.set_send_progress(true);
+				ups.set_sh_alert(false);
+				ar = ups.get_ints();
+				BroadcastReceiver br = new BroadcastReceiver() {
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						//int [] ar = intent.getIntArrayExtra("values");
+						ar = ups.get_ints();
+						pr.setText(ar[0] + "%");
+						all.setText(ar[1] + " of " + ar[2]);
+						if(ar[3] == 1)
+							pb.setIndeterminate(true);
+						else
+							pb.setIndeterminate(false);
+						pb.setProgress(ar[0]);
+					}
+				};
+				registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_UPDATE"));
+
+				BroadcastReceiver on_suc = new BroadcastReceiver() {
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						all.setText(ar[2] + " of " + ar[2]);
+						pr.setText("100%");
+						ups.set_send_progress(false);
+						ups.set_sh_alert(true);
+						pb.setVisibility(View.GONE);
+						findViewById(R.id.btnInstall).setVisibility(View.VISIBLE);
+						findViewById(R.id.btnStop).setVisibility(View.GONE);
+						findViewById(R.id.btnHide).setVisibility(View.GONE);
+						ups.kill();
+					}
+				};
+				registerReceiver(on_suc, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
+				break;
 		}
 	}
 }

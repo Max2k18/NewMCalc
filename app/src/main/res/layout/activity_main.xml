@@ -12,6 +12,7 @@
         android:id="@+id/relativelayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:translationX="8dp"
         app:layout_constraintBottom_toTopOf="@+id/tbl"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

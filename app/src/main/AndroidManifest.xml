@@ -23,7 +23,7 @@
         android:roundIcon="@drawable/newmcalc"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".catch_service"></activity>
+        <activity android:name=".catch_service" />
         <activity
             android:name=".history"
             android:noHistory="true">

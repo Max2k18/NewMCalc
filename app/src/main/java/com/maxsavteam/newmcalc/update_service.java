@@ -13,20 +13,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDialog;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -40,51 +34,121 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
-class update_service extends View{
-    private Context mcon;
-    private File apkStorage = null;
-    private File outputFile = null;
-    public int bytes = 0;
-
-    update_service(Context con){
-        super(con);
-        mcon = con;
-        isupdating = false;
-    }
+class update_service extends View {
+	private Context mcon;
+	private File apkStorage = null;
 
 
-    private String up_ver = "";
-    private String up_path = "";
-    private Intent res = new Intent();
-    private NotificationManager motman;
-    public boolean isupdating;
-    private Intent inte;
-    private PendingIntent pinte;
-    private boolean tostop = false;
-    public int all = 0, cf = 0;
-    private SharedPreferences sp;
-    catch_service cs;
+	update_service(Context con) {
+		super(con);
+		mcon = con;
+	}
 
-    public void kill(){
-        tostop = true;
-    }
+	public static class gl {
+		public static boolean tostop = false;
+		public static boolean sh_alert = true;
+		public static int all = 0, cf = 0;
+		public static int bytes = 0;
+		public static boolean isupdating = false;
+		public static File outputFile = null;
+		public static boolean pause = false;
+		public static boolean need_sh_progress = false;
+	}
 
-    public boolean isup(){
-        return false;
-    }
+	private String up_ver = "";
+	private String up_path = "";
+	private Intent res = new Intent();
+	private NotificationManager motman;
+	private Intent inte;
+	private PendingIntent pinte;
+	//public boolean tostop = false;
+	private SharedPreferences sp;
 
-    public void create_sp(SharedPreferences s){
-    	sp = s;
-    }
+	public void kill() {
+		gl.tostop = true;
+		gl.isupdating = false;
+		gl.cf = 0;
+		gl.bytes = 0;
+		gl.all = 0;
+		set_send_progress(false);
+		set_pause(false);
+		set_sh_alert(true);
+	}
 
-    public void run(String up_path0, String up_version){
-        up_ver = up_version;
-        up_path = up_path0;
-        inte = new Intent(mcon, catch_service.class);
-        //inte.setData(Uri.parse(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
-        inte.putExtra("action", "NOT_BTN_PRESSED");
-        pinte = PendingIntent.getActivity(mcon, 0, inte, PendingIntent.FLAG_UPDATE_CURRENT);
+	public void set_send_progress(boolean b){
+		gl.need_sh_progress = b;
+	}
+
+	public void set_sh_alert(boolean b) {
+		gl.sh_alert = b;
+	}
+
+	public int get_status(String name) {
+		switch (name) {
+			case "cf":
+				return gl.cf;
+			case "all":
+				return gl.all;
+			case "bytes":
+				return gl.bytes;
+		}
+		return 0;
+	}
+
+	public ArrayList<Integer> get_allt(){
+		ArrayList<Integer> ar = new ArrayList<>();
+		ar.add(gl.cf);
+		ar.add(gl.all);
+		ar.add(gl.bytes);
+		if(gl.pause){
+			ar.add(1);
+		}else
+			ar.add(0);
+		return ar;
+	}
+
+	public int[] get_ints(){
+		int[] res = new int[4];
+		res[0] = gl.cf;
+		res[1] = gl.all;
+		res[2] = gl.bytes;
+		if(gl.pause){
+			res[3] = 1;
+		}else
+			res[3] = 0;
+		return res;
+	}
+
+	public NotificationManager getMotman() {
+		return motman;
+	}
+
+	public void set_pause(boolean b){
+		gl.pause = b;
+	}
+
+	public boolean isup() {
+		return gl.isupdating;
+	}
+
+	public void run(String up_path0, String up_version) {
+		motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
+		BroadcastReceiver del_not = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				motman.cancelAll();
+				kill();
+			}
+		};
+		mcon.registerReceiver(del_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".DELETE_NOT"));
+		up_ver = up_version;
+		up_path = up_path0;
+		inte = new Intent(mcon, catch_service.class);
+		//inte.setData(Uri.parse(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
+		inte.putExtra("action", "sh_progress");
+		pinte = PendingIntent.getActivity(mcon, 0, inte, PendingIntent.FLAG_UPDATE_CURRENT);
         /*BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -92,189 +156,222 @@ class update_service extends View{
             }
         };
         mcon.registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));*/
-        sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference dbm = db.getReference("bytesCount");
-        if(up_path.contains("forTesters")){
-            dbm = db.getReference("dev/bytesCount");
-        }
-        dbm.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                bytes = dataSnapshot.getValue(Integer.TYPE);
-            }
+		sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
+		FirebaseDatabase db = FirebaseDatabase.getInstance();
+		DatabaseReference dbm = db.getReference("bytesCount");
+		if (up_path.contains("forTesters")) {
+			dbm = db.getReference("dev/bytesCount");
+		}
+		dbm.addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				gl.bytes = dataSnapshot.getValue(Integer.TYPE);
+			}
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-        try{
-            Thread.sleep(250);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        boolean sh_window = sp.getBoolean("sh_up_window", true);
-        sp.edit().putInt("notremindfor", 0).apply();
-        if(sh_window){
-            AlertDialog.Builder builder = new AlertDialog.Builder(mcon);
-            builder.setTitle(R.string.confirm).setMessage(R.string.update_in_bg).setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    sp.edit().putBoolean("sh_up_window", false).apply();
-                    run(up_path0, up_version);
-                }
-            });
-            AlertDialog dl = builder.create();
-            dl.show();
-        }else{
-            NotificationCompat.Builder build = new NotificationCompat.Builder(mcon);
-            build.setContentTitle("New MCalc is updating...").setSmallIcon(R.drawable.update).setOngoing(true).setProgress(100, 0, true).setContentText("Preparing...");
-            Notification not = build.build();
-            motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
-            motman.notify(1, not);
-            //cs.save_in_sp(true);
-            new DownloadingTask().execute();
-        }
+			}
+		});
+		try {
+			Thread.sleep(250);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		boolean sh_window = sp.getBoolean("sh_up_window", true);
+		sp.edit().putInt("notremindfor", 0).apply();
+		if (sh_window) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(mcon);
+			builder.setTitle(R.string.confirm).setMessage(R.string.update_in_bg).setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+					sp.edit().putBoolean("sh_up_window", false).apply();
+					run(up_path0, up_version);
+				}
+			});
+			AlertDialog dl = builder.create();
+			dl.show();
+		} else {
+			NotificationCompat.Builder build = new NotificationCompat.Builder(mcon);
+			Intent in_not = new Intent(mcon, catch_service.class);
+			in_not.putExtra("action", "on_prepare_pressed");
+			PendingIntent pendingIntent = PendingIntent.getService(mcon, 0, in_not, 0);
+			build.setContentTitle("New MCalc is updating...")
+					.setSmallIcon(R.drawable.update)
+					.setOngoing(true)
+					.setProgress(100, 0, true).addAction(R.drawable.stop, getResources().getString(R.string.stop), pendingIntent)
+					.setContentText("Preparing...");
+			Notification not = build.build();
+			motman.notify(1, not);
+			//cs.save_in_sp(true);
+			gl.isupdating = true;
+			new DownloadingTask().execute();
+		}
 
-    }
+	}
 
-    public String get_path(){
-        return outputFile.getPath();
-    }
+	public String get_path() {
+		return gl.outputFile.getPath();
+	}
 
-    public void install(){
-        Intent promptInstall = new Intent(Intent.ACTION_VIEW)
-                .setDataAndType(Uri.parse("file://" + outputFile.getPath()),
-                        "application/vnd.android.package-archive");
-        mcon.startActivity(promptInstall);
-    }
+	public void install() {
+		try{
+			Intent promptInstall = new Intent(Intent.ACTION_VIEW)
+					.setDataAndType(Uri.parse("file://" + gl.outputFile.getPath()),
+							"application/vnd.android.package-archive");
+			mcon.startActivity(promptInstall);
+		}catch (Exception e){
+			Toast.makeText(mcon, e.toString(), Toast.LENGTH_LONG).show();
+		}
 
-    private void onfail(){
-        motman.cancel(1);
-        //cs.save_in_sp(false);
-        res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL");
-        mcon.sendBroadcast(res);
-    }
+	}
+
+	private void onfail() {
+		motman.cancel(1);
+		//cs.save_in_sp(false);
+		gl.isupdating = false;
+		res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL");
+		mcon.sendBroadcast(res);
+	}
 
 
-    private class DownloadingTask extends AsyncTask<Void, Void, Void> {
-        String pr = "";
+	private class DownloadingTask extends AsyncTask<Void, Void, Void> {
+		String pr = "";
 
 
-        private void sh(int buffer){
-            all += buffer;
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
-            cf = (int) all * 100;
-            cf = cf / bytes;
-            builder.setProgress(100, cf, false).setContentText(cf + "% of " + 100 + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
-            //motman.cancelAll();
-            motman.notify(1, builder.build());
-        }
+		private void sh(int buffer) {
+			gl.all += buffer;
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
+			gl.cf = (gl.all * 100) / gl.bytes;
+			//gl.cf = gl.cf / gl.bytes;
+			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
+			if(!gl.pause)
+				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "% of " + 100 + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
+						.setContentIntent(pinte);
+			else{
+				builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
+			}
+			//motman.cancelAll();
+			if (gl.sh_alert)
+				motman.notify(1, builder.build());
+			else
+				motman.cancel(1);
+		}
 
-        @Override
-        protected void onPostExecute(Void result) {
+		@Override
+		protected void onPostExecute(Void result) {
 
-            try {
-                if (outputFile != null) {
-                    //Toast.makeText(mcon.getApplicationContext(), pr, Toast.LENGTH_LONG).show();
-                    if(!tostop){
-                        motman.cancel(1);
-                        //cs.save_in_sp(false);
-                        res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
-                        //AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
-                        //al.show();
-                        mcon.sendBroadcast(res);
-                    }
-                } else {
-                    //Failed Download
-                    onfail();
-                }
-            } catch (Exception e) {
-                onfail();
-            }
+			try {
+				if (gl.outputFile != null) {
+					//Toast.makeText(mcon.getApplicationContext(), pr, Toast.LENGTH_LONG).show();
+					if (!gl.tostop) {
+						motman.cancel(1);
+						//cs.save_in_sp(false);
+						gl.isupdating = false;
+						res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
+						//AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
+						//al.show();
+						gl.need_sh_progress = false;
+						mcon.sendBroadcast(res);
+					} else {
+						motman.cancelAll();
+						if (gl.outputFile.exists()) {
+							gl.outputFile.delete();
+						}
+					}
+					kill();
+					//Toast.makeText(mcon, Boolean.toString(gl.tostop), Toast.LENGTH_SHORT).show();
+				} else {
+					//Failed Download
+					onfail();
+				}
+			} catch (Exception e) {
+				onfail();
+			}
 
-            super.onPostExecute(result);
+			super.onPostExecute(result);
 
-        }
+		}
 
-        @Override
-        protected Void doInBackground(Void... arg0) {
+		@Override
+		protected Void doInBackground(Void... arg0) {
             /*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             sp.edit().putInt("notremindfor", 0).apply();*/
 
-            try {
-                int permissionStatus = ContextCompat.checkSelfPermission(mcon, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+			try {
+				int permissionStatus = ContextCompat.checkSelfPermission(mcon, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-                if(permissionStatus == PackageManager.PERMISSION_GRANTED){
-                    boolean success = false;
-                    //That is url file you want to download
-                    URL url = new URL("https://maxsavteam.tk/apk" + up_path);
-                    HttpURLConnection c = (HttpURLConnection) url.openConnection();
-                    c.setRequestMethod("GET");
-                    c.connect();
-                    //Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
-                    //Creating Path
-                    apkStorage = new File(
-                            Environment.getExternalStorageDirectory().getPath() + "/"
-                                    + "MST files");
+				if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+					boolean success = false;
+					//That is url file you want to download
+					URL url = new URL("https://maxsavteam.tk/apk" + up_path);
+					HttpURLConnection c = (HttpURLConnection) url.openConnection();
+					c.setRequestMethod("GET");
+					c.connect();
+					//Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
+					//Creating Path
+					apkStorage = new File(
+							Environment.getExternalStorageDirectory().getPath() + "/"
+									+ "MST files");
 
-                    if (!apkStorage.exists()) {
-                        //Create Folder From Path
-                        success = apkStorage.mkdir();
-                    }else{
-                        success = true;
-                    }
-                    if(success){
-                        outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
-
-
-
-                        if (!outputFile.exists()) {
-                            success = outputFile.createNewFile();
-                            Log.e("clipcodes", "File Created");
-                        }
-                        if(success){
-                            FileOutputStream fos = new FileOutputStream(outputFile);
-
-                            InputStream is = c.getInputStream();
+					if (!apkStorage.exists()) {
+						//Create Folder From Path
+						success = apkStorage.mkdir();
+					} else {
+						success = true;
+					}
+					if (success) {
+						gl.outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
 
 
-                            byte[] buffer = new byte[1024];
-                            int len1 = 0;
-                            while (len1 != -1 && !tostop) {
-                                fos.write(buffer, 0, len1);
-                                len1 = is.read(buffer);
-                                sh(len1);
+						if (!gl.outputFile.exists()) {
+							success = gl.outputFile.createNewFile();
+							Log.e("clipcodes", "File Created");
+						}
+						if (success) {
+							FileOutputStream fos = new FileOutputStream(gl.outputFile);
+
+							InputStream is = c.getInputStream();
+
+
+							byte[] buffer = new byte[1024];
+							int len1 = 0;
+							while (len1 != -1 && !gl.tostop) {
+								if(gl.need_sh_progress && !gl.pause){
+									int[] array = get_ints();
+									Intent broad = new Intent(BuildConfig.APPLICATION_ID + ".ON_UPDATE"), src = new Intent();
+									broad.putExtra("values", array);
+									mcon.sendBroadcast(broad);
+								}
+								if(!gl.pause){
+									fos.write(buffer, 0, len1);
+									len1 = is.read(buffer);
+								}
+								sh(len1);
                                 /*all += is.read(buffer);
                                 int cf = (int) all / bytes * 100;
                                 builder.setProgress(100, cf, false).setContentText(cf + " of " + 100).setOngoing(true);
                                 motman.notify(1, builder.build());*/
-                            }
-                            //Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
+							}
+							//Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
 
-                            fos.close();
-                            is.close();
-                            if(tostop){
-                                motman.cancelAll();
-                                if(outputFile.exists()){
-                                    outputFile.delete();
-                                }
-                            }
-                        }
-                    }else{
-                        onfail();
-                    }
-                }
+							fos.close();
+							is.close();
 
-                //Path And Filename.type
-            } catch (Exception e) {
-                e.printStackTrace();
-                onfail();
-            }
+						}
+					} else {
+						onfail();
+					}
+				}
 
-            return null;
-        }
-    }
+				//Path And Filename.type
+			} catch (Exception e) {
+				e.printStackTrace();
+				onfail();
+			}
+
+			return null;
+		}
+	}
 }

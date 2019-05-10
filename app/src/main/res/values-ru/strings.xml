@@ -63,4 +63,6 @@
     <string name="confirm_exit_on_up">New MCalc обновляется. Хотите остановить обновление и закрыть приложение?</string>
     <string name="stop">Остановить</string>
     <string name="hide">Скрыть</string>
+    <string name="confirm_stop_update">Желаете остановить обновление?</string>
+    <string name="install">Установить</string>
 </resources>

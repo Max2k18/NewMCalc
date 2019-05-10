@@ -21,6 +21,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -192,7 +194,7 @@ public class Updater extends AppCompatActivity {
     Intent send = new Intent(Intent.ACTION_SEND);
 
     public void report(View v){
-        send.putExtra(Intent.EXTRA_EMAIL, "maxsavsu@gmail.com");
+        send.putExtra(Intent.EXTRA_EMAIL, new String[]{"maxsavsu@gmail.com"});
         send.putExtra(Intent.EXTRA_SUBJECT, "Problem in New MCalc");
         send.putExtra(Intent.EXTRA_TEXT, "[" + BuildConfig.VERSION_NAME + "," + BuildConfig.VERSION_CODE + "]\nProblem:\n");
         send.setType("message/rfc822");
@@ -257,6 +259,10 @@ public class Updater extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.updater_main);
+        /*Slide slide = new Slide();
+        slide.setDuration(100);
+        getWindow().setEnterTransition(slide);
+        getWindow().setExitTransition(slide);*/
         getSupportActionBar().setTitle(getResources().getString(R.string.settings));
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         //findViewById(R.id.imgBtnWeb).setOnLongClickListener(show_join);
@@ -437,7 +443,6 @@ public class Updater extends AppCompatActivity {
             dbm.addValueEventListener(list);
             dbm = db.getReference("links/site");
             dbm.addValueEventListener(list);
-
             if (sp.getBoolean("isdev", false)){
                 devCode.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -453,7 +458,7 @@ public class Updater extends AppCompatActivity {
             }
             if(sp.getBoolean("isdev", false)){
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(900);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
