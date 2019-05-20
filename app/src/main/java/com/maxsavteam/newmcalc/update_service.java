@@ -55,6 +55,7 @@ class update_service extends View {
 		public static File outputFile = null;
 		public static boolean pause = false;
 		public static boolean need_sh_progress = false;
+		public static String task = "update";
 	}
 
 	private String up_ver = "";
@@ -69,6 +70,11 @@ class update_service extends View {
 	public void kill() {
 		gl.tostop = true;
 		gl.isupdating = false;
+		set_to_default();
+	}
+
+	public void set_to_default(){
+		//gl.isupdating = false;
 		gl.cf = 0;
 		gl.bytes = 0;
 		gl.all = 0;
@@ -131,6 +137,10 @@ class update_service extends View {
 
 	public boolean isup() {
 		return gl.isupdating;
+	}
+
+	public void run_with_task(String task){
+		gl.task = task;
 	}
 
 	public void run(String up_path0, String up_version) {
@@ -231,6 +241,8 @@ class update_service extends View {
 		motman.cancel(1);
 		//cs.save_in_sp(false);
 		gl.isupdating = false;
+		kill();
+		set_to_default();
 		res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL");
 		mcon.sendBroadcast(res);
 	}
@@ -273,14 +285,17 @@ class update_service extends View {
 						//AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
 						//al.show();
 						gl.need_sh_progress = false;
+						gl.tostop = false;
 						mcon.sendBroadcast(res);
 					} else {
 						motman.cancelAll();
 						if (gl.outputFile.exists()) {
 							gl.outputFile.delete();
 						}
+						gl.tostop = false;
 					}
-					kill();
+					//kill();
+					set_to_default();
 					//Toast.makeText(mcon, Boolean.toString(gl.tostop), Toast.LENGTH_SHORT).show();
 				} else {
 					//Failed Download
@@ -299,77 +314,79 @@ class update_service extends View {
             /*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             sp.edit().putInt("notremindfor", 0).apply();*/
 
-			try {
-				int permissionStatus = ContextCompat.checkSelfPermission(mcon, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if(gl.task.equals("update")){
+	            try {
+		            int permissionStatus = ContextCompat.checkSelfPermission(mcon, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-				if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-					boolean success = false;
-					//That is url file you want to download
-					URL url = new URL("https://maxsavteam.tk/apk" + up_path);
-					HttpURLConnection c = (HttpURLConnection) url.openConnection();
-					c.setRequestMethod("GET");
-					c.connect();
-					//Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
-					//Creating Path
-					apkStorage = new File(
-							Environment.getExternalStorageDirectory().getPath() + "/"
-									+ "MST files");
+		            if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+			            boolean success = false;
+			            //That is url file you want to download
+			            URL url = new URL("https://maxsavteam.tk/apk" + up_path);
+			            HttpURLConnection c = (HttpURLConnection) url.openConnection();
+			            c.setRequestMethod("GET");
+			            c.connect();
+			            //Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
+			            //Creating Path
+			            apkStorage = new File(
+					            Environment.getExternalStorageDirectory().getPath() + "/"
+							            + "MST files");
 
-					if (!apkStorage.exists()) {
-						//Create Folder From Path
-						success = apkStorage.mkdir();
-					} else {
-						success = true;
-					}
-					if (success) {
-						gl.outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
-
-
-						if (!gl.outputFile.exists()) {
-							success = gl.outputFile.createNewFile();
-							Log.e("clipcodes", "File Created");
-						}
-						if (success) {
-							FileOutputStream fos = new FileOutputStream(gl.outputFile);
-
-							InputStream is = c.getInputStream();
+			            if (!apkStorage.exists()) {
+				            //Create Folder From Path
+				            success = apkStorage.mkdir();
+			            } else {
+				            success = true;
+			            }
+			            if (success) {
+				            gl.outputFile = new File(apkStorage, "/NewMCalc " + up_ver + ".apk");
 
 
-							byte[] buffer = new byte[1024];
-							int len1 = 0;
-							while (len1 != -1 && !gl.tostop) {
-								if(gl.need_sh_progress && !gl.pause){
-									int[] array = get_ints();
-									Intent broad = new Intent(BuildConfig.APPLICATION_ID + ".ON_UPDATE"), src = new Intent();
-									broad.putExtra("values", array);
-									mcon.sendBroadcast(broad);
-								}
-								if(!gl.pause){
-									fos.write(buffer, 0, len1);
-									len1 = is.read(buffer);
-								}
-								sh(len1);
+				            if (!gl.outputFile.exists()) {
+					            success = gl.outputFile.createNewFile();
+					            Log.e("clipcodes", "File Created");
+				            }
+				            if (success) {
+					            FileOutputStream fos = new FileOutputStream(gl.outputFile);
+
+					            InputStream is = c.getInputStream();
+
+
+					            byte[] buffer = new byte[1024];
+					            int len1 = 0;
+					            while (len1 != -1 && !gl.tostop) {
+						            if(gl.need_sh_progress && !gl.pause){
+							            int[] array = get_ints();
+							            Intent broad = new Intent(BuildConfig.APPLICATION_ID + ".ON_UPDATE"), src = new Intent();
+							            broad.putExtra("values", array);
+							            mcon.sendBroadcast(broad);
+						            }
+						            if(!gl.pause){
+							            fos.write(buffer, 0, len1);
+							            len1 = is.read(buffer);
+						            }
+						            sh(len1);
                                 /*all += is.read(buffer);
                                 int cf = (int) all / bytes * 100;
                                 builder.setProgress(100, cf, false).setContentText(cf + " of " + 100).setOngoing(true);
                                 motman.notify(1, builder.build());*/
-							}
-							//Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
+					            }
+					            //Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
 
-							fos.close();
-							is.close();
+					            fos.close();
+					            is.close();
 
-						}
-					} else {
-						onfail();
-					}
-				}
+				            }
+			            } else {
+				            onfail();
+			            }
+		            }
 
-				//Path And Filename.type
-			} catch (Exception e) {
-				e.printStackTrace();
-				onfail();
-			}
+		            //Path And Filename.type
+	            } catch (Exception e) {
+		            e.printStackTrace();
+		            onfail();
+	            }
+            }
 
 			return null;
 		}

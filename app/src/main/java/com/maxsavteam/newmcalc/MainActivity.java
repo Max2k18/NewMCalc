@@ -2,6 +2,7 @@ package com.maxsavteam.newmcalc;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
@@ -11,11 +12,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Fade;
@@ -24,6 +29,7 @@ import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         TextView ans = findViewById(R.id.textAns2);
         ans.setText("");
         sp.edit().remove("saveResultText").apply();
+        set_text_toDef();
         return true;
     };
 
@@ -346,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
             else
                 resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
             startActivity(resultIntent);
-            //overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
         }else if(v.getId() == R.id.btnImgNumGen){
             resultIntent = new Intent(getApplicationContext(), numgen.class);
             resultIntent.putExtra("type", "number");
@@ -435,6 +442,7 @@ public class MainActivity extends AppCompatActivity {
             par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
             rl.setLayoutParams(par);
             rl.setGravity(Gravity.LEFT);
+            rl.setTranslationX(22);
             sh2.setText(">");
         }else if(loc == 1){
             sh2 = findViewById(R.id.btnShAdd);
@@ -444,6 +452,7 @@ public class MainActivity extends AppCompatActivity {
             par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
             rl.setLayoutParams(par);
             rl.setGravity(Gravity.RIGHT);
+            rl.setTranslationX(-20);
             sh2.setText("<");
         }
     }
@@ -483,7 +492,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(on_btn_align_change, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE"));
-
         update_service ups = new update_service(this);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
@@ -573,8 +581,7 @@ public class MainActivity extends AppCompatActivity {
         btn1 = findViewById(R.id.btnDelAll);
         btn1.setHeight(btn2.getHeight());
         btn1.setWidth(btn2.getWidth());
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference refVer = db.getReference("version");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         View view = getLayoutInflater().inflate(R.layout.about_layout, null);
         builder.setCancelable(false)
@@ -593,8 +600,37 @@ public class MainActivity extends AppCompatActivity {
 
         dl = builder.create();
 
-        String vercode = Integer.toString(BuildConfig.VERSION_CODE);
         btn_change();
+
+        BroadcastReceiver on_dev_up_avail = new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+		        if(!isOtherActivityOpened){
+		        	uptype = "dev";
+		        	sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
+		        }
+	        }
+        };
+        registerReceiver(on_dev_up_avail, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVIAL_DEV"));
+        BroadcastReceiver on_simple_up = new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+				if(!isOtherActivityOpened){
+					uptype = "simple";
+					sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
+				}
+	        }
+        };
+        registerReceiver(on_simple_up, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVAIL"));
+
+        FirebaseAnalytics fr = FirebaseAnalytics.getInstance(getApplicationContext());
+        fr.logEvent("OnCreate", Bundle.EMPTY);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        //new newver_check_service(this).create(sp.getBoolean("isdev", false));
 
         if(sp.getBoolean("saveResult", false)){
             if(!sp.getString("saveResultText", "none").equals("none")){
@@ -605,7 +641,7 @@ public class MainActivity extends AppCompatActivity {
                     ex += text.charAt(i);
                     i++;
                 }
-                ver = findViewById(R.id.textAns2);
+                TextView ver = findViewById(R.id.textAns2);
                 ver.setText(ex);
                 i++;
                 while(i < text.length() && text.charAt(i) != ';'){
@@ -614,10 +650,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 ver = findViewById(R.id.textStr);
                 ver.setText(ans);
-                ver.setSelected(false);
+                //ver.setSelected(false);
+                equallu("not");
+                ver = null;
+                System.gc();
             }
         }
 
+        String vercode = Integer.toString(BuildConfig.VERSION_CODE);
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference refVer = db.getReference("version");
         refVer.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -692,9 +734,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        FirebaseAnalytics fr = FirebaseAnalytics.getInstance(getApplicationContext());
-        fr.logEvent("OnCreate", Bundle.EMPTY);
     }
+
+    /*protected void run_check(){
+	    new newver_check_service(this).create(sp.getBoolean("isdev", false));
+    }*/
 
     protected boolean isdigit(char c){
         return c >= '0' && c <= '9';
@@ -1306,6 +1350,47 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void resize_text(){
+        TextView txt = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.textAns2);
+        String stri = txt.getText().toString();
+        Rect bounds = new Rect();
+        Paint textPaint = txt.getPaint();
+        textPaint.getTextBounds(stri, 0, stri.length(), bounds);
+        int height = bounds.height();
+        int twidth = bounds.width();
+        int widthAns = bounds.width();
+        Display dis = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        dis.getSize(size);
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 46, getResources().getDisplayMetrics());
+        int width = size.x - px - 45;
+        while(twidth >= width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 34){
+            txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
+            t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
+            //twidth = txt.getWidth();
+            textPaint.getTextBounds(stri, 0, stri.length(), bounds);
+            twidth = bounds.width();
+            //txt.setWidth(twidth + 10);
+            //sz = txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
+        }
+        if (twidth < width){
+            txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
+            t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
+            //twidth = txt.getWidth();
+            textPaint.getTextBounds(stri, 0, stri.length(), bounds);
+            twidth = bounds.width();
+        }
+        //LinearLayout ll = findViewById(R.id.textAns2);
+    }
+
+    public void set_text_toDef(){
+        TextView txt = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.textAns2);
+        txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 46);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
+    }
+
     public void equallu(String type){
         TextView txt = findViewById(R.id.textStr);
         String stri = txt.getText().toString();
@@ -1316,6 +1401,17 @@ public class MainActivity extends AppCompatActivity {
             txt.setText(stri);
             return;
         }
+
+        //int twidth = txt.getWidth();
+        float sz = txt.getTextSize();
+        //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
+        resize_text();
+        //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
+        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+
+        scrollview.post(() -> {
+            scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+        });
         if(type.equals("all")){
             if(!stri.equals("")){
                 was_error = false;
@@ -1707,6 +1803,13 @@ public class MainActivity extends AppCompatActivity {
         brackets = 0;
         was_error = false;
         sp.edit().remove("saveResultText").apply();
+        t = findViewById(R.id.textStr);
+        set_text_toDef();
+	    HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+
+	    scrollview.post(() -> {
+		    scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+	    });
         if(add_menu_opened){
             if(sp.getInt("btn_add_align", 0) == 0){
                 show_hide(findViewById(R.id.btnShAdd));
@@ -1737,6 +1840,7 @@ public class MainActivity extends AppCompatActivity {
             scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
             t.setText("");
             sp.edit().remove("saveResultText").apply();
+            set_text_toDef();
         }
         if(add_menu_opened){
             if(sp.getInt("btn_add_align", 0) == 0){
@@ -1745,6 +1849,11 @@ public class MainActivity extends AppCompatActivity {
                 show_hide(findViewById(R.id.btnShAdd2));
             }
         }
+        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+
+        scrollview.post(() -> {
+            scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+        });
     }
 
 }

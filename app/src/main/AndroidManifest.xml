@@ -9,33 +9,27 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <meta-data
         android:name="android.max_aspect"
         android:value="2.1" />
 
     <application
+        android:maxAspectRatio="2.1"
         android:allowBackup="true"
         android:icon="@drawable/newmcalc"
         android:label="@string/app_name"
         android:roundIcon="@drawable/newmcalc"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="o">
         <activity android:name=".catch_service" />
         <activity
             android:name=".history"
             android:noHistory="true">
-
-            <!--
-            intent-filter>
-                <action android:name="android.intent.action.NEWMCALC_UPDATE_SUC" />
-                <action android:name="android.intent.action.NEWMCALC_UPDATE_FAIL" />
-            </intent-filter
-            -->
         </activity>
-        <activity android:name=".numgen" />
+        <activity android:name=".numgen"
+            android:noHistory="false" />
         <activity
             android:name=".chooseactions"
             android:noHistory="true" />
@@ -44,8 +38,6 @@
             android:noHistory="true">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="com.maxsavteam.NOT_BTN_PRESSED" />
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
