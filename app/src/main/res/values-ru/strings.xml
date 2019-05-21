@@ -65,4 +65,5 @@
     <string name="hide">Скрыть</string>
     <string name="confirm_stop_update">Желаете остановить обновление?</string>
     <string name="install">Установить</string>
+    <string name="ch_lang">Выберите язык</string>
 </resources>

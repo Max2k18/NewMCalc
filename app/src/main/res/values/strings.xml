@@ -72,4 +72,9 @@
     <string name="hide">Hide</string>
     <string name="confirm_stop_update">Would you like to stop the update?</string>
     <string name="install">Install</string>
+    <string-array name="langs">
+        <item>English</item>
+        <item>Russian</item>
+    </string-array>
+    <string name="ch_lang">Choose language</string>
 </resources>

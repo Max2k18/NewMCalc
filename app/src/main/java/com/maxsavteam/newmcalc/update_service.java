@@ -259,7 +259,7 @@ class update_service extends View {
 			//gl.cf = gl.cf / gl.bytes;
 			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
 			if(!gl.pause)
-				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "% of " + 100 + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
+				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
 						.setContentIntent(pinte);
 			else{
 				builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");

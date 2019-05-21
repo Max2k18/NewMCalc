@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,10 +24,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Fade;
 import android.transition.Slide;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,6 +49,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Objects;
 
 public class Updater extends AppCompatActivity {
@@ -273,6 +277,7 @@ public class Updater extends AppCompatActivity {
         mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
         mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
         ups = new update_service(this);
+        set_lang("create");
         int loc = sp.getInt("btn_add_align", 0);
         if(loc == 0){
             Button l = findViewById(R.id.btnLeft);
@@ -287,6 +292,7 @@ public class Updater extends AppCompatActivity {
             l.setTextColor(getResources().getColor(R.color.white));
             btnbl = l.getBackground();
         }
+        findViewById(R.id.btnChLang).setOnLongClickListener(defLang);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -496,9 +502,6 @@ public class Updater extends AppCompatActivity {
                 }
             });
         }
-
-
-
     }
 
     public Drawable btndr, btnbl;
@@ -529,6 +532,52 @@ public class Updater extends AppCompatActivity {
             Intent btnal = new Intent(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE");
             sendBroadcast(btnal);
         }
+    }
+
+    View.OnLongClickListener defLang = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            sp.edit().remove("lang").apply();
+            return true;
+        }
+    };
+
+    protected void set_lang(String type){
+        String language_code = sp.getString("lang", "def");
+        if(!language_code.equals("def")){
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            android.content.res.Configuration conf = res.getConfiguration();
+            conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
+            res.updateConfiguration(conf, dm);
+            setContentView(R.layout.updater_main);
+            Intent send = new Intent(BuildConfig.APPLICATION_ID + ".LANG_CH");
+            if(type.equals("from_btn")){
+                sendBroadcast(send);
+            }
+        }
+    }
+    AlertDialog ch;
+    public void ch_lang(View v){
+        View mv = getLayoutInflater().inflate(R.layout.choose_lang, null);
+        View.OnClickListener btnCh = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int id = v.getId();
+                if(id == R.id.ru){
+                    sp.edit().putString("lang", "ru").apply();
+                }else if(id == R.id.en){
+                    sp.edit().putString("lang", "en").apply();
+                }
+                ch.cancel();
+                Toast.makeText(getApplicationContext(), "Please, restart the application", Toast.LENGTH_LONG).show();
+                set_lang("from_btn");
+            }
+        };
+        mv.findViewById(R.id.ru).setOnClickListener(btnCh);
+        mv.findViewById(R.id.en).setOnClickListener(btnCh);
+        ch = new AlertDialog.Builder(this).setView(mv).create();
+        ch.show();
     }
 
     public void update(View v){

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -27,6 +28,7 @@ import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -54,6 +56,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
@@ -541,6 +544,14 @@ public class MainActivity extends AppCompatActivity {
         };
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
+
+        BroadcastReceiver on_lang = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                set_lang();
+            }
+        };
+        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));
         /*final String[] cflog = {""};
         BroadcastReceiver oncf = new BroadcastReceiver() {
             @Override
@@ -625,6 +636,18 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseAnalytics fr = FirebaseAnalytics.getInstance(getApplicationContext());
         fr.logEvent("OnCreate", Bundle.EMPTY);
+    }
+
+    protected void set_lang(){
+        String language_code = sp.getString("lang", "def");
+        if(!language_code.equals("def")){
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            android.content.res.Configuration conf = res.getConfiguration();
+            conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
+            res.updateConfiguration(conf, dm);
+            setContentView(R.layout.activity_main);
+        }
     }
 
     @Override
@@ -937,6 +960,7 @@ public class MainActivity extends AppCompatActivity {
         priority.put("/", 2);
         priority.put("*", 2);
         priority.put("^", 3);
+        priority.put("R", 3);
         //Toast.makeText(getApplicationContext(), priority.get("(") + " " + priority.get("-"), Toast.LENGTH_SHORT).show();
         if(x == '('){
             s0.push(Character.toString(x));
@@ -1180,7 +1204,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }else{
                     if(stri.charAt(i + 1) == '('){
-                        s0.push("R");
+                        in_s0('R');
                         continue;
                     }else{
                         Toast.makeText(getApplicationContext(),
@@ -1285,7 +1309,7 @@ public class MainActivity extends AppCompatActivity {
                 mult(s0.peek());
                 s0.pop();
             }
-            if(s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan")){
+            if(!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))){
                 mult(s0.peek());
                 s0.pop();
             }
@@ -1365,7 +1389,7 @@ public class MainActivity extends AppCompatActivity {
         dis.getSize(size);
         int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 46, getResources().getDisplayMetrics());
         int width = size.x - px - 45;
-        while(twidth >= width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 34){
+        while(twidth >= width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 32){
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
             //twidth = txt.getWidth();
@@ -1374,7 +1398,7 @@ public class MainActivity extends AppCompatActivity {
             //txt.setWidth(twidth + 10);
             //sz = txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
         }
-        if (twidth < width){
+        if (twidth < width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity < 46){
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
             //twidth = txt.getWidth();

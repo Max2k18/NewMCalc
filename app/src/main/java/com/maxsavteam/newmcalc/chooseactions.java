@@ -8,16 +8,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class chooseactions extends AppCompatActivity {
 
@@ -50,9 +53,17 @@ public class chooseactions extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String language_code = sp.getString("lang", "def");
+        if(!language_code.equals("def")){
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            android.content.res.Configuration conf = res.getConfiguration();
+            conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
+            res.updateConfiguration(conf, dm);
+        }
         setContentView(R.layout.activity_chooseactions);
 
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         height = sp.getInt("btnHeight", 100);
         width = sp.getInt("btnWidth", 100);
         //setButtons();
@@ -65,7 +76,6 @@ public class chooseactions extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
             finish();
         }
-
         update_service ups = new update_service(this);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
