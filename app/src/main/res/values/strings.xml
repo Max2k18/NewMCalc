@@ -77,4 +77,11 @@
         <item>Russian</item>
     </string-array>
     <string name="ch_lang">Choose language</string>
+    <string name="import_se">Import</string>
+    <string name="export">Export</string>
+    <string name="ex_im_label">Import or export app\'s settings</string>
+    <string name="on_import">Imported</string>
+    <string name="other_set">Other settings</string>
+    <string name="export_file_not_found">External configuration file not found</string>
+    <string name="exported">Exported</string>
 </resources>

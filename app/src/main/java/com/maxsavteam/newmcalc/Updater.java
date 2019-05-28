@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,11 +47,21 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class Updater extends AppCompatActivity {
 
@@ -74,8 +85,14 @@ public class Updater extends AppCompatActivity {
         if(downloading){
             Toast.makeText(getApplicationContext(), "Wait for the download to finish...", Toast.LENGTH_LONG).show();
         }else{
-            finish();
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        	if(isotherset){
+        		isotherset = false;
+        		setContentView(R.layout.updater_main);
+        		postcreate();
+	        }else{
+		        finish();
+		        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+	        }
         }
     }
 
@@ -138,8 +155,47 @@ public class Updater extends AppCompatActivity {
             deval.cancel();
         }
     };
+    FileReader fr;
+    FileWriter fw;
+    boolean ready;
 
-
+    public void logger(String txt_log){
+    	try {
+		    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		    Date date = new Date();
+		    String d = dateFormat.format(date);
+		    String text = "";
+            File f = new File(Environment.getExternalStorageDirectory() + "/MST files");
+            if(!f.isDirectory()){
+                f.mkdir();
+            }
+            f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log");
+            if(!f.exists()){
+                try {
+                    f.createNewFile();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            f.setWritable(true);
+            fr = new FileReader(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log");
+            fw = new FileWriter(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log", true);
+            try{
+                Thread.sleep(100);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+		    fw.write(text + d + " - " + txt_log + "\n");
+		    Log.e("logger;", txt_log);
+		    //fw.append(d).append(" - ").append(txt_log);
+		    fw.flush();
+		    f.setWritable(false);
+		    //fw.close();
+	    }catch(Exception e){
+    		Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+    		e.printStackTrace();
+	    }
+    }
 
     View.OnClickListener social = new View.OnClickListener() {
         @Override
@@ -277,21 +333,13 @@ public class Updater extends AppCompatActivity {
         mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
         mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
         ups = new update_service(this);
-        set_lang("create");
-        int loc = sp.getInt("btn_add_align", 0);
-        if(loc == 0){
-            Button l = findViewById(R.id.btnLeft);
-            btndr = l.getBackground();
-            l.setBackgroundColor(getResources().getColor(R.color.black));
-            l.setTextColor(getResources().getColor(R.color.white));
-            btnbl = l.getBackground();
-        }else if(loc == 1){
-            Button l = findViewById(R.id.btnRight);
-            btndr = l.getBackground();
-            l.setBackgroundColor(getResources().getColor(R.color.black));
-            l.setTextColor(getResources().getColor(R.color.white));
-            btnbl = l.getBackground();
-        }
+        /*try {
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
+        //set_lang("create");
+        logger("created");
         findViewById(R.id.btnChLang).setOnLongClickListener(defLang);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
@@ -330,24 +378,14 @@ public class Updater extends AppCompatActivity {
                 inst.show();
             }
         };
+        try {
+            ready = fr.ready();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ". NEWMCALC_UPDATE_FAIL"));
 
-        if(sp.getBoolean("isdev", false)){
-            if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
-                findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
-            //findViewById(R.id.layDev).setVisibility(View.GONE);
-        }else{
-            if(sp.getBoolean("show_laydev", true)){
-                View mView = getLayoutInflater().inflate(R.layout.join_testers, null);
-                mView.findViewById(R.id.btnNotJoin).setOnClickListener(notJoin);
-                mView.findViewById(R.id.btnGetBuilds).setOnClickListener(join);
-                AlertDialog.Builder builddev = new AlertDialog.Builder(this);
-                builddev.setView(mView).setCancelable(false);
-                deval = builddev.create();
-                deval.show();
-            }
-        }
         // StrictMode.enableDefaults();
         Switch sw = findViewById(R.id.switchSaveOnExit);
         sw.setChecked(sp.getBoolean("saveResult", false));
@@ -366,7 +404,7 @@ public class Updater extends AppCompatActivity {
         }
         DatabaseReference devCode = db.getReference("dev/versionCodeDev");
         DatabaseReference devVer = db.getReference("dev/versionDev");
-
+        postcreate();
 
         if(sp.getBoolean("isdev", false)){
             devVer.addValueEventListener(new ValueEventListener() {
@@ -421,11 +459,6 @@ public class Updater extends AppCompatActivity {
             }
         });
         report_al = build.create();
-
-        if(!sp.getString("history", "").equals("")){
-            findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);
-        }
-
         action = getIntent();
         up_path = action.getStringExtra("update_path");
         up_ver = action.getStringExtra("upVerName");
@@ -504,6 +537,27 @@ public class Updater extends AppCompatActivity {
         }
     }
 
+    public void postcreate(){
+        if(sp.getBoolean("isdev", false)){
+            if(!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
+                findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
+            //findViewById(R.id.layDev).setVisibility(View.GONE);
+        }else{
+            if(sp.getBoolean("show_laydev", true)){
+                View mView = getLayoutInflater().inflate(R.layout.join_testers, null);
+                mView.findViewById(R.id.btnNotJoin).setOnClickListener(notJoin);
+                mView.findViewById(R.id.btnGetBuilds).setOnClickListener(join);
+                AlertDialog.Builder builddev = new AlertDialog.Builder(this);
+                builddev.setView(mView).setCancelable(false);
+                deval = builddev.create();
+                deval.show();
+            }
+        }
+        if(!sp.getString("history", "").equals("")){
+            findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);
+        }
+    }
+
     public Drawable btndr, btnbl;
 
     public void choose_btn(View v){
@@ -529,6 +583,7 @@ public class Updater extends AppCompatActivity {
                 sp.edit().putInt("btn_add_align", 1).apply();
             }else
                 sp.edit().putInt("btn_add_align", 0).apply();
+            logger("btn_choose");
             Intent btnal = new Intent(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE");
             sendBroadcast(btnal);
         }
@@ -590,5 +645,135 @@ public class Updater extends AppCompatActivity {
             e.printStackTrace();
         }
         ups.run(up_path, up_ver);
+    }
+
+    boolean isotherset = false;
+
+    public void other_settings(View v){
+    	isotherset = true;
+    	setContentView(R.layout.other_settings);
+        int loc = sp.getInt("btn_add_align", 0);
+        if(loc == 0){
+            Button l = findViewById(R.id.btnLeft);
+            btndr = l.getBackground();
+            l.setBackgroundColor(getResources().getColor(R.color.black));
+            l.setTextColor(getResources().getColor(R.color.white));
+            btnbl = l.getBackground();
+        }else if(loc == 1){
+            Button l = findViewById(R.id.btnRight);
+            btndr = l.getBackground();
+            l.setBackgroundColor(getResources().getColor(R.color.black));
+            l.setTextColor(getResources().getColor(R.color.white));
+            btnbl = l.getBackground();
+        }
+        findViewById(R.id.btnExport).setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View v){
+                sp.edit().clear().apply();
+                sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
+                Toast.makeText(getApplicationContext(), "Storage cleared", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    /*class tester{
+        String type(String x){
+            return "String";
+        }
+        String type(int x){
+            return "int";
+        }
+        String type(boolean x){
+            return "boolean";
+        }
+    }*/
+
+    public void import_(View v){
+        File f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
+        if(!f.exists()){
+            Toast.makeText(getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG).show();
+            return;
+        }
+        try{
+            FileReader fr = new FileReader(f);
+            //tring ans = "";
+            sp.edit().clear().apply();
+            while(fr.ready()){
+                char t = (char) fr.read();
+                String tag = "";
+                char read = (char)fr.read();
+                while(read != '='){
+                    tag += read;
+                    read = (char) fr.read();
+                }
+                String value = "";
+                read = (char) fr.read();
+                while(read != '©'){
+                    value += read;
+                    read = (char) fr.read();
+                }
+                //ans += t + " " + tag + " = " + value  + "\n";
+                if(t == 'S'){
+                    sp.edit().putString(tag, value).apply();
+                }else if(t == 'I'){
+                    sp.edit().putInt(tag, Integer.valueOf(value)).apply();
+                }else if(t == 'B'){
+                    sp.edit().putBoolean(tag, Boolean.parseBoolean(value)).apply();
+                }
+            }
+            Toast.makeText(getApplicationContext(), R.string.on_import, Toast.LENGTH_LONG).show();
+            fr.close();
+            sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
+            finish();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+	ProgressDialog pd;
+    public void create_import(View v){
+	    pd = new ProgressDialog(this);
+	    pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	    pd.setCancelable(false);
+	    File f = new File(Environment.getExternalStorageDirectory() + "/MST files");
+	    if(!f.isDirectory()){
+	        f.mkdir();
+        }
+	    logger("create_import call");
+	    f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
+	    pd.show();
+	    try{
+		    FileWriter fw = new FileWriter(f, false);
+		    String s = sp.getAll().toString();
+            Map<String, ?> m = sp.getAll();
+            fw.write("");
+		    //fw.append(s);
+            Set<String> se = m.keySet();
+            List<String> l = new ArrayList<String>(se);
+            for(int i = 0; i < l.size(); i++){
+                String ty = m.get(l.get(i)).getClass().getName();
+                ty = ty.replace("java.lang.", "");
+                ty = Character.toString(ty.charAt(0));
+                fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append("©");
+            }
+            logger("imported successful");
+		    pd.dismiss();
+		    fw.flush();
+		    Toast.makeText(getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT).show();
+	    }catch(Exception e){
+	        pd.dismiss();
+	        pd.setMessage(e.toString());
+	        pd.setCancelable(true);
+	        pd.show();
+	        try{
+	            Thread.sleep(2000);
+            }catch(Exception ex){
+	            ex.printStackTrace();
+            }
+	    	e.printStackTrace();
+	        logger("import err: " + e.toString());
+	    }
     }
 }

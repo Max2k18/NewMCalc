@@ -66,4 +66,11 @@
     <string name="confirm_stop_update">Желаете остановить обновление?</string>
     <string name="install">Установить</string>
     <string name="ch_lang">Выберите язык</string>
+    <string name="import_se">Импортировать</string>
+    <string name="export">Экспортировать</string>
+    <string name="ex_im_label">Импортировать или экспортировать настройки приложения</string>
+    <string name="on_import">Импортировано</string>
+    <string name="other_set">Другие настройки</string>
+    <string name="export_file_not_found">Внешний файл настроек не найден</string>
+    <string name="exported">Экспортировано</string>
 </resources>

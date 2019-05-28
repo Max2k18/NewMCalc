@@ -1,5 +1,6 @@
 package com.maxsavteam.newmcalc;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class catch_service extends AppCompatActivity {
 
@@ -26,12 +28,19 @@ public class catch_service extends AppCompatActivity {
 	TextView pr;
 	TextView all;
 	ProgressBar pb;
+	Updater up;
+
+	protected void log(String txt){
+		up = new Updater();
+		up.logger("catch_service\n" + txt);
+	}
 
 	@Override
 	public void onBackPressed(){
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
 		ups.kill();
+		log("back pressed");
 		finish();
 		overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
 	}
@@ -39,13 +48,16 @@ public class catch_service extends AppCompatActivity {
 	public void hide(View v){
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
+		log("hide called");
 		onBackPressed();
 	}
 
 	public void stop(View v){
+		log("stop called");
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
 		ups.kill();
+
 		onBackPressed();
 	}
 
@@ -85,6 +97,7 @@ public class catch_service extends AppCompatActivity {
 		Intent in = getIntent();
 		String action = in.getStringExtra("action");
 		Intent ser;
+		log("created");
 		ups = new update_service(this);
 		try{
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -95,6 +108,7 @@ public class catch_service extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
 		}
+		log("action: " + action);
 		switch (action) {
 			case "NOT_BTN_PRESSED":
 				ser = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
@@ -115,6 +129,7 @@ public class catch_service extends AppCompatActivity {
 				ups.set_sh_alert(false);
 				ar = ups.get_ints();
 				BroadcastReceiver br = new BroadcastReceiver() {
+					@SuppressLint("SetTextI18n")
 					@Override
 					public void onReceive(Context context, Intent intent) {
 						//int [] ar = intent.getIntArrayExtra("values");
@@ -126,6 +141,7 @@ public class catch_service extends AppCompatActivity {
 						else
 							pb.setIndeterminate(false);
 						pb.setProgress(ar[0]);
+						log("inf got: " + Arrays.toString(ar));
 					}
 				};
 				registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_UPDATE"));
@@ -142,6 +158,7 @@ public class catch_service extends AppCompatActivity {
 						findViewById(R.id.btnStop).setVisibility(View.GONE);
 						findViewById(R.id.btnHide).setVisibility(View.GONE);
 						ups.kill();
+						log("success");
 					}
 				};
 				registerReceiver(on_suc, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));

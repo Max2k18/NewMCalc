@@ -70,6 +70,7 @@ class update_service extends View {
 	public void kill() {
 		gl.tostop = true;
 		gl.isupdating = false;
+		uslogger("updating kill");
 		set_to_default();
 	}
 
@@ -81,38 +82,17 @@ class update_service extends View {
 		set_send_progress(false);
 		set_pause(false);
 		set_sh_alert(true);
+		uslogger("set_to_default. update_service");
 	}
 
 	public void set_send_progress(boolean b){
+		uslogger("gl.need_sh_progress set to " + b);
 		gl.need_sh_progress = b;
 	}
 
 	public void set_sh_alert(boolean b) {
+		uslogger("gl.sh_alert set to " + b);
 		gl.sh_alert = b;
-	}
-
-	public int get_status(String name) {
-		switch (name) {
-			case "cf":
-				return gl.cf;
-			case "all":
-				return gl.all;
-			case "bytes":
-				return gl.bytes;
-		}
-		return 0;
-	}
-
-	public ArrayList<Integer> get_allt(){
-		ArrayList<Integer> ar = new ArrayList<>();
-		ar.add(gl.cf);
-		ar.add(gl.all);
-		ar.add(gl.bytes);
-		if(gl.pause){
-			ar.add(1);
-		}else
-			ar.add(0);
-		return ar;
 	}
 
 	public int[] get_ints(){
@@ -124,6 +104,7 @@ class update_service extends View {
 			res[3] = 1;
 		}else
 			res[3] = 0;
+		uslogger("get_ints requested: cf - " + gl.cf + " all - " + gl.all + " bytes - " + gl.bytes);
 		return res;
 	}
 
@@ -132,16 +113,16 @@ class update_service extends View {
 	}
 
 	public void set_pause(boolean b){
+		uslogger("gl.pause set to " + Boolean.toString(b));
 		gl.pause = b;
 	}
 
 	public boolean isup() {
+		uslogger("requested isup() status");
 		return gl.isupdating;
 	}
 
-	public void run_with_task(String task){
-		gl.task = task;
-	}
+	Updater up;
 
 	public void run(String up_path0, String up_version) {
 		motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -152,6 +133,8 @@ class update_service extends View {
 				kill();
 			}
 		};
+		up = new Updater();
+		uslogger("update_service init");
 		mcon.registerReceiver(del_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".DELETE_NOT"));
 		up_ver = up_version;
 		up_path = up_path0;
@@ -176,6 +159,7 @@ class update_service extends View {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 				gl.bytes = dataSnapshot.getValue(Integer.TYPE);
+				uslogger("gl.bytes got: " + Integer.toString(gl.bytes));
 			}
 
 			@Override
@@ -202,6 +186,7 @@ class update_service extends View {
 			});
 			AlertDialog dl = builder.create();
 			dl.show();
+			uslogger("window showed in update_service");
 		} else {
 			NotificationCompat.Builder build = new NotificationCompat.Builder(mcon);
 			Intent in_not = new Intent(mcon, catch_service.class);
@@ -214,15 +199,13 @@ class update_service extends View {
 					.setContentText("Preparing...");
 			Notification not = build.build();
 			motman.notify(1, not);
+			uslogger("motman notified");
 			//cs.save_in_sp(true);
 			gl.isupdating = true;
 			new DownloadingTask().execute();
+			uslogger("DownloadingTask executed");
 		}
 
-	}
-
-	public String get_path() {
-		return gl.outputFile.getPath();
 	}
 
 	public void install() {
@@ -233,6 +216,7 @@ class update_service extends View {
 			mcon.startActivity(promptInstall);
 		}catch (Exception e){
 			Toast.makeText(mcon, e.toString(), Toast.LENGTH_LONG).show();
+			uslogger("install fail. " + e.toString());
 		}
 
 	}
@@ -245,8 +229,13 @@ class update_service extends View {
 		set_to_default();
 		res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL");
 		mcon.sendBroadcast(res);
+		uslogger("update failed. Broadcast sent");
 	}
-
+	
+	protected void uslogger(String txt){
+		Updater up = new Updater();
+		up.logger("update_service\n" + txt);
+	}
 
 	private class DownloadingTask extends AsyncTask<Void, Void, Void> {
 		String pr = "";
@@ -257,7 +246,6 @@ class update_service extends View {
 			NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
 			gl.cf = (gl.all * 100) / gl.bytes;
 			//gl.cf = gl.cf / gl.bytes;
-			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
 			if(!gl.pause)
 				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
 						.setContentIntent(pinte);
@@ -269,6 +257,7 @@ class update_service extends View {
 				motman.notify(1, builder.build());
 			else
 				motman.cancel(1);
+			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
 		}
 
 		@Override
@@ -281,6 +270,7 @@ class update_service extends View {
 						motman.cancel(1);
 						//cs.save_in_sp(false);
 						gl.isupdating = false;
+						uslogger("updated successful");
 						res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
 						//AlertDialog al = new AlertDialog.Builder(mcon).setMessage(all).setCancelable(true).create();
 						//al.show();
@@ -291,6 +281,7 @@ class update_service extends View {
 						motman.cancelAll();
 						if (gl.outputFile.exists()) {
 							gl.outputFile.delete();
+							uslogger("file was deleted");
 						}
 						gl.tostop = false;
 					}
