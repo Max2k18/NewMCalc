@@ -27,15 +27,8 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     MyRecyclerViewAdapter adapter;
 
     SharedPreferences sp;
-    Updater up;
-
-    protected void log(String txt){
-        up = new Updater();
-        up.logger("history\n" + txt);
-    }
 
     protected void backPressed(){
-        log("back pressed");
         finish();
         overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
     }
@@ -45,8 +38,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     public void onBackPressed(){
         sp.edit().remove("action").apply();
         sp.edit().remove("history_action").apply();
-        backPressed();
-        super.onBackPressed();
+        if(start_type.equals("app")){
+            backPressed();
+        }else if(start_type.equals("shortcut")) {
+        	startActivity(new Intent(this, MainActivity.class));
+	        backPressed();
+        }
+        //super.onBackPressed();
     }
 
     @Override
@@ -61,11 +59,12 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onItemClick(View view, int position) {
-        log("item click on pos " + position + ";" + adapter.getItem(position).get(0));
         sp.edit().putString("history_action", adapter.getItem(position).get(0)).apply();
         backPressed();
         //Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
+
+    String start_type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +72,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         setContentView(R.layout.history_checking);
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         RecyclerView rv;
-        log("created");
         try{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
@@ -121,7 +119,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         };
         registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
-
+        start_type = getIntent().getStringExtra("start_type");
         ArrayList< ArrayList<String> > str = new ArrayList<>();
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");

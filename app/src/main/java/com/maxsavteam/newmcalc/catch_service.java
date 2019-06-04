@@ -17,6 +17,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -28,19 +30,12 @@ public class catch_service extends AppCompatActivity {
 	TextView pr;
 	TextView all;
 	ProgressBar pb;
-	Updater up;
-
-	protected void log(String txt){
-		up = new Updater();
-		up.logger("catch_service\n" + txt);
-	}
 
 	@Override
 	public void onBackPressed(){
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
 		ups.kill();
-		log("back pressed");
 		finish();
 		overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
 	}
@@ -48,12 +43,10 @@ public class catch_service extends AppCompatActivity {
 	public void hide(View v){
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
-		log("hide called");
 		onBackPressed();
 	}
 
 	public void stop(View v){
-		log("stop called");
 		ups.set_send_progress(false);
 		ups.set_sh_alert(true);
 		ups.kill();
@@ -97,7 +90,6 @@ public class catch_service extends AppCompatActivity {
 		Intent in = getIntent();
 		String action = in.getStringExtra("action");
 		Intent ser;
-		log("created");
 		ups = new update_service(this);
 		try{
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -108,7 +100,16 @@ public class catch_service extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
 		}
-		log("action: " + action);
+		BroadcastReceiver on_shortcut_numgen = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Intent resultIntent = new Intent(getApplicationContext(), numgen.class);
+				resultIntent.putExtra("type", "number");
+				startActivity(resultIntent);
+				overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+			}
+		};
+		registerReceiver(on_shortcut_numgen, new IntentFilter("com.maxsavteam.newmcalc.ShortCutNumGen"));
 		switch (action) {
 			case "NOT_BTN_PRESSED":
 				ser = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
@@ -135,13 +136,22 @@ public class catch_service extends AppCompatActivity {
 						//int [] ar = intent.getIntArrayExtra("values");
 						ar = ups.get_ints();
 						pr.setText(ar[0] + "%");
-						all.setText(ar[1] + " of " + ar[2]);
+						int bytes = ar[2], total = ar[1];
+						BigDecimal bdbytes = new BigDecimal(bytes);
+						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						//bdbytes.setScale(2, RoundingMode.HALF_EVEN);
+						BigDecimal btotal = new BigDecimal(total);
+						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						//btotal.setScale(2, RoundingMode.HALF_EVEN);
+						all.setText(btotal + " of " + bdbytes);
+						//all.setText(ar[1] + " of " + ar[2]);
 						if(ar[3] == 1)
 							pb.setIndeterminate(true);
 						else
 							pb.setIndeterminate(false);
 						pb.setProgress(ar[0]);
-						log("inf got: " + Arrays.toString(ar));
 					}
 				};
 				registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_UPDATE"));
@@ -149,7 +159,16 @@ public class catch_service extends AppCompatActivity {
 				BroadcastReceiver on_suc = new BroadcastReceiver() {
 					@Override
 					public void onReceive(Context context, Intent intent) {
-						all.setText(ar[2] + " of " + ar[2]);
+						int bytes = ar[2], total = ar[1];
+						BigDecimal bdbytes = new BigDecimal(bytes);
+						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						//bdbytes.setScale(2, RoundingMode.HALF_EVEN);
+						BigDecimal btotal = new BigDecimal(total);
+						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
+						//btotal.setScale(2, RoundingMode.HALF_EVEN);
+						all.setText(btotal + "MB of " + bdbytes + "MB");
 						pr.setText("100%");
 						ups.set_send_progress(false);
 						ups.set_sh_alert(true);
@@ -158,7 +177,7 @@ public class catch_service extends AppCompatActivity {
 						findViewById(R.id.btnStop).setVisibility(View.GONE);
 						findViewById(R.id.btnHide).setVisibility(View.GONE);
 						ups.kill();
-						log("success");
+						//log("success");
 					}
 				};
 				registerReceiver(on_suc, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));

@@ -155,47 +155,6 @@ public class Updater extends AppCompatActivity {
             deval.cancel();
         }
     };
-    FileReader fr;
-    FileWriter fw;
-    boolean ready;
-
-    public void logger(String txt_log){
-    	try {
-		    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		    Date date = new Date();
-		    String d = dateFormat.format(date);
-		    String text = "";
-            File f = new File(Environment.getExternalStorageDirectory() + "/MST files");
-            if(!f.isDirectory()){
-                f.mkdir();
-            }
-            f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log");
-            if(!f.exists()){
-                try {
-                    f.createNewFile();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            f.setWritable(true);
-            fr = new FileReader(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log");
-            fw = new FileWriter(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.log", true);
-            try{
-                Thread.sleep(100);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-		    fw.write(text + d + " - " + txt_log + "\n");
-		    Log.e("logger;", txt_log);
-		    //fw.append(d).append(" - ").append(txt_log);
-		    fw.flush();
-		    f.setWritable(false);
-		    //fw.close();
-	    }catch(Exception e){
-    		Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-    		e.printStackTrace();
-	    }
-    }
 
     View.OnClickListener social = new View.OnClickListener() {
         @Override
@@ -339,7 +298,6 @@ public class Updater extends AppCompatActivity {
             e.printStackTrace();
         }*/
         //set_lang("create");
-        logger("created");
         findViewById(R.id.btnChLang).setOnLongClickListener(defLang);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
@@ -378,11 +336,6 @@ public class Updater extends AppCompatActivity {
                 inst.show();
             }
         };
-        try {
-            ready = fr.ready();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ". NEWMCALC_UPDATE_FAIL"));
 
@@ -583,7 +536,6 @@ public class Updater extends AppCompatActivity {
                 sp.edit().putInt("btn_add_align", 1).apply();
             }else
                 sp.edit().putInt("btn_add_align", 0).apply();
-            logger("btn_choose");
             Intent btnal = new Intent(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE");
             sendBroadcast(btnal);
         }
@@ -677,18 +629,6 @@ public class Updater extends AppCompatActivity {
         });
     }
 
-    /*class tester{
-        String type(String x){
-            return "String";
-        }
-        String type(int x){
-            return "int";
-        }
-        String type(boolean x){
-            return "boolean";
-        }
-    }*/
-
     public void import_(View v){
         File f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
         if(!f.exists()){
@@ -734,6 +674,7 @@ public class Updater extends AppCompatActivity {
 
 	ProgressDialog pd;
     public void create_import(View v){
+        ProgressDialog pd;
 	    pd = new ProgressDialog(this);
 	    pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 	    pd.setCancelable(false);
@@ -741,7 +682,6 @@ public class Updater extends AppCompatActivity {
 	    if(!f.isDirectory()){
 	        f.mkdir();
         }
-	    logger("create_import call");
 	    f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
 	    pd.show();
 	    try{
@@ -758,7 +698,6 @@ public class Updater extends AppCompatActivity {
                 ty = Character.toString(ty.charAt(0));
                 fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append("©");
             }
-            logger("imported successful");
 		    pd.dismiss();
 		    fw.flush();
 		    Toast.makeText(getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT).show();
@@ -773,7 +712,6 @@ public class Updater extends AppCompatActivity {
 	            ex.printStackTrace();
             }
 	    	e.printStackTrace();
-	        logger("import err: " + e.toString());
 	    }
     }
 }

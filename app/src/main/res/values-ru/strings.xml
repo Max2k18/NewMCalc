@@ -73,4 +73,5 @@
     <string name="other_set">Другие настройки</string>
     <string name="export_file_not_found">Внешний файл настроек не найден</string>
     <string name="exported">Экспортировано</string>
+    <string name="import_set_history">Импортируйте из резервной копии настроек (если они есть)</string>
 </resources>

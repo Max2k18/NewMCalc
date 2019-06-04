@@ -2,21 +2,29 @@ package com.maxsavteam.newmcalc;
 
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -55,9 +63,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -123,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
                     scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
                 }
             });
-            log("return_back called");
             equallu("not");
             return true;
         }
@@ -284,11 +294,6 @@ public class MainActivity extends AppCompatActivity {
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
         //mcheck.setOnClickListener(forcheck);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        log("sh_dl_update called with params: versionMy - " + versionMy
-                + ";versionNew - " + versionNew
-                + "; newver - " + newver
-                + "; text - " + text
-                + "; compileWithView - " + Boolean.toString(compileWithView));
         builder.setTitle(R.string.updateavail)
                 .setMessage(text
                         + "\n\n" + getResources().getString(R.string.version) + " " + newver + "\n"
@@ -311,7 +316,6 @@ public class MainActivity extends AppCompatActivity {
                         /*Intent in = new Intent(MainActivity.this, Updater.class);
                         in.putExtra("action", "update");
                         in.putExtra("upVerName", newDevVer);*/
-                        log("update yes clicked. uptype - " + uptype);
                         if(uptype.equals("dev")){
                             /*in.putExtra("upVerName", newDevVer);
                             in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
@@ -331,7 +335,6 @@ public class MainActivity extends AppCompatActivity {
     update_service ups;
 
     protected void check_up(Integer versionMy, Integer versionNew){
-        log("check_up called with versionMy - " + versionMy + "; versionNew - " + versionNew);
         if(!ups.isup()){
             if(versionNew < newCodeDev && versionMy < newCodeDev){
                 sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
@@ -357,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
         findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
         if(v.getId() == R.id.imgBtnSettings){
-            log("onClickAdd: Settings");
             resultIntent = new Intent(getApplicationContext(), Updater.class);
             resultIntent.putExtra("action", "simple");
             if(uptype.equals("simple"))
@@ -367,21 +369,21 @@ public class MainActivity extends AppCompatActivity {
             startActivity(resultIntent);
             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
         }else if(v.getId() == R.id.btnImgNumGen){
-            log("onClickAdd: NumGen");
             resultIntent = new Intent(getApplicationContext(), numgen.class);
             resultIntent.putExtra("type", "number");
+            resultIntent.putExtra("start_type", "app");
             startActivity(resultIntent);
             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
         }else if(v.getId() == R.id.btnImgHistory){
-            log("onClickAdd: History");
             sp.edit().putString("action", "history").apply();
             resultIntent = new Intent(getApplicationContext(), history.class);
+            resultIntent.putExtra("start_type", "app");
             startActivity(resultIntent);
             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
         }else if(v.getId() == R.id.btnImgPassgen){
-            log("onClickAdd: History");
             resultIntent = new Intent(getApplicationContext(), numgen.class);
             resultIntent.putExtra("type", "pass");
+            resultIntent.putExtra("start_type", "app");
             startActivity(resultIntent);
             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
         }
@@ -419,7 +421,6 @@ public class MainActivity extends AppCompatActivity {
                 sh2.setText(">");
             }
             add_menu_opened = true;
-            log("actions bar opened");
         }else{
             add_menu_opened = false;
             par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
@@ -434,7 +435,6 @@ public class MainActivity extends AppCompatActivity {
                 sh2.setVisibility(View.GONE);
                 sh.setText("<");
             }
-            log("actions bar hided");
         }
         ll.setLayoutParams(par);
     }
@@ -443,7 +443,6 @@ public class MainActivity extends AppCompatActivity {
         int loc = sp.getInt("btn_add_align", 0);
         RelativeLayout rl = findViewById(R.id.relativelayout);
         ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) rl.getLayoutParams();
-        log("btnchanged to " + loc);
         if(loc == 0){
             onshow = ">";
             onhide = "<";
@@ -493,12 +492,10 @@ public class MainActivity extends AppCompatActivity {
         //FirebaseApp.initializeApp(this);
         ups = new update_service(MainActivity.this);
 	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-	    log("created");
         try{
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch (Exception e){
-            log("error: " + e.toString());
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
         /*ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) findViewById(R.id.relativelayout).getLayoutParams();
@@ -508,7 +505,6 @@ public class MainActivity extends AppCompatActivity {
         BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                log("on_btn_align_change");
                 btn_change();
             }
         };
@@ -528,7 +524,6 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
-                                    log("update dialog cancelled");
                                 }
                             }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
@@ -543,6 +538,36 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
+            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+            Intent t = new Intent(Intent.ACTION_VIEW, null, MainActivity.this, numgen.class);
+            t.putExtra("type", "number");
+            t.putExtra("start_type", "shortcut");
+            ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
+                    .setLongLabel(getResources().getString(R.string.randomgen))
+                    .setShortLabel(getResources().getString(R.string.randomgen))
+                    .setIcon(Icon.createWithResource(this, R.drawable.dice))
+                    .setIntent(t)
+                    .build();
+            t.putExtra("type", "pass");
+            ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
+                    .setLongLabel(getResources().getString(R.string.passgen))
+                    .setShortLabel(getResources().getString(R.string.passgen))
+                    .setIcon(Icon.createWithResource(this, R.drawable.passgen))
+                    .setIntent(t)
+                    .build();
+
+            Intent his = new Intent(Intent.ACTION_VIEW, null, MainActivity.this, history.class);
+            his.putExtra("start_type", "shortcut");
+            ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
+                    .setLongLabel(getResources().getString(R.string.hitory))
+                    .setShortLabel(getResources().getString(R.string.hitory))
+                    .setIcon(Icon.createWithResource(this, R.drawable.history))
+                    .setIntent(his)
+                    .build();
+
+            shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
+        }
         BroadcastReceiver brfail = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -550,7 +575,7 @@ public class MainActivity extends AppCompatActivity {
                     not_btn_pr.cancel();
                 if(!isOtherActivityOpened){
                     AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
-                    b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
+                    b.setTitle(":(").setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
@@ -578,14 +603,13 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
         registerReceiver(on_sp_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-        BroadcastReceiver on_lang = new BroadcastReceiver() {
+        /*BroadcastReceiver on_lang = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 set_lang();
             }
         };
-        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));
-        log("Broadcast receivers registered");
+        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));*/
 
         BroadcastReceiver btn_not = new BroadcastReceiver() {
             @Override
@@ -663,12 +687,6 @@ public class MainActivity extends AppCompatActivity {
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
-    Updater up;
-    protected void log(String txt){
-        up = new Updater();
-        up.logger("MainActivity:\n" + txt);
-    }
-
     protected void set_lang(){
         String language_code = sp.getString("lang", "def");
         if(!language_code.equals("def")){
@@ -690,20 +708,21 @@ public class MainActivity extends AppCompatActivity {
             if(!sp.getString("saveResultText", "none").equals("none")){
                 String text = sp.getString("saveResultText", "none");
                 int i = 0;
-                String ex = "", ans = "";
-                while(i < text.length() && text.charAt(i) != ';'){
-                    ex += text.charAt(i);
+                StringBuilder ex = new StringBuilder();
+	            StringBuilder ans = new StringBuilder();
+	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
+                    ex.append(text.charAt(i));
                     i++;
                 }
                 TextView ver = findViewById(R.id.textAns2);
-                ver.setText(ex);
+                ver.setText(ex.toString());
                 i++;
                 while(i < text.length() && text.charAt(i) != ';'){
-                    ans += text.charAt(i);
+                    ans.append(text.charAt(i));
                     i++;
                 }
                 ver = findViewById(R.id.textStr);
-                ver.setText(ans);
+                ver.setText(ans.toString());
                 //ver.setSelected(false);
                 equallu("not");
                 ver = null;
@@ -717,15 +736,13 @@ public class MainActivity extends AppCompatActivity {
         refVer.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newVer = dataSnapshot.getValue().toString();
-                log("newVer value got: " + newVer);
+                newVer = Objects.requireNonNull(dataSnapshot.getValue()).toString();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 newVer = "\b";
                 Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-                log("database error: " + databaseError.toString());
             }
         });
 
@@ -739,7 +756,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     newDevVer = dataSnapshot.getValue(String.class);
-                    log("newDevVer: " + newDevVer);
                 }
 
                 @Override
@@ -854,7 +870,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void mult(String x){
-        log("mult called with parametr: " + x);
         if(x.length() == 3 || x.equals("ln") || x.equals("R")){
             double d = s1.peek().doubleValue(), ans = 1;
             if(x.equals("log") && d <= 0){
@@ -962,7 +977,6 @@ public class MainActivity extends AppCompatActivity {
                 ans = new BigDecimal(answer);
             }
             s1.push(ans);
-            log("mult answer: " + answer);
         }catch (ArithmeticException e){
             //Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
             String str = e.toString();
@@ -973,7 +987,6 @@ public class MainActivity extends AppCompatActivity {
                 was_error = true;
                 str = str.replaceAll("java.lang.ArithmeticException: ", "");
                 Toast.makeText(getApplicationContext(), "Error: " + str, Toast.LENGTH_SHORT).show();
-                log("err in mult: " + str);
                 /*TextView t = findViewById(R.id.txtAns);
                 t.setText("Error: " + str);
                 t.setContentDescription(t.getText());
@@ -1020,10 +1033,8 @@ public class MainActivity extends AppCompatActivity {
             in_s0(x);
             return;
         }
-        if(priority.get(Character.toString(x)) > priority.get(s0.peek())){
+        if(priority.get(Character.toString(x)) > priority.get(s0.peek()))
             s0.push(Character.toString(x));
-            return;
-        }
     }
 
     protected BigDecimal fact(BigDecimal x){
@@ -1044,7 +1055,6 @@ public class MainActivity extends AppCompatActivity {
                 show_hide(findViewById(R.id.btnShAdd2));
             }
         }
-        log("core called");
         if(type.equals("all"))
             brackets = 0;
         if(stri.equals("P") || stri.equals("F") || stri.equals("e")){
@@ -1105,11 +1115,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        log("core started");
-        /*if(digits == 1 && stri.length() == 1){
-            return;
-        }*/
-        //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
         char[] str = new char[stri.length()];
         stri.getChars(0, stri.length(), str, 0);
         String x;
@@ -1393,7 +1398,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-            log("core ended");
         }
 
     }
@@ -1437,7 +1441,6 @@ public class MainActivity extends AppCompatActivity {
             //twidth = txt.getWidth();
             textPaint.getTextBounds(stri, 0, stri.length(), bounds);
             twidth = bounds.width();
-            log("resize_text: textSize - " + Float.toString(txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity));
             //txt.setWidth(twidth + 10);
             //sz = txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
         }
@@ -1456,7 +1459,6 @@ public class MainActivity extends AppCompatActivity {
         TextView t = findViewById(R.id.textAns2);
         txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 46);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
-        log("text set to default");
     }
 
     public void equallu(String type){
@@ -1469,7 +1471,6 @@ public class MainActivity extends AppCompatActivity {
             txt.setText(stri);
             return;
         }
-        log("equallu: " + type);
         //int twidth = txt.getWidth();
         float sz = txt.getTextSize();
         //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
@@ -1613,7 +1614,7 @@ public class MainActivity extends AppCompatActivity {
         t = findViewById(R.id.textStr);
         String txt = t.getText().toString();
         int len = txt.length();
-        log("add text. len - " + len + ", btntxt - " + btntxt);
+        //log("add text. len - " + len + ", btntxt - " + btntxt);
         if(len != 0)
             last = txt.charAt(len-1);
         if(btntxt.equals("φ") || btntxt.equals("π") || btntxt.equals("e")){
@@ -1783,12 +1784,10 @@ public class MainActivity extends AppCompatActivity {
             if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !btntxt.equals(".") && !isdigit(btntxt.toCharArray()[0])))) {
                 if(btntxt.equals("("))
                     brackets++;
-                //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
                 t.setText(txt + btntxt);
                 equallu("not");
             }else if(len == 0 && btntxt.equals("(")){
                 brackets++;
-                //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
                 t.setText(btntxt);
                 equallu("not");
             }else{
@@ -1842,7 +1841,6 @@ public class MainActivity extends AppCompatActivity {
                 show_hide(findViewById(R.id.btnShAdd2));
             }
         }
-        log("gotoactions called");
         startActivity(resultIntent);
         overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
     }
@@ -1853,7 +1851,7 @@ public class MainActivity extends AppCompatActivity {
         String txt = t.getText().toString();
         String btntxt = btn.getText().toString();
         add_text(btntxt);
-        log("onClick action;");
+       // log("onClick action;");
         if(add_menu_opened){
             if(sp.getInt("btn_add_align", 0) == 0){
                 show_hide(findViewById(R.id.btnShAdd));
@@ -1887,7 +1885,7 @@ public class MainActivity extends AppCompatActivity {
                 show_hide(findViewById(R.id.btnShAdd2));
             }
         }
-        log("all text del");
+        //log("all text del");
     }
 
     public void delSymbol(View v){
@@ -1920,7 +1918,6 @@ public class MainActivity extends AppCompatActivity {
                 show_hide(findViewById(R.id.btnShAdd2));
             }
         }
-        log("del symbol");
         HorizontalScrollView scrollview = findViewById(R.id.scrollview);
 
         scrollview.post(() -> {

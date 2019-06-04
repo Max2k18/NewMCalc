@@ -84,4 +84,5 @@
     <string name="other_set">Other settings</string>
     <string name="export_file_not_found">External configuration file not found</string>
     <string name="exported">Exported</string>
+    <string name="import_set_history">Import from backup settings (if any)</string>
 </resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="numgenshortCut"
+        android:enabled="true"
+        android:icon="@drawable/dice"
+        android:shortcutLongLabel="@string/randomgen"
+        android:shortcutShortLabel="@string/randomgen"
+        android:shortcutDisabledMessage="@string/randomgen">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.maxsavteam.newmcalc"
+            android:targetClass="com.maxsavteam.newmcalc.numgen"/>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>
