@@ -29,6 +29,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     SharedPreferences sp;
 
     protected void backPressed(){
+        sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION"));
         finish();
         overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
     }

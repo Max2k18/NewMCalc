@@ -137,15 +137,7 @@ public class catch_service extends AppCompatActivity {
 						ar = ups.get_ints();
 						pr.setText(ar[0] + "%");
 						int bytes = ar[2], total = ar[1];
-						BigDecimal bdbytes = new BigDecimal(bytes);
-						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						//bdbytes.setScale(2, RoundingMode.HALF_EVEN);
-						BigDecimal btotal = new BigDecimal(total);
-						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						//btotal.setScale(2, RoundingMode.HALF_EVEN);
-						all.setText(btotal + " of " + bdbytes);
+						all.setText(all + " of " + bytes);
 						//all.setText(ar[1] + " of " + ar[2]);
 						if(ar[3] == 1)
 							pb.setIndeterminate(true);
@@ -160,15 +152,7 @@ public class catch_service extends AppCompatActivity {
 					@Override
 					public void onReceive(Context context, Intent intent) {
 						int bytes = ar[2], total = ar[1];
-						BigDecimal bdbytes = new BigDecimal(bytes);
-						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						bdbytes.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						//bdbytes.setScale(2, RoundingMode.HALF_EVEN);
-						BigDecimal btotal = new BigDecimal(total);
-						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						btotal.divide(new BigDecimal(1024), 2, RoundingMode.HALF_EVEN);
-						//btotal.setScale(2, RoundingMode.HALF_EVEN);
-						all.setText(btotal + "MB of " + bdbytes + "MB");
+						all.setText(all + " of " + bytes);
 						pr.setText("100%");
 						ups.set_send_progress(false);
 						ups.set_sh_alert(true);
@@ -177,7 +161,6 @@ public class catch_service extends AppCompatActivity {
 						findViewById(R.id.btnStop).setVisibility(View.GONE);
 						findViewById(R.id.btnHide).setVisibility(View.GONE);
 						ups.kill();
-						//log("success");
 					}
 				};
 				registerReceiver(on_suc, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));

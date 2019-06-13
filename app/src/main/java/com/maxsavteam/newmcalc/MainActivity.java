@@ -75,24 +75,23 @@ public class MainActivity extends AppCompatActivity {
 
     public static Stack<String> s0 = new Stack<>();
     public static Stack<BigDecimal> s1 = new Stack<>();
-    /*public static class globals{
-        static Stack<String> brackets = new Stack<>();
-    }*/
     public static Boolean was_error = false;
 
     public boolean isOtherActivityOpened = false;
     public SharedPreferences sp;
     public Button btn;
-    TextView t;
+    public TextView t;
     public char last;
     public int brackets = 0;
     public String original = "";
-    public int newvercode = 0;
     public String newVer = "\b";
-    AlertDialog dl, al;
+    public AlertDialog dl, al;
     public String newDevVer = "";
     public boolean add_menu_opened = false;
-
+    public AlertDialog not_btn_pr = null;
+    public String onshow = "", onhide = "";
+    public update_service ups;
+    public String uptype = "simple";
     public int newCodeDev = 0;
     public Integer versionSt = 0;
 
@@ -142,84 +141,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        if(sp.getBoolean("toChoose", false)){
-            sp.edit().remove("toChoose").apply();
-            if(!sp.getString("chooseValue", "").equals("")){
-                /*if(sp.getString("chooseValue", "").equals("(")){
-                    brackets++;
-                    Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
-                }/*else if(sp.getString("chooseValue", "").equals(")")){
-                    if(brackets > 0)
-                        brackets--;
-                }*/
-                t = findViewById(R.id.textStr);
-                String txt = t.getText().toString();
-                if(sp.getString("chooseValue", "").equals("1/X")){
-                    if(txt.equals(""))
-                        return;
-                    String newt = "";
-                    int i = txt.length()-1;
-                    while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
-                        newt = txt.charAt(i) + newt;
-                        i--;
-                    }
-
-                    s1.push(BigDecimal.valueOf(1));
-                    s1.push(new BigDecimal(newt));
-                    mult("/");
-                    if(!was_error){
-                        BigDecimal ans = s1.peek();
-                        s1.pop();
-                        if(txt.length() == newt.length()){
-                            t.setText(ans.toString());
-                        }else{
-                            txt = txt.substring(0, txt.length() - newt.length());
-                            txt += ans.toString();
-                            t.setText(txt);
-                        }
-                        equallu("not");
-                    }
-
-                    return;
-                }else
-                    add_text(sp.getString("chooseValue", ""));
-            }
-            sp.edit().remove("chooseValue").apply();
-            return;
-        }
-        if(sp.getString("action", "").equals("history")){
-            t = findViewById(R.id.textStr);
-            if(!sp.getString("history_action", "").equals("")){
-                String txt = t.getText().toString();
-                if(!txt.equals("") && txt.contains(".")){
-                    if(islet(txt.charAt(txt.length() - 1)))
-                        return;
-                    boolean was_action = false;
-                    for(int i = txt.length() - 1; i >= 0; i++){
-                        if(isaction(txt.charAt(i)) || islet(txt.charAt(i))
-                                || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.fi))
-                                || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.pi)) || txt.charAt(i) == 'e'){
-                            was_action = true;
-                        }
-                        if(txt.charAt(i) == '.'){
-                            if(!was_action){
-                                return;
-                            }
-                        }
-                    }
-                }
-                txt = txt  + sp.getString("history_action", "");
-                t.setText(txt);
-                sp.edit().remove("action").apply();
-                sp.edit().remove("history_action").apply();
-                equallu("not");
-            }
-            sp.edit().remove("action").apply();
-            sp.edit().remove("history_action").apply();
-        }
         isOtherActivityOpened = false;
     }
-
 
     @Override
     public void onBackPressed() {
@@ -287,8 +210,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    String uptype = "simple";
-
     protected void sh_dl_update(int versionMy, int versionNew, String newver, String text, boolean compileWithView){
         View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
@@ -332,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setView(mView);
         al = builder.create();
     }
-    update_service ups;
+
 
     protected void check_up(Integer versionMy, Integer versionNew){
         if(!ups.isup()){
@@ -360,32 +281,13 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
         findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
         if(v.getId() == R.id.imgBtnSettings){
-            resultIntent = new Intent(getApplicationContext(), Updater.class);
-            resultIntent.putExtra("action", "simple");
-            if(uptype.equals("simple"))
-                resultIntent.putExtra("update_path", "/NewMCalc.apk");
-            else
-                resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+            goto_add_scr("settings");
         }else if(v.getId() == R.id.btnImgNumGen){
-            resultIntent = new Intent(getApplicationContext(), numgen.class);
-            resultIntent.putExtra("type", "number");
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+            goto_add_scr("numgen");
         }else if(v.getId() == R.id.btnImgHistory){
-            sp.edit().putString("action", "history").apply();
-            resultIntent = new Intent(getApplicationContext(), history.class);
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+            goto_add_scr("history");
         }else if(v.getId() == R.id.btnImgPassgen){
-            resultIntent = new Intent(getApplicationContext(), numgen.class);
-            resultIntent.putExtra("type", "pass");
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+            goto_add_scr("pass");
         }
         if(sp.getInt("btn_add_align", 0) == 0){
             show_hide(findViewById(R.id.btnShAdd));
@@ -394,7 +296,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public String onshow = "", onhide = "";
+    protected void goto_add_scr(String where){
+        Intent resultIntent = new Intent();
+        if(where.equals("settings")){
+            resultIntent = new Intent(getApplicationContext(), Updater.class);
+            resultIntent.putExtra("action", "simple");
+            if(uptype.equals("simple"))
+                resultIntent.putExtra("update_path", "/NewMCalc.apk");
+            else
+                resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(where.equals("numgen")){
+            resultIntent = new Intent(getApplicationContext(), numgen.class);
+            resultIntent.putExtra("type", "number");
+            resultIntent.putExtra("start_type", "app");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(where.equals("history")){
+            sp.edit().putString("action", "history").apply();
+            resultIntent = new Intent(getApplicationContext(), history.class);
+            resultIntent.putExtra("start_type", "app");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }else if(where.equals("pass")){
+            resultIntent = new Intent(getApplicationContext(), numgen.class);
+            resultIntent.putExtra("type", "pass");
+            resultIntent.putExtra("start_type", "app");
+            startActivity(resultIntent);
+            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        }
+    }
+
+
 
     public void show_hide(View v){
         LinearLayout ll = findViewById(R.id.additional_tools);
@@ -474,8 +408,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public int cf = 0, allt, bytes;
-    AlertDialog not_btn_pr = null;
+
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -498,10 +431,22 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
-        /*ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) findViewById(R.id.relativelayout).getLayoutParams();
-        par.horizontalBias = 1.0f;
-        findViewById(R.id.relativelayout).setLayoutParams(par);*/
-
+		Intent start_in = getIntent();
+        RelativeLayout.LayoutParams par;
+        add_menu_opened = false;
+        par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
+        LinearLayout ll = findViewById(R.id.additional_tools);
+        ll.setLayoutParams(par);
+		if(start_in.getBooleanExtra("shortcut_action", false)){
+            goto_add_scr(start_in.getStringExtra("to_"));
+            /*if(sp.getInt("btn_add_align", 0) == 0){
+                show_hide(findViewById(R.id.btnShAdd));
+            }else{
+                show_hide(findViewById(R.id.btnShAdd2));
+            }*/
+			//show_hide(findViewById(R.id.btnShAdd));
+		}
         BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -538,18 +483,90 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
+        BroadcastReceiver on_his_action = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                t = findViewById(R.id.textStr);
+                if(!sp.getString("history_action", "").equals("")){
+                    String txt = t.getText().toString();
+                    if(!txt.equals("") && txt.contains(".")){
+                        if(islet(txt.charAt(txt.length() - 1)))
+                            return;
+                        boolean was_action = false;
+                        for(int i = txt.length() - 1; i >= 0; i++){
+                            if(isaction(txt.charAt(i)) || islet(txt.charAt(i))
+                                    || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.fi))
+                                    || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.pi)) || txt.charAt(i) == 'e'){
+                                was_action = true;
+                            }
+                            if(txt.charAt(i) == '.'){
+                                if(!was_action){
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    txt = txt  + sp.getString("history_action", "");
+                    t.setText(txt);
+                    sp.edit().remove("action").apply();
+                    sp.edit().remove("history_action").apply();
+                    equallu("not");
+                }
+                sp.edit().remove("action").apply();
+                sp.edit().remove("history_action").apply();
+            }
+        };
+        registerReceiver(on_his_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION"));
+        BroadcastReceiver on_choose_action = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                sp.edit().remove("toChoose").remove("btnHeight").remove("btnWidth").apply();
+                if(!intent.getStringExtra("value").equals("")){
+                    t = findViewById(R.id.textStr);
+                    String txt = t.getText().toString();
+                    if(intent.getStringExtra("value").equals("1/X")){
+                        if(txt.equals(""))
+                            return;
+                        String newt = "";
+                        int i = txt.length()-1;
+                        while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
+                            newt = txt.charAt(i) + newt;
+                            i--;
+                        }
+
+                        s1.push(BigDecimal.valueOf(1));
+                        s1.push(new BigDecimal(newt));
+                        mult("/");
+                        if(!was_error){
+                            BigDecimal ans = s1.peek();
+                            s1.pop();
+                            if(txt.length() == newt.length()){
+                                t.setText(ans.toString());
+                            }else{
+                                txt = txt.substring(0, txt.length() - newt.length());
+                                txt += ans.toString();
+                                t.setText(txt);
+                            }
+                            equallu("not");
+                        }
+                    }else
+                        add_text(intent.getStringExtra("value"));
+                }
+            }
+        };
+        registerReceiver(on_choose_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_CHOOSE_ACTION"));
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-            Intent t = new Intent(Intent.ACTION_VIEW, null, MainActivity.this, numgen.class);
-            t.putExtra("type", "number");
-            t.putExtra("start_type", "shortcut");
+            Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
+            t.putExtra("shortcut_action", true);
+            t.putExtra("to_", "numgen");
             ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
                     .setLongLabel(getResources().getString(R.string.randomgen))
                     .setShortLabel(getResources().getString(R.string.randomgen))
                     .setIcon(Icon.createWithResource(this, R.drawable.dice))
                     .setIntent(t)
                     .build();
-            t.putExtra("type", "pass");
+            t.putExtra("to_", "pass");
             ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
                     .setLongLabel(getResources().getString(R.string.passgen))
                     .setShortLabel(getResources().getString(R.string.passgen))
@@ -557,13 +574,12 @@ public class MainActivity extends AppCompatActivity {
                     .setIntent(t)
                     .build();
 
-            Intent his = new Intent(Intent.ACTION_VIEW, null, MainActivity.this, history.class);
-            his.putExtra("start_type", "shortcut");
+            t.putExtra("to_", "history");
             ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
                     .setLongLabel(getResources().getString(R.string.hitory))
                     .setShortLabel(getResources().getString(R.string.hitory))
                     .setIcon(Icon.createWithResource(this, R.drawable.history))
-                    .setIntent(his)
+                    .setIntent(t)
                     .build();
 
             shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
@@ -703,6 +719,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
+
+        if(BuildConfig.APPTYPE.equals("tester")){
+            sp.edit().putBoolean("isdev", true).apply();
+        }
 
         if(sp.getBoolean("saveResult", false)){
             if(!sp.getString("saveResultText", "none").equals("none")){
@@ -1111,7 +1131,7 @@ public class MainActivity extends AppCompatActivity {
         if(actions == 0){
             return;
         }else{
-            if(!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0) && !stri.contains("R")){
+            if(!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0) && !stri.contains("R") && !stri.contains("!")){
                 return;
             }
         }
@@ -1423,10 +1443,13 @@ public class MainActivity extends AppCompatActivity {
     public void resize_text(){
         TextView txt = findViewById(R.id.textStr);
         TextView t = findViewById(R.id.textAns2);
-        String stri = txt.getText().toString();
+        String stri = txt.getText().toString(), strians = t.getText().toString();
         Rect bounds = new Rect();
+        Rect boundsans = new Rect();
         Paint textPaint = txt.getPaint();
+        Paint PaintAns = t.getPaint();
         textPaint.getTextBounds(stri, 0, stri.length(), bounds);
+        PaintAns.getTextBounds(strians, 0, strians.length(), boundsans);
         int height = bounds.height();
         int twidth = bounds.width();
         int widthAns = bounds.width();
@@ -1434,15 +1457,21 @@ public class MainActivity extends AppCompatActivity {
         Point size = new Point();
         dis.getSize(size);
         int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 46, getResources().getDisplayMetrics());
-        int width = size.x - px - 45;
+        int width = size.x - px - 45, answidth = size.x - (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, getResources().getDisplayMetrics());
         while(twidth >= width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 32){
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
-            t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
+            if(boundsans.width() >= answidth)
+                t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
             //twidth = txt.getWidth();
             textPaint.getTextBounds(stri, 0, stri.length(), bounds);
+            PaintAns.getTextBounds(strians, 0, strians.length(), boundsans);
             twidth = bounds.width();
             //txt.setWidth(twidth + 10);
             //sz = txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
+        }
+        while(bounds.width() >= answidth && t.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 29){
+            t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
+            PaintAns.getTextBounds(strians, 0, strians.length(), boundsans);
         }
         if (twidth < width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity < 46){
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
@@ -1571,12 +1600,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                     stri = new String(mas);
                 }
-                if(stri.charAt(len-1) == 'P' || stri.charAt(len-1) == 'F' || stri.charAt(len-1) == 'e' || (!islet(stri.charAt(len-1)) && (isdigit(stri.charAt(len-1)) || stri.charAt(len-1) == ')'))){
-                    calc(stri, type, digits, actions);
+                calc(stri, type, digits, actions);
+                /*if(stri.charAt(len-1) == 'P' || stri.charAt(len-1) == 'F' || stri.charAt(len-1) == 'e' || (!islet(stri.charAt(len-1)) && (isdigit(stri.charAt(len-1)) || stri.charAt(len-1) == ')'))){
+
                 }else{
                     HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                     scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
-                }
+                }*/
             }else{
                 HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                 scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
@@ -1834,6 +1864,8 @@ public class MainActivity extends AppCompatActivity {
         sp.edit().putBoolean("toChoose", true).apply();
         sp.edit().putString("action", "gotoactions").apply();
         Intent resultIntent = new Intent(getApplicationContext(), chooseactions.class);
+        resultIntent.putExtra("btnHeight", btn8.getHeight());
+        resultIntent.putExtra("btnWidth", btn8.getWidth());
         if(add_menu_opened){
             if(sp.getInt("btn_add_align", 0) == 0){
                 show_hide(findViewById(R.id.btnShAdd));
@@ -1924,5 +1956,4 @@ public class MainActivity extends AppCompatActivity {
             scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
         });
     }
-
 }

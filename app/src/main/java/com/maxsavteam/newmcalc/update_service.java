@@ -177,7 +177,7 @@ class update_service extends View {
 			in_not.putExtra("action", "on_prepare_pressed");
 			PendingIntent pendingIntent = PendingIntent.getService(mcon, 0, in_not, 0);
 			build.setContentTitle("New MCalc is updating...")
-					.setSmallIcon(R.drawable.update)
+					.setSmallIcon(R.drawable.update)	
 					.setOngoing(true)
 					.setProgress(100, 0, true).addAction(R.drawable.stop, getResources().getString(R.string.stop), pendingIntent)
 					.setContentText("Preparing...");
@@ -335,7 +335,7 @@ class update_service extends View {
                                 motman.notify(1, builder.build());*/
 					            }
 					            //Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
-
+					            c.disconnect();
 					            fos.close();
 					            is.close();
 

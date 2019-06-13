@@ -47,9 +47,10 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 22
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        versionCode 55
-        versionName "1.4"
-        buildConfigField "int", "COMPILENAME", "190604"
+        versionCode 59
+        versionName "1.5.1"
+        buildConfigField "int", "COMPILENAME", "190613"
+        buildConfigField "String", "APPTYPE", "\"stable\""
     }
     buildTypes {
         release {

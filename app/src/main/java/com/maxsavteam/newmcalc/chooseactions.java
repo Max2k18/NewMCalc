@@ -43,7 +43,6 @@ public class chooseactions extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        //Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
         if (id == android.R.id.home) {
             backPressed();
         }
@@ -54,18 +53,19 @@ public class chooseactions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String language_code = sp.getString("lang", "def");
+        /*String language_code = sp.getString("lang", "def");
         if(!language_code.equals("def")){
             Resources res = getResources();
             DisplayMetrics dm = res.getDisplayMetrics();
             android.content.res.Configuration conf = res.getConfiguration();
             conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
             res.updateConfiguration(conf, dm);
-        }
+        }*/
         setContentView(R.layout.activity_chooseactions);
+        Intent start_in = getIntent();
+        height = start_in.getIntExtra("btnHeight", 100);
+        width = start_in.getIntExtra("btnWidth", 100);
 
-        height = sp.getInt("btnHeight", 100);
-        width = sp.getInt("btnWidth", 100);
         //setButtons();
         try{
             getSupportActionBar().setTitle(getResources().getString(R.string.chooseaction));
@@ -112,14 +112,16 @@ public class chooseactions extends AppCompatActivity {
                 });
             }
         };
-        registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
-        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
+        registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
+        registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
     }
 
 
     public void onClick(View v) {
         Button btn = findViewById(v.getId());
-        sp.edit().putString("chooseValue", btn.getText().toString()).apply();
+        Intent val = new Intent(BuildConfig.APPLICATION_ID + ".ON_CHOOSE_ACTION");
+        val.putExtra("value", btn.getText().toString());
+        sendBroadcast(val);
         finish();
         overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
     }
