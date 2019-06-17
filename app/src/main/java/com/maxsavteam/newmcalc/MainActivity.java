@@ -665,7 +665,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(getResources().getString(R.string.about_text)
                         + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
                         + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE
-                        + "\nCompileName: " + BuildConfig.COMPILENAME + "\n\n" + "©" + "MaxSav Team, 2018-2019")
+                        + "\nCompile date: " + BuildConfig.COMPILE_DATE + "\n\n" + "©" + "MaxSav Team, 2018-2019")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1502,6 +1502,8 @@ public class MainActivity extends AppCompatActivity {
         }
         //int twidth = txt.getWidth();
         float sz = txt.getTextSize();
+        if(len != 0 && !isdigit(stri.charAt(len-1)) && stri.charAt(len-1) != '!' && stri.charAt(len-1) != '%')
+            return;
         //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
         resize_text();
         //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
@@ -1923,6 +1925,10 @@ public class MainActivity extends AppCompatActivity {
     public void delSymbol(View v){
         TextView txt = findViewById(R.id.textStr);
         String text = txt.getText().toString();
+        HorizontalScrollView scrollviewans1 = findViewById(R.id.scrollViewAns);
+        scrollviewans1.setVisibility(HorizontalScrollView.INVISIBLE);
+        //ans.setVisibility(View.INVISIBLE);
+        /**/
         if(text.length() != 0){
             if(text.charAt(text.length()-1) == ')'){
                 brackets++;
@@ -1937,8 +1943,8 @@ public class MainActivity extends AppCompatActivity {
         }
         if(txt.getText().toString().equals("")){
             t = findViewById(R.id.textAns2);
-            HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-            scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
+            /*HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
+            scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);*/
             t.setText("");
             sp.edit().remove("saveResultText").apply();
             set_text_toDef();

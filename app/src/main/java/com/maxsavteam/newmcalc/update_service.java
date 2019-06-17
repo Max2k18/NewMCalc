@@ -11,6 +11,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo.State;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -20,7 +23,9 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +61,8 @@ class update_service extends View {
 		public static boolean pause = false;
 		public static boolean need_sh_progress = false;
 		public static String task = "update";
+		public static boolean view_was_created = false;
+		public static AlertDialog on_mobile;
 	}
 
 	private String up_ver = "";
@@ -172,22 +179,56 @@ class update_service extends View {
 			AlertDialog dl = builder.create();
 			dl.show();
 		} else {
-			NotificationCompat.Builder build = new NotificationCompat.Builder(mcon);
-			Intent in_not = new Intent(mcon, catch_service.class);
-			in_not.putExtra("action", "on_prepare_pressed");
-			PendingIntent pendingIntent = PendingIntent.getService(mcon, 0, in_not, 0);
-			build.setContentTitle("New MCalc is updating...")
-					.setSmallIcon(R.drawable.update)	
-					.setOngoing(true)
-					.setProgress(100, 0, true).addAction(R.drawable.stop, getResources().getString(R.string.stop), pendingIntent)
-					.setContentText("Preparing...");
-			Notification not = build.build();
-			motman.notify(1, not);
-			//cs.save_in_sp(true);
-			gl.isupdating = true;
-			new DownloadingTask().execute();
+			ConnectivityManager conMan = (ConnectivityManager) mcon.getSystemService(Context.CONNECTIVITY_SERVICE);
+			State wifi = conMan.getNetworkInfo(1).getState();
+			State mobile = conMan.getNetworkInfo(0).getState();
+			if((mobile == State.CONNECTED || mobile == State.CONNECTING) && sp.getBoolean("show_on_mobile_update", true)) {
+				if (!gl.view_was_created) {
+					AlertDialog.Builder noticeBuilder = new AlertDialog.Builder(mcon).setMessage(R.string.on_mobil_ntwork_update).setTitle(R.string.confirm);
+					LayoutInflater inflater = (LayoutInflater) mcon.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					View mv = inflater.inflate(R.layout.on_mobile_update, null);
+					CheckBox mcheck = mv.findViewById(R.id.donotremind);
+					noticeBuilder.setView(mv).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+							if (mcheck.isChecked()) {
+								sp.edit().putBoolean("show_on_mobile_update", false).apply();
+							}
+							run_update();
+						}
+					}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+						}
+					});
+					gl.on_mobile = noticeBuilder.create();
+					gl.view_was_created = true;
+					gl.on_mobile.show();
+				}
+			}else{
+				run_update();
+			}
 		}
 
+	}
+
+	protected void run_update(){
+		NotificationCompat.Builder build = new NotificationCompat.Builder(mcon);
+		Intent in_not = new Intent(mcon, catch_service.class);
+		in_not.putExtra("action", "on_prepare_pressed");
+		PendingIntent pendingIntent = PendingIntent.getService(mcon, 0, in_not, 0);
+		build.setContentTitle("New MCalc is updating...")
+				.setSmallIcon(R.drawable.update)
+				.setOngoing(true)
+				.setProgress(100, 0, true).addAction(R.drawable.stop, getResources().getString(R.string.stop), pendingIntent)
+				.setContentText("Preparing...");
+		Notification not = build.build();
+		motman.notify(1, not);
+		//cs.save_in_sp(true);
+		gl.isupdating = true;
+		new DownloadingTask().execute();
 	}
 
 	public void install() {

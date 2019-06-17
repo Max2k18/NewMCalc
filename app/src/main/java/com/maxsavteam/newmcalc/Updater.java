@@ -55,6 +55,7 @@ public class Updater extends AppCompatActivity {
 	public String file_url_path = "http://maxsavteam.tk/apk/NewMCalc.apk";
 	public SharedPreferences sp;
 	public AlertDialog deval;
+	public AlertDialog about_dev;
 	public String newversion;
 	public File outputFile = null;
 	public String vk = "maksin.colf", insta = "maksin.colf/", facebook = "profile.php?id=100022307565005", tw = "maks_savitsky", site = "maxsavteam.tk";
@@ -242,12 +243,7 @@ public class Updater extends AppCompatActivity {
 	}
 
 	public void sh_about_dev(View v) {
-		AlertDialog.Builder build = new AlertDialog.Builder(this);
-		build.setCancelable(true).setTitle(R.string.about_dev);
-		build.setView(mv);
-		AlertDialog d = build.create();
-		LinearLayout ll = mv.findViewById(R.id.linearLayout8);
-		d.show();
+		about_dev.show();
 	}
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -313,6 +309,7 @@ public class Updater extends AppCompatActivity {
 		};
 		registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
 		registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ". NEWMCALC_UPDATE_FAIL"));
+		about_dev = new AlertDialog.Builder(this).setCancelable(true).setTitle(R.string.about_dev).setView(mv).create();
 		try {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));

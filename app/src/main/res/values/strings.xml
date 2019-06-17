@@ -85,4 +85,6 @@
     <string name="export_file_not_found">External configuration file not found</string>
     <string name="exported">Exported</string>
     <string name="import_set_history">Import from backup settings (if any)</string>
+    <string name="on_mobil_ntwork_update">We noticed that you are using mobile data to update the application. Do you know that this may be charged separately? All at your own risk. Really want to update the application?</string>
+    <string name="donot_remind_later">Don\'t remind later</string>
 </resources>

@@ -74,4 +74,6 @@
     <string name="export_file_not_found">Внешний файл настроек не найден</string>
     <string name="exported">Экспортировано</string>
     <string name="import_set_history">Импортируйте из резервной копии настроек (если они есть)</string>
+    <string name="on_mobil_ntwork_update">Мы заметили, что Вы используете мобильную передачу данных для обновления приложения. Вы знаете что за это может взыматься отдельная плата? Всё на Ваш страх и риск. Действительно хотите обновить приложение?</string>
+    <string name="donot_remind_later">Больше не напоминать</string>
 </resources>

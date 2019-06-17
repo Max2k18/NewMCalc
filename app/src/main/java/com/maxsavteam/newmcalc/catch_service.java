@@ -137,7 +137,7 @@ public class catch_service extends AppCompatActivity {
 						ar = ups.get_ints();
 						pr.setText(ar[0] + "%");
 						int bytes = ar[2], total = ar[1];
-						all.setText(all + " of " + bytes);
+						all.setText(total + " of " + bytes);
 						//all.setText(ar[1] + " of " + ar[2]);
 						if(ar[3] == 1)
 							pb.setIndeterminate(true);
@@ -152,7 +152,7 @@ public class catch_service extends AppCompatActivity {
 					@Override
 					public void onReceive(Context context, Intent intent) {
 						int bytes = ar[2], total = ar[1];
-						all.setText(all + " of " + bytes);
+						all.setText(total + " of " + bytes);
 						pr.setText("100%");
 						ups.set_send_progress(false);
 						ups.set_sh_alert(true);
