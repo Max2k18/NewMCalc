@@ -8,12 +8,49 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:669428254565:android:341e931641d31037",
+        "android_client_info": {
+          "package_name": "com.maxsavteam.mstappscatalog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:669428254565:android:52711dec8d0c69d1",
         "android_client_info": {
           "package_name": "com.maxsavteam.newmcalc"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "669428254565-t1d37g1utdomb42okkfiocv6k3dn5kkf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maxsavteam.newmcalc",
+            "certificate_hash": "7b370d76955fe4d76d86143ddf0e85b5a6b68a2b"
+          }
+        },
         {
           "client_id": "669428254565-p79m56jgj4a5oml28l23e08jc25ljaed.apps.googleusercontent.com",
           "client_type": 1,

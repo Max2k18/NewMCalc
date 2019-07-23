@@ -2,12 +2,8 @@ package com.maxsavteam.newmcalc;
 
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,27 +12,23 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.content.res.Resources;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.TransitionInflater;
-import android.transition.TransitionManager;
-import android.util.DisplayMetrics;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
+import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -44,10 +36,10 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -59,17 +51,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
 
 import java.io.File;
+import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
+
+import static com.maxsavteam.newmcalc.R.drawable.settings_dark;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     public char last;
     public int brackets = 0;
     public String original = "";
-    public String newVer = "\b";
+    public String newVer = "";
     public AlertDialog dl, al;
     public String newDevVer = "";
     public boolean add_menu_opened = false;
@@ -92,8 +88,11 @@ public class MainActivity extends AppCompatActivity {
     public String onshow = "", onhide = "";
     public update_service ups;
     public String uptype = "simple";
-    public int newCodeDev = 0;
+    public int newCodeDev = 0, newVerCode = 0;
     public Integer versionSt = 0;
+    public BuildConfig bc;
+    public FirebaseAnalytics fr;
+    public String app_type;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -168,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
 				    });
 
     		AlertDialog dal = dialogal.create();
+            if(DarkMode)
+                dal.getWindow().setBackgroundDrawableResource(R.drawable.grey);
     		dal.show();
 	    }else{
 		    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -188,8 +189,10 @@ public class MainActivity extends AppCompatActivity {
 						    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
 					    }
 				    });
-		    AlertDialog al = builder.create();
-		    al.show();
+		    AlertDialog al_1 = builder.create();
+            if(DarkMode)
+                al_1.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+		    al_1.show();
 	    }
         //super.onBackPressed();
     }
@@ -198,6 +201,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.about) {
+            /*if(DarkMode)
+                dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
             dl.show();
             return true;
         }
@@ -213,6 +218,8 @@ public class MainActivity extends AppCompatActivity {
     protected void sh_dl_update(int versionMy, int versionNew, String newver, String text, boolean compileWithView){
         View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
+        if(DarkMode)
+            mcheck.setTextColor(getResources().getColor(R.color.white));
         //mcheck.setOnClickListener(forcheck);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(R.string.updateavail)
@@ -252,23 +259,29 @@ public class MainActivity extends AppCompatActivity {
         if(compileWithView)
             builder.setView(mView);
         al = builder.create();
+        if(DarkMode)
+            al.getWindow().setBackgroundDrawableResource(R.drawable.grey);
     }
 
+    boolean clicked = false;
 
     protected void check_up(Integer versionMy, Integer versionNew){
         if(!ups.isup()){
-            if(versionNew < newCodeDev && versionMy < newCodeDev){
+            /*if(DarkMode)
+                al.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
+            boolean isdev = sp.getBoolean("isdev", false);
+            if(newVerCode > versionMy && newVerCode >= newCodeDev){
+                if(sp.getInt("notremindfor", 0) != newVerCode) {
+                    uptype = "simple";
+                    sh_dl_update(versionMy, newVerCode, newVer, getResources().getString(R.string.updateavailable), true);
+                    al.show();
+                    dl.cancel();
+                }
+            }else if(versionMy < newCodeDev && isdev){
                 sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
                 uptype = "dev";
                 al.show();
                 dl.cancel();
-            }else if(versionNew > versionMy && versionNew >= newCodeDev){
-                if(sp.getInt("notremindfor", 0) != versionNew) {
-                    uptype = "simple";
-                    sh_dl_update(versionMy, versionNew, newVer, getResources().getString(R.string.updateavailable), true);
-                    al.show();
-                    dl.cancel();
-                }
             }
         }
     }
@@ -298,33 +311,38 @@ public class MainActivity extends AppCompatActivity {
 
     protected void goto_add_scr(String where){
         Intent resultIntent = new Intent();
-        if(where.equals("settings")){
-            resultIntent = new Intent(getApplicationContext(), Updater.class);
-            resultIntent.putExtra("action", "simple");
-            if(uptype.equals("simple"))
-                resultIntent.putExtra("update_path", "/NewMCalc.apk");
-            else
-                resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-        }else if(where.equals("numgen")){
-            resultIntent = new Intent(getApplicationContext(), numgen.class);
-            resultIntent.putExtra("type", "number");
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-        }else if(where.equals("history")){
-            sp.edit().putString("action", "history").apply();
-            resultIntent = new Intent(getApplicationContext(), history.class);
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-        }else if(where.equals("pass")){
-            resultIntent = new Intent(getApplicationContext(), numgen.class);
-            resultIntent.putExtra("type", "pass");
-            resultIntent.putExtra("start_type", "app");
-            startActivity(resultIntent);
-            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        switch (where) {
+            case "settings":
+                resultIntent = new Intent(getApplicationContext(), Updater.class);
+                resultIntent.putExtra("action", "simple");
+                if (uptype.equals("simple"))
+                    resultIntent.putExtra("update_path", "/NewMCalc.apk");
+                else
+                    resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
+                startActivity(resultIntent);
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                break;
+            case "numgen":
+                resultIntent = new Intent(getApplicationContext(), numgen.class);
+                resultIntent.putExtra("type", "number");
+                resultIntent.putExtra("start_type", "app");
+                startActivity(resultIntent);
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                break;
+            case "history":
+                sp.edit().putString("action", "history").apply();
+                resultIntent = new Intent(getApplicationContext(), history.class);
+                resultIntent.putExtra("start_type", "app");
+                startActivity(resultIntent);
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                break;
+            case "pass":
+                resultIntent = new Intent(getApplicationContext(), numgen.class);
+                resultIntent.putExtra("type", "pass");
+                resultIntent.putExtra("start_type", "app");
+                startActivity(resultIntent);
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                break;
         }
     }
 
@@ -408,23 +426,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    boolean DarkMode = false;
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	    DarkMode = sp.getBoolean("dark_mode", false);
+	    if(DarkMode){
+	    	setTheme(android.R.style.Theme_Material_NoActionBar);
+	    }else{
+	        setTheme(R.style.AppTheme);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        apply_theme();
+        fr = FirebaseAnalytics.getInstance(getApplicationContext());
+        Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
+        myTrace.start();
         btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
         TextView ver = findViewById(R.id.lblVer);
         ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
+        if(DarkMode)
+            ver.setTextColor(getResources().getColor(R.color.white));
         Button btn1 = findViewById(R.id.btnCalc);
         btn1.setOnLongClickListener(returnback);
+        if(DarkMode)
+            btn1.setTextColor(getResources().getColor(R.color.white));
+        else
+            btn1.setTextColor(getResources().getColor(R.color.black));
         Button btn2 = findViewById(R.id.btnZero);
         //FirebaseApp.initializeApp(this);
         ups = new update_service(MainActivity.this);
-	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         try{
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -447,14 +481,414 @@ public class MainActivity extends AppCompatActivity {
             }*/
 			//show_hide(findViewById(R.id.btnShAdd));
 		}
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
+            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+            Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
+            t.putExtra("shortcut_action", true);
+            t.putExtra("to_", "numgen");
+            ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
+                    .setLongLabel(getResources().getString(R.string.randomgen))
+                    .setShortLabel(getResources().getString(R.string.randomgen))
+                    .setIcon(Icon.createWithResource(this, R.drawable.dice))
+                    .setIntent(t)
+                    .build();
+            t.putExtra("to_", "pass");
+            ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
+                    .setLongLabel(getResources().getString(R.string.passgen))
+                    .setShortLabel(getResources().getString(R.string.passgen))
+                    .setIcon(Icon.createWithResource(this, R.drawable.passgen))
+                    .setIntent(t)
+                    .build();
+
+            t.putExtra("to_", "history");
+            ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
+                    .setLongLabel(getResources().getString(R.string.hitory))
+                    .setShortLabel(getResources().getString(R.string.hitory))
+                    .setIcon(Icon.createWithResource(this, R.drawable.history))
+                    .setIntent(t)
+                    .build();
+
+            shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
+        }
+        /*BroadcastReceiver on_lang = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                set_lang();
+            }
+        };
+        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));*/
+       /* btn1.setWidth(btn2.getWidth());
+        btn1.setHeight(btn2.getHeight());
+        btn.setHeight(btn2.getHeight());
+        btn.setWidth(btn2.getWidth());
+        btn1 = findViewById(R.id.btnDelAll);
+        btn1.setHeight(btn2.getHeight());
+        btn1.setWidth(btn2.getWidth());*/
+
+        btn_change();
+
+        myTrace.stop();
+        fr.logEvent("OnCreate", Bundle.EMPTY);
+    }
+
+    public void apply_theme(){
+	    if(DarkMode){
+		    ImageButton img = findViewById(R.id.imgBtnSettings);
+		    img.setImageDrawable(getResources().getDrawable(settings_dark));
+		    img = findViewById(R.id.btnImgHistory);
+		    img.setImageDrawable(getResources().getDrawable(R.drawable.history_dark));
+		    img = findViewById(R.id.btnImgPassgen);
+		    img.setImageDrawable(getResources().getDrawable(R.drawable.passgen_dark));
+		    img = findViewById(R.id.btnImgNumGen);
+		    img.setImageDrawable(getResources().getDrawable(R.drawable.dice_dark));
+		    getWindow().setBackgroundDrawableResource(R.drawable.black);
+		    TextView t = findViewById(R.id.textStr);
+		    t.setTextColor(getResources().getColor(R.color.white));
+		    t = findViewById(R.id.textAns2);
+		    t.setTextColor(getResources().getColor(R.color.white));
+		    Button b = findViewById(R.id.btnDelAll);
+		    //b.setBackgroundColor(getResources().getColor(R.color.white));
+		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+		    b.setTextColor(getResources().getColor(R.color.black));
+		    b = findViewById(R.id.btnCalc);
+		    b.setTextColor(getResources().getColor(R.color.white));
+		    b = findViewById(R.id.btnShAdd);
+		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+		    b = findViewById(R.id.btnShAdd2);
+		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+	    }else{
+		    TextView t = findViewById(R.id.textStr);
+		    t.setTextColor(getResources().getColor(R.color.black));
+		    t = findViewById(R.id.textAns2);
+		    t.setTextColor(getResources().getColor(R.color.black));
+            /*Button b = findViewById(R.id.btnDelAll);
+            b.setBackgroundColor(getResources().getColor(R.color.black));
+            b.setTextColor(getResources().getColor(R.color.white));*/
+            getWindow().setBackgroundDrawableResource(R.drawable.white);
+            Button b = findViewById(R.id.btnDelAll);
+            //b.setBackgroundColor(getResources().getColor(R.color.white));
+            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.black)));
+            b.setTextColor(getResources().getColor(R.color.white));
+            b = findViewById(R.id.btnCalc);
+            b.setTextColor(getResources().getColor(R.color.black));
+	    }
+    }
+
+    String message_from_stable_ch = "", message_from_tc = "";
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        //new newver_check_service(this).create(sp.getBoolean("isdev", false));
+        app_type = BuildConfig.APPTYPE;
+        Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
+        trace.start();
+
+        register_broadcasters();
+
+        if(sp.getBoolean("saveResult", false)){
+            if(!sp.getString("saveResultText", "none").equals("none")){
+                String text = sp.getString("saveResultText", "none");
+                int i = 0;
+                StringBuilder ex = new StringBuilder();
+	            StringBuilder ans = new StringBuilder();
+	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
+                    ex.append(text.charAt(i));
+                    i++;
+                }
+                TextView ver = findViewById(R.id.textAns2);
+	            if(!DarkMode)
+	                ver.setTextColor(getResources().getColor(R.color.black));
+                ver.setText(ex.toString());
+                i++;
+                while(i < text.length() && text.charAt(i) != ';'){
+                    ans.append(text.charAt(i));
+                    i++;
+                }
+                ver = findViewById(R.id.textStr);
+                if(!DarkMode)
+                    ver.setTextColor(getResources().getColor(R.color.black));
+                ver.setSelectAllOnFocus(false);
+                ver.setText(ans.toString());
+                ver.setSelected(false);
+                //equallu("not");
+                format(R.id.textStr);
+                ver = null;
+            }
+        }
+
+        if(app_type.equals("tester")){
+            sp.edit().putBoolean("isdev", true).apply();
+        }
+        if(app_type.equals("developer")){
+            TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            if(!tm.getDeviceId().equals("869480036532475")) {
+                finishAndRemoveTask();
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+            }
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        View view = getLayoutInflater().inflate(R.layout.about_layout, null);
+        String message = getResources().getString(R.string.about_text)
+                + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
+                + (app_type.equals("stable") ? " stable" : " not stable")
+                + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE
+                + "\nCompile date: " + BuildConfig.COMPILE_DATE;// + "\n\n" + "©" + "MaxSav Team, 2018-2019";
+        if(!app_type.equals("stable")){
+            message += "\n\nCV: " + BuildConfig.CoreVersion
+                    + "\nUDV: " + BuildConfig.UpdateDowVersion
+                    + "\nUCV: " + BuildConfig.UpdateCheckerVersion;
+        }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (app_type.equals("developer")) {
+                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_developer), Html.FROM_HTML_MODE_LEGACY);
+            } else if (app_type.equals("tester")) {
+                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_tester), Html.FROM_HTML_MODE_LEGACY);
+            }
+        }else{
+            if (app_type.equals("developer")) {
+                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_developer));
+            } else if (app_type.equals("tester")) {
+                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_tester));
+            }
+        }
+        message += "\n\n" + "©" + "MaxSav Team, 2018-2019";
+        builder.setCancelable(false)
+                .setTitle(R.string.about)
+                .setMessage(message)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setView(view);
+        dl = builder.create();
+        if(DarkMode)
+            dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+
+        Map<Integer, Boolean> m = new HashMap<>();
+
+		BroadcastReceiver test = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				File f = new File(Environment.getExternalStorageDirectory() + "/" + intent.getStringExtra("output"));
+				String type = intent.getStringExtra("type");
+				/*newDevVer = newVer = "";
+				newCodeDev = newVerCode = 0;*/
+				if(type.equals("simple")){
+                    String message = "";
+                    try {
+                        FileReader fr = new FileReader(f);
+                        while(fr.ready()){
+                            message += (char) fr.read();
+                        }
+                        int i = 0;
+                        newVer = "";
+                        while(i < message.length() && message.charAt(i) != ';'){
+                            newVer += message.charAt(i);
+                            i++;
+                        }
+                        i++;
+                        newVerCode = 0;
+                        while(i < message.length()){
+                            newVerCode = newVerCode * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
+                            i++;
+                        }
+                        if(!sp.getBoolean("isdev", false))
+                            if(m.get(newVerCode) == null) {
+                                check_up(BuildConfig.VERSION_CODE, newVerCode);
+                                m.put(newVerCode, true);
+                            }
+                    }catch (Exception e){
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+                }else if(type.equals("tc")){
+                    String message = "";
+                    try {
+                        FileReader fr = new FileReader(f);
+                        while(fr.ready()){
+                            message += (char) fr.read();
+                        }
+                        int i = 0;
+                        newDevVer = "";
+                        while(i < message.length() && message.charAt(i) != ';'){
+                            newDevVer += message.charAt(i);
+                            i++;
+                        }
+                        i++;
+                        newCodeDev = 0;
+                        while(i < message.length() && message.charAt(i) != ';'){
+                            newCodeDev = newCodeDev * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
+                            i++;
+                        }
+                        if(m.get(newCodeDev) == null){
+                            check_up(BuildConfig.VERSION_CODE, newCodeDev);
+                            m.put(newCodeDev, true);
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+			}
+		};
+		registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
+
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference refVer = db.getReference("versionCode");
+        refVer.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //Toast.makeText(getApplicationContext(), "refVer", Toast.LENGTH_SHORT).show();
+                File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
+                if(!f.isDirectory())
+                    f.mkdir();
+                f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
+                if(!f.isDirectory())
+                    f.mkdir();
+                new get_inf(MainActivity.this).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
+
+                DatabaseReference refDev = db.getReference("dev/versionCode");
+                if(sp.getBoolean("isdev", false)){
+                    refDev.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
+                            if(!f.isDirectory())
+                                f.mkdir();
+                            f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
+                            if(!f.isDirectory())
+                                f.mkdir();
+                            new get_inf(MainActivity.this).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        /*String vercode = Integer.toString(BuildConfig.VERSION_CODE);
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference refVer = db.getReference("version");
+        refVer.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                newVer = Objects.requireNonNull(dataSnapshot.getValue()).toString();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                newVer = "\b";
+                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
+            }
+        });
+
+        DatabaseReference ref = db.getReference("versionCode");
+
+        DatabaseReference refdev = db.getReference("dev/versionCodeDev");
+        DatabaseReference refdevver = db.getReference("dev/versionDev");
+
+        if(sp.getBoolean("isdev", false)){
+            refdevver.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    newDevVer = dataSnapshot.getValue(String.class);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+        try {
+            Thread.sleep(1350);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot){
+                Long value = dataSnapshot.getValue(Long.class);
+                Integer versionMy = Integer.valueOf(vercode);
+                Integer versionNew = Integer.valueOf(String.valueOf(value));
+                versionSt = versionNew;
+                if (!sp.getBoolean("isdev", false))
+                    check_up(versionMy, versionNew);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
+                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        if(sp.getBoolean("isdev", false)){
+            refdev.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String value = dataSnapshot.getValue().toString();
+                    //int versionMy = Integer.valueOf(vercode);
+                    newCodeDev = Integer.valueOf(value);
+                    Integer versionMy = Integer.valueOf(vercode);
+                    Integer versionNew = versionSt;
+                    check_up(versionMy, versionNew);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("firebase", "cancelled");
+                }
+            });
+        }*/
+        trace.stop();
+        //должно быть всегда in the end
+        fr.logEvent("OnPostCreate", Bundle.EMPTY);
+    }
+
+    protected void register_broadcasters(){
         BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 btn_change();
             }
         };
+        BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+		        DarkMode = sp.getBoolean("dark_mode", false);
+		        TextView t = findViewById(R.id.textStr);
+		        String str = t.getText().toString(), ans;
+		        t = findViewById(R.id.textAns2);
+		        ans = t.getText().toString();
+		        if(DarkMode){
+			        setTheme(android.R.style.Theme_Material_NoActionBar);
+		        }else{
+			        setTheme(R.style.AppTheme);
+		        }
+		        setContentView(R.layout.activity_main);
+		        t.setText(ans);
+		        t = findViewById(R.id.textStr);
+		        t.setText(str);
+		        apply_theme();
+	        }
+        };
+        registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
         registerReceiver(on_btn_align_change, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE"));
-        update_service ups = new update_service(this);
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -478,6 +912,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                     AlertDialog inst = b.create();
+                    if(DarkMode)
+                        inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
                     inst.show();
                 }
 
@@ -555,35 +991,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         registerReceiver(on_choose_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_CHOOSE_ACTION"));
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
-            ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-            Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
-            t.putExtra("shortcut_action", true);
-            t.putExtra("to_", "numgen");
-            ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
-                    .setLongLabel(getResources().getString(R.string.randomgen))
-                    .setShortLabel(getResources().getString(R.string.randomgen))
-                    .setIcon(Icon.createWithResource(this, R.drawable.dice))
-                    .setIntent(t)
-                    .build();
-            t.putExtra("to_", "pass");
-            ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
-                    .setLongLabel(getResources().getString(R.string.passgen))
-                    .setShortLabel(getResources().getString(R.string.passgen))
-                    .setIcon(Icon.createWithResource(this, R.drawable.passgen))
-                    .setIntent(t)
-                    .build();
-
-            t.putExtra("to_", "history");
-            ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
-                    .setLongLabel(getResources().getString(R.string.hitory))
-                    .setShortLabel(getResources().getString(R.string.hitory))
-                    .setIcon(Icon.createWithResource(this, R.drawable.history))
-                    .setIntent(t)
-                    .build();
-
-            shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
-        }
         BroadcastReceiver brfail = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -598,14 +1005,16 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                     AlertDialog inst = b.create();
+                    if(DarkMode)
+                        inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
                     inst.show();
                 }
             }
         };
         BroadcastReceiver on_sp_edited = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-		        btn_change();
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                btn_change();
                 Intent resultIntent = new Intent(getApplicationContext(), Updater.class);
                 resultIntent.putExtra("action", "simple");
                 if(uptype.equals("simple"))
@@ -614,19 +1023,11 @@ public class MainActivity extends AppCompatActivity {
                     resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
                 startActivity(resultIntent);
                 overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
-	        }
+            }
         };
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
         registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
         registerReceiver(on_sp_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-        /*BroadcastReceiver on_lang = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                set_lang();
-            }
-        };
-        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));*/
-
         BroadcastReceiver btn_not = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -646,192 +1047,80 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.cancel();
                             }
                         }).create();
+                if(DarkMode)
+                    not_btn_pr.getWindow().setBackgroundDrawableResource(R.drawable.grey);
                 not_btn_pr.show();
             }
         };
         registerReceiver(btn_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
-        btn1.setWidth(btn2.getWidth());
-        btn1.setHeight(btn2.getHeight());
-        btn.setHeight(btn2.getHeight());
-        btn.setWidth(btn2.getWidth());
-        btn1 = findViewById(R.id.btnDelAll);
-        btn1.setHeight(btn2.getHeight());
-        btn1.setWidth(btn2.getWidth());
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        View view = getLayoutInflater().inflate(R.layout.about_layout, null);
-        builder.setCancelable(false)
-                .setTitle(R.string.about)
-                .setMessage(getResources().getString(R.string.about_text)
-                        + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
-                        + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE
-                        + "\nCompile date: " + BuildConfig.COMPILE_DATE + "\n\n" + "©" + "MaxSav Team, 2018-2019")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setView(view);
-
-        dl = builder.create();
-
-        btn_change();
 
         BroadcastReceiver on_dev_up_avail = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-		        if(!isOtherActivityOpened){
-		        	uptype = "dev";
-		        	sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
-		        }
-	        }
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!isOtherActivityOpened){
+                    uptype = "dev";
+                    sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
+                }
+            }
         };
         registerReceiver(on_dev_up_avail, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVIAL_DEV"));
         BroadcastReceiver on_simple_up = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-				if(!isOtherActivityOpened){
-					uptype = "simple";
-					sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
-				}
-	        }
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(!isOtherActivityOpened){
+                    uptype = "simple";
+                    sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
+                }
+            }
         };
         registerReceiver(on_simple_up, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVAIL"));
-
-        FirebaseAnalytics fr = FirebaseAnalytics.getInstance(getApplicationContext());
-        fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
-    protected void set_lang(){
-        String language_code = sp.getString("lang", "def");
-        if(!language_code.equals("def")){
-            Resources res = getResources();
-            DisplayMetrics dm = res.getDisplayMetrics();
-            android.content.res.Configuration conf = res.getConfiguration();
-            conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
-            res.updateConfiguration(conf, dm);
-            setContentView(R.layout.activity_main);
-        }
+    void format(int id){
+        //View v = getLayoutInflater().inflate(R.layout.activity_main, null);
+        TextView t = findViewById(id);
+        String txt = t.getText().toString();
+        if(txt.equals("") || txt.length() < 4)
+            return;
+        t.setText(format_core2(txt));
+
     }
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        //new newver_check_service(this).create(sp.getBoolean("isdev", false));
-
-        if(BuildConfig.APPTYPE.equals("tester")){
-            sp.edit().putBoolean("isdev", true).apply();
+    private String format_core2(String txt){
+        String number = "";
+        int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
+        for(; i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
+            if(txt.charAt(i) != ' '){
+                number = txt.charAt(i) + number;
+            }else
+                spaces++;
         }
-
-        if(sp.getBoolean("saveResult", false)){
-            if(!sp.getString("saveResultText", "none").equals("none")){
-                String text = sp.getString("saveResultText", "none");
-                int i = 0;
-                StringBuilder ex = new StringBuilder();
-	            StringBuilder ans = new StringBuilder();
-	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
-                    ex.append(text.charAt(i));
-                    i++;
-                }
-                TextView ver = findViewById(R.id.textAns2);
-                ver.setText(ex.toString());
-                i++;
-                while(i < text.length() && text.charAt(i) != ';'){
-                    ans.append(text.charAt(i));
-                    i++;
-                }
-                ver = findViewById(R.id.textStr);
-                ver.setText(ans.toString());
-                //ver.setSelected(false);
-                equallu("not");
-                ver = null;
-                System.gc();
-            }
+        txt = txt.substring(0, len - number.length() - spaces);
+        len = number.length();
+        if(len < 4)
+            return txt + number;
+        if(number.contains(".")){
+            dot_pos = number.indexOf(".");
         }
-
-        String vercode = Integer.toString(BuildConfig.VERSION_CODE);
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference refVer = db.getReference("version");
-        refVer.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newVer = Objects.requireNonNull(dataSnapshot.getValue()).toString();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                newVer = "\b";
-                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-            }
-        });
-
-        DatabaseReference ref = db.getReference("versionCode");
-
-        DatabaseReference refdev = db.getReference("dev/versionCodeDev");
-        DatabaseReference refdevver = db.getReference("dev/versionDev");
-
-        if(sp.getBoolean("isdev", false)){
-            refdevver.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    newDevVer = dataSnapshot.getValue(String.class);
+        String number_on_ret;
+        if(dot_pos == -1)
+            number_on_ret = "";
+        else
+            number_on_ret = number.substring(dot_pos);
+        for(i = (dot_pos == -1 ? len - 1 : number.indexOf(".") - 1); i >= 0; i--, nums++){
+            /*number_on_ret += number.charAt(i);
+            if(i != 0 && i != len - 1){
+                if(i % 3 == 0 && (dot_pos == -1 || i < dot_pos)){
+                    number_on_ret += " ";
                 }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+            }*/
+            if(nums != 0 && nums % 3 == 0){// && (dot_pos == -1 || i < dot_pos)){
+                number_on_ret = " " + number_on_ret;
+            }
+            number_on_ret = number.charAt(i) + number_on_ret;
         }
-        try {
-            Thread.sleep(1350);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot){
-                Long value = dataSnapshot.getValue(Long.class);
-                Integer versionMy = Integer.valueOf(vercode);
-                Integer versionNew = Integer.valueOf(String.valueOf(value));
-                versionSt = versionNew;
-                if (!sp.getBoolean("isdev", false))
-                    check_up(versionMy, versionNew);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        if(sp.getBoolean("isdev", false)){
-            refdev.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String value = dataSnapshot.getValue().toString();
-                    //int versionMy = Integer.valueOf(vercode);
-                    newCodeDev = Integer.valueOf(value);
-                    Integer versionMy = Integer.valueOf(vercode);
-                    Integer versionNew = versionSt;
-                    check_up(versionMy, versionNew);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("firebase", "cancelled");
-                }
-            });
-        }
+        return txt + number_on_ret;
     }
-
-    /*protected void run_check(){
-	    new newver_check_service(this).create(sp.getBoolean("isdev", false));
-    }*/
 
     protected boolean isdigit(char c){
         return c >= '0' && c <= '9';
@@ -1058,10 +1347,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected BigDecimal fact(BigDecimal x){
-        if(x.compareTo(new BigDecimal(1)) == 0 || x.signum() == 0){
+        /*if(x.compareTo(new BigDecimal(1)) == 0 || x.signum() == 0){
             return new BigDecimal(1);
         }
-        return x.multiply(fact(x.subtract(BigDecimal.valueOf(1))));
+        return x.multiply(fact(x.subtract(BigDecimal.valueOf(1))));*/
+        BigDecimal ans = BigDecimal.valueOf(1);
+        for(BigDecimal i = BigDecimal.valueOf(1); i.compareTo(x) <= 0;){
+            ans = ans.multiply(i);
+            i = i.add(new BigDecimal(1));
+        }
+        return ans;
     }
 
     @SuppressLint("SetTextI18n")
@@ -1128,11 +1423,15 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         }
-        if(actions == 0){
-            return;
-        }else{
-            if(!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0) && !stri.contains("R") && !stri.contains("!")){
+        if(!stri.contains("R") && !stri.contains("P") && !stri.contains("F") && !stri.contains("e")) {
+            if (actions == 0) {
                 return;
+            } else {
+                if(digits == 0 && !stri.contains("cos") && !stri.contains("sin") && !stri.contains("log") && !stri.contains("ln") && !stri.contains("tan"))
+                    return;
+                else if (!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0) && !stri.contains("R") && !stri.contains("!")) {
+                    return;
+                }
             }
         }
         char[] str = new char[stri.length()];
@@ -1202,7 +1501,7 @@ public class MainActivity extends AppCompatActivity {
                     }*/
                 }
             }
-            if(s.equals(Character.toString('P'))){
+            if(s.equals("P")){
                 BigDecimal f = new BigDecimal(3.14159265);
                 if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
@@ -1210,7 +1509,7 @@ public class MainActivity extends AppCompatActivity {
                 if(i != stri.length()-1 && isdigit(stri.charAt(i+1))){
                     in_s0('*');
                 }
-                s1.push(f.divide(new BigDecimal(1), 8, RoundingMode.HALF_EVEN));
+                s1.push(BigDecimal.valueOf(Math.PI));
                 continue;
             }else if(s.equals(Character.toString('F'))){
                 BigDecimal f = new BigDecimal(1.618);
@@ -1384,6 +1683,7 @@ public class MainActivity extends AppCompatActivity {
             if(type.equals("all")){
                 TextView tans = findViewById(R.id.textStr);
                 tans.setText(s1.peek().toString());
+                format(R.id.textStr);
                 tans = findViewById(R.id.textAns2);
                 tans.setText(original);
                 HorizontalScrollView scrollview = findViewById(R.id.scrollview);
@@ -1401,14 +1701,25 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 String his = sp.getString("history", "");
-                if(his.indexOf(original + "," + s1.peek().toString() + ";") != 0)
+                StringBuilder sb = new StringBuilder(original);
+                for(int i = 0; i < sb.length(); i++){
+                    if(sb.charAt(i) == ' '){
+                        sb.deleteCharAt(i);
+                    }
+                }
+                String for_his = sb.toString();
+                if(his.indexOf(for_his + "," + s1.peek().toString() + ";") != 0) {
                     his = original + "," + s1.peek().toString() + ";" + his;
-                sp.edit().putString("history", his).apply();
+                    sp.edit().putString("history", his).apply();
+                }
                 if(sp.getBoolean("saveResult", false))
                     sp.edit().putString("saveResultText", original + ";" + s1.peek().toString()).apply();
             }else if(type.equals("not")){
                 TextView preans = findViewById(R.id.textAns2);
                 preans.setText(s1.peek().toString());
+                format(R.id.textAns2);
+                set_text_toDef();
+                resize_text();
                 HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                 scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
                 scrollviewans.post(new Runnable() {
@@ -1493,6 +1804,7 @@ public class MainActivity extends AppCompatActivity {
     public void equallu(String type){
         TextView txt = findViewById(R.id.textStr);
         String stri = txt.getText().toString();
+        format(R.id.textStr);
         int len = stri.length();
         if(len != 0 && stri.charAt(len-1) == '^' && type.equals("all")){
             stri += "(";
@@ -1503,7 +1815,8 @@ public class MainActivity extends AppCompatActivity {
         //int twidth = txt.getWidth();
         float sz = txt.getTextSize();
         if(len != 0 && !isdigit(stri.charAt(len-1)) && stri.charAt(len-1) != '!' && stri.charAt(len-1) != '%')
-            return;
+            if(!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt)))
+                return;
         //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
         resize_text();
         //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
@@ -1512,54 +1825,70 @@ public class MainActivity extends AppCompatActivity {
         scrollview.post(() -> {
             scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
         });
-        if(type.equals("all")){
-            if(!stri.equals("")){
-                was_error = false;
-                if(stri.charAt(stri.length() - 1) != '('){
-                    if(brackets > 0){
-                        for(int i = 0; i < brackets; i++){
-                            stri += ")";
-                        }
-                        brackets = 0;
-                    }
-                }
-                original = stri;
-                int digits = 0, actions = 0;
-                for(int i = 0; i < stri.length(); i++){
-                    if(isdigit(stri.charAt(i))
-                            || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
-                            || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
-                            || Character.toString(stri.charAt(i)).equals("e")){
-                        digits++;
-                    }
-                    if(isaction(stri.charAt(i)))
-                        actions++;
-                }
-                if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
-                        || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
-                        || stri.contains(getResources().getString(R.string.sqrt))){
-                    char[] mas = stri.toCharArray();
-                    String p = "";
+        brackets = 0;
+        for(int i = 0; i < stri.length(); i++){
+            if(stri.charAt(i) == '(')
+                brackets++;
+            else if(stri.charAt(i) == ')')
+                brackets--;
+        }
+        if(brackets < 0)
+            return;
 
-                    for(int i = 0; i < stri.length(); i++){
-                        p = Character.toString(mas[i]);
-                        if(p.equals(getResources().getString(R.string.div))){
-                            mas[i] = '/';
-                        }else if(p.equals(getResources().getString(R.string.multiply))){
-                            mas[i] = '*';
-                        }else if(p.equals(getResources().getString(R.string.pi))){
-                            mas[i] = 'P';
-                        }else if(p.equals(getResources().getString(R.string.fi))){
-                            mas[i] = 'F';
-                        }else if(p.equals(getResources().getString(R.string.sqrt))){
-                            mas[i] = 'R';
-                        }
+        //if(type.equals("all")){
+        if(!stri.equals("")){
+            was_error = false;
+            if(stri.charAt(stri.length() - 1) != '('){
+                if(brackets > 0){
+                    for(int i = 0; i < brackets; i++){
+                        stri += ")";
                     }
-                    stri = new String(mas);
+                    brackets = 0;
                 }
-                calc(stri, type, digits, actions);
             }
-        }else if(type.equals("not")){
+            original = stri;
+            int digits = 0, actions = 0;
+            for(int i = 0; i < stri.length(); i++){
+                if(isdigit(stri.charAt(i))
+                        || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
+                        || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
+                        || Character.toString(stri.charAt(i)).equals("e")){
+                    digits++;
+                }
+                if(isaction(stri.charAt(i)))
+                    actions++;
+
+                if(stri.charAt(i) == ' '){
+                    StringBuilder stringBuilder = new StringBuilder(stri);
+                    stringBuilder.deleteCharAt(i);
+                    stri = new String(stringBuilder);
+                }
+            }
+            if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
+                    || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
+                    || stri.contains(getResources().getString(R.string.sqrt))){
+                char[] mas = stri.toCharArray();
+                String p = "";
+
+                for(int i = 0; i < stri.length(); i++){
+                    p = Character.toString(mas[i]);
+                    if(p.equals(getResources().getString(R.string.div))){
+                        mas[i] = '/';
+                    }else if(p.equals(getResources().getString(R.string.multiply))){
+                        mas[i] = '*';
+                    }else if(p.equals(getResources().getString(R.string.pi))){
+                        mas[i] = 'P';
+                    }else if(p.equals(getResources().getString(R.string.fi))){
+                        mas[i] = 'F';
+                    }else if(p.equals(getResources().getString(R.string.sqrt))){
+                        mas[i] = 'R';
+                    }
+                }
+                stri = new String(mas);
+            }
+            calc(stri, type, digits, actions);
+        }
+        /*}else if(type.equals("not")){
             if(!stri.equals("")){
                 if(stri.charAt(stri.length() - 1) != '('){
                     //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
@@ -1579,6 +1908,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(isaction(stri.charAt(i)))
                         actions++;
+
+                    if(stri.charAt(i) == ' '){
+                        StringBuilder stringBuilder = new StringBuilder(stri);
+                        stringBuilder.deleteCharAt(i);
+                        stri = new String(stringBuilder);
+                    }
                 }
                 if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
                         || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
@@ -1608,12 +1943,12 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                     scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
-                }*/
+                }
             }else{
                 HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                 scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
             }
-        }
+        }*/
     }
 
     protected void check_dot(){
@@ -1646,6 +1981,8 @@ public class MainActivity extends AppCompatActivity {
         t = findViewById(R.id.textStr);
         String txt = t.getText().toString();
         int len = txt.length();
+        if(len >= 300000)
+            return;
         //log("add text. len - " + len + ", btntxt - " + btntxt);
         if(len != 0)
             last = txt.charAt(len-1);
@@ -1756,7 +2093,8 @@ public class MainActivity extends AppCompatActivity {
             if(brackets > 0){
                 if(txt.charAt(len-1) == '(')
                     return;
-                if(!isdigit(txt.charAt(len-1))){
+                if(!isdigit(txt.charAt(len-1)) && !Character.toString(txt.charAt(len-1)).equals(getResources().getString(R.string.pi))
+                        && !Character.toString(txt.charAt(len-1)).equals(getResources().getString(R.string.fi)) && txt.charAt(len-1) != 'e'){
                     if(len != 1){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
@@ -1850,13 +2188,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-        scrollview.post(new Runnable() {
-            @Override
-            public void run() {
-                scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-            }
-        });
+
     }
 
     public void gotoactions(View v){

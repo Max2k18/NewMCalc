@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraight"
@@ -33,7 +33,7 @@
             android:translationZ="4dp"
             android:visibility="visible">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnShAdd"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="35dp"
@@ -78,7 +78,7 @@
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/history" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnShAdd2"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="35dp"
@@ -167,7 +167,7 @@
                 android:scrollbars="none"
                 android:selectAllOnFocus="true"
                 android:textAlignment="textEnd"
-                android:textColor="@android:color/black"
+                android:textColor="@color/black"
                 android:textIsSelectable="true"
                 android:textSize="46sp"
                 android:textStyle="bold"
@@ -208,13 +208,12 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDelAll"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.3"
-                android:backgroundTint="@color/black"
                 android:onClick="delall"
                 android:text="C"
                 android:textColor="@android:color/background_light"
@@ -223,7 +222,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnActions"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -236,7 +235,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDelete"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -258,7 +257,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn7"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -270,7 +269,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn8"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -282,7 +281,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn9"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -294,7 +293,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnMult"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -316,7 +315,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn4"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -328,7 +327,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn5"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -340,7 +339,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn6"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -352,7 +351,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDiv"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -375,7 +374,7 @@
             android:orientation="horizontal"
             android:visibility="visible">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn1"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -387,7 +386,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn2"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -399,7 +398,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn3"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -411,7 +410,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnPlus"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -433,7 +432,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnZero"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -445,7 +444,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDot"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -457,7 +456,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnCalc"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"
@@ -471,7 +470,7 @@
                 tools:layout_editor_absoluteX="55dp"
                 tools:layout_editor_absoluteY="448dp" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnMinus"
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="0dp"
@@ -503,4 +502,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.998" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

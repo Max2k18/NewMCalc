@@ -11,15 +11,18 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 public class history extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
@@ -67,11 +70,36 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     String start_type;
 
+    View.OnTouchListener touchListener = new View.OnTouchListener(){
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if(event.getAction() == MotionEvent.ACTION_DOWN){
+                try{
+                    Thread.sleep(3000);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+                return true;
+            }else
+                return false;
+        }
+    };
+
+    boolean DarkMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.history_checking);
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        DarkMode = sp.getBoolean("dark_mode", false);
+        if(DarkMode)
+            setTheme(android.R.style.Theme_Material_NoActionBar);
+        else
+            setTheme(R.style.AppTheme);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_history);
+        if(DarkMode)
+        	getWindow().setBackgroundDrawableResource(R.drawable.black);
         RecyclerView rv;
         try{
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -83,7 +111,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         }
 
         update_service ups = new update_service(this);
-        BroadcastReceiver br = new BroadcastReceiver() {
+        /*BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 AlertDialog.Builder b = new AlertDialog.Builder(history.this);
@@ -119,13 +147,18 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             }
         };
         registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
-        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));
+        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));*/
         start_type = getIntent().getStringExtra("start_type");
         ArrayList< ArrayList<String> > str = new ArrayList<>();
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");
         if(Objects.equals(his, "not") || Objects.requireNonNull(his).equals("")){
             setContentView(R.layout.history_notfound);
+            if(DarkMode){
+                TextView t = findViewById(R.id.txtHistoryNotFound);
+                t.setTextColor(getResources().getColor(R.color.white));
+	            getWindow().setBackgroundDrawableResource(R.drawable.black);
+            }
         }else{
             int i = 0;
             String ex, ans;
@@ -155,13 +188,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 str2.clear();
             }
             try {
-                setContentView(R.layout.activity_history);
                 LinearLayoutManager lay = new LinearLayoutManager(this);
-                lay.setOrientation(LinearLayoutManager.VERTICAL);
+                lay.setOrientation(RecyclerView.VERTICAL);
                 rv = (RecyclerView) findViewById(R.id.rv_view);
                 rv.setLayoutManager(lay);
                 adapter = new MyRecyclerViewAdapter(getApplicationContext(), str);
                 adapter.setClickListener(this);
+//                rv.setOnTouchListener();
                 rv.setAdapter(adapter);
             }catch (Exception e){
                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();

@@ -8,19 +8,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class chooseactions extends AppCompatActivity {
 
@@ -49,9 +47,10 @@ public class chooseactions extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    boolean DarkMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         /*String language_code = sp.getString("lang", "def");
         if(!language_code.equals("def")){
@@ -61,7 +60,15 @@ public class chooseactions extends AppCompatActivity {
             conf.setLocale(new Locale(language_code.toLowerCase())); // API 17+ only.
             res.updateConfiguration(conf, dm);
         }*/
+        DarkMode = sp.getBoolean("dark_mode", false);
+        if(DarkMode)
+            setTheme(android.R.style.Theme_Material_NoActionBar);
+        else
+            setTheme(R.style.AppTheme);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chooseactions);
+        if(DarkMode)
+            getWindow().setBackgroundDrawableResource(R.drawable.black);
         Intent start_in = getIntent();
         height = start_in.getIntExtra("btnHeight", 100);
         width = start_in.getIntExtra("btnWidth", 100);

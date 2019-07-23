@@ -76,4 +76,7 @@
     <string name="import_set_history">Импортируйте из резервной копии настроек (если они есть)</string>
     <string name="on_mobil_ntwork_update">Мы заметили, что Вы используете мобильную передачу данных для обновления приложения. Вы знаете что за это может взыматься отдельная плата? Всё на Ваш страх и риск. Действительно хотите обновить приложение?</string>
     <string name="donot_remind_later">Больше не напоминать</string>
+    <string name="build_tester"><p><b>Эта сборка является сборкой для тестировщиков</b></p></string>
+    <string name="build_developer"><p><b>Эта сборка ТОЛЬКО для разработчика</b></p></string>
+    <string name="text_dark_mode">Тёмная тема</string>
 </resources>

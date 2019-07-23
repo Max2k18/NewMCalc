@@ -13,15 +13,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo.State;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,11 +38,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 
 class update_service extends View {
 	private Context mcon;
-	private File apkStorage = null;
 
 
 	update_service(Context con) {
@@ -52,24 +49,23 @@ class update_service extends View {
 	}
 
 	public static class gl {
-		public static boolean tostop = false;
-		public static boolean sh_alert = true;
-		public static int all = 0, cf = 0;
-		public static int bytes = 0;
-		public static boolean isupdating = false;
-		public static File outputFile = null;
-		public static boolean pause = false;
-		public static boolean need_sh_progress = false;
-		public static String task = "update";
-		public static boolean view_was_created = false;
-		public static AlertDialog on_mobile;
+		static boolean tostop = false;
+		static boolean sh_alert = true;
+		static int all = 0, cf = 0;
+		static int bytes = 0;
+		static boolean isupdating = false;
+		static File outputFile = null;
+		static boolean pause = false;
+		static boolean need_sh_progress = false;
+		static String task = "update";
+		static boolean view_was_created = false;
+		static AlertDialog on_mobile;
 	}
 
 	private String up_ver = "";
 	private String up_path = "";
 	private Intent res = new Intent();
 	private NotificationManager motman;
-	private Intent inte;
 	private PendingIntent pinte;
 	//public boolean tostop = false;
 	private SharedPreferences sp;
@@ -118,7 +114,6 @@ class update_service extends View {
 		return gl.isupdating;
 	}
 
-
 	public void run(String up_path0, String up_version) {
 		motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
 		BroadcastReceiver del_not = new BroadcastReceiver() {
@@ -131,7 +126,7 @@ class update_service extends View {
 		mcon.registerReceiver(del_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".DELETE_NOT"));
 		up_ver = up_version;
 		up_path = up_path0;
-		inte = new Intent(mcon, catch_service.class);
+		Intent inte = new Intent(mcon, catch_service.class);
 		//inte.setData(Uri.parse(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
 		inte.putExtra("action", "sh_progress");
 		pinte = PendingIntent.getActivity(mcon, 0, inte, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -143,6 +138,7 @@ class update_service extends View {
         };
         mcon.registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));*/
 		sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
+		boolean darkMode = sp.getBoolean("dark_mode", false);
 		FirebaseDatabase db = FirebaseDatabase.getInstance();
 		DatabaseReference dbm = db.getReference("bytesCount");
 		if (up_path.contains("forTesters")) {
@@ -177,6 +173,8 @@ class update_service extends View {
 				}
 			});
 			AlertDialog dl = builder.create();
+			if(darkMode)
+				dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 			dl.show();
 		} else {
 			ConnectivityManager conMan = (ConnectivityManager) mcon.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -205,6 +203,8 @@ class update_service extends View {
 					});
 					gl.on_mobile = noticeBuilder.create();
 					gl.view_was_created = true;
+					if(darkMode)
+						gl.on_mobile.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 					gl.on_mobile.show();
 				}
 			}else{
@@ -253,28 +253,28 @@ class update_service extends View {
 		mcon.sendBroadcast(res);
 	}
 
+	private void sh(int buffer) {
+		gl.all += buffer;
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
+		gl.cf = (gl.all * 100) / gl.bytes;
+		//gl.cf = gl.cf / gl.bytes;
+		if(!gl.pause) {
+			builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
+					.setContentIntent(pinte);
+		}else{
+			builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
+		}
+		//motman.cancelAll();
+		if (gl.sh_alert) {
+			motman.notify(1, builder.build());
+		}else {
+			motman.cancel(1);
+		}
+		mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
+	}
+
 	private class DownloadingTask extends AsyncTask<Void, Void, Void> {
 		String pr = "";
-
-
-		private void sh(int buffer) {
-			gl.all += buffer;
-			NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
-			gl.cf = (gl.all * 100) / gl.bytes;
-			//gl.cf = gl.cf / gl.bytes;
-			if(!gl.pause)
-				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
-						.setContentIntent(pinte);
-			else{
-				builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
-			}
-			//motman.cancelAll();
-			if (gl.sh_alert)
-				motman.notify(1, builder.build());
-			else
-				motman.cancel(1);
-			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
-		}
 
 		@Override
 		protected void onPostExecute(Void result) {
@@ -332,7 +332,7 @@ class update_service extends View {
 			            c.connect();
 			            //Toast.makeText(getApplicationContext(), Environment.getExternalStorageDirectory().toString(), Toast.LENGTH_LONG).show();
 			            //Creating Path
-			            apkStorage = new File(
+			            File apkStorage = new File(
 					            Environment.getExternalStorageDirectory().getPath() + "/"
 							            + "MST files");
 
@@ -370,12 +370,7 @@ class update_service extends View {
 							            len1 = is.read(buffer);
 						            }
 						            sh(len1);
-                                /*all += is.read(buffer);
-                                int cf = (int) all / bytes * 100;
-                                builder.setProgress(100, cf, false).setContentText(cf + " of " + 100).setOngoing(true);
-                                motman.notify(1, builder.build());*/
 					            }
-					            //Toast.makeText(mcon.getApplicationContext(), Integer.toString(len1), Toast.LENGTH_LONG).show();
 					            c.disconnect();
 					            fos.close();
 					            is.close();

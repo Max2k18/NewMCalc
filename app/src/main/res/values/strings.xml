@@ -87,4 +87,7 @@
     <string name="import_set_history">Import from backup settings (if any)</string>
     <string name="on_mobil_ntwork_update">We noticed that you are using mobile data to update the application. Do you know that this may be charged separately? All at your own risk. Really want to update the application?</string>
     <string name="donot_remind_later">Don\'t remind later</string>
+    <string name="build_tester"><p><b>This build is tester\'s build.</b></p></string>
+    <string name="build_developer"><p><b>This build ONLY for developer</b></p></string>
+    <string name="text_dark_mode">Dark Mode</string>
 </resources>

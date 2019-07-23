@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -33,7 +33,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:text="@string/developer_in"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
             app:layout_constraintEnd_toEndOf="parent"
@@ -48,29 +48,26 @@
             android:layout_marginBottom="8dp"
             android:orientation="horizontal">
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/imgBtnVk"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:background="#F9F9F9"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/vk" />
+                app:srcCompat="@drawable/vk_dark" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/imgBtnInsta"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:background="#F9F9F9"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/instagram" />
+                app:srcCompat="@drawable/instagram_dark" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/imgBtnTw"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:background="#F9F9F9"
                 android:scaleType="centerInside"
-                app:srcCompat="@drawable/twitter" />
+                app:srcCompat="@drawable/twitter_dark" />
 
         </LinearLayout>
 
@@ -94,17 +91,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout7"
                 app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/website" />
+                app:srcCompat="@drawable/website_dark" />
 
             <ImageView
                 android:id="@+id/btnImgMore"
                 android:layout_width="65dp"
                 android:layout_height="65dp"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/more" />
+                app:srcCompat="@drawable/more_dark" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

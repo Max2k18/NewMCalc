@@ -5,22 +5,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class catch_service extends AppCompatActivity {
 
@@ -30,6 +26,7 @@ public class catch_service extends AppCompatActivity {
 	TextView pr;
 	TextView all;
 	ProgressBar pb;
+	SharedPreferences sp;
 
 	@Override
 	public void onBackPressed(){
@@ -83,8 +80,16 @@ public class catch_service extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	boolean DarkMode;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		DarkMode = sp.getBoolean("dark_mode", false);
+		if(DarkMode)
+			setTheme(android.R.style.Theme_Material_NoActionBar);
+		else
+			setTheme(R.style.AppTheme);
 		super.onCreate(savedInstanceState);
 		//sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Intent in = getIntent();
@@ -125,6 +130,17 @@ public class catch_service extends AppCompatActivity {
 				setContentView(R.layout.activity_sh_progress);
 				pr = findViewById(R.id.txtProgress);
 				all = findViewById(R.id.txtAll);
+				if(DarkMode){
+					pr.setTextColor(getResources().getColor(R.color.white));
+					all.setTextColor(getResources().getColor(R.color.white));
+					getWindow().setBackgroundDrawableResource(R.drawable.black);
+					Button b = findViewById(R.id.btnStop);
+					b.setTextColor(getResources().getColor(R.color.white));
+					b = findViewById(R.id.btnHide);
+					b.setTextColor(getResources().getColor(R.color.white));
+					b = findViewById(R.id.btnInstall);
+					b.setTextColor(getResources().getColor(R.color.white));
+				}
 				pb = findViewById(R.id.pbOnUpdate);
 				ups.set_send_progress(true);
 				ups.set_sh_alert(false);

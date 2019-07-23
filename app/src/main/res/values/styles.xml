@@ -18,4 +18,8 @@
         <item name="colorAccent">@color/redbackground</item>
     </style>
 
+    <!--style name="DarkTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#000</item>
+    </style-->
+
 </resources>
