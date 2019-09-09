@@ -1,6 +1,5 @@
 package com.maxsavteam.newmcalc;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,20 +12,20 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
+import android.net.InetAddresses;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
+
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -40,8 +39,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
-
-import org.w3c.dom.Text;
+import com.maxsavteam.newmcalc.upd.UPDChecker;
 
 import java.io.File;
 import java.io.FileReader;
@@ -173,17 +171,52 @@ public class Updater extends AppCompatActivity {
 
 	protected void backPressed() {
 		if (isotherset) {
-			isotherset = false;
+			/*isotherset = false;
 			setContentView(R.layout.updater_main);
 			LinearLayout ll = findViewById(R.id.layoutUpdate);
 			ll.setVisibility(layUpVis);
 			apply_dark_mode();
 			postcreate();
-			overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+			overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha_hide);*/
+			change_views(null);
 		} else {
 			finish();
-			overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+			overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 		}
+	}
+	void hide_update_layout(){
+		LinearLayout lay = findViewById(R.id.layoutUpdate);
+		Animation anim = AnimationUtils.loadAnimation(this,R.anim.alpha_hide);
+		anim.setAnimationListener(new Animation.AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+
+			}
+
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				lay.setVisibility(View.INVISIBLE);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+
+			}
+		});
+		lay.clearAnimation();
+		lay.setAnimation(anim);
+		lay.animate();
+		anim.start();
+	}
+
+	void show_update_layout(){
+		LinearLayout lay = findViewById(R.id.layoutUpdate);
+		Animation anim = AnimationUtils.loadAnimation(this, R.anim.alpha_show);
+		lay.clearAnimation();
+		lay.setAnimation(anim);
+		lay.setVisibility(View.VISIBLE);
+		lay.animate();
+		anim.start();
 	}
 
 	@Override
@@ -270,6 +303,7 @@ public class Updater extends AppCompatActivity {
 	}
 
 	boolean DarkMode = false;
+	UPDChecker updChecker;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -283,6 +317,23 @@ public class Updater extends AppCompatActivity {
 		setContentView(R.layout.updater_main);
 		if(DarkMode)
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
+
+		if(sp.getBoolean("simple_upd_exist", false) || sp.getBoolean("dev_upd_exist", false)){
+			show_update_layout();
+			TextView up = findViewById(R.id.txtUpdate);
+			if(sp.getBoolean("simple_upd_exist", false)){
+				up_type = "simple";
+				up_path = "/NewMCalc.apk";
+				up_ver = sp.getString("version", "");
+				up.setText(R.string.updateavail);
+			}else if(sp.getBoolean("dev_upd_exist", false)){
+				up_type = "dev";
+				up_path = "/forTesters/NewMCalc.apk";
+				up_ver = sp.getString("version", "");
+				up.setText(R.string.updateavail_tc);
+			}
+
+		}
         /*Slide slide = new Slide();
         slide.setDuration(100);
         getWindow().setEnterTransition(slide);
@@ -298,6 +349,8 @@ public class Updater extends AppCompatActivity {
 		mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
 		mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
 		ups = new update_service(this);
+		updChecker = new UPDChecker(this);
+		//updChecker.start(10, 1000, sp);
 		if(DarkMode)
 			apply_dark_mode();
         /*try {
@@ -495,101 +548,36 @@ public class Updater extends AppCompatActivity {
 				}
 			};
 			registerReceiver(on_test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
-
-			DatabaseReference refCode = db.getReference("versionCode");
-			refCode.addValueEventListener(new ValueEventListener() {
+			BroadcastReceiver versions_checked = new BroadcastReceiver() {
 				@Override
-				public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-					File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-					if (!f.isDirectory())
-						f.mkdir();
-					f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-					if (!f.isDirectory())
-						f.mkdir();
-					new get_inf(Updater.this).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
-
-					DatabaseReference refDev = db.getReference("dev/versionCodeDev");
-					if (sp.getBoolean("isdev", false)) {
-						refDev.addValueEventListener(new ValueEventListener() {
-							@Override
-							public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-								File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-								if (!f.isDirectory())
-									f.mkdir();
-								f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-								if (!f.isDirectory())
-									f.mkdir();
-								new get_inf(Updater.this).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
-							}
-
-							@Override
-							public void onCancelled(@NonNull DatabaseError databaseError) {
-
-							}
-						});
-					}
-				}
-				@Override
-				public void onCancelled(@NonNull DatabaseError databaseError) {
-
-				}
-			});
-
-			/*if (sp.getBoolean("isdev", false)) {
-				devCode.addValueEventListener(new ValueEventListener() {
-					@Override
-					public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-						newCodeDev = dataSnapshot.getValue(Integer.TYPE);
-					}
-
-					@Override
-					public void onCancelled(@NonNull DatabaseError databaseError) {
-
-					}
-				});
-			}
-			if (sp.getBoolean("isdev", false)) {
-				try {
-					Thread.sleep(900);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			String vercode = Integer.toString(BuildConfig.VERSION_CODE);
-			ref.addValueEventListener(new ValueEventListener() {
-				@Override
-				public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-					String value = dataSnapshot.getValue().toString();
-					Integer versionMy = Integer.valueOf(vercode);
-					Integer versionNew = Integer.valueOf(value);
+				public void onReceive(Context context, Intent intent) {
+					String type = intent.getStringExtra("type");
+					String version = intent.getStringExtra("version");
+					int code = intent.getIntExtra("code", 0);
+					updatebytescount = intent.getIntExtra("bytes", 0);
 					TextView up = findViewById(R.id.txtUpdate);
-					if (!ups.isup()) {
-						if (versionNew > versionMy && (newCodeDev == versionNew || newCodeDev == 0)) {
-							up_type = "simple";
-							up_path = "/NewMCalc.apk";
-							up_ver = newversion;
-							LinearLayout l = findViewById(R.id.layoutUpdate);
-							l.setVisibility(LinearLayout.VISIBLE);
-							up.setText(R.string.updateavail);
-						} else if (versionNew < newCodeDev && versionMy < newCodeDev) {
-							up_type = "dev";
-							up_path = "/forTesters/NewMCalc.apk";
-							up_ver = newDevVer;
-							LinearLayout l = findViewById(R.id.layoutUpdate);
-							l.setVisibility(LinearLayout.VISIBLE);
-							up.setText(R.string.updateavail_tc);
-						}
+					if(type.equals("simple")){
+						up_type = "simple";
+						up_path = "/NewMCalc.apk";
+						up_ver = version;
+						up.setText(R.string.updateavail);
+						show_update_layout();
+
+					}else if(type.equals("tc")){
+						up_type = "dev";
+						up_path = "/forTesters/NewMCalc.apk";
+						up_ver = version;
+						up.setText(R.string.updateavail_tc);
+						show_update_layout();
 					}
 				}
-
-				@Override
-				public void onCancelled(@NonNull DatabaseError databaseError) {
-					Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-				}
-			});*/
+			};
+			registerReceiver(versions_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));
 		}
 		tr.stop();
 	}
+
+	int updatebytescount = 0;
 
 	public void check_up(Integer versionMy, Integer versionNew){
 		if(!ups.isup()){
@@ -600,15 +588,13 @@ public class Updater extends AppCompatActivity {
 					up_type = "simple";
 					up_path = "/NewMCalc.apk";
 					up_ver = newversion;
-					LinearLayout l = findViewById(R.id.layoutUpdate);
-					l.setVisibility(LinearLayout.VISIBLE);
+					show_update_layout();
 					up.setText(R.string.updateavail);
 				} else if (versionMy < newCodeDev && isdev) {
 					up_type = "dev";
 					up_path = "/forTesters/NewMCalc.apk";
 					up_ver = newDevVer;
-					LinearLayout l = findViewById(R.id.layoutUpdate);
-					l.setVisibility(LinearLayout.VISIBLE);
+					show_update_layout();
 					up.setText(R.string.updateavail_tc);
 				}
 			}catch (Exception e){
@@ -619,6 +605,22 @@ public class Updater extends AppCompatActivity {
 	}
 
 	public void postcreate() {
+		other_settings();
+		if(sp.getBoolean("simple_upd_exist", false) || sp.getBoolean("dev_upd_exist", false)){
+			show_update_layout();
+			TextView up = findViewById(R.id.txtUpdate);
+			if(sp.getBoolean("simple_upd_exist", false)){
+				up_type = "simple";
+				up_path = "/NewMCalc.apk";
+				up_ver = sp.getString("version", "");
+				up.setText(R.string.updateavail);
+			}else if(sp.getBoolean("dev_upd_exist", false)){
+				up_type = "dev";
+				up_path = "/forTesters/NewMCalc.apk";
+				up_ver = sp.getString("version", "");
+				up.setText(R.string.updateavail_tc);
+			}
+		}
 		if (sp.getBoolean("isdev", false)) {
 			if (!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
 				findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
@@ -762,25 +764,112 @@ public class Updater extends AppCompatActivity {
 	}
 
 	public void update(View v) {
-		findViewById(R.id.layoutUpdate).setVisibility(View.INVISIBLE);
-		ups.run(up_path, up_ver);
+		hide_update_layout();
+		ups = new update_service(this);
+		ups.run(up_path, up_ver, updatebytescount);
 	}
 
-	public void other_settings(View v) {
-		isotherset = true;
-		LinearLayout ll = findViewById(R.id.layoutUpdate);
-		layUpVis = ll.getVisibility();
-		if(!DarkMode)
-			setTheme(R.style.AppTheme);
-		else
-			setTheme(android.R.style.Theme_Material_NoActionBar);
-		setContentView(R.layout.other_settings);
+	public void change_views(View v){
+		LinearLayout other = findViewById(R.id.other_settings), main = findViewById(R.id.main_updater);
+		if(isotherset){
+			Animation showmain = AnimationUtils.loadAnimation(this, R.anim.updater_showmain),
+					hide_other = AnimationUtils.loadAnimation(this, R.anim.updater_hideothersettings);
+			hide_other.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					other.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			other.clearAnimation();
+			main.clearAnimation();
+			showmain.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					main.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			other.setAnimation(hide_other);
+			main.setAnimation(showmain);
+			other.animate();
+			main.animate();
+			showmain.start();
+			hide_other.start();
+			isotherset = false;
+		}else{
+			Animation hidemain = AnimationUtils.loadAnimation(this, R.anim.updater_hidemain),
+					showother = AnimationUtils.loadAnimation(this, R.anim.updater_showothersettings);
+			hidemain.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					main.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			showother.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					other.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			main.clearAnimation();
+			other.clearAnimation();
+			other.setAnimation(showother);
+			main.setAnimation(hidemain);
+			other.animate();
+			main.animate();
+			showother.start();
+			hidemain.start();
+			isotherset = true;
+		}
+	}
+
+	public void other_settings() {
+		//setContentView(R.layout.other_settings);
 		apply_dark_at_othersettings();
 		Button b = findViewById(R.id.btnImport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		b = findViewById(R.id.btnExport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		int loc = sp.getInt("btn_add_align", 0);
+		/*int loc = sp.getInt("btn_add_align", 0);
 		Button l, r;
 		if (loc == 0) {
 			l = findViewById(R.id.btnLeft);
@@ -800,7 +889,7 @@ public class Updater extends AppCompatActivity {
 			l.setTextColor(getResources().getColor(R.color.white));
 			r.setBackgroundColor(getResources().getColor(R.color.white));
 			r.setTextColor(getResources().getColor(R.color.black));
-		}
+		}*/
 		Switch sw = findViewById(R.id.switchDarkMode);
 		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		sw.setChecked(sp.getBoolean("dark_mode", false));
@@ -863,6 +952,8 @@ public class Updater extends AppCompatActivity {
 	}
 
 	public void create_import(View v) {
+		sp.edit().remove("simple_upd_exist").apply();
+		sp.edit().remove("dev_upd_exist").apply();
 		ProgressDialog pd;
 		pd = new ProgressDialog(this);
 		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -900,6 +991,7 @@ public class Updater extends AppCompatActivity {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
 	}

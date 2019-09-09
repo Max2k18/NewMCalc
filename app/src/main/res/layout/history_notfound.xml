@@ -24,15 +24,16 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:gravity="center"
             android:text="@string/history_not_found"
             android:textColor="@color/black"
             android:textSize="24sp" />
 
         <ImageView
             android:id="@+id/imageView3"
-            android:layout_width="95dp"
-            android:layout_height="95dp"
-            app:srcCompat="@drawable/surprised" />
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/question" />
 
     </LinearLayout>
 

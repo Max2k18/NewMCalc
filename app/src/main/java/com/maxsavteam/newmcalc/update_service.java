@@ -1,6 +1,8 @@
 package com.maxsavteam.newmcalc;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -32,6 +34,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.maxsavteam.newmcalc.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,20 +63,22 @@ class update_service extends View {
 		static String task = "update";
 		static boolean view_was_created = false;
 		static AlertDialog on_mobile;
+		static DownloadingTask downloadingTask;
+		static NotificationManager notman;
 	}
 
 	private String up_ver = "";
 	private String up_path = "";
 	private Intent res = new Intent();
-	private NotificationManager motman;
+	//private NotificationManager gl.notman;
 	private PendingIntent pinte;
 	//public boolean tostop = false;
 	private SharedPreferences sp;
+	int count_of_not = 0;
 
 	public void kill() {
-		gl.tostop = true;
-		gl.isupdating = false;
-		set_to_default();
+		gl.outputFile.delete();
+		gl.downloadingTask.cancel(true);
 	}
 
 	public void set_to_default(){
@@ -91,6 +96,7 @@ class update_service extends View {
 	}
 
 	public void set_sh_alert(boolean b) {
+		count_of_not = 0;
 		gl.sh_alert = b;
 	}
 
@@ -107,25 +113,28 @@ class update_service extends View {
 	}
 
 	public void set_pause(boolean b){
-		gl.pause = b;
+		//gl.pause = b;
 	}
+
+	DownloadingTask downloadingTask;
 
 	public boolean isup() {
 		return gl.isupdating;
 	}
 
-	public void run(String up_path0, String up_version) {
-		motman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
+	public void run(String up_path0, String up_version, int bytes) {
+		gl.notman = (NotificationManager) mcon.getSystemService(Context.NOTIFICATION_SERVICE);
 		BroadcastReceiver del_not = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				motman.cancelAll();
+				gl.notman.cancelAll();
 				kill();
 			}
 		};
 		mcon.registerReceiver(del_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".DELETE_NOT"));
 		up_ver = up_version;
 		up_path = up_path0;
+		gl.bytes = bytes;
 		Intent inte = new Intent(mcon, catch_service.class);
 		//inte.setData(Uri.parse(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
 		inte.putExtra("action", "sh_progress");
@@ -139,7 +148,7 @@ class update_service extends View {
         mcon.registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));*/
 		sp = PreferenceManager.getDefaultSharedPreferences(mcon.getApplicationContext());
 		boolean darkMode = sp.getBoolean("dark_mode", false);
-		FirebaseDatabase db = FirebaseDatabase.getInstance();
+		/*FirebaseDatabase db = FirebaseDatabase.getInstance();
 		DatabaseReference dbm = db.getReference("bytesCount");
 		if (up_path.contains("forTesters")) {
 			dbm = db.getReference("dev/bytesCount");
@@ -159,7 +168,7 @@ class update_service extends View {
 			Thread.sleep(250);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		boolean sh_window = sp.getBoolean("sh_up_window", true);
 		sp.edit().putInt("notremindfor", 0).apply();
 		if (sh_window) {
@@ -169,7 +178,7 @@ class update_service extends View {
 				public void onClick(DialogInterface dialog, int which) {
 					dialog.cancel();
 					sp.edit().putBoolean("sh_up_window", false).apply();
-					run(up_path0, up_version);
+					run(up_path0, up_version, gl.bytes);
 				}
 			});
 			AlertDialog dl = builder.create();
@@ -178,7 +187,7 @@ class update_service extends View {
 			dl.show();
 		} else {
 			ConnectivityManager conMan = (ConnectivityManager) mcon.getSystemService(Context.CONNECTIVITY_SERVICE);
-			State wifi = conMan.getNetworkInfo(1).getState();
+			//State wifi = conMan.getNetworkInfo(1).getState();
 			State mobile = conMan.getNetworkInfo(0).getState();
 			if((mobile == State.CONNECTED || mobile == State.CONNECTING) && sp.getBoolean("show_on_mobile_update", true)) {
 				if (!gl.view_was_created) {
@@ -225,10 +234,11 @@ class update_service extends View {
 				.setProgress(100, 0, true).addAction(R.drawable.stop, getResources().getString(R.string.stop), pendingIntent)
 				.setContentText("Preparing...");
 		Notification not = build.build();
-		motman.notify(1, not);
+		gl.notman.notify(1, not);
 		//cs.save_in_sp(true);
 		gl.isupdating = true;
-		new DownloadingTask().execute();
+		gl.downloadingTask = new DownloadingTask();
+		gl.downloadingTask.execute();
 	}
 
 	public void install() {
@@ -244,7 +254,7 @@ class update_service extends View {
 	}
 
 	private void onfail() {
-		motman.cancel(1);
+		gl.notman.cancel(1);
 		//cs.save_in_sp(false);
 		gl.isupdating = false;
 		kill();
@@ -253,28 +263,40 @@ class update_service extends View {
 		mcon.sendBroadcast(res);
 	}
 
-	private void sh(int buffer) {
-		gl.all += buffer;
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
-		gl.cf = (gl.all * 100) / gl.bytes;
-		//gl.cf = gl.cf / gl.bytes;
-		if(!gl.pause) {
-			builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
-					.setContentIntent(pinte);
-		}else{
-			builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
-		}
-		//motman.cancelAll();
-		if (gl.sh_alert) {
-			motman.notify(1, builder.build());
-		}else {
-			motman.cancel(1);
-		}
-		mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
-	}
 
-	private class DownloadingTask extends AsyncTask<Void, Void, Void> {
+
+	protected class DownloadingTask extends AsyncTask<Void, Void, Void> {
 		String pr = "";
+
+		@Override
+		protected void onCancelled() {
+			set_to_default();
+			gl.notman.cancel(1);
+			super.onCancelled();
+		}
+
+		private void sh(int buffer) {
+			gl.all += buffer;
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(mcon);
+			gl.cf = (gl.all * 100) / gl.bytes;
+			//gl.cf = gl.cf / gl.bytes;
+			if(!gl.pause) {
+				builder.setProgress(100, gl.cf, false).setContentText(gl.cf + "%").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...")
+						.setContentIntent(pinte);
+			}else{
+				builder.setProgress(100, 0, true).setContentText("Pause...").setOngoing(true).setSmallIcon(R.drawable.update).setContentTitle("New MCalc is updating...");
+			}
+			//gl.notman.cancelAll();
+			gl.notman.notify(1, builder.build());
+			/*if (gl.sh_alert) {
+				gl.notman.notify(1, builder.build());
+			}else {
+				if(count_of_not == 0)
+					gl.notman.cancel(1);
+				count_of_not++;
+			}*/
+			mcon.sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".PROGRESS_CF").putExtra("cf", 0));
+		}
 
 		@Override
 		protected void onPostExecute(Void result) {
@@ -283,7 +305,7 @@ class update_service extends View {
 				if (gl.outputFile != null) {
 					//Toast.makeText(mcon.getApplicationContext(), pr, Toast.LENGTH_LONG).show();
 					if (!gl.tostop) {
-						motman.cancel(1);
+						gl.notman.cancel(1);
 						//cs.save_in_sp(false);
 						gl.isupdating = false;
 						res.setAction(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC");
@@ -293,7 +315,7 @@ class update_service extends View {
 						gl.tostop = false;
 						mcon.sendBroadcast(res);
 					} else {
-						motman.cancelAll();
+						gl.notman.cancelAll();
 						if (gl.outputFile.exists()) {
 							gl.outputFile.delete();
 						}
@@ -314,6 +336,7 @@ class update_service extends View {
 
 		}
 
+		@SuppressLint("WrongThread")
 		@Override
 		protected Void doInBackground(Void... arg0) {
             /*SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -359,6 +382,9 @@ class update_service extends View {
 					            byte[] buffer = new byte[1024];
 					            int len1 = 0;
 					            while (len1 != -1 && !gl.tostop) {
+					            	if(isCancelled()){
+					            		break;
+						            }
 						            if(gl.need_sh_progress && !gl.pause){
 							            int[] array = get_ints();
 							            Intent broad = new Intent(BuildConfig.APPLICATION_ID + ".ON_UPDATE"), src = new Intent();

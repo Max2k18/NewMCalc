@@ -95,37 +95,6 @@
             android:textSize="24sp" />
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/checkBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:onClick="checkbox"
-        android:text="@string/add_chars"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.45999998" />
-
-    <TextView
-        android:id="@+id/add_chars"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.53" />
-
     <Button
         android:id="@+id/btnGenPass"
         style="@style/Widget.AppCompat.Button.Colored"
@@ -135,7 +104,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="@color/colorAccent"
         android:onClick="genpass"
         android:text="@string/generate"
         android:textColor="@color/white"
@@ -143,6 +112,101 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.64" />
+        app:layout_constraintVertical_bias="0.7" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/btnGenPass"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/swCap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:linksClickable="false"
+                android:longClickable="false"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swLowerCase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swDigits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swHyphen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/swPar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swSpace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swSpecial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+
+            <CheckBox
+                android:id="@+id/swUnderScore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onSwClick"
+                android:text="CheckBox" />
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,50 +1,200 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="10dp">
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_weight="1"
+    android:background="@drawable/rounded_corners"
+    android:backgroundTint="@android:color/transparent"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
 
-    <LinearLayout
+
+    <!--Button
+        android:id="@+id/btnDelInRow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_gravity="center|right"
+        android:layout_weight="0.7"
+        android:backgroundTint="@color/redbackground"
+        android:drawableTop="@drawable/trash"
+        android:longClickable="false"
+        android:text="@string/delete"
+        android:textColor="@color/white"
+        android:textSize="8sp"
+        android:textStyle="bold"
+        android:visibility="visible" /-->
+
+    <LinearLayout
+        android:id="@+id/main_in_row"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.7"
         android:orientation="horizontal">
 
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.04" />
+        <ImageButton
+            android:id="@+id/btnInfoInRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:backgroundTint="#0000FF"
+            android:scaleType="centerInside"
+            android:src="@drawable/info_button"
+            android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvAns"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:textColor="@color/black"
-            android:textColorLink="@color/black"
-            android:textSize="25sp" />
+            android:layout_weight="0.17"
+            android:gravity="left"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.04" />
+
+                <TextView
+                    android:id="@+id/tvAns"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/black"
+                    android:textColorLink="@color/black"
+                    android:textSize="25sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.06" />
+
+                <TextView
+                    android:id="@+id/tvAns2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/black"
+                    android:textColorLink="@color/black"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvPosition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvWithDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="false"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5" />
+
+                <TextView
+                    android:id="@+id/txtDesc2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.04"
+                    android:text="TextView"
+                    android:textColor="@color/black"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnDelInRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:backgroundTint="@color/red"
+            android:scaleType="centerInside"
+            android:src="@drawable/trash"
+            android:visibility="gone" />
+
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/without_desc"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:orientation="horizontal"
+        android:visibility="gone">
 
-        <Space
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/btn_add"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.06" />
+            android:text="@string/add" />
 
-        <TextView
-            android:id="@+id/tvAns2"
-            android:layout_width="0dp"
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/with_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.7"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/gray"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_desc_edit"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:textColor="@color/black"
-            android:textColorLink="@color/black"
-            android:textSize="20sp" />
+            android:layout_weight="1"
+            android:backgroundTint="@color/white"
+            android:text="@string/edit" />
+
+        <Button
+            android:id="@+id/btn_desc_del"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#F00000"
+            android:text="@string/delete"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
     </LinearLayout>
 
 </LinearLayout>

@@ -1,4 +1,5 @@
 <resources>
+    <integer name="transition_animation_duration">350</integer>
     <string name="app_name" translatable="false">New MCalc</string>
     <string name="multiply" translatable="false">×</string>
     <string name="div" translatable="false">÷</string>
@@ -30,7 +31,7 @@
     <string name="build">Build:</string>
     <string name="hitory">History</string>
     <string name="checking_history">Checking history…</string>
-    <string name="history_not_found">History not found</string>
+    <string name="history_not_found">Hm...\\nThere is no history here...\\nWhere is she?</string>
     <string name="passgen">Password Generator</string>
     <string name="sqrt" translatable="false">√</string>
     <string name="add_chars">Additional characters</string>
@@ -40,7 +41,7 @@
     <string name="no">No</string>
     <string name="exit">Exit</string>
     <string name="areyousureexit">Would you like to go out?</string>
-    <string name="updateavailable">Would you like to download and install the update? If not, you can upgrade at a convenient time in the settings (three points from the top left -> Settings)</string>
+    <string name="updateavailable">Would you like to download and install the update? If not, you can upgrade at a convenient time in the settings</string>
     <string name="donot_remind_for_this_ver">Do not remind for this version</string>
     <string name="about_text">This application is created entirely by one person. His name is Max Savitsky(It\'s me). All systems, all core, everything is done by me.</string>
     <string name="about">About app</string>
@@ -72,10 +73,6 @@
     <string name="hide">Hide</string>
     <string name="confirm_stop_update">Would you like to stop the update?</string>
     <string name="install">Install</string>
-    <string-array name="langs">
-        <item>English</item>
-        <item>Russian</item>
-    </string-array>
     <string name="ch_lang">Choose language</string>
     <string name="import_se">Import</string>
     <string name="export">Export</string>
@@ -90,4 +87,52 @@
     <string name="build_tester"><p><b>This build is tester\'s build.</b></p></string>
     <string name="build_developer"><p><b>This build ONLY for developer</b></p></string>
     <string name="text_dark_mode">Dark Mode</string>
+    <string name="pass_sw_all_off">Please select at least one option</string>
+    <string name="clear">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_all_memories_quest">Delete all memories?</string>
+    <string name="delete">Delete</string>
+    <string name="wil_be_deleted">Will be deleted after</string>
+    <string name="char_skobka1" translatable="false">(</string>
+    <string name="add">add</string>
+    <string name="edit">Edit</string>
+    <string name="confirm_del_desc">Are you sure you want to delete the description for this entry?</string>
+    <string name="enter_text">Enter text</string>
+    <string name="desc">Description</string>
+    <string-array name="langs">
+        <item>English</item>
+        <item>Russian</item>
+    </string-array>
+    <string-array name="switches" format="false">
+        <item>CAPITAL</item>
+        <item>lowercase</item>
+        <item>Digits 0&#8212;9</item>
+        <item>H&#8212;y&#8212;p&#8212;h&#8212;e&#8212;n</item>
+        <item>_Underscore_</item>
+        <item>S p a c e</item>
+        <item>&lt;$peci@l&gt;</item>
+        <item>{[(Parentheses)]}</item>
+    </string-array>
+    <string-array name="history_not_found">
+        <item>Hm…</item>
+        <item>There is no history here…</item>
+        <item>Where is she?</item>
+    </string-array>
+    <string-array name="additional_chars">
+        <item>sin</item>
+        <item>cos</item>
+        <item>log</item>
+        <item>ln</item>
+        <item>tan</item>
+        <item>e</item>
+        <item>(</item>
+        <item>)</item>
+        <item>!</item>
+        <item>%</item>
+        <item>π</item>
+        <item>φ</item>
+        <item>√</item>
+        <item>^</item>
+        <item>1/X</item>
+    </string-array>
 </resources>

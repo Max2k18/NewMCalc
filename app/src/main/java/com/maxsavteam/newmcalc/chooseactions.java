@@ -28,7 +28,7 @@ public class chooseactions extends AppCompatActivity {
 
     public void backPressed() {
         finish();
-        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
     }
 
 
@@ -130,7 +130,7 @@ public class chooseactions extends AppCompatActivity {
         val.putExtra("value", btn.getText().toString());
         sendBroadcast(val);
         finish();
-        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
     }
 
     public void setButtons() {

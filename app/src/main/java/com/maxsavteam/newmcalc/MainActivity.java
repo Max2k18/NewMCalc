@@ -10,64 +10,60 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.telephony.TelephonyManager;
 import android.text.Html;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.*;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+import com.maxsavteam.newmcalc.upd.UPDChecker;
 
 import java.io.File;
 import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Stack;
+import java.net.Inet4Address;
+import java.util.*;
+
+//import com.maxsavteam.newmcalc.upd.;
 
 import static com.maxsavteam.newmcalc.R.drawable.settings_dark;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements window_recall_adapter.inter {
 
     public static Stack<String> s0 = new Stack<>();
     public static Stack<BigDecimal> s1 = new Stack<>();
@@ -93,12 +89,22 @@ public class MainActivity extends AppCompatActivity {
     public BuildConfig bc;
     public FirebaseAnalytics fr;
     public String app_type;
+    public BigDecimal[] barr;
+    public Set<String> se = new HashSet<>();
+    public Map<Integer, String> map = new HashMap<>();
+    public int memory_cursor = 0;
+    public BigDecimal result_calc_for_mem;
+    public TextView text_example;
+    UPDChecker updChecker;
+    String FI, PI, E;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
         t.setText("");
         TextView ans = findViewById(R.id.textAns2);
+        hide_ans();
         ans.setText("");
+
         sp.edit().remove("saveResultText").apply();
         set_text_toDef();
         return true;
@@ -114,24 +120,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onLongClick(View v) {
             TextView back = findViewById(R.id.textAns2);
+            if(back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE){
+                return false;
+            }
             String txt = back.getText().toString();
+            hide_ans();
             back.setText("");
             back = findViewById(R.id.textStr);
             back.setText(txt);
-            HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-            scrollview.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                }
-            });
-            HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-            scrollviewans.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                }
-            });
+            scroll_to_end();
             equallu("not");
             return true;
         }
@@ -162,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 						    	ups.kill();
 						    }
                             finishAndRemoveTask();
-                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
 					    }
 				    });
 
@@ -186,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 					    public void onClick(DialogInterface dialog, int which) {
 						    dialog.cancel();
 						    finishAndRemoveTask();
-						    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+						    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
 					    }
 				    });
 		    AlertDialog al_1 = builder.create();
@@ -215,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    protected void sh_dl_update(int versionMy, int versionNew, String newver, String text, boolean compileWithView){
+    protected void sh_dl_update(String flag, int versionNew, String newver, String text, boolean compileWithView){
         View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
         if(DarkMode)
@@ -247,12 +244,12 @@ public class MainActivity extends AppCompatActivity {
                         if(uptype.equals("dev")){
                             /*in.putExtra("upVerName", newDevVer);
                             in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
-                            ups.run("/forTesters/NewMCalc.apk", newDevVer);
+                            ups.run("/forTesters/NewMCalc.apk", newversiondev, bytescountupdate);
                         }
                         else{
                             /*in.putExtra("upVerName", newver);
                             in.putExtra("update_path", "/NewMCalc.apk");*/
-                            ups.run("/NewMCalc.apk", newver);
+                            ups.run("/NewMCalc.apk", newversionsimple, bytescountupdate);
                         }
                     }
                 });
@@ -261,9 +258,10 @@ public class MainActivity extends AppCompatActivity {
         al = builder.create();
         if(DarkMode)
             al.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+        if(flag.equals("fromUPDChecker")){
+            al.show();
+        }
     }
-
-    boolean clicked = false;
 
     protected void check_up(Integer versionMy, Integer versionNew){
         if(!ups.isup()){
@@ -272,13 +270,15 @@ public class MainActivity extends AppCompatActivity {
             boolean isdev = sp.getBoolean("isdev", false);
             if(newVerCode > versionMy && newVerCode >= newCodeDev){
                 if(sp.getInt("notremindfor", 0) != newVerCode) {
+                    sp.edit().putBoolean("simple_upd_exist", true).putString("version", newVer).apply();
                     uptype = "simple";
-                    sh_dl_update(versionMy, newVerCode, newVer, getResources().getString(R.string.updateavailable), true);
+                    sh_dl_update("", newVerCode, newVer, getResources().getString(R.string.updateavailable), true);
                     al.show();
                     dl.cancel();
                 }
             }else if(versionMy < newCodeDev && isdev){
-                sh_dl_update(versionMy, newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
+                sp.edit().putBoolean("dev_upd_exist", true).putString("version", newDevVer).apply();
+                sh_dl_update("", newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
                 uptype = "dev";
                 al.show();
                 dl.cancel();
@@ -287,12 +287,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickAdd(View v){
-        Intent resultIntent = new Intent();
-        Button sh = findViewById(R.id.btnShAdd);
-        ConstraintLayout cl = findViewById(R.id.constraight);
-
-        findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
-        findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
         if(v.getId() == R.id.imgBtnSettings){
             goto_add_scr("settings");
         }else if(v.getId() == R.id.btnImgNumGen){
@@ -301,11 +295,6 @@ public class MainActivity extends AppCompatActivity {
             goto_add_scr("history");
         }else if(v.getId() == R.id.btnImgPassgen){
             goto_add_scr("pass");
-        }
-        if(sp.getInt("btn_add_align", 0) == 0){
-            show_hide(findViewById(R.id.btnShAdd));
-        }else if(sp.getInt("btn_add_align", 0) == 1){
-            show_hide(findViewById(R.id.btnShAdd2));
         }
     }
 
@@ -320,28 +309,28 @@ public class MainActivity extends AppCompatActivity {
                 else
                     resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "numgen":
                 resultIntent = new Intent(getApplicationContext(), numgen.class);
                 resultIntent.putExtra("type", "number");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "history":
                 sp.edit().putString("action", "history").apply();
                 resultIntent = new Intent(getApplicationContext(), history.class);
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "pass":
                 resultIntent = new Intent(getApplicationContext(), numgen.class);
                 resultIntent.putExtra("type", "pass");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
         }
     }
@@ -427,12 +416,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     boolean DarkMode = false;
+    String ver_desc = "";
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	    DarkMode = sp.getBoolean("dark_mode", false);
+	    sp.edit().remove("simple_upd_exist").apply();
+	    sp.edit().remove("dev_upd_exist").apply();
 	    if(DarkMode){
 	    	setTheme(android.R.style.Theme_Material_NoActionBar);
 	    }else{
@@ -447,31 +439,35 @@ public class MainActivity extends AppCompatActivity {
         btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
         TextView ver = findViewById(R.id.lblVer);
-        ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
-        if(DarkMode)
-            ver.setTextColor(getResources().getColor(R.color.white));
+        ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + Integer.toString(BuildConfig.VERSION_CODE);
+        ver.setText(ver_desc);
+        //ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
         Button btn1 = findViewById(R.id.btnCalc);
         btn1.setOnLongClickListener(returnback);
+        text_example = findViewById(R.id.textStr);
         if(DarkMode)
             btn1.setTextColor(getResources().getColor(R.color.white));
         else
             btn1.setTextColor(getResources().getColor(R.color.black));
-        Button btn2 = findViewById(R.id.btnZero);
-        //FirebaseApp.initializeApp(this);
+
+        PI = getResources().getString(R.string.pi);
+        FI = getResources().getString(R.string.fi);
+        E = "e";
+
         ups = new update_service(MainActivity.this);
+        updChecker = new UPDChecker(this);
         try{
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
 		Intent start_in = getIntent();
-        RelativeLayout.LayoutParams par;
+        /*RelativeLayout.LayoutParams par;
         add_menu_opened = false;
         par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
         LinearLayout ll = findViewById(R.id.additional_tools);
-        ll.setLayoutParams(par);
+        ll.setLayoutParams(par);*/
 		if(start_in.getBooleanExtra("shortcut_action", false)){
             goto_add_scr(start_in.getStringExtra("to_"));
             /*if(sp.getInt("btn_add_align", 0) == 0){
@@ -525,27 +521,100 @@ public class MainActivity extends AppCompatActivity {
         btn1.setHeight(btn2.getHeight());
         btn1.setWidth(btn2.getWidth());*/
 
-        btn_change();
+       // btn_change();
 
         myTrace.stop();
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
+    public void click_addtional_tools(View v){
+        ImageButton btn = (ImageButton) v;
+        LinearLayout lay = findViewById(R.id.additional_tools);
+        if(btn.getTag().toString().equals("up")){
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_show);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    btn.setImageDrawable(getDrawable(R.drawable.arrow_down));
+                    btn.setTag("down");
+                    btn.setEnabled(false);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    btn.setEnabled(true);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            lay.clearAnimation();
+            lay.setAnimation(anim);
+            lay.setVisibility(View.VISIBLE);
+            lay.animate();
+            anim.start();
+        }else if(btn.getTag().toString().equals("down")){
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_hide);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    btn.setImageDrawable(getDrawable(R.drawable.arrow_up));
+                    btn.setTag("up");
+                    btn.setEnabled(false);
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    lay.setVisibility(View.GONE);
+                    btn.setEnabled(true);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            lay.clearAnimation();
+            lay.setAnimation(anim);
+            lay.animate();
+            anim.start();
+        }
+    }
+
     public void apply_theme(){
 	    if(DarkMode){
-		    ImageButton img = findViewById(R.id.imgBtnSettings);
-		    img.setImageDrawable(getResources().getDrawable(settings_dark));
-		    img = findViewById(R.id.btnImgHistory);
-		    img.setImageDrawable(getResources().getDrawable(R.drawable.history_dark));
-		    img = findViewById(R.id.btnImgPassgen);
-		    img.setImageDrawable(getResources().getDrawable(R.drawable.passgen_dark));
-		    img = findViewById(R.id.btnImgNumGen);
-		    img.setImageDrawable(getResources().getDrawable(R.drawable.dice_dark));
+		    ImageButton img;
+		    int[] imgbtnids = new int[]{
+                    R.id.imgBtnSettings,
+                    R.id.btnImgHistory,
+                    R.id.btnImgNumGen,
+                    R.id.btnImgPassgen
+            };
+            Drawable[] drawables;
+            drawables = new Drawable[]{
+                    getResources().getDrawable(settings_dark),
+                    getResources().getDrawable(R.drawable.history_dark),
+                    getResources().getDrawable(R.drawable.dice_dark),
+                    getResources().getDrawable(R.drawable.passgen_dark)
+            };
+            for(int i = 0; i < imgbtnids.length; i++){
+                img = findViewById(imgbtnids[i]);
+                img.setImageDrawable(drawables[i]);
+            }
 		    getWindow().setBackgroundDrawableResource(R.drawable.black);
-		    TextView t = findViewById(R.id.textStr);
-		    t.setTextColor(getResources().getColor(R.color.white));
-		    t = findViewById(R.id.textAns2);
-		    t.setTextColor(getResources().getColor(R.color.white));
+		    TextView t;
+            int[] ids = new int[]{
+                    R.id.textAns2,
+                    R.id.textStr
+            };
+            for (int id : ids) {
+                t = findViewById(id);
+                t.setTextColor(getResources().getColor(R.color.white));
+            }
+            t = findViewById(R.id.lblVer);
+            t.setText(ver_desc);
 		    Button b = findViewById(R.id.btnDelAll);
 		    //b.setBackgroundColor(getResources().getColor(R.color.white));
 		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
@@ -555,16 +624,33 @@ public class MainActivity extends AppCompatActivity {
 		    b = findViewById(R.id.btnShAdd);
 		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		    b = findViewById(R.id.btnShAdd2);
-		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+		    int[] colorAccentIds = new int[]{
+                    R.id.btnMemMinus,
+                    R.id.btnMemPlus,
+                    R.id.btnMR,
+                    R.id.btnMS
+		    };
+		    for(int id : colorAccentIds){
+		        b = findViewById(id);
+                b.setTextColor(getResources().getColor(R.color.colorAccent));
+            }
 	    }else{
-		    TextView t = findViewById(R.id.textStr);
-		    t.setTextColor(getResources().getColor(R.color.black));
-		    t = findViewById(R.id.textAns2);
-		    t.setTextColor(getResources().getColor(R.color.black));
+            TextView t;
+            getWindow().setBackgroundDrawableResource(R.drawable.white);
+            int[] ids = new int[]{
+                    R.id.textAns2,
+                    R.id.textStr
+            };
+            for (int id : ids) {
+                t = findViewById(id);
+                t.setTextColor(getResources().getColor(R.color.black));
+            }
             /*Button b = findViewById(R.id.btnDelAll);
             b.setBackgroundColor(getResources().getColor(R.color.black));
             b.setTextColor(getResources().getColor(R.color.white));*/
-            getWindow().setBackgroundDrawableResource(R.drawable.white);
+            t = findViewById(R.id.lblVer);
+            t.setText(ver_desc);
             Button b = findViewById(R.id.btnDelAll);
             //b.setBackgroundColor(getResources().getColor(R.color.white));
             b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.black)));
@@ -574,13 +660,51 @@ public class MainActivity extends AppCompatActivity {
 	    }
     }
 
-    String message_from_stable_ch = "", message_from_tc = "";
+    View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View view) {
+            int id = view.getId();
+            t = findViewById(R.id.textStr);
+            String txt = t.getText().toString();
+            if(id == R.id.btnMinus){
+                if(txt.equals(""))
+                    return false;
+                String newt = "";
+                int i = txt.length()-1;
+                while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
+                    newt = txt.charAt(i) + newt;
+                    i--;
+                }
+
+                s1.push(BigDecimal.valueOf(1));
+                s1.push(new BigDecimal(newt));
+                mult("/");
+                if(!was_error){
+                    BigDecimal ans = s1.peek();
+                    s1.pop();
+                    if(txt.length() == newt.length()){
+                        t.setText(ans.toString());
+                    }else{
+                        txt = txt.substring(0, txt.length() - newt.length());
+                        txt += ans.toString();
+                        t.setText(txt);
+                    }
+                    equallu("not");
+                }
+            }else
+                //Toast.makeText(MainActivity.this, ((Button) view).getText().toString(), Toast.LENGTH_SHORT).show();
+                add_text(((Button) view).getText().toString().substring(1));
+            return true;
+        }
+    };
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
         app_type = BuildConfig.APPTYPE;
+        sp.edit().remove("count_catchservice").apply();
+        //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
 
@@ -600,6 +724,7 @@ public class MainActivity extends AppCompatActivity {
 	            if(!DarkMode)
 	                ver.setTextColor(getResources().getColor(R.color.black));
                 ver.setText(ex.toString());
+                show_ans();
                 i++;
                 while(i < text.length() && text.charAt(i) != ';'){
                     ans.append(text.charAt(i));
@@ -617,19 +742,52 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if(app_type.equals("tester")){
+        if(app_type.equals("tester") && !sp.getBoolean("stop_receive_all", false)){
             sp.edit().putBoolean("isdev", true).apply();
         }
         if(app_type.equals("developer")){
+            Crashlytics.setUserIdentifier("developer");
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             if(!tm.getDeviceId().equals("869480036532475")) {
                 finishAndRemoveTask();
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha_hide);
+            }
+        }
+
+        String[] arr = getResources().getStringArray(R.array.additional_chars);
+        int[] btnIds = {
+                R.id.btn7,
+                R.id.btn8,
+                R.id.btn4,
+                R.id.btn5,
+                R.id.btn1,
+                R.id.btn2,
+
+                R.id.btn9,
+                R.id.btnMult,
+                R.id.btn6,
+                R.id.btnDiv,
+                R.id.btn3,
+                R.id.btnPlus,
+
+                R.id.btnZero,
+                R.id.btnDot,
+                R.id.btnMinus
+        };
+        for(int ii = 0; ii < btnIds.length; ii++){
+            Button btn = findViewById(btnIds[ii]);
+            btn.setTransformationMethod(null);
+            btn.setOnLongClickListener(additional_longclick);
+            String num = btn.getText().toString();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>", Html.FROM_HTML_MODE_COMPACT));
+            }else{
+                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>"));
             }
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        View view = getLayoutInflater().inflate(R.layout.about_layout, null);
+        @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.about_layout, null);
         String message = getResources().getString(R.string.about_text)
                 + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
                 + (app_type.equals("stable") ? " stable" : " not stable")
@@ -668,22 +826,273 @@ public class MainActivity extends AppCompatActivity {
         if(DarkMode)
             dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference refVer = db.getReference("versionCode");
+        updChecker.start(10, 5000, sp);
+        /*refVer.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //Toast.makeText(getApplicationContext(), "refVer", Toast.LENGTH_SHORT).show();
+                File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
+                if(!f.isDirectory())
+                    f.mkdir();
+                f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
+                if(!f.isDirectory())
+                    f.mkdir();
+                new get_inf(MainActivity.this).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
+
+                DatabaseReference refDev = db.getReference("dev/versionCode");
+                if(sp.getBoolean("isdev", false)){
+                    refDev.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
+                            if(!f.isDirectory())
+                                f.mkdir();
+                            f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
+                            if(!f.isDirectory())
+                                f.mkdir();
+                            new get_inf(MainActivity.this).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });*/
+
+        Button b = findViewById(R.id.btnMR);
+        b.setOnLongClickListener(memory_actions);
+        b = findViewById(R.id.btnMS);
+        b.setOnLongClickListener(memory_actions);
+        b = findViewById(R.id.btnMemPlus);
+        b.setOnClickListener(memory_plus);
+        b = findViewById(R.id.btnMemMinus);
+        b.setOnClickListener(memory_minus);
+        trace.stop();
+        //должно быть всегда in the end
+        fr.logEvent("OnPostCreate", Bundle.EMPTY);
+    }
+
+    View.OnClickListener memory_plus = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(text_example.getText().toString().equals(""))
+                return;
+            BigDecimal res = barr[0], local_num = new BigDecimal(0);
+            equallu("for_memory");
+            local_num = result_calc_for_mem;
+            res = res.add(local_num);
+            barr[0] = res;
+            save_memory();
+        }
+    };
+    View.OnClickListener memory_minus = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(text_example.getText().toString().equals(""))
+                return;
+            BigDecimal res = barr[0], local_num = new BigDecimal(0);
+            equallu("for_memory");
+            local_num = result_calc_for_mem;
+            res = res.subtract(local_num);
+            barr[0] = res;
+            save_memory();
+        }
+    };
+
+    void read_memory(){
+        String mem_loc = sp.getString("memory", "0$0$0$0$0$0$0$0$0$0$");
+        barr = new BigDecimal[10];
+        for(int i = 0; i < 10; i++){
+            barr[i] = BigDecimal.valueOf(0);
+        }
+        int i = 0, cell = 0;
+        while(i < mem_loc.length()){
+            String num = "";
+            while(mem_loc.charAt(i) != '$'){
+                num += mem_loc.charAt(i);
+                i++;
+            }
+            barr[cell] = new BigDecimal(num);
+            cell++;
+            i++;
+        }
+    }
+
+    public void save_memory(){
+        String mem = "";
+        for(int i = 0; i < 10; i++){
+            mem += barr[i].toString() + "$";
+        }
+        sp.edit().putString("memory", mem).apply();
+        //Toast.makeText(getApplicationContext(), sp.getString("memory", "none"), Toast.LENGTH_SHORT).show();
+    }
+
+    public boolean memory_calculated = false, store_custom = false;
+    public int store_params;
+
+    public void memory_ms(View view){
+        TextView t = findViewById(R.id.textStr);
+        if(t.getText().toString().equals(""))
+            return;
+    	equallu("for_memory");
+    	BigDecimal res = result_calc_for_mem;
+    	if(store_custom){
+    	    barr[store_params] = res;
+    	    store_custom = false;
+        }else
+    	    barr[0] = res;
+    	save_memory();
+    }
+
+    public void memory_mr(View view){
+    	TextView t = findViewById(R.id.textStr);
+    	t.setText(barr[0].toString());
+    	t = findViewById(R.id.textAns2);
+    	hide_ans();
+    	t.setText("");
+    }
+
+    String recall_type = "";
+    AlertDialog showMemAl;
+
+    @Override
+    public void onRecallClick(View view, int position) {
+        if(recall_type.equals("rc")){
+            TextView t = findViewById(R.id.textStr);
+            t.setText(barr[position].toString());
+            t = findViewById(R.id.textAns2);
+            hide_ans();
+            t.setText("");
+        }else if(recall_type.equals("st")){
+            store_custom = true;
+            store_params = position;
+            memory_ms(findViewById(R.id.btnMS));
+        }
+        showMemAl.cancel();
+    }
+
+    protected void showMemAlert(final String type){
+        Intent in = new Intent(this, memory_actions_activity.class);
+        in.putExtra("type", type);
+        if(type.equals("st")){
+            equallu("for_memory");
+            BigDecimal res = result_calc_for_mem;
+            in.putExtra("value", res.toString());
+        }
+        startActivity(in);
+        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+    }
+
+    View.OnLongClickListener memory_actions = new View.OnLongClickListener() {
+	    @Override
+	    public boolean onLongClick(View v) {
+	        try {
+                if(v.getId() == R.id.btnMR)
+                    showMemAlert("rc");
+                else
+                    showMemAlert("st");
+            }catch (Exception e){
+	            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+            }
+
+		    return true;
+	    }
+    };
+
+    void show_str(){
+        TextView t = findViewById(R.id.textStr);
+        //t.setTextIsSelectable(false);
+        t.setVisibility(View.VISIBLE);
+    }
+    void hide_str(){
+        TextView t = findViewById(R.id.textStr);
+        t.setVisibility(View.INVISIBLE);
+    }
+
+    void show_ans(){
+        TextView t = findViewById(R.id.textAns2);
+        t.setVisibility(View.VISIBLE);
+    }
+    void hide_ans(){
+        TextView t = findViewById(R.id.textAns2);
+        t.setVisibility(View.INVISIBLE);
+    }
+    String newversionsimple = "", newversiondev = "";
+    int bytescountupdate = 0;
+
+    protected void register_broadcasters(){
+        BroadcastReceiver on_version_checked = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String type = intent.getStringExtra("type");
+                String version = intent.getStringExtra("version");
+                int code = intent.getIntExtra("code", 0);
+                uptype = (type.equals("simple") ? type : "dev");
+                if(!ups.isup()) {
+                    if (type.equals("simple")) {
+                        sp.edit().putBoolean("simple_upd_exist", true).putString("version", newVer).apply();
+                        newversionsimple = version;
+                        bytescountupdate = intent.getIntExtra("bytes", 0);
+                        if (sp.getInt("notremindfor", 0) != code) {
+                            sh_dl_update("fromUPDChecker", code, version, getResources().getString(R.string.updateavailable), true);
+                        }
+                    } else if (type.equals("tc")) {
+                        newversiondev = version;
+                        bytescountupdate = intent.getIntExtra("bytes", 0);
+                        sp.edit().putBoolean("dev_upd_exist", true).putString("version", newVer).apply();
+                        sh_dl_update("fromUPDChecker", code, version, getResources().getString(R.string.dev_update), false);
+                    }
+                }
+            }
+        };
+        registerReceiver(on_version_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));
+
+
+        BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                read_memory();
+            }
+        };
+        registerReceiver(on_memory_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
+        BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                TextView t = findViewById(R.id.textStr);
+                t.setText(intent.getStringExtra("value"));
+                show_str();
+                hide_ans();
+            }
+        };
+        registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
+
         Map<Integer, Boolean> m = new HashMap<>();
 
-		BroadcastReceiver test = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				File f = new File(Environment.getExternalStorageDirectory() + "/" + intent.getStringExtra("output"));
-				String type = intent.getStringExtra("type");
+        BroadcastReceiver test = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                File f = new File(Environment.getExternalStorageDirectory() + "/" + intent.getStringExtra("output"));
+                String type = intent.getStringExtra("type");
 				/*newDevVer = newVer = "";
 				newCodeDev = newVerCode = 0;*/
-				if(type.equals("simple")){
+                if(type.equals("simple")){
                     String message = "";
                     try {
                         FileReader fr = new FileReader(f);
                         while(fr.ready()){
                             message += (char) fr.read();
                         }
+                        fr.close();
                         int i = 0;
                         newVer = "";
                         while(i < message.length() && message.charAt(i) != ';'){
@@ -692,7 +1101,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         i++;
                         newVerCode = 0;
-                        while(i < message.length()){
+                        while(i < message.length() && message.charAt(i) != ';'){
                             newVerCode = newVerCode * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
                             i++;
                         }
@@ -732,135 +1141,9 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-			}
-		};
-		registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
-
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference refVer = db.getReference("versionCode");
-        refVer.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "refVer", Toast.LENGTH_SHORT).show();
-                File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-                if(!f.isDirectory())
-                    f.mkdir();
-                f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-                if(!f.isDirectory())
-                    f.mkdir();
-                new get_inf(MainActivity.this).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
-
-                DatabaseReference refDev = db.getReference("dev/versionCode");
-                if(sp.getBoolean("isdev", false)){
-                    refDev.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-                            if(!f.isDirectory())
-                                f.mkdir();
-                            f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-                            if(!f.isDirectory())
-                                f.mkdir();
-                            new get_inf(MainActivity.this).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        /*String vercode = Integer.toString(BuildConfig.VERSION_CODE);
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference refVer = db.getReference("version");
-        refVer.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newVer = Objects.requireNonNull(dataSnapshot.getValue()).toString();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                newVer = "\b";
-                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-            }
-        });
-
-        DatabaseReference ref = db.getReference("versionCode");
-
-        DatabaseReference refdev = db.getReference("dev/versionCodeDev");
-        DatabaseReference refdevver = db.getReference("dev/versionDev");
-
-        if(sp.getBoolean("isdev", false)){
-            refdevver.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    newDevVer = dataSnapshot.getValue(String.class);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-        try {
-            Thread.sleep(1350);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot){
-                Long value = dataSnapshot.getValue(Long.class);
-                Integer versionMy = Integer.valueOf(vercode);
-                Integer versionNew = Integer.valueOf(String.valueOf(value));
-                versionSt = versionNew;
-                if (!sp.getBoolean("isdev", false))
-                    check_up(versionMy, versionNew);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("FirebaseDB", "Cancelled: " + databaseError.toString());
-                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        if(sp.getBoolean("isdev", false)){
-            refdev.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String value = dataSnapshot.getValue().toString();
-                    //int versionMy = Integer.valueOf(vercode);
-                    newCodeDev = Integer.valueOf(value);
-                    Integer versionMy = Integer.valueOf(vercode);
-                    Integer versionNew = versionSt;
-                    check_up(versionMy, versionNew);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("firebase", "cancelled");
-                }
-            });
-        }*/
-        trace.stop();
-        //должно быть всегда in the end
-        fr.logEvent("OnPostCreate", Bundle.EMPTY);
-    }
-
-    protected void register_broadcasters(){
+        };
+        registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
         BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -923,7 +1206,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 t = findViewById(R.id.textStr);
-                if(!sp.getString("history_action", "").equals("")){
+                if(!intent.getStringExtra("example").equals("")){
                     String txt = t.getText().toString();
                     if(!txt.equals("") && txt.contains(".")){
                         if(islet(txt.charAt(txt.length() - 1)))
@@ -942,8 +1225,26 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
-                    txt = txt  + sp.getString("history_action", "");
-                    t.setText(txt);
+                    int len = txt.length();
+                    char last = '\0';
+                    String example = intent.getStringExtra("example"), result = intent.getStringExtra("result");
+                    if(len != 0){
+                        last = txt.charAt(len-1);
+                    }else{
+                        txt = example;
+                        t.setText(txt);
+                        equallu("not");
+                        return;
+                    }
+                    if(!isdigit(last)){
+                        if(last != '!' && last != '%'){
+                            txt = txt  + result;
+                            t.setText(txt);
+                        }
+                    }else{
+                        txt = txt  + result;
+                        t.setText(txt);
+                    }
                     sp.edit().remove("action").apply();
                     sp.edit().remove("history_action").apply();
                     equallu("not");
@@ -1022,7 +1323,7 @@ public class MainActivity extends AppCompatActivity {
                 else
                     resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             }
         };
         registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
@@ -1059,7 +1360,7 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if(!isOtherActivityOpened){
                     uptype = "dev";
-                    sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
+                    sh_dl_update("", intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
                 }
             }
         };
@@ -1069,7 +1370,7 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if(!isOtherActivityOpened){
                     uptype = "simple";
-                    sh_dl_update(BuildConfig.VERSION_CODE, intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
+                    sh_dl_update("", intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
                 }
             }
         };
@@ -1269,11 +1570,11 @@ public class MainActivity extends AppCompatActivity {
                     ansd = Math.pow(a1, b1);
                     break;
             }
-            ans = BigDecimal.valueOf(ansd);
-            if(!ans.equals(BigDecimal.valueOf(0.0)))
+            ans = new BigDecimal(BigDecimal.valueOf(ansd).toPlainString());
+            if(!ans.equals(BigDecimal.valueOf(0.0)) && !(ans.toString().contains("E")))
                 ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
 
-            String answer = ans.toString();
+            String answer = ans.toPlainString();
             int len = answer.length();
             if(answer.charAt(len-1) == '0'){
                 while (len > 0 && answer.charAt(len - 1) == '0') {
@@ -1303,10 +1604,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-    }
-
-    protected boolean islet(String c){
-        return c.compareTo("a") >= 0 && c.compareTo("z") <= 0;
     }
 
     protected boolean islet(char c){
@@ -1363,13 +1660,6 @@ public class MainActivity extends AppCompatActivity {
     public void calc(String stri, String type, int digits, int actions){
         s0.clear();
         s1.clear();
-        if(add_menu_opened){
-            if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else if(sp.getInt("btn_add_align", 0) == 1){
-                show_hide(findViewById(R.id.btnShAdd2));
-            }
-        }
         if(type.equals("all"))
             brackets = 0;
         if(stri.equals("P") || stri.equals("F") || stri.equals("e")){
@@ -1388,24 +1678,17 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 tans = findViewById(R.id.textAns2);
-
+                show_ans();
                 tans.setText(original);
                 HorizontalScrollView scrollview = findViewById(R.id.scrollview);
 
-                scrollview.post(() -> {
-                    scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                });
                 HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                 scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scrollviewans.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                    }
-                });
+                scroll_to_end();
                 return;
             }else if(type.equals("not")){
                 TextView preans = findViewById(R.id.textAns2);
+                show_ans();
                 if(stri.equals("P")){
                     preans.setText(Double.toString(3.14159265));
                 }else if(stri.equals("F"))
@@ -1414,12 +1697,7 @@ public class MainActivity extends AppCompatActivity {
                 //preans.setText(s1.peek().toString());
                 HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
                 scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scrollviewans.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                    }
-                });
+                scroll_to_end();
                 return;
             }
         }
@@ -1439,6 +1717,8 @@ public class MainActivity extends AppCompatActivity {
         String x;
         String s;
         int len = stri.length();
+        if(digits == 0)
+        	return;
 
         for(int i = 0; i < len; i++){
             s = Character.toString(str[i]);
@@ -1522,29 +1802,44 @@ public class MainActivity extends AppCompatActivity {
                 s1.push(f.divide(new BigDecimal(1), 3, RoundingMode.HALF_EVEN));
                 continue;
             }else if(s.equals("!")){
-                BigDecimal y = s1.peek();
-                if(y.signum() == -1){
-                    was_error = true;
-                    Toast.makeText(getApplicationContext(), "Error: Unable to find negative factorial.", Toast.LENGTH_SHORT).show();
-                    break;
-                }else{
-                    if(y.compareTo(new BigDecimal(500)) == 1){
+                if(i != len - 1 && stri.charAt(i + 1) == '!'){
+                    BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
+                    if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(500)) > 0){
                         was_error = true;
-                        Toast.makeText(getApplicationContext(), "For some reason, we cannot calculate the factorial of this number " +
-                                "(because it is too large and may not have enough device resources when executed)", Toast.LENGTH_LONG).show();
                         break;
-                    }else{
-                        s1.pop();
-                        String fa = y.toString();
-                        if(fa.contains(".")){
-                            int index = fa.lastIndexOf(".");
-                            fa = fa.substring(0, index);
-                            y = new BigDecimal(fa);
-                        }
-                        s1.push(fact(y));
                     }
+                    for(; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract( BigDecimal.valueOf(2) ) ){
+                        ans = ans.multiply(y);
+                    }
+                    i++;
+                    s1.pop();
+                    s1.push(ans);
+                    continue;
+                }else {
+                    BigDecimal y = s1.peek();
+                    if (y.signum() == -1) {
+                        was_error = true;
+                        Toast.makeText(getApplicationContext(), "Error: Unable to find negative factorial.", Toast.LENGTH_SHORT).show();
+                        break;
+                    } else {
+                        if (y.compareTo(new BigDecimal(1000)) > 0) {
+                            was_error = true;
+                            Toast.makeText(getApplicationContext(), "For some reason, we cannot calculate the factorial of this number " +
+                                    "(because it is too large and may not have enough device resources when executed)", Toast.LENGTH_LONG).show();
+                            break;
+                        } else {
+                            s1.pop();
+                            String fa = y.toString();
+                            if (fa.contains(".")) {
+                                int index = fa.lastIndexOf(".");
+                                fa = fa.substring(0, index);
+                                y = new BigDecimal(fa);
+                            }
+                            s1.push(fact(y));
+                        }
+                    }
+                    continue;
                 }
-                continue;
             }else if(s.equals("%")){
                 BigDecimal y = s1.peek();
                 s1.pop();
@@ -1562,9 +1857,6 @@ public class MainActivity extends AppCompatActivity {
                 continue;
             }else if(s.equals("R")){
                 if(i == len-1){
-                    Toast.makeText(getApplicationContext(),
-                            getResources().getString(R.string.invalidstateforsin) + " " + getResources().getString(R.string.invalidfor)
-                                    + " √", Toast.LENGTH_LONG).show();
                     was_error = true;
                     break;
                 }else{
@@ -1649,7 +1941,7 @@ public class MainActivity extends AppCompatActivity {
                         s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
                         continue;
                     }
-                    if(i != 0 && str[i] == '(' && isdigit(str[i-1])){
+                    if(i != 0 && str[i] == '(' && (isdigit(str[i-1]) || str[i-1] == ')')){
                         in_s0('*');
                     }
 
@@ -1661,6 +1953,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(!s0.empty() && s0.peek().equals("(")){
                         s0.pop();
+                    }
+                    if(i != stri.length()-1){
+                        if(isdigit(stri.charAt(i+1))){
+                            in_s0('*');
+                        }
                     }
                 }
             }
@@ -1680,54 +1977,45 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if(!was_error){
-            if(type.equals("all")){
-                TextView tans = findViewById(R.id.textStr);
-                tans.setText(s1.peek().toString());
-                format(R.id.textStr);
-                tans = findViewById(R.id.textAns2);
-                tans.setText(original);
-                HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+            switch (type) {
+                case "all":
+                    TextView tans = findViewById(R.id.textStr);
+                    tans.setText(s1.peek().toPlainString());
+                    format(R.id.textStr);
+                    tans = findViewById(R.id.textAns2);
+                    tans.setText(original);
+                    show_ans();
+                    scroll_to_end();
 
-                scrollview.post(() -> {
-                    scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                });
-                HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scrollviewans.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+                    String his = sp.getString("history", "");
+                    StringBuilder sb = new StringBuilder(original);
+                    for (int i = 0; i < sb.length(); i++) {
+                        if (sb.charAt(i) == ' ') {
+                            sb.deleteCharAt(i);
+                        }
                     }
-                });
-
-                String his = sp.getString("history", "");
-                StringBuilder sb = new StringBuilder(original);
-                for(int i = 0; i < sb.length(); i++){
-                    if(sb.charAt(i) == ' '){
-                        sb.deleteCharAt(i);
+                    String for_his = sb.toString();
+                    if (his.indexOf(for_his + "," + s1.peek().toString() + ";") != 0) {
+                        his = original + "," + s1.peek().toString() + ";" + his;
+                        sp.edit().putString("history", his).apply();
                     }
-                }
-                String for_his = sb.toString();
-                if(his.indexOf(for_his + "," + s1.peek().toString() + ";") != 0) {
-                    his = original + "," + s1.peek().toString() + ";" + his;
-                    sp.edit().putString("history", his).apply();
-                }
-                if(sp.getBoolean("saveResult", false))
-                    sp.edit().putString("saveResultText", original + ";" + s1.peek().toString()).apply();
-            }else if(type.equals("not")){
-                TextView preans = findViewById(R.id.textAns2);
-                preans.setText(s1.peek().toString());
-                format(R.id.textAns2);
-                set_text_toDef();
-                resize_text();
-                HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scrollviewans.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        scrollviewans.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-                    }
-                });
+                    if (sp.getBoolean("saveResult", false))
+                        sp.edit().putString("saveResultText", original + ";" + s1.peek().toString()).apply();
+                    break;
+                case "not":
+                    TextView preans = findViewById(R.id.textAns2);
+                    preans.setText(s1.peek().toPlainString());
+                    preans.setText(s1.peek().toPlainString());
+                    format(R.id.textAns2);
+                    show_ans();
+                    set_text_toDef();
+                    resize_text();
+                    scroll_to_end();
+                    break;
+                case "for_memory":
+                    result_calc_for_mem = s1.peek();
+                    memory_calculated = true;
+                    break;
             }
         }
 
@@ -1752,8 +2040,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void resize_text(){
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            return;*/
         TextView txt = findViewById(R.id.textStr);
         TextView t = findViewById(R.id.textAns2);
+
         String stri = txt.getText().toString(), strians = t.getText().toString();
         Rect bounds = new Rect();
         Rect boundsans = new Rect();
@@ -1806,6 +2097,12 @@ public class MainActivity extends AppCompatActivity {
         String stri = txt.getText().toString();
         format(R.id.textStr);
         int len = stri.length();
+        if(len != 0) {
+            show_str();
+            scroll_to_end();
+        }
+        if(type.equals("for_memory") && len == 0)
+            return;
         if(len != 0 && stri.charAt(len-1) == '^' && type.equals("all")){
             stri += "(";
             brackets++;
@@ -1814,17 +2111,12 @@ public class MainActivity extends AppCompatActivity {
         }
         //int twidth = txt.getWidth();
         float sz = txt.getTextSize();
-        if(len != 0 && !isdigit(stri.charAt(len-1)) && stri.charAt(len-1) != '!' && stri.charAt(len-1) != '%')
+        if(len != 0 && !isdigit(stri.charAt(len-1)) && stri.charAt(len-1) != ')' && stri.charAt(len-1) != '!' && stri.charAt(len-1) != '%')
             if(!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt)))
                 return;
         //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
         resize_text();
         //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
-        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-
-        scrollview.post(() -> {
-            scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-        });
         brackets = 0;
         for(int i = 0; i < stri.length(); i++){
             if(stri.charAt(i) == '(')
@@ -1886,69 +2178,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 stri = new String(mas);
             }
+            if(actions == 0 && type.equals("for_memory")){
+                result_calc_for_mem = new BigDecimal(stri);
+            }
             calc(stri, type, digits, actions);
         }
-        /*}else if(type.equals("not")){
-            if(!stri.equals("")){
-                if(stri.charAt(stri.length() - 1) != '('){
-                    //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
-                    if(brackets > 0){
-                        for(int i = 0; i < brackets; i++){
-                            stri += ")";
-                        }
-                    }
-                }
-                int digits = 0, actions = 0;
-                for(int i = 0; i < stri.length(); i++){
-                    if(isdigit(stri.charAt(i))
-                            || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
-                            || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
-                            || Character.toString(stri.charAt(i)).equals("e")){
-                        digits++;
-                    }
-                    if(isaction(stri.charAt(i)))
-                        actions++;
-
-                    if(stri.charAt(i) == ' '){
-                        StringBuilder stringBuilder = new StringBuilder(stri);
-                        stringBuilder.deleteCharAt(i);
-                        stri = new String(stringBuilder);
-                    }
-                }
-                if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
-                        || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
-                        || stri.contains(getResources().getString(R.string.sqrt))){
-                    char[] mas = stri.toCharArray();
-                    String p = "";
-
-                    for(int i = 0; i < stri.length(); i++){
-                        p = Character.toString(mas[i]);
-                        if(p.equals(getResources().getString(R.string.div))){
-                            mas[i] = '/';
-                        }else if(p.equals(getResources().getString(R.string.multiply))){
-                            mas[i] = '*';
-                        }else if(p.equals(getResources().getString(R.string.pi))){
-                            mas[i] = 'P';
-                        }else if(p.equals(getResources().getString(R.string.fi))){
-                            mas[i] = 'F';
-                        }else if(p.equals(getResources().getString(R.string.sqrt))){
-                            mas[i] = 'R';
-                        }
-                    }
-                    stri = new String(mas);
-                }
-                calc(stri, type, digits, actions);
-                /*if(stri.charAt(len-1) == 'P' || stri.charAt(len-1) == 'F' || stri.charAt(len-1) == 'e' || (!islet(stri.charAt(len-1)) && (isdigit(stri.charAt(len-1)) || stri.charAt(len-1) == ')'))){
-
-                }else{
-                    HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                    scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
-                }
-            }else{
-                HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
-            }
-        }*/
     }
 
     protected void check_dot(){
@@ -2000,12 +2234,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }else{
                     t.setText(txt + btntxt);
+                    scroll_to_end();
                 }
             }
             return;
         }
 
-        if(btntxt.equals("^") && last == '('){
+        brackets = 0;
+        for(int i = 0; i < len; i++){
+            if(txt.charAt(i) == '(')
+                brackets++;
+            else if(txt.charAt(i) == ')')
+                brackets--;
+        }
+
+        if(btntxt.equals("^")){
+            if(last == '(')
+                return;
+
+            if(isdigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
+                t.setText(txt + btntxt + "(");
+                equallu("not");
+                return;
+            }
+            if(!isdigit(last)){
+                if(last == '!' || last == '%'){
+                    t.setText(txt + btntxt + "(");
+                    equallu("not");
+                }
+            }
             return;
         }
 
@@ -2013,6 +2270,7 @@ public class MainActivity extends AppCompatActivity {
             if(len == 0){
                 t.setText(btntxt + "(");
                 brackets++;
+                scroll_to_end();
                 return;
             }else{
                 String x = "";
@@ -2040,6 +2298,7 @@ public class MainActivity extends AppCompatActivity {
                         sq = Double.valueOf(answer);
                     }
                     t.setText(Double.toString(sq));
+                    scroll_to_end();
                     return;
                 }else{
                     if(last == '.'){
@@ -2050,6 +2309,7 @@ public class MainActivity extends AppCompatActivity {
                             brackets++;
                             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
                             equallu("not");
+                            scroll_to_end();
                         }
                     }
                 }
@@ -2071,12 +2331,25 @@ public class MainActivity extends AppCompatActivity {
                 if(last == '.'){
                     return;
                 }else{
-                    if(!isdigit(last)){
+                	if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
+						t.setText(txt + btntxt + "(");
+						equallu("not");
+	                }else {
+		                if (last != '(' && last != '^') {
+			                t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
+			                equallu("not");
+		                }
+	                }
+                    /*if(!isdigit(last)){
+
                         t.setText(txt + btntxt + "(");
                         brackets++;
                         //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
                         equallu("not");
-                    }
+                    }else{
+                        t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
+                        equallu("not");
+                    }*/
                 }
             }
             return;
@@ -2091,10 +2364,15 @@ public class MainActivity extends AppCompatActivity {
         if(btntxt.equals(")")){
             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
             if(brackets > 0){
+                if(txt.charAt(len-1) == ')'){
+                    t.setText(txt + btntxt);
+                    equallu("not");
+                    return;
+                }
                 if(txt.charAt(len-1) == '(')
                     return;
-                if(!isdigit(txt.charAt(len-1)) && !Character.toString(txt.charAt(len-1)).equals(getResources().getString(R.string.pi))
-                        && !Character.toString(txt.charAt(len-1)).equals(getResources().getString(R.string.fi)) && txt.charAt(len-1) != 'e'){
+                if(!isdigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
+                        && !Character.toString(last).equals(getResources().getString(R.string.fi)) && last != 'e' && last != '!'){
                     if(len != 1){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
@@ -2109,7 +2387,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if(!isdigit(btntxt) && !btntxt.equals("(") && !btntxt.equals(")") && !btntxt.equals("(") && !islet(btntxt.charAt(0))){
+        if(!isdigit(btntxt) && !btntxt.equals("(") && !btntxt.equals(")") && !islet(btntxt.charAt(0))){
             if(len != 0){
                 if(txt.charAt(len-1) == 'π' || txt.charAt(len-1) == 'φ' || txt.charAt(len-1) == 'e'){
                     t.setText(txt + btntxt);
@@ -2136,14 +2414,22 @@ public class MainActivity extends AppCompatActivity {
         }else{
             if(btntxt.equals("!") || btntxt.equals("%")){
                 if(!txt.equals("")){
-                    if(txt.charAt(len-1) != ')' && !isdigit(txt.charAt(len-1))){
-                        if(len != 1){
-                            txt = txt.substring(0, len-1);
-                            t.setText(txt + btntxt);
-                            equallu("not");
+                    if( last != ')' && !isdigit(last) && (len > 1 && last != '(' && islet(txt.charAt(len - 2))
+                            && !Character.toString(txt.charAt(len - 2)).equals(PI) && !Character.toString(txt.charAt(len-2)).equals(FI) && txt.charAt(len - 2) != 'e') ){
+                        if(btntxt.equals("!")){
+                            if(last == '!'){
+                                if(txt.charAt(len - 2) != '!'){
+                                    t.setText(txt + btntxt);
+                                    equallu("not");
+                                    return;
+                                }
+                            }
                         }
+                        txt = txt.substring(0, len-1);
+                        t.setText(txt + btntxt);
+                        equallu("not");
                     }else{
-                        if(isdigit(txt.charAt(len-1)) || txt.charAt(len-1) == ')'){
+                        if(isdigit(last) || last == ')'){
                             t.setText(txt + btntxt);
                             equallu("not");
                         }
@@ -2208,68 +2494,57 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         startActivity(resultIntent);
-        overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha);
+        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
     }
 
-    public void onClick(View v){
+    public void onClick(@NonNull View v){
         btn = findViewById(v.getId());
         t = findViewById(R.id.textStr);
-        String txt = t.getText().toString();
-        String btntxt = btn.getText().toString();
+        String btntxt = btn.getText().toString().substring(0, 1);
         add_text(btntxt);
        // log("onClick action;");
-        if(add_menu_opened){
-            if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else if(sp.getInt("btn_add_align", 0) == 1){
-                show_hide(findViewById(R.id.btnShAdd2));
-            }
-        }
     }
 
     public void delall(View v){
         TextView t = findViewById(R.id.textStr);
+        hide_str();
         t.setText("");
         t = findViewById(R.id.textAns2);
-        HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-        scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);
+        hide_ans();
         t.setText("");
         brackets = 0;
         was_error = false;
         sp.edit().remove("saveResultText").apply();
         t = findViewById(R.id.textStr);
         set_text_toDef();
-	    HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-
-	    scrollview.post(() -> {
-		    scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-	    });
-        if(add_menu_opened){
-            if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else if(sp.getInt("btn_add_align", 0) == 1){
-                show_hide(findViewById(R.id.btnShAdd2));
-            }
-        }
         //log("all text del");
     }
 
     public void delSymbol(View v){
         TextView txt = findViewById(R.id.textStr);
         String text = txt.getText().toString();
-        HorizontalScrollView scrollviewans1 = findViewById(R.id.scrollViewAns);
-        scrollviewans1.setVisibility(HorizontalScrollView.INVISIBLE);
+        int len = text.length();
         //ans.setVisibility(View.INVISIBLE);
         /**/
-        if(text.length() != 0){
-            if(text.charAt(text.length()-1) == ')'){
-                brackets++;
-            }
-            if(text.charAt(text.length()-1) == '('){
-                brackets--;
+        if(len != 0){
+            char last = text.charAt(len - 1);
+            int a = 1;
+            if(last == '(' && len > 1){
+                if(text.charAt(text.length() - 2) == '√' || text.charAt(len - 2) == '^')
+                    a = 2;
+                if(text.charAt(len - 2) == 's' || text.charAt(len - 2) == 'g')
+                	a = 4;
+                if(text.charAt(len - 2) == 'n'){
+                	if(text.charAt(len - 3) == 'l')
+                		a = 3;
+                	else if(text.charAt(len - 3) == 'i' || text.charAt(len - 3) == 'a')
+                		a = 4;
+                }
             }
             was_error = false;
-            text = text.substring(0, text.length()-1);
+            if(text.length() - a == 0)
+                hide_str();
+            text = text.substring(0, text.length() - a);
             txt.setText(text);
             equallu("not");
         }
@@ -2277,21 +2552,30 @@ public class MainActivity extends AppCompatActivity {
             t = findViewById(R.id.textAns2);
             /*HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
             scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);*/
-            t.setText("");
+            hide_ans();
+            //t.setText("");
             sp.edit().remove("saveResultText").apply();
             set_text_toDef();
         }
-        if(add_menu_opened){
-            if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else if(sp.getInt("btn_add_align", 0) == 1){
-                show_hide(findViewById(R.id.btnShAdd2));
-            }
-        }
-        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+        scroll_to_end();
+    }
 
-        scrollview.post(() -> {
-            scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-        });
+    protected void scroll_to_end(){
+        if(findViewById(R.id.textStr).getVisibility() == View.INVISIBLE)
+            return;
+        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+        scrollview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        }, 50L);
+        HorizontalScrollView scrollview1 = findViewById(R.id.scrollViewAns);
+        scrollview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        }, 50L);
     }
 }

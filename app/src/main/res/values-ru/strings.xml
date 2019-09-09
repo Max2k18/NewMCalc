@@ -24,7 +24,7 @@
     <string name="build">"Сборка: "</string>
     <string name="hitory">История</string>
     <string name="checking_history">Проверка истории...</string>
-    <string name="history_not_found">История не найдена</string>
+    <string name="history_not_found">Хм...\\nИстории тут нет...\\nГде же она?</string>
     <string name="passgen">Генератор паролей</string>
     <string name="add_chars">Дополнительные символы</string>
     <string name="succesful">Успешно!</string>
@@ -33,7 +33,7 @@
     <string name="no">Нет</string>
     <string name="exit">Выход</string>
     <string name="areyousureexit">Желаете выйти?</string>
-    <string name="updateavailable">Желаете скачать и установить обновление? Если нет, то Вы можете обновиться в удобное Вам время в настройках (три точки сверху слева -> Настройки)</string>
+    <string name="updateavailable">Желаете скачать и установить обновление? Если нет, то Вы можете обновиться в удобное Вам время в настройках</string>
     <string name="donot_remind_for_this_ver">Не напоминать для этой версии</string>
     <string name="about">О приложении</string>
     <string name="about_text">Это приложение создано полностью одним человеком. Его зовут Макс Савицкий(Это я). Все системы, всё ядро, всё сделано мной.</string>
@@ -79,4 +79,30 @@
     <string name="build_tester"><p><b>Эта сборка является сборкой для тестировщиков</b></p></string>
     <string name="build_developer"><p><b>Эта сборка ТОЛЬКО для разработчика</b></p></string>
     <string name="text_dark_mode">Тёмная тема</string>
+    <string-array name="switches" format="false">
+        <item>ЗАГЛАВНЫЕ</item>
+        <item>строчные</item>
+        <item>Цифры 0&#8212;9</item>
+        <item>Д&#8212;е&#8212;ф&#8212;и&#8212;с</item>
+        <item>_Подчёркивание_</item>
+        <item>П р о б е л</item>
+        <item>&lt;$пеци@льные&gt;</item>
+        <item>{[(Скобки)]}</item>
+    </string-array>
+    <string-array name="history_not_found">
+        <item>Хм…</item>
+        <item>Истории тут нет…</item>
+        <item>Где же она?</item>
+    </string-array>
+    <string name="pass_sw_all_off">Выберите хотя бы один параметр</string>
+    <string name="clear">Очистить</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete_all_memories_quest">Удалить все записи?</string>
+    <string name="delete">Удалить</string>
+    <string name="wil_be_deleted">"Будет удалено через "</string>
+    <string name="add">добавить</string>
+    <string name="edit">Редактировать</string>
+    <string name="confirm_del_desc">Вы действительно хотите удалить описание к этой записи?</string>
+    <string name="enter_text">Введите текст</string>
+    <string name="desc">Описание</string>
 </resources>

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +18,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import static com.maxsavteam.newmcalc.R.color.*;
 
 public class catch_service extends AppCompatActivity {
 
@@ -30,11 +33,12 @@ public class catch_service extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed(){
-		ups.set_send_progress(false);
+		/*ups.set_send_progress(false);
 		ups.set_sh_alert(true);
-		ups.kill();
+		ups.kill();*/
+		sp.edit().remove("count_catchservice").apply();
 		finish();
-		overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	public void hide(View v){
@@ -105,16 +109,16 @@ public class catch_service extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
 		}
-		BroadcastReceiver on_shortcut_numgen = new BroadcastReceiver() {
+		/*BroadcastReceiver on_shortcut_numgen = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				Intent resultIntent = new Intent(getApplicationContext(), numgen.class);
 				resultIntent.putExtra("type", "number");
 				startActivity(resultIntent);
-				overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha);
+				overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
 			}
 		};
-		registerReceiver(on_shortcut_numgen, new IntentFilter("com.maxsavteam.newmcalc.ShortCutNumGen"));
+		registerReceiver(on_shortcut_numgen, new IntentFilter("com.maxsavteam.newmcalc.ShortCutNumGen"));*/
 		switch (action) {
 			case "NOT_BTN_PRESSED":
 				ser = new Intent(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED");
@@ -128,18 +132,32 @@ public class catch_service extends AppCompatActivity {
 				break;
 			case "sh_progress":
 				setContentView(R.layout.activity_sh_progress);
+				int count = sp.getInt("count_catchservice", 0);
+				if(count > 0){
+					finish();
+				}else{
+					count++;
+					sp.edit().putInt("count_catchservice", count).apply();
+				}
 				pr = findViewById(R.id.txtProgress);
 				all = findViewById(R.id.txtAll);
 				if(DarkMode){
-					pr.setTextColor(getResources().getColor(R.color.white));
-					all.setTextColor(getResources().getColor(R.color.white));
+					pr.setTextColor(getResources().getColor(white));
+					all.setTextColor(getResources().getColor(white));
 					getWindow().setBackgroundDrawableResource(R.drawable.black);
 					Button b = findViewById(R.id.btnStop);
-					b.setTextColor(getResources().getColor(R.color.white));
+					b.setTextColor(getResources().getColor(white));
 					b = findViewById(R.id.btnHide);
-					b.setTextColor(getResources().getColor(R.color.white));
+					b.setTextColor(getResources().getColor(white));
+					b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorAccent)));
 					b = findViewById(R.id.btnInstall);
-					b.setTextColor(getResources().getColor(R.color.white));
+					b.setTextColor(getResources().getColor(white));
+					b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorAccent)));
+				}else{
+					Button b = findViewById(R.id.btnHide);
+					b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorAccent)));
+					b = findViewById(R.id.btnStop);
+					b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorAccent)));
 				}
 				pb = findViewById(R.id.pbOnUpdate);
 				ups.set_send_progress(true);
@@ -153,7 +171,8 @@ public class catch_service extends AppCompatActivity {
 						ar = ups.get_ints();
 						pr.setText(ar[0] + "%");
 						int bytes = ar[2], total = ar[1];
-						all.setText(total + " of " + bytes);
+						double bytesmb = bytes / 1000000.0, totalmb = total / 1000000.0;
+						all.setText(Double.toString(totalmb).substring(0, 3) + "MB of " + Double.toString(bytesmb).substring(0, 3) + "MB");
 						//all.setText(ar[1] + " of " + ar[2]);
 						if(ar[3] == 1)
 							pb.setIndeterminate(true);
@@ -165,10 +184,13 @@ public class catch_service extends AppCompatActivity {
 				registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_UPDATE"));
 
 				BroadcastReceiver on_suc = new BroadcastReceiver() {
+					@SuppressLint("SetTextI18n")
 					@Override
 					public void onReceive(Context context, Intent intent) {
 						int bytes = ar[2], total = ar[1];
-						all.setText(total + " of " + bytes);
+						//all.setText(total + " of " + bytes);
+						double bytesmb = bytes / 1000000.0, totalmb = total / 1000000.0;
+						all.setText(Double.toString(totalmb).substring(0, 3) + "MB of " + Double.toString(bytesmb).substring(0, 3) + "MB");
 						pr.setText("100%");
 						ups.set_send_progress(false);
 						ups.set_sh_alert(true);
