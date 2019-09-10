@@ -47,9 +47,9 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 22
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 75
-        versionName "1.8.tc"
-        buildConfigField "int", "COMPILE_DATE", "190909"
+        versionCode 77
+        versionName "1.8.tc.patch"
+        buildConfigField "int", "COMPILE_DATE", "190910"
         buildConfigField "String", "APPTYPE", "\"tester\""
         buildConfigField "String", "CoreVersion", "\"v0.8.0.91909\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909\""

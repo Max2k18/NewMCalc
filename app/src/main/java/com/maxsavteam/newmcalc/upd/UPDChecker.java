@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -55,10 +56,10 @@ public class UPDChecker extends View {
 		static VersionInfo stable;
 		static VersionInfo tc;
 	}
-	VersionInfo stable = new VersionInfo();
-	VersionInfo tc = new VersionInfo();
 
 	protected void send_broadcast(String type, VersionInfo v){
+		if(Build.VERSION.SDK_INT < v.min_api)
+			return;
 		Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED");
 		in.putExtra("type", type)
 				.putExtra("version", v.version_name)

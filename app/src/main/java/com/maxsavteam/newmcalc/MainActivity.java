@@ -1212,7 +1212,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         if(islet(txt.charAt(txt.length() - 1)))
                             return;
                         boolean was_action = false;
-                        for(int i = txt.length() - 1; i >= 0; i++){
+                        for(int i = txt.length() - 1; i >= 0; i--){
                             if(isaction(txt.charAt(i)) || islet(txt.charAt(i))
                                     || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.fi))
                                     || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.pi)) || txt.charAt(i) == 'e'){
