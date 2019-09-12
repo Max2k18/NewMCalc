@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
@@ -23,30 +22,31 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.TypedValue;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.upd.UPDChecker;
@@ -55,12 +55,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.Inet4Address;
-import java.util.*;
-
-//import com.maxsavteam.newmcalc.upd.;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Stack;
 
 import static com.maxsavteam.newmcalc.R.drawable.settings_dark;
+
 
 
 public class MainActivity extends AppCompatActivity implements window_recall_adapter.inter {
@@ -77,26 +79,21 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public int brackets = 0;
     public String original = "";
     public String newVer = "";
-    public AlertDialog dl, al;
+    public AlertDialog about_app, al;
     public String newDevVer = "";
     public boolean add_menu_opened = false;
     public AlertDialog not_btn_pr = null;
-    public String onshow = "", onhide = "";
     public update_service ups;
     public String uptype = "simple";
     public int newCodeDev = 0, newVerCode = 0;
-    public Integer versionSt = 0;
-    public BuildConfig bc;
     public FirebaseAnalytics fr;
     public String app_type;
     public BigDecimal[] barr;
-    public Set<String> se = new HashSet<>();
-    public Map<Integer, String> map = new HashMap<>();
-    public int memory_cursor = 0;
     public BigDecimal result_calc_for_mem;
     public TextView text_example;
     UPDChecker updChecker;
     String FI, PI, E;
+    final int UPDCHECKER_PERIOD = 10, UPDDELAY = 10000;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -200,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if (id == R.id.about) {
             /*if(DarkMode)
                 dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
-            dl.show();
+            about_app.show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -217,6 +214,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
         if(DarkMode)
             mcheck.setTextColor(getResources().getColor(R.color.white));
+        sp.edit().putBoolean("notification_showed", true).apply();
         //mcheck.setOnClickListener(forcheck);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(R.string.updateavail)
@@ -227,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        sp.edit().remove("notification_showed").apply();
                         dialog.cancel();
                         if(mcheck.isChecked()){
                             sp.edit().putInt("notremindfor", versionNew).apply();
@@ -236,19 +235,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        sp.edit().remove("notification_showed").apply();
                         dialog.cancel();
-                        File file = new File(Environment.getExternalStorageDirectory() + "/" + "MST files/NewMCalc " + newver + ".apk");
-                        /*Intent in = new Intent(MainActivity.this, Updater.class);
-                        in.putExtra("action", "update");
-                        in.putExtra("upVerName", newDevVer);*/
                         if(uptype.equals("dev")){
-                            /*in.putExtra("upVerName", newDevVer);
-                            in.putExtra("update_path", "/forTesters/NewMCalc.apk");*/
                             ups.run("/forTesters/NewMCalc.apk", newversiondev, bytescountupdate);
                         }
                         else{
-                            /*in.putExtra("upVerName", newver);
-                            in.putExtra("update_path", "/NewMCalc.apk");*/
                             ups.run("/NewMCalc.apk", newversionsimple, bytescountupdate);
                         }
                     }
@@ -274,14 +266,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     uptype = "simple";
                     sh_dl_update("", newVerCode, newVer, getResources().getString(R.string.updateavailable), true);
                     al.show();
-                    dl.cancel();
+                    about_app.cancel();
                 }
             }else if(versionMy < newCodeDev && isdev){
                 sp.edit().putBoolean("dev_upd_exist", true).putString("version", newDevVer).apply();
                 sh_dl_update("", newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
                 uptype = "dev";
                 al.show();
-                dl.cancel();
+                about_app.cancel();
             }
         }
     }
@@ -299,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     protected void goto_add_scr(String where){
-        Intent resultIntent = new Intent();
+        Intent resultIntent;
         switch (where) {
             case "settings":
                 resultIntent = new Intent(getApplicationContext(), Updater.class);
@@ -380,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         ll.setLayoutParams(par);
     }
 
-    protected void btn_change(){
+    /*protected void btn_change(){
         int loc = sp.getInt("btn_add_align", 0);
         RelativeLayout rl = findViewById(R.id.relativelayout);
         ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) rl.getLayoutParams();
@@ -413,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             rl.setTranslationX(-20);
             sh2.setText("<");
         }
-    }
+    }*/
 
     boolean DarkMode = false;
     String ver_desc = "";
@@ -425,6 +417,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 	    DarkMode = sp.getBoolean("dark_mode", false);
 	    sp.edit().remove("simple_upd_exist").apply();
 	    sp.edit().remove("dev_upd_exist").apply();
+	    sp.edit().remove("notification_showed").apply();
 	    if(DarkMode){
 	    	setTheme(android.R.style.Theme_Material_NoActionBar);
 	    }else{
@@ -438,9 +431,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         myTrace.start();
         btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
-        TextView ver = findViewById(R.id.lblVer);
+        //TextView ver = findViewById(R.id.lblVer);
         ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + Integer.toString(BuildConfig.VERSION_CODE);
-        ver.setText(ver_desc);
+        //ver.setText(ver_desc);
         //ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
         Button btn1 = findViewById(R.id.btnCalc);
         btn1.setOnLongClickListener(returnback);
@@ -613,8 +606,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 t = findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.white));
             }
-            t = findViewById(R.id.lblVer);
-            t.setText(ver_desc);
 		    Button b = findViewById(R.id.btnDelAll);
 		    //b.setBackgroundColor(getResources().getColor(R.color.white));
 		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
@@ -649,8 +640,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             /*Button b = findViewById(R.id.btnDelAll);
             b.setBackgroundColor(getResources().getColor(R.color.black));
             b.setTextColor(getResources().getColor(R.color.white));*/
-            t = findViewById(R.id.lblVer);
-            t.setText(ver_desc);
             Button b = findViewById(R.id.btnDelAll);
             //b.setBackgroundColor(getResources().getColor(R.color.white));
             b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.black)));
@@ -741,8 +730,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 ver = null;
             }
         }
-
-        if(app_type.equals("tester") && !sp.getBoolean("stop_receive_all", false)){
+        boolean receive = sp.getBoolean("stop_receive_all", false);
+        if(app_type.equals("tester") && !receive){
             sp.edit().putBoolean("isdev", true).apply();
         }
         if(app_type.equals("developer")){
@@ -789,9 +778,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.about_layout, null);
         String message = getResources().getString(R.string.about_text)
-                + "\n\n" + getResources().getString(R.string.version) + BuildConfig.VERSION_NAME
+                + "\n\n" + getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME
                 + (app_type.equals("stable") ? " stable" : " not stable")
-                + "\n" + getResources().getString(R.string.build) + BuildConfig.VERSION_CODE
+                + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE
                 + "\nCompile date: " + BuildConfig.COMPILE_DATE;// + "\n\n" + "©" + "MaxSav Team, 2018-2019";
         if(!app_type.equals("stable")){
             message += "\n\nCV: " + BuildConfig.CoreVersion
@@ -822,52 +811,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     }
                 })
                 .setView(view);
-        dl = builder.create();
+        about_app = builder.create();
         if(DarkMode)
-            dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-        DatabaseReference refVer = db.getReference("versionCode");
-        updChecker.start(10, 5000, sp);
-        /*refVer.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "refVer", Toast.LENGTH_SHORT).show();
-                File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-                if(!f.isDirectory())
-                    f.mkdir();
-                f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-                if(!f.isDirectory())
-                    f.mkdir();
-                new get_inf(MainActivity.this).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
-
-                DatabaseReference refDev = db.getReference("dev/versionCode");
-                if(sp.getBoolean("isdev", false)){
-                    refDev.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            File f = new File(Environment.getExternalStorageDirectory() + "/MST Files");
-                            if(!f.isDirectory())
-                                f.mkdir();
-                            f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
-                            if(!f.isDirectory())
-                                f.mkdir();
-                            new get_inf(MainActivity.this).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });*/
+            about_app.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+        updChecker.start(UPDCHECKER_PERIOD, UPDDELAY, sp);
 
         Button b = findViewById(R.id.btnMR);
         b.setOnLongClickListener(memory_actions);
@@ -981,9 +928,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         showMemAl.cancel();
     }
 
-    protected void showMemAlert(final String type){
+    private void showMemAlert(final String type){
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);
+        TextView t = findViewById(R.id.textStr);
+        if(t.getText().toString().equals(""))
+            return;
         if(type.equals("st")){
             equallu("for_memory");
             BigDecimal res = result_calc_for_mem;
@@ -1144,12 +1094,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         };
         registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
-        BroadcastReceiver on_btn_align_change = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                btn_change();
-            }
-        };
         BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
 	        @Override
 	        public void onReceive(Context context, Intent intent) {
@@ -1171,7 +1115,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 	        }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
-        registerReceiver(on_btn_align_change, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_BTN_ALIGN_CHANGE"));
         BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1315,7 +1258,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         BroadcastReceiver on_sp_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                btn_change();
                 Intent resultIntent = new Intent(getApplicationContext(), Updater.class);
                 resultIntent.putExtra("action", "simple");
                 if(uptype.equals("simple"))
@@ -2249,7 +2191,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         }
 
         if(btntxt.equals("^")){
-            if(last == '(')
+            if(len == 0 || last == '(')
                 return;
 
             if(isdigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
@@ -2270,6 +2212,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             if(len == 0){
                 t.setText(btntxt + "(");
                 brackets++;
+                show_str();
                 scroll_to_end();
                 return;
             }else{
@@ -2309,6 +2252,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                             brackets++;
                             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
                             equallu("not");
+                            show_str();
                             scroll_to_end();
                         }
                     }

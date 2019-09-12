@@ -13,6 +13,7 @@ import com.maxsavteam.newmcalc.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -29,13 +30,56 @@ public class get_inf extends View {
 
 	}
 	String p, type, output;
+	boolean dev;
 	download dow = new download();
-	public void run(String path,String output_file, String typ){
+	public void run(String path,String output_file, String typ, boolean isdev){
 		p = path;
 		type = typ;
 		output = output_file;
-		dow.execute();
+		dev = isdev;
+		try{
+			dow.execute();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
+
+	/*protected void downloader() throws IOException {
+		File f = new File(Environment.getExternalStorageDirectory() + "/" + output);
+		if(type.equals("tc")){
+			type = "tc";
+		}
+		if(!f.exists()){
+			f.createNewFile();
+		}
+		URL url = new URL("https://max2k18.github.io/maxsavteam.github.io/apk/" + p);
+		HttpURLConnection c = (HttpURLConnection) url.openConnection();
+		c.setRequestMethod("GET");
+		c.connect();
+		FileOutputStream fos = new FileOutputStream(f);
+		InputStream is = c.getInputStream();
+		byte[] buffer = new byte[1024];
+		int len1 = 0;
+		while(len1 != -1){
+			fos.write(buffer, 0, len1);
+			len1 = is.read(buffer);
+		}
+		c.disconnect();
+		fos.close();
+		is.close();
+		postDownload();
+
+	}
+	protected void postDownload(){
+		Intent in = new Intent(BuildConfig.APPLICATION_ID + ".GOTTEN");
+		if(type.equals("tc")){
+			in.putExtra("qwerty", 0);
+		}
+		in.putExtra("type", type);
+		in.putExtra("output", output);
+		updChecker.check_versions(type, output);
+		con.sendBroadcast(in);
+	}*/
 
 	private class download extends AsyncTask<Void, Void, Void>{
 
@@ -45,6 +89,7 @@ public class get_inf extends View {
 			Intent in = new Intent(BuildConfig.APPLICATION_ID + ".GOTTEN");
 			in.putExtra("type", type);
 			in.putExtra("output", output);
+
 			updChecker.check_versions(type, output);
 			dow.cancel(true);
 			con.sendBroadcast(in);

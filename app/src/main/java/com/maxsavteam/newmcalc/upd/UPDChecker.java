@@ -58,7 +58,7 @@ public class UPDChecker extends View {
 	}
 
 	protected void send_broadcast(String type, VersionInfo v){
-		if(Build.VERSION.SDK_INT < v.min_api)
+		if(Build.VERSION.SDK_INT < v.min_api || sp.getBoolean("notification_showed", false))
 			return;
 		Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED");
 		in.putExtra("type", type)
@@ -67,9 +67,11 @@ public class UPDChecker extends View {
 				.putExtra("bytes", v.bytes);
 		context.sendBroadcast(in);
 	}
-	protected VersionInfo readContent(){
+	private VersionInfo readContent(String name){
 		VersionInfo v = new VersionInfo();
-		String content = sp.getString("stable_content", "");
+		String content = sp.getString(name, "");
+		if(content.equals(""))
+			return new VersionInfo();
 		int i = 0;
 		while (i < content.length() && content.charAt(i) != ';'){
 			v.version_name += content.charAt(i);
@@ -93,59 +95,35 @@ public class UPDChecker extends View {
 		return v;
 	}
 
-	protected void compare(){
-		gl.stable = readContent();
+	private void compare(){
+		VersionInfo stable = readContent("simple"),
+				tc = readContent("tc");
 		int local_app_ver = BuildConfig.VERSION_CODE;
 		if(sp.getBoolean("isdev", false)){
-			if(local_app_ver < gl.tc.version_code && gl.stable.version_code < gl.tc.version_code){
-				send_broadcast("tc", gl.tc);
+			if(local_app_ver < tc.version_code && stable.version_code < tc.version_code){
+				send_broadcast("tc", tc);
 				return;
 			}
 		}
-		if(local_app_ver < gl.stable.version_code){
-			send_broadcast("simple", gl.stable);
+		if(local_app_ver < stable.version_code){
+			send_broadcast("simple", stable);
 		}
 	}
 
-	protected void check_versions(String type, String output_path){
+	public void check_versions(String type, final String output_path){
+		try {
+			String content = wr.readFrom(output_path);
+			sp.edit().putString(type, content).apply();
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 		if(type.equals("simple")){
-			try {
-				String content = wr.readFrom(output_path);
-				sp.edit().putString("stable_content", content).apply();
-				if(!sp.getBoolean("isdev", false)){
-					compare();
-				}
-			}catch (Exception e){
-				e.printStackTrace();
+			boolean dev = sp.getBoolean("isdev", false);
+			if(!dev){
+				compare();
 			}
 		}else if(type.equals("tc")){
-			try {
-
-				String content = wr.readFrom(output_path);
-				int i = 0;
-				while (i < content.length() && content.charAt(i) != ';'){
-					gl.tc.version_name += content.charAt(i);
-					i++;
-				}
-				i++;
-				while(i < content.length() && content.charAt(i) != ';'){
-					gl.tc.version_code = gl.tc.version_code * 10 + Integer.valueOf(Character.toString(content.charAt(i)));
-					i++;
-				}
-				i++;
-				while(i < content.length() && content.charAt(i) != ';'){
-					gl.tc.min_api = gl.tc.min_api * 10 + Integer.valueOf(Character.toString(content.charAt(i)));
-					i++;
-				}
-				i++;
-				while (i < content.length() && content.charAt(i) != ';'){
-					gl.tc.bytes = gl.tc.bytes * 10 + Integer.valueOf(Character.toString(content.charAt(i)));
-					i++;
-				}
-				compare();
-			}catch (Exception e){
-				e.printStackTrace();
-			}
+			compare();
 		}
 	}
 
@@ -157,8 +135,6 @@ public class UPDChecker extends View {
 		}
 	}
 
-	Names names = new Names();
-
 	class checker extends TimerTask{
 		@Override
 		public void run() {
@@ -169,7 +145,8 @@ public class UPDChecker extends View {
 			f = new File(Environment.getExternalStorageDirectory() + "/MST Files/New MCalc");
 			if(!f.isDirectory())
 				f.mkdir();
-			new get_inf(context).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple");
+
+			new get_inf(context).run("newmcalc.infm", "MST Files/New MCalc/stable.infm", "simple", sp.getBoolean("isdev",false));
 			if(sp.getBoolean("isdev", false)){
 				File f1 = new File(Environment.getExternalStorageDirectory() + "/MST Files");
 				if(!f1.isDirectory())
@@ -181,7 +158,7 @@ public class UPDChecker extends View {
 					@Override
 					public void onReceive(Context context, Intent intent) {
 						if(intent.getStringExtra("type").equals("simple"))
-							new get_inf(context).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc");
+							new get_inf(context).run("forTesters/newmcalc.infm", "MST Files/New MCalc/tc.infm", "tc", sp.getBoolean("isdev", false));
 					}
 				};
 				context.registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".GOTTEN"));

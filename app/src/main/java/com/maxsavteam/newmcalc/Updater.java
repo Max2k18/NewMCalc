@@ -268,6 +268,7 @@ public class Updater extends AppCompatActivity {
 						sp.edit().putBoolean("show_laydev", false).apply();
 						sp.edit().putBoolean("isdev", false).apply();
 						sp.edit().putBoolean("stop_receive_all", true).apply();
+						boolean s = sp.getBoolean("stop_receive_all", false);
 						findViewById(R.id.btnStopReceive).setVisibility(View.INVISIBLE);
 						findViewById(R.id.layoutUpdate).setVisibility(View.INVISIBLE);
 					}
