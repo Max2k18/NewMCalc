@@ -743,37 +743,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         }
 
-        String[] arr = getResources().getStringArray(R.array.additional_chars);
-        int[] btnIds = {
-                R.id.btn7,
-                R.id.btn8,
-                R.id.btn4,
-                R.id.btn5,
-                R.id.btn1,
-                R.id.btn2,
-
-                R.id.btn9,
-                R.id.btnMult,
-                R.id.btn6,
-                R.id.btnDiv,
-                R.id.btn3,
-                R.id.btnPlus,
-
-                R.id.btnZero,
-                R.id.btnDot,
-                R.id.btnMinus
-        };
-        for(int ii = 0; ii < btnIds.length; ii++){
-            Button btn = findViewById(btnIds[ii]);
-            btn.setTransformationMethod(null);
-            btn.setOnLongClickListener(additional_longclick);
-            String num = btn.getText().toString();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>", Html.FROM_HTML_MODE_COMPACT));
-            }else{
-                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>"));
-            }
-        }
+        apply_supertext_btns();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.about_layout, null);
@@ -827,6 +797,40 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         trace.stop();
         //должно быть всегда in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
+    }
+
+    private void apply_supertext_btns(){
+        String[] arr = getResources().getStringArray(R.array.additional_chars);
+        int[] btnIds = {
+                R.id.btn7,
+                R.id.btn8,
+                R.id.btn4,
+                R.id.btn5,
+                R.id.btn1,
+                R.id.btn2,
+
+                R.id.btn9,
+                R.id.btnMult,
+                R.id.btn6,
+                R.id.btnDiv,
+                R.id.btn3,
+                R.id.btnPlus,
+
+                R.id.btnZero,
+                R.id.btnDot,
+                R.id.btnMinus
+        };
+        for(int ii = 0; ii < btnIds.length; ii++){
+            Button btn = findViewById(btnIds[ii]);
+            btn.setTransformationMethod(null);
+            btn.setOnLongClickListener(additional_longclick);
+            String num = btn.getText().toString().substring(0, 1);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>", Html.FROM_HTML_MODE_COMPACT));
+            }else{
+                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>"));
+            }
+        }
     }
 
     View.OnClickListener memory_plus = new View.OnClickListener() {
@@ -932,7 +936,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);
         TextView t = findViewById(R.id.textStr);
-        if(t.getText().toString().equals(""))
+        if(t.getText().toString().equals("") && type.equals("st"))
             return;
         if(type.equals("st")){
             equallu("for_memory");
@@ -1112,6 +1116,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 		        t = findViewById(R.id.textStr);
 		        t.setText(str);
 		        apply_theme();
+		        apply_supertext_btns();
 	        }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
