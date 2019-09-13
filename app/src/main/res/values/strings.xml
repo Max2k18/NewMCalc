@@ -43,7 +43,7 @@
     <string name="areyousureexit">Would you like to go out?</string>
     <string name="updateavailable">Would you like to download and install the update? If not, you can upgrade at a convenient time in the settings</string>
     <string name="donot_remind_for_this_ver">Do not remind for this version</string>
-    <string name="about_text">This application is created entirely by one person. His name is Max Savitsky(It\'s me). All systems, all core, everything is done by me.</string>
+    <string name="about_text">This application is created entirely by one person. His name is Max Savitsky. All systems, all core, everything is done by this person. He also gave permission to the company SM-app for the publication of this application.</string>
     <string name="about">About app</string>
     <string name="cls_history">Clear history</string>
     <string name="confirm_cls_history">Do you really want to clear the history?</string>

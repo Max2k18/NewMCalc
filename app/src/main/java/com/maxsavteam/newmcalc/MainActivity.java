@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public TextView text_example;
     UPDChecker updChecker;
     String FI, PI, E;
-    final int UPDCHECKER_PERIOD = 10, UPDDELAY = 10000;
+    final int UPDCHECKER_PERIOD = 1, UPDDELAY = 10000;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -784,7 +784,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         about_app = builder.create();
         if(DarkMode)
             about_app.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-        updChecker.start(UPDCHECKER_PERIOD, UPDDELAY, sp);
+
+        if(BuildConfig.UCModuleActivated) {
+            updChecker.start(UPDCHECKER_PERIOD, UPDDELAY, sp);
+        }
 
         Button b = findViewById(R.id.btnMR);
         b.setOnLongClickListener(memory_actions);

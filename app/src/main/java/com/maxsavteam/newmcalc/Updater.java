@@ -318,6 +318,8 @@ public class Updater extends AppCompatActivity {
 		setContentView(R.layout.updater_main);
 		if(DarkMode)
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
+		else
+			getWindow().setBackgroundDrawableResource(R.drawable.white);
 
 		if(sp.getBoolean("simple_upd_exist", false) || sp.getBoolean("dev_upd_exist", false)){
 			show_update_layout();
@@ -350,7 +352,6 @@ public class Updater extends AppCompatActivity {
 		mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
 		mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
 		ups = new update_service(this);
-		updChecker = new UPDChecker(this);
 		//updChecker.start(10, 1000, sp);
 		if(DarkMode)
 			apply_dark_mode();
@@ -413,8 +414,6 @@ public class Updater extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
 		}
-		DatabaseReference devCode = db.getReference("dev/versionCodeDev");
-		DatabaseReference devVer = db.getReference("dev/versionDev");
 		postcreate();
 
 		/*if (sp.getBoolean("isdev", false)) {
@@ -622,7 +621,7 @@ public class Updater extends AppCompatActivity {
 				up.setText(R.string.updateavail_tc);
 			}
 		}
-		if (sp.getBoolean("isdev", false)) {
+		/*if (sp.getBoolean("isdev", false)) {
 			if (!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
 				findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
 			//findViewById(R.id.layDev).setVisibility(View.GONE);
@@ -645,7 +644,7 @@ public class Updater extends AppCompatActivity {
 				}
 				deval.show();
 			}
-		}
+		}*/
 		Button b = findViewById(R.id.btnReport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		b.setTextColor(getResources().getColor(R.color.white));

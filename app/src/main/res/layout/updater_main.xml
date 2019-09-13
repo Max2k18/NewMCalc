@@ -22,6 +22,9 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:orientation="vertical"
+            android:alwaysDrawnWithCache="true"
+            android:animationCache="true"
+            android:animateLayoutChanges="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,13 +104,23 @@
                     android:text="@string/switchSaveOff"
                     android:textSize="16sp" />
 
-                <Button
-                    android:id="@+id/btnAnotherSettings"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                <Switch
+                    android:id="@+id/switchDarkMode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:onClick="switchSave"
+                    android:text="@string/text_dark_mode"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/btnAnotherSettings"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/colorAccent"
                     android:onClick="change_views"
-                    android:text="@string/other_set" />
+                    android:text="@string/other_set"
+                    android:textColor="@color/white" />
 
                 <Button
                     android:id="@+id/btnChLang"
@@ -161,12 +174,14 @@
 
                 <Button
                     android:id="@+id/btnAboutDev"
-                    style="@android:style/Widget.Material.Button.Borderless"
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/colorAccent"
                     android:elevation="4dp"
                     android:onClick="sh_about_dev"
                     android:text="@string/about_dev"
+                    android:textColor="@color/white"
                     android:translationZ="4dp" />
 
                 <Button
@@ -175,7 +190,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="report"
-                    android:text="@string/report_problem" />
+                    android:text="@string/report_problem"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/txtxCopyRight"
@@ -195,6 +211,9 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:orientation="vertical"
+            android:alwaysDrawnWithCache="true"
+            android:animationCache="true"
+            android:animateLayoutChanges="true"
             android:visibility="gone">
 
             <LinearLayout
@@ -276,14 +295,6 @@
                         android:text="@string/right"
                         android:textColor="@color/black" />
                 </LinearLayout>
-
-                <Switch
-                    android:id="@+id/switchDarkMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="switchSave"
-                    android:text="@string/text_dark_mode"
-                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/txtChooseBtnLoc"

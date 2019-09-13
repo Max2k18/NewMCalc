@@ -47,9 +47,10 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 22
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 80
-        versionName "1.8.patch1"
-        buildConfigField "int", "COMPILE_DATE", "190912"
+        versionCode 82
+        versionName "1.8.1"
+        buildConfigField "Boolean", "UCModuleActivated", "false"
+        buildConfigField "int", "COMPILE_DATE", "190913"
         buildConfigField "String", "APPTYPE", "\"stable\""
         buildConfigField "String", "CoreVersion", "\"v0.8.02.91911\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909\""

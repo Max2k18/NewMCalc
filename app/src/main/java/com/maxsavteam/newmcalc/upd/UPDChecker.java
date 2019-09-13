@@ -40,10 +40,10 @@ public class UPDChecker extends View {
 	}
 
 	public void start(int period_in_minutes, int delay, SharedPreferences sharedPreferences){
-		working = true;
+		/*working = true;
 		sp = sharedPreferences;
 		timer = new Timer();
-		timer.schedule(new checker(), delay, period_in_minutes * 60 * 1000);
+		timer.schedule(new checker(), delay, period_in_minutes * 60 * 1000);*/
 	}
 
 	static class VersionInfo{
