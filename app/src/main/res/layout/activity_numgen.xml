@@ -117,6 +117,7 @@
             android:text="@string/generate"
             android:textAlignment="center"
             android:textAllCaps="false"
+            android:textColor="@color/white"
             android:textSize="20sp"
             tools:layout_editor_absoluteX="162dp"
             tools:layout_editor_absoluteY="466dp" />

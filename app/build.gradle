@@ -43,14 +43,14 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc"
-        minSdkVersion 21
+        minSdkVersion 22
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
-        targetSdkVersion 22
+        targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 82
-        versionName "1.8.1"
+        versionCode 88
+        versionName "1.8.2.1"
         buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "190913"
+        buildConfigField "int", "COMPILE_DATE", "190914"
         buildConfigField "String", "APPTYPE", "\"stable\""
         buildConfigField "String", "CoreVersion", "\"v0.8.02.91911\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909\""

@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
@@ -22,7 +24,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.telephony.TelephonyManager;
 import android.text.Html;
 import android.util.TypedValue;
 import android.view.Display;
@@ -44,8 +45,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     UPDChecker updChecker;
     String FI, PI, E;
     final int UPDCHECKER_PERIOD = 1, UPDDELAY = 10000;
+    final int READ_STORAGE_RESUEST_CODE = 10, WRITE_STORAGE_REQUEST_CODE = 12;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -432,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
         //TextView ver = findViewById(R.id.lblVer);
-        ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + Integer.toString(BuildConfig.VERSION_CODE);
+        ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE;
         //ver.setText(ver_desc);
         //ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
         Button btn1 = findViewById(R.id.btnCalc);
@@ -688,11 +691,51 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     };
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == 10){
+            if(grantResults.length == 2){
+                if(grantResults[0] == PackageManager.PERMISSION_DENIED){
+                    sp.edit().putBoolean("storage_denied", true).apply();
+                }
+                if(grantResults[1] == PackageManager.PERMISSION_DENIED){
+                    sp.edit().putBoolean("storage_denied", true).apply();
+                }
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)
+                    sp.edit().remove("storage_denied").apply();
+            }
+        }
+    }
+
+    @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
         app_type = BuildConfig.APPTYPE;
         sp.edit().remove("count_catchservice").apply();
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                /*ActivityCompat
+                        .requestPermissions(this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                10);*/
+                AlertDialog request = new AlertDialog.Builder(this)
+                        .setTitle(R.string.confirm)
+                        .setMessage(R.string.activity_requet_permissions)
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat
+                                        .requestPermissions(MainActivity.this,
+                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                10);
+                            }
+                        })
+                        .create();
+                request.show();
+        }
+        read_memory();
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
@@ -734,14 +777,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(app_type.equals("tester") && !receive){
             sp.edit().putBoolean("isdev", true).apply();
         }
-        if(app_type.equals("developer")){
+        /*if(app_type.equals("developer")){
             Crashlytics.setUserIdentifier("developer");
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             if(!tm.getDeviceId().equals("869480036532475")) {
                 finishAndRemoveTask();
                 overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha_hide);
             }
-        }
+        }*/
 
         apply_supertext_btns();
 
@@ -892,7 +935,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     public boolean memory_calculated = false, store_custom = false;
-    public int store_params;
+    public int store_params = 0;
 
     public void memory_ms(View view){
         TextView t = findViewById(R.id.textStr);

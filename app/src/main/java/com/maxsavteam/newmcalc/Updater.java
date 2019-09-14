@@ -361,6 +361,9 @@ public class Updater extends AppCompatActivity {
             e.printStackTrace();
         }*/
 		//set_lang("create");
+		if(sp.getBoolean("storage_denied", false)){
+			findViewById(R.id.btnAnotherSettings).setVisibility(View.GONE);
+		}
 		findViewById(R.id.btnChLang).setOnLongClickListener(defLang);
 		BroadcastReceiver br = new BroadcastReceiver() {
 			@Override
@@ -771,6 +774,102 @@ public class Updater extends AppCompatActivity {
 
 	public void change_views(View v){
 		LinearLayout other = findViewById(R.id.other_settings), main = findViewById(R.id.main_updater);
+		/*if(isotherset){
+			Animation hide = AnimationUtils.loadAnimation(this, R.anim.updater_hideothersettings);
+			Animation show = AnimationUtils.loadAnimation(this, R.anim.updater_showmain);
+			hide.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					other.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			show.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					main.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			//if(other.getAnimation() != null)
+				other.clearAnimation();
+			//if(main.getAnimation() != null)
+				main.clearAnimation();
+			other.setAnimation(hide);
+			main.setAnimation(show);
+
+			other.animate();
+			hide.start();
+			main.animate();
+			show.start();
+		}else{
+			Animation hide = AnimationUtils.loadAnimation(this, R.anim.updater_hidemain);
+			Animation show = AnimationUtils.loadAnimation(this, R.anim.updater_showothersettings);
+			hide.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+					main.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					main.setVisibility(View.GONE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			show.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+					other.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					other.setVisibility(View.VISIBLE);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			//if(other.getAnimation() != null)
+				other.clearAnimation();
+			//if(main.getAnimation() != null)
+				main.clearAnimation();
+
+			other.setAnimation(show);
+			main.setAnimation(hide);
+
+			main.animate();
+			hide.start();
+			other.animate();
+			//other.setVisibility(View.VISIBLE);
+			show.start();
+		}
+		isotherset = !isotherset;*/
 		if(isotherset){
 			Animation showmain = AnimationUtils.loadAnimation(this, R.anim.updater_showmain),
 					hide_other = AnimationUtils.loadAnimation(this, R.anim.updater_hideothersettings);
@@ -827,6 +926,7 @@ public class Updater extends AppCompatActivity {
 				@Override
 				public void onAnimationEnd(Animation animation) {
 					main.setVisibility(View.GONE);
+					other.setVisibility(View.VISIBLE);
 				}
 
 				@Override
@@ -843,6 +943,7 @@ public class Updater extends AppCompatActivity {
 				@Override
 				public void onAnimationEnd(Animation animation) {
 					other.setVisibility(View.VISIBLE);
+					main.setVisibility(View.GONE);
 				}
 
 				@Override

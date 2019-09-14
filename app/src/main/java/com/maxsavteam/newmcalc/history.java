@@ -321,7 +321,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onDescriptionDelete(View view, int position) {
-        View par = (View) view;
+        View par = view;
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -528,7 +528,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             if (countdown_del != 0) {
                 countdown_del--;
                 in_order = true;
-                tCount.setText(Integer.toString(countdown_del));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tCount.setText(Integer.toString(countdown_del));
+                    }
+                });
+
             } else {
                 if(mTimer != null) {
                     mTimer.cancel();
