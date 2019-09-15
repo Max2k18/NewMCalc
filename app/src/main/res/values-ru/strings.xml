@@ -66,8 +66,8 @@
     <string name="confirm_stop_update">Желаете остановить обновление?</string>
     <string name="install">Установить</string>
     <string name="ch_lang">Выберите язык</string>
-    <string name="import_se">Импортировать</string>
-    <string name="export">Экспортировать</string>
+    <string name="import_se">Импорт</string>
+    <string name="export">Экспорт</string>
     <string name="ex_im_label">Импортировать или экспортировать настройки приложения</string>
     <string name="on_import">Импортировано</string>
     <string name="other_set">Другие настройки</string>
@@ -106,4 +106,5 @@
     <string name="enter_text">Введите текст</string>
     <string name="desc">Описание</string>
     <string name="activity_requet_permissions">Нам нужно получить разрешение на чтение и запись в память усторойства. Это нужно для того, чтобы Вы могли импортировать или экспортировать настройки приложения, ведь запись идёт в хранилище. Предоставьте нам разрешение, пожалуйста.</string>
+    <string name="never_show_again">Не показывать снова</string>
 </resources>

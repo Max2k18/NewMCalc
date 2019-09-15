@@ -131,18 +131,10 @@ public class Updater extends AppCompatActivity {
 			return true;
 		}
 	};
-	View.OnClickListener join = new View.OnClickListener() {
+	/*View.OnClickListener join = new View.OnClickListener() {
 		@Override
 		public void onClick(View v) {
-            /*setContentView(R.layout.layout_updater);
-            TextView t = findViewById(R.id.txtDownloading);
-            t.setText(R.string.please_wait);*/
 			sp.edit().putBoolean("isdev", true).apply();
-            /*try{
-                Thread.sleep(1500);
-            }catch(Exception e){
-                e.printStackTrace();
-            }*/
 			setContentView(R.layout.updater_main);
 			//findViewById(R.id.layDev).setVisibility(View.GONE);
 			sp.edit().putBoolean("show_laydev", false).apply();
@@ -150,7 +142,7 @@ public class Updater extends AppCompatActivity {
 			deval.cancel();
 			Toast.makeText(getApplicationContext(), "Now you are a tester!\nTo apply the settings, restart the application.", Toast.LENGTH_SHORT).show();
 		}
-	};
+	};*/
 	AlertDialog report_al;
 	Intent send = new Intent(Intent.ACTION_SEND);
 	Intent action;
@@ -184,40 +176,6 @@ public class Updater extends AppCompatActivity {
 			overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 		}
 	}
-	void hide_update_layout(){
-		LinearLayout lay = findViewById(R.id.layoutUpdate);
-		Animation anim = AnimationUtils.loadAnimation(this,R.anim.alpha_hide);
-		anim.setAnimationListener(new Animation.AnimationListener() {
-			@Override
-			public void onAnimationStart(Animation animation) {
-
-			}
-
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				lay.setVisibility(View.INVISIBLE);
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-
-			}
-		});
-		lay.clearAnimation();
-		lay.setAnimation(anim);
-		lay.animate();
-		anim.start();
-	}
-
-	void show_update_layout(){
-		LinearLayout lay = findViewById(R.id.layoutUpdate);
-		Animation anim = AnimationUtils.loadAnimation(this, R.anim.alpha_show);
-		lay.clearAnimation();
-		lay.setAnimation(anim);
-		lay.setVisibility(View.VISIBLE);
-		lay.animate();
-		anim.start();
-	}
 
 	@Override
 	public void onBackPressed() {
@@ -248,35 +206,6 @@ public class Updater extends AppCompatActivity {
 			report_al.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 		report_al.show();
 		//Toast.makeText(getApplicationContext(), R.string.donot_clear_info_email, Toast.LENGTH_LONG).show();
-	}
-
-	public void stop_receive(View v) {
-		AlertDialog.Builder build = new AlertDialog.Builder(Updater.this);
-		build.setTitle(R.string.confirm)
-				.setMessage(R.string.stop_receive_mes)
-				.setCancelable(false)
-				.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				})
-				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						//findViewById(R.id.layDev).setVisibility(View.GONE);
-						sp.edit().putBoolean("show_laydev", false).apply();
-						sp.edit().putBoolean("isdev", false).apply();
-						sp.edit().putBoolean("stop_receive_all", true).apply();
-						boolean s = sp.getBoolean("stop_receive_all", false);
-						findViewById(R.id.btnStopReceive).setVisibility(View.INVISIBLE);
-						findViewById(R.id.layoutUpdate).setVisibility(View.INVISIBLE);
-					}
-				});
-		AlertDialog dialog = build.create();
-		if(DarkMode)
-			dialog.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-		dialog.show();
 	}
 
 	public void switchSave(View v) {
@@ -321,22 +250,6 @@ public class Updater extends AppCompatActivity {
 		else
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
 
-		if(sp.getBoolean("simple_upd_exist", false) || sp.getBoolean("dev_upd_exist", false)){
-			show_update_layout();
-			TextView up = findViewById(R.id.txtUpdate);
-			if(sp.getBoolean("simple_upd_exist", false)){
-				up_type = "simple";
-				up_path = "/NewMCalc.apk";
-				up_ver = sp.getString("version", "");
-				up.setText(R.string.updateavail);
-			}else if(sp.getBoolean("dev_upd_exist", false)){
-				up_type = "dev";
-				up_path = "/forTesters/NewMCalc.apk";
-				up_ver = sp.getString("version", "");
-				up.setText(R.string.updateavail_tc);
-			}
-
-		}
         /*Slide slide = new Slide();
         slide.setDuration(100);
         getWindow().setEnterTransition(slide);
@@ -362,9 +275,8 @@ public class Updater extends AppCompatActivity {
         }*/
 		//set_lang("create");
 		if(sp.getBoolean("storage_denied", false)){
-			findViewById(R.id.btnAnotherSettings).setVisibility(View.GONE);
+			findViewById(R.id.import_export).setVisibility(View.GONE);
 		}
-		findViewById(R.id.btnChLang).setOnLongClickListener(defLang);
 		BroadcastReceiver br = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -494,136 +406,14 @@ public class Updater extends AppCompatActivity {
 			dbm.addValueEventListener(list);
 			dbm = db.getReference("links/site");
 			dbm.addValueEventListener(list);
-
-			BroadcastReceiver on_test = new BroadcastReceiver() {
-				@Override
-				public void onReceive(Context context, Intent intent) {
-					File f = new File(Environment.getExternalStorageDirectory() + "/" + intent.getStringExtra("output"));
-					String type = intent.getStringExtra("type");
-					int vercode = 0;
-					if(type.equals("simple")){
-						String message = "";
-						try {
-							FileReader fr = new FileReader(f);
-							while(fr.ready()){
-								message += (char) fr.read();
-							}
-							int i = 0;
-							while(i < message.length() && message.charAt(i) != ';'){
-								newversion += message.charAt(i);
-								i++;
-							}
-							i++;
-							newCodeSimple = 0;
-							while(i < message.length() && message.charAt(i) != ';'){
-								newCodeSimple = newCodeSimple * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
-								i++;
-							}
-
-						}catch (Exception e){
-							Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-							e.printStackTrace();
-						}
-						if(!sp.getBoolean("isdev", false))
-							check_up(BuildConfig.VERSION_CODE, vercode);
-					}else if(type.equals("tc")){
-						String message = "";
-						try {
-							FileReader fr = new FileReader(f);
-							while(fr.ready()){
-								message += (char) fr.read();
-							}
-							int i = 0;
-							while(i < message.length() && message.charAt(i) != ';'){
-								newDevVer += message.charAt(i);
-								i++;
-							}
-							i++;
-							while(i < message.length() && message.charAt(i) != ';'){
-								newCodeDev = newCodeDev * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
-								i++;
-							}
-							check_up(BuildConfig.VERSION_CODE, newCodeDev);
-						}catch (Exception e){
-							e.printStackTrace();
-						}
-					}
-				}
-			};
-			registerReceiver(on_test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
-			BroadcastReceiver versions_checked = new BroadcastReceiver() {
-				@Override
-				public void onReceive(Context context, Intent intent) {
-					String type = intent.getStringExtra("type");
-					String version = intent.getStringExtra("version");
-					int code = intent.getIntExtra("code", 0);
-					updatebytescount = intent.getIntExtra("bytes", 0);
-					TextView up = findViewById(R.id.txtUpdate);
-					if(type.equals("simple")){
-						up_type = "simple";
-						up_path = "/NewMCalc.apk";
-						up_ver = version;
-						up.setText(R.string.updateavail);
-						show_update_layout();
-
-					}else if(type.equals("tc")){
-						up_type = "dev";
-						up_path = "/forTesters/NewMCalc.apk";
-						up_ver = version;
-						up.setText(R.string.updateavail_tc);
-						show_update_layout();
-					}
-				}
-			};
-			registerReceiver(versions_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));
 		}
 		tr.stop();
 	}
 
 	int updatebytescount = 0;
 
-	public void check_up(Integer versionMy, Integer versionNew){
-		if(!ups.isup()){
-			boolean isdev = sp.getBoolean("isdev", false);
-			TextView up = findViewById(R.id.txtUpdate);
-			try {
-				if (newCodeSimple > versionMy && newCodeSimple >= newCodeDev) {
-					up_type = "simple";
-					up_path = "/NewMCalc.apk";
-					up_ver = newversion;
-					show_update_layout();
-					up.setText(R.string.updateavail);
-				} else if (versionMy < newCodeDev && isdev) {
-					up_type = "dev";
-					up_path = "/forTesters/NewMCalc.apk";
-					up_ver = newDevVer;
-					show_update_layout();
-					up.setText(R.string.updateavail_tc);
-				}
-			}catch (Exception e){
-				//Toast.makeText(getApplicationContext(), e.toString() + "; check_up", Toast.LENGTH_LONG).show();
-				e.printStackTrace();
-			}
-		}
-	}
-
 	public void postcreate() {
 		other_settings();
-		if(sp.getBoolean("simple_upd_exist", false) || sp.getBoolean("dev_upd_exist", false)){
-			show_update_layout();
-			TextView up = findViewById(R.id.txtUpdate);
-			if(sp.getBoolean("simple_upd_exist", false)){
-				up_type = "simple";
-				up_path = "/NewMCalc.apk";
-				up_ver = sp.getString("version", "");
-				up.setText(R.string.updateavail);
-			}else if(sp.getBoolean("dev_upd_exist", false)){
-				up_type = "dev";
-				up_path = "/forTesters/NewMCalc.apk";
-				up_ver = sp.getString("version", "");
-				up.setText(R.string.updateavail_tc);
-			}
-		}
 		/*if (sp.getBoolean("isdev", false)) {
 			if (!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
 				findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
@@ -671,10 +461,6 @@ public class Updater extends AppCompatActivity {
 			return;
 		TextView t = findViewById(R.id.txtxCopyRight);
 		t.setTextColor(getResources().getColor(R.color.white));
-		t = findViewById(R.id.txtUpdate);
-		t.setTextColor(getResources().getColor(R.color.white));
-		ImageView b = findViewById(R.id.btnUpdate);
-		b.setImageDrawable(getResources().getDrawable(R.drawable.update_dark));
 	}
 
 	public void apply_dark_at_othersettings(){
@@ -764,12 +550,6 @@ public class Updater extends AppCompatActivity {
 	            sendBroadcast(btnal);
 	        }
         }
-	}
-
-	public void update(View v) {
-		hide_update_layout();
-		ups = new update_service(this);
-		ups.run(up_path, up_ver, updatebytescount);
 	}
 
 	public void change_views(View v){

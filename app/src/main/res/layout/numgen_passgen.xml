@@ -141,6 +141,7 @@
                 android:id="@+id/swCap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:checked="true"
                 android:linksClickable="false"
                 android:longClickable="false"
@@ -151,6 +152,7 @@
                 android:id="@+id/swLowerCase"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:checked="true"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
@@ -159,6 +161,7 @@
                 android:id="@+id/swDigits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:checked="true"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
@@ -167,6 +170,7 @@
                 android:id="@+id/swHyphen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
 
@@ -182,6 +186,7 @@
                 android:id="@+id/swPar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
 
@@ -189,6 +194,7 @@
                 android:id="@+id/swSpace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
 
@@ -196,6 +202,7 @@
                 android:id="@+id/swSpecial"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
 
@@ -203,6 +210,7 @@
                 android:id="@+id/swUnderScore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:buttonTint="@color/colorAccent"
                 android:onClick="onSwClick"
                 android:text="CheckBox" />
         </LinearLayout>

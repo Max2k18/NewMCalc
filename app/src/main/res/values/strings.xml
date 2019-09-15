@@ -1,5 +1,6 @@
 <resources>
     <integer name="transition_animation_duration">350</integer>
+    <integer name="social_btn_size">70</integer>
     <string name="app_name" translatable="false">New MCalc</string>
     <string name="multiply" translatable="false">×</string>
     <string name="div" translatable="false">÷</string>
@@ -136,4 +137,5 @@
         <item>1/X</item>
     </string-array>
     <string name="activity_requet_permissions">We need to get permission to read and write to the device memory. This is necessary so that you can import or export application settings, because the record goes to the repository. Please give us permission.</string>
+    <string name="never_show_again">Never show again</string>
 </resources>

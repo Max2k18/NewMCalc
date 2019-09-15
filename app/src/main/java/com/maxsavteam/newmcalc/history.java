@@ -64,40 +64,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
     }
 
-    void read_history_desc(){
-        desc.clear();
-        String descS = sp.getString("history_description", "none");
-        if(!descS.equals("none")){
-            int i = 0;
-            while(i < descS.length()){
-                String d = "";
-                while(descS.charAt(i) != '~'){
-                    d += descS.charAt(i);
-                    i++;
-                }
-                if(d.equals("")){
-                    desc.add("<null>~");
-                }else{
-                    desc.add(d + "~");
-                }
-                i++;
-            }
-        }
-    }
-
-    void save_history_description(){
-        if(desc.size() == 0){
-            sp.edit().putString("history_descriprion", "none").apply();
-            return;
-        }
-        String save = "";
-        for(int i = 0; i < desc.size(); i++){
-            save += desc.get(i) + "~";
-        }
-        sp.edit().putString("history_description", save).apply();
-    }
-
-
     @Override
     public void onBackPressed(){
         if(delete_mode){
@@ -450,12 +416,12 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
     void save_history(){
-        String save = "";
+        StringBuilder save = new StringBuilder();
         int len = str.size();
         for(int i = 0; i < len; i++){
-            save += str.get(i).get(0) + "," + str.get(i).get(1) + ";";
+            save.append(str.get(i).get(0)).append(",").append(str.get(i).get(1)).append(";");
         }
-        sp.edit().putString("history", save).apply();
+        sp.edit().putString("history", save.toString()).apply();
 
     }
 
@@ -612,7 +578,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
         }
-        read_history_desc();
         Button btn = findViewById(R.id.btnCancel);
         btn.setTextColor(getResources().getColor(R.color.white));
         update_service ups = new update_service(this);        /*BroadcastReceiver br = new BroadcastReceiver() {

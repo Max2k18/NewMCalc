@@ -200,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if (id == R.id.about) {
             /*if(DarkMode)
                 dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
-            about_app.show();
+            //about_app.show();
+            Intent in = new Intent(this, catch_service.class);
+            in.putExtra("action", "about_app");
+            startActivity(in);
+            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -712,19 +716,24 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
         app_type = BuildConfig.APPTYPE;
         sp.edit().remove("count_catchservice").apply();
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+        if(!sp.getBoolean("never_request_permissions", false) && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)){
                 /*ActivityCompat
                         .requestPermissions(this,
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 10);*/
+                View v = getLayoutInflater().inflate(R.layout.never_show_again, null);
                 AlertDialog request = new AlertDialog.Builder(this)
                         .setTitle(R.string.confirm)
+                        .setView(v)
                         .setMessage(R.string.activity_requet_permissions)
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                if(((CheckBox) v.findViewById(R.id.never_show_again)).isChecked()) {
+                                    sp.edit().putBoolean("never_request_permissions", true).apply();
+                                }
                                 ActivityCompat
                                         .requestPermissions(MainActivity.this,
                                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -734,6 +743,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         })
                         .create();
                 request.show();
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            sp.edit().remove("storage_denied").apply();
         }
         read_memory();
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
@@ -863,8 +876,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 R.id.btnPlus,
 
                 R.id.btnZero,
-                R.id.btnDot,
-                R.id.btnMinus
+                R.id.btnDot
         };
         for(int ii = 0; ii < btnIds.length; ii++){
             Button btn = findViewById(btnIds[ii]);
@@ -884,11 +896,19 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         public void onClick(View view) {
             if(text_example.getText().toString().equals(""))
                 return;
-            BigDecimal res = barr[0], local_num = new BigDecimal(0);
+
+            BigDecimal temp;
+            try{
+                temp = new BigDecimal(text_example.getText().toString());
+            }catch(NumberFormatException e){
+                return;
+            }
+            temp = temp.add(barr[0]);
+            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
             equallu("for_memory");
             local_num = result_calc_for_mem;
-            res = res.add(local_num);
-            barr[0] = res;
+            res = res.add(local_num);*/
+            barr[0] = temp;
             save_memory();
         }
     };
@@ -897,11 +917,23 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         public void onClick(View view) {
             if(text_example.getText().toString().equals(""))
                 return;
-            BigDecimal res = barr[0], local_num = new BigDecimal(0);
+            BigDecimal temp;
+            try{
+                temp = new BigDecimal(text_example.getText().toString());
+            }catch(NumberFormatException e){
+                return;
+            }
+            temp = temp.subtract(barr[0]);
+            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
+            equallu("for_memory");
+            local_num = result_calc_for_mem;
+            res = res.add(local_num);*/
+            barr[0] = temp;
+            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
             equallu("for_memory");
             local_num = result_calc_for_mem;
             res = res.subtract(local_num);
-            barr[0] = res;
+            barr[0] = res;*/
             save_memory();
         }
     };
@@ -954,6 +986,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public void memory_mr(View view){
     	TextView t = findViewById(R.id.textStr);
     	t.setText(barr[0].toString());
+    	show_str();
     	t = findViewById(R.id.textAns2);
     	hide_ans();
     	t.setText("");
