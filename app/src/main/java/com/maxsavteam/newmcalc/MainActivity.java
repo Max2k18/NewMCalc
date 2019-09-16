@@ -38,6 +38,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -527,6 +528,13 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
+    protected void set_enabled_additional_buttons(boolean b){
+        int[] ids = new int[]{R.id.imgBtnSettings, R.id.btnImgHistory, R.id.btnImgNumGen, R.id.btnImgPassgen};
+        for(int i : ids){
+            findViewById(i).setEnabled(b);
+        }
+    }
+
     public void click_addtional_tools(View v){
         ImageButton btn = (ImageButton) v;
         LinearLayout lay = findViewById(R.id.additional_tools);
@@ -537,12 +545,13 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 public void onAnimationStart(Animation animation) {
                     btn.setImageDrawable(getDrawable(R.drawable.arrow_down));
                     btn.setTag("down");
-                    btn.setEnabled(false);
+                    //btn.setEnabled(false);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    btn.setEnabled(true);
+                    //btn.setEnabled(true);
+                    set_enabled_additional_buttons(true);
                 }
 
                 @Override
@@ -562,13 +571,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 public void onAnimationStart(Animation animation) {
                     btn.setImageDrawable(getDrawable(R.drawable.arrow_up));
                     btn.setTag("up");
-                    btn.setEnabled(false);
+                    //btn.setEnabled(false);
                 }
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     lay.setVisibility(View.GONE);
-                    btn.setEnabled(true);
+                    //btn.setEnabled(true);
+                    set_enabled_additional_buttons(false);
                 }
 
                 @Override
@@ -715,6 +725,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         super.onPostCreate(savedInstanceState);
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
         app_type = BuildConfig.APPTYPE;
+        /*TableLayout tbl = findViewById(R.id.tbl);
+        Display d = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        d.getSize(size);
+        int height = size.y;
+        tbl.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, height / 3));*/
         sp.edit().remove("count_catchservice").apply();
         if(!sp.getBoolean("never_request_permissions", false) && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)){
@@ -904,10 +920,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 return;
             }
             temp = temp.add(barr[0]);
-            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
-            equallu("for_memory");
-            local_num = result_calc_for_mem;
-            res = res.add(local_num);*/
             barr[0] = temp;
             save_memory();
         }
@@ -924,16 +936,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 return;
             }
             temp = temp.subtract(barr[0]);
-            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
-            equallu("for_memory");
-            local_num = result_calc_for_mem;
-            res = res.add(local_num);*/
             barr[0] = temp;
-            /*BigDecimal res = barr[0], local_num = new BigDecimal(0);
-            equallu("for_memory");
-            local_num = result_calc_for_mem;
-            res = res.subtract(local_num);
-            barr[0] = res;*/
             save_memory();
         }
     };
@@ -973,13 +976,13 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         TextView t = findViewById(R.id.textStr);
         if(t.getText().toString().equals(""))
             return;
-    	equallu("for_memory");
-    	BigDecimal res = result_calc_for_mem;
-    	if(store_custom){
-    	    barr[store_params] = res;
-    	    store_custom = false;
-        }else
-    	    barr[0] = res;
+        BigDecimal temp;
+        try{
+            temp = new BigDecimal(t.getText().toString());
+        }catch(NumberFormatException e){
+            return;
+        }
+        barr[0] = temp;
     	save_memory();
     }
 
@@ -1014,13 +1017,17 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     private void showMemAlert(final String type){
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);
-        TextView t = findViewById(R.id.textStr);
-        if(t.getText().toString().equals("") && type.equals("st"))
-            return;
         if(type.equals("st")){
-            equallu("for_memory");
-            BigDecimal res = result_calc_for_mem;
-            in.putExtra("value", res.toString());
+            TextView t = findViewById(R.id.textStr);
+            if(t.getText().toString().equals(""))
+                return;
+            BigDecimal temp;
+            try{
+                temp = new BigDecimal(t.getText().toString());
+            }catch(NumberFormatException e){
+                return;
+            }
+            in.putExtra("value", temp.toString());
         }
         startActivity(in);
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
@@ -2503,26 +2510,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         }
 
-    }
-
-    public void gotoactions(View v){
-        Button btn8 = findViewById(R.id.btn8);
-        sp.edit().putInt("btnWeight", btn8.getHeight()).apply();
-        sp.edit().putInt("btnWidth", btn8.getWidth()).apply();
-        sp.edit().putBoolean("toChoose", true).apply();
-        sp.edit().putString("action", "gotoactions").apply();
-        Intent resultIntent = new Intent(getApplicationContext(), chooseactions.class);
-        resultIntent.putExtra("btnHeight", btn8.getHeight());
-        resultIntent.putExtra("btnWidth", btn8.getWidth());
-        if(add_menu_opened){
-            if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else if(sp.getInt("btn_add_align", 0) == 1){
-                show_hide(findViewById(R.id.btnShAdd2));
-            }
-        }
-        startActivity(resultIntent);
-        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
     }
 
     public void onClick(@NonNull View v){

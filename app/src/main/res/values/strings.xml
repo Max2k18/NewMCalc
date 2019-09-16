@@ -138,4 +138,5 @@
     </string-array>
     <string name="activity_requet_permissions">We need to get permission to read and write to the device memory. This is necessary so that you can import or export application settings, because the record goes to the repository. Please give us permission.</string>
     <string name="never_show_again">Never show again</string>
+    <string name="info">Info</string>
 </resources>

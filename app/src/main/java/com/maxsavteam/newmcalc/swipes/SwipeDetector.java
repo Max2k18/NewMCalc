@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc;
+package com.maxsavteam.newmcalc.swipes;
 
 import android.annotation.SuppressLint;
 import android.view.MotionEvent;
@@ -12,7 +12,7 @@ public class SwipeDetector implements View.OnTouchListener {
 
 	private touch t;
 
-	void setTouch(touch T){
+	public void setTouch(touch T){
 		this.t = T;
 	}
 

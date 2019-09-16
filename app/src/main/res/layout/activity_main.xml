@@ -208,20 +208,6 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnActions"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.3"
-                android:onClick="gotoactions"
-                android:text="@string/threedots"
-                android:textAllCaps="false"
-                android:textSize="30sp"
-                android:visibility="gone"
-                tools:layout_editor_absoluteX="55dp"
-                tools:layout_editor_absoluteY="448dp" />
-
-            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDelAll"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="0dp"

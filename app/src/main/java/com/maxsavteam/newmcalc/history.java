@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.ColorDrawable;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.IntegerRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -38,6 +40,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.maxsavteam.newmcalc.swipes.SwipeController;
+import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
 
 import org.w3c.dom.Text;
 
@@ -675,11 +680,26 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 rv.setLayoutManager(lay);
                 adapter = new MyRecyclerViewAdapter(getApplicationContext(), str);
                 adapter.setClickListener(this);
-                /*SwipeDetector sd = new SwipeDetector();
-                sd.setTouch(this);
-                rv.setOnTouchListener(sd);*/
-//                rv.setOnTouchListener();
                 rv.setAdapter(adapter);
+                SwipeController sc = new SwipeController(new SwipeControllerActions() {
+                    @Override
+                    public void onRightClicked(int position) {
+                        onDelete(position, position, rv.getChildAt(position));
+                    }
+
+                    @Override
+                    public void onLeftClicked(int position) {
+                        ShowInfoButtonPressed(rv.getChildAt(position), position);
+                    }
+                }, this);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(sc);
+                itemTouchHelper.attachToRecyclerView(rv);
+                rv.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                        sc.onDraw(c);
+                    }
+                });
             }catch (Exception e){
                 Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
                 Log.e("Layout", e.toString());

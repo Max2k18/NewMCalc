@@ -3,20 +3,22 @@ package com.maxsavteam.newmcalc;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.maxsavteam.newmcalc.swipes.SwipeController;
+import com.maxsavteam.newmcalc.swipes.SwipeDetector;
 
 import java.util.ArrayList;
 
@@ -209,9 +211,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 }
             });
             itemView.setOnClickListener(this);
-            SwipeDetector sd = new SwipeDetector();
+            /*SwipeDetector sd = new SwipeDetector();
             sd.setTouch(this);
-            itemView.setOnTouchListener(sd);
+            itemView.setOnTouchListener(sd);*/
+            if(DarkMode)
+                itemView.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+            else
+                itemView.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
         }
 
         public int getPos(){

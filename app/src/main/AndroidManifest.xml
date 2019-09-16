@@ -22,9 +22,6 @@
             android:name=".numgen"
             android:noHistory="false" />
         <activity
-            android:name=".chooseactions"
-            android:noHistory="true" />
-        <activity
             android:name=".Updater"
             android:noHistory="true">
             <intent-filter>
