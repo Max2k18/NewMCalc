@@ -1,53 +1,38 @@
 package com.maxsavteam.newmcalc;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 
-import androidx.annotation.IntegerRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
-import android.util.Pair;
-import android.util.TypedValue;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.Interpolator;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,20 +56,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onBackPressed(){
-        if(delete_mode){
-            animation_hide_toolbar();
-            delete_mode = false;
-            adapter.set_checkboxes(false);
-            adapter.notifyDataSetChanged();
-        }else {
-            sp.edit().remove("action").apply();
-            sp.edit().remove("history_action").apply();
-            if (start_type.equals("app")) {
-                backPressed();
-            } else if (start_type.equals("shortcut")) {
-                startActivity(new Intent(this, MainActivity.class));
-                backPressed();
-            }
+        sp.edit().remove("action").apply();
+        sp.edit().remove("history_action").apply();
+        if (start_type.equals("app")) {
+            backPressed();
+        } else if (start_type.equals("shortcut")) {
+            startActivity(new Intent(this, MainActivity.class));
+            backPressed();
         }
         //super.onBackPressed();
     }
@@ -227,7 +205,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
 	@Override
 	public void ShowInfoButtonPressed(View view, int position) {
-        view = (View) view.getParent().getParent();
+        //view = (View) view.getParent().getParent();
         TextView t = view.findViewById(R.id.tvWithDesc);
         Boolean with = Boolean.parseBoolean(t.getText().toString());
         if(view.findViewById(R.id.with_desc).getVisibility() == View.VISIBLE

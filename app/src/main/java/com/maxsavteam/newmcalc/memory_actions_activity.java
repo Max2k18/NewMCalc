@@ -11,16 +11,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
+
 import java.math.BigDecimal;
-import java.util.Objects;
 
 public class memory_actions_activity extends AppCompatActivity implements window_recall_adapter.inter {
 	SharedPreferences sp;

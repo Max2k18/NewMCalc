@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc;
+package com.maxsavteam.newmcalc.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,11 +14,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.newmcalc.swipes.SwipeController;
-import com.maxsavteam.newmcalc.swipes.SwipeDetector;
+import com.maxsavteam.newmcalc.R;
+import com.maxsavteam.newmcalc.history;
 
 import java.util.ArrayList;
 
@@ -28,12 +27,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context con;
-    SharedPreferences sp;
-    boolean DarkMode;
-    private history history;
+    private SharedPreferences sp;
+    private boolean DarkMode;
+    private com.maxsavteam.newmcalc.history history;
 
     // data is passed into the constructor
-    MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
+    public MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         con = context;
@@ -43,7 +42,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         parnet_layout = mInflater.inflate(R.layout.activity_history, null);
     }
 
-    View parnet_layout;
+    private View parnet_layout;
 
     // inflates the row layout from xml when needed
     @Override
@@ -110,35 +109,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return mData.size();
     }
 
-    public ArrayList< ArrayList<String> > getArr(){
-        return mData;
-    }
-
-    boolean show_checkbox_delete_all = false;
-    void set_checkboxes(boolean b){
-        show_checkbox_delete_all = b;
-    }
-
-    private void swipe_btn(View v, String swipe){
-        ImageButton imgInfo = v.findViewById(R.id.btnInfoInRow), imgDel = v.findViewById(R.id.btnDelInRow);
-        int visInfo = imgInfo.getVisibility(), visDel = imgDel.getVisibility();
-        int on = View.VISIBLE, off = View.GONE;
-        if(swipe.equals("left")){
-            if(visInfo == off && visDel == off){
-                imgInfo.setVisibility(on);
-            }else if(visInfo == off && visDel == on){
-                imgDel.setVisibility(off);
-            }
-        }else if(swipe.equals("right")){
-            if(visInfo == off && visDel == off)
-                imgDel.setVisibility(on);
-            else if(visInfo == on && visDel == off)
-                imgInfo.setVisibility(off);
-        }
-    }
-
     // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, SwipeDetector.touch{//}, View.OnTouchListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{//}, View.OnTouchListener {
         TextView example;
         TextView answer;
         TextView tvPos;
@@ -203,17 +175,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 		            //Toast.makeText(con.getApplicationContext(), con.getResources().getResourceName(par.getId()) + " " + t.getText().toString(), Toast.LENGTH_SHORT).show();
 	            }
             });
-            //btnDel = itemView.findViewById(R.id.btnInfoInRow);
             btnInfo.setOnClickListener(view -> {
-                //View par = (View) view.getParent().getParent();
                 if(mClickListener != null){
                     mClickListener.ShowInfoButtonPressed(view, getAdapterPosition());
                 }
             });
             itemView.setOnClickListener(this);
-            /*SwipeDetector sd = new SwipeDetector();
-            sd.setTouch(this);
-            itemView.setOnTouchListener(sd);*/
             if(DarkMode)
                 itemView.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
             else
@@ -229,38 +196,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
-
-        @Override
-        public void onUpSwipe(View v, float distance) {
-            //Toast.makeText(con.getApplicationContext(), "up swipe", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onRightSwipe(View v, float distance) {
-            //Toast.makeText(con, v.getResources().getResourceName(v.getId()) + " " + ((View) v.getParent()).getResources().getResourceName( ((View) v.getParent()).getId() ), Toast.LENGTH_SHORT).show();
-            swipe_btn(v, "right");
-        }
-
-        @Override
-        public void onDownSwipe(View v, float distance) {
-            //Toast.makeText(con.getApplicationContext(), "down swipe", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onLeftSwipe(View v, float distance) {
-            swipe_btn(v, "left");
-            //Toast.makeText(con.getApplicationContext(), "Left swipe", Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     // convenience method for getting data at click position
-    ArrayList <String> getItem(int id) {
+    public ArrayList <String> getItem(int id) {
         return mData.get(id);
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
     /*void setItemTouchListener(RecyclerView.OnItemTouchListener itemTouchListener){

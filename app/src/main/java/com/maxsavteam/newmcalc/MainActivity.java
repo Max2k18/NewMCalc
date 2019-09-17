@@ -52,6 +52,7 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
 import com.maxsavteam.newmcalc.upd.UPDChecker;
 
 import java.io.File;
@@ -143,55 +144,55 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
     @Override
     public void onBackPressed() {
-    	if(ups.isup()){
-    		AlertDialog.Builder dialogal = new AlertDialog.Builder(this)
-				    .setTitle(R.string.confirm)
-				    .setMessage(R.string.confirm_exit_on_up)
-				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-					    @Override
-					    public void onClick(DialogInterface dialog, int which) {
-						    dialog.cancel();
-					    }
-				    }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					    @Override
-					    public void onClick(DialogInterface dialog, int which) {
-						    dialog.cancel();
-						    if(ups.isup()){
-						    	ups.kill();
-						    }
+        if(ups.isup()){
+            AlertDialog.Builder dialogal = new AlertDialog.Builder(this)
+                    .setTitle(R.string.confirm)
+                    .setMessage(R.string.confirm_exit_on_up)
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            if(ups.isup()){
+                                ups.kill();
+                            }
                             finishAndRemoveTask();
                             overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-					    }
-				    });
+                        }
+                    });
 
-    		AlertDialog dal = dialogal.create();
+            AlertDialog dal = dialogal.create();
             if(DarkMode)
                 dal.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-    		dal.show();
-	    }else{
-		    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		    builder.setTitle(R.string.exit)
-				    .setMessage(R.string.areyousureexit)
-				    .setCancelable(false)
-				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-					    @Override
-					    public void onClick(DialogInterface dialog, int which) {
-						    dialog.cancel();
-					    }
-				    })
-				    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					    @Override
-					    public void onClick(DialogInterface dialog, int which) {
-						    dialog.cancel();
-						    finishAndRemoveTask();
-						    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-					    }
-				    });
-		    AlertDialog al_1 = builder.create();
+            dal.show();
+        }else{
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.exit)
+                    .setMessage(R.string.areyousureexit)
+                    .setCancelable(false)
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            finishAndRemoveTask();
+                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
+                        }
+                    });
+            AlertDialog al_1 = builder.create();
             if(DarkMode)
                 al_1.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-		    al_1.show();
-	    }
+            al_1.show();
+        }
         //super.onBackPressed();
     }
 
@@ -316,21 +317,21 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 resultIntent.putExtra("type", "number");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "history":
                 sp.edit().putString("action", "history").apply();
                 resultIntent = new Intent(getApplicationContext(), history.class);
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "pass":
                 resultIntent = new Intent(getApplicationContext(), numgen.class);
                 resultIntent.putExtra("type", "pass");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
         }
     }
@@ -421,15 +422,15 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-	    DarkMode = sp.getBoolean("dark_mode", false);
-	    sp.edit().remove("simple_upd_exist").apply();
-	    sp.edit().remove("dev_upd_exist").apply();
-	    sp.edit().remove("notification_showed").apply();
-	    if(DarkMode){
-	    	setTheme(android.R.style.Theme_Material_NoActionBar);
-	    }else{
-	        setTheme(R.style.AppTheme);
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        DarkMode = sp.getBoolean("dark_mode", false);
+        sp.edit().remove("simple_upd_exist").apply();
+        sp.edit().remove("dev_upd_exist").apply();
+        sp.edit().remove("notification_showed").apply();
+        if(DarkMode){
+            setTheme(android.R.style.Theme_Material_NoActionBar);
+        }else{
+            setTheme(R.style.AppTheme);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -462,22 +463,22 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
-		Intent start_in = getIntent();
+        Intent start_in = getIntent();
         /*RelativeLayout.LayoutParams par;
         add_menu_opened = false;
         par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
         LinearLayout ll = findViewById(R.id.additional_tools);
         ll.setLayoutParams(par);*/
-		if(start_in.getBooleanExtra("shortcut_action", false)){
+        if(start_in.getBooleanExtra("shortcut_action", false)){
             goto_add_scr(start_in.getStringExtra("to_"));
             /*if(sp.getInt("btn_add_align", 0) == 0){
                 show_hide(findViewById(R.id.btnShAdd));
             }else{
                 show_hide(findViewById(R.id.btnShAdd2));
             }*/
-			//show_hide(findViewById(R.id.btnShAdd));
-		}
+            //show_hide(findViewById(R.id.btnShAdd));
+        }
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
             Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
@@ -522,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         btn1.setHeight(btn2.getHeight());
         btn1.setWidth(btn2.getWidth());*/
 
-       // btn_change();
+        // btn_change();
 
         myTrace.stop();
         fr.logEvent("OnCreate", Bundle.EMPTY);
@@ -594,9 +595,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     public void apply_theme(){
-	    if(DarkMode){
-		    ImageButton img;
-		    int[] imgbtnids = new int[]{
+        if(DarkMode){
+            ImageButton img;
+            int[] imgbtnids = new int[]{
                     R.id.imgBtnSettings,
                     R.id.btnImgHistory,
                     R.id.btnImgNumGen,
@@ -613,8 +614,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 img = findViewById(imgbtnids[i]);
                 img.setImageDrawable(drawables[i]);
             }
-		    getWindow().setBackgroundDrawableResource(R.drawable.black);
-		    TextView t;
+            getWindow().setBackgroundDrawableResource(R.drawable.black);
+            TextView t;
             int[] ids = new int[]{
                     R.id.textAns2,
                     R.id.textStr
@@ -623,27 +624,27 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 t = findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.white));
             }
-		    Button b = findViewById(R.id.btnDelAll);
-		    //b.setBackgroundColor(getResources().getColor(R.color.white));
-		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-		    b.setTextColor(getResources().getColor(R.color.black));
-		    b = findViewById(R.id.btnCalc);
-		    b.setTextColor(getResources().getColor(R.color.white));
-		    b = findViewById(R.id.btnShAdd);
-		    b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		    b = findViewById(R.id.btnShAdd2);
+            Button b = findViewById(R.id.btnDelAll);
+            //b.setBackgroundColor(getResources().getColor(R.color.white));
+            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+            b.setTextColor(getResources().getColor(R.color.black));
+            b = findViewById(R.id.btnCalc);
+            b.setTextColor(getResources().getColor(R.color.white));
+            b = findViewById(R.id.btnShAdd);
             b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		    int[] colorAccentIds = new int[]{
+            b = findViewById(R.id.btnShAdd2);
+            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+            int[] colorAccentIds = new int[]{
                     R.id.btnMemMinus,
                     R.id.btnMemPlus,
                     R.id.btnMR,
                     R.id.btnMS
-		    };
-		    for(int id : colorAccentIds){
-		        b = findViewById(id);
+            };
+            for(int id : colorAccentIds){
+                b = findViewById(id);
                 b.setTextColor(getResources().getColor(R.color.colorAccent));
             }
-	    }else{
+        }else{
             TextView t;
             getWindow().setBackgroundDrawableResource(R.drawable.white);
             int[] ids = new int[]{
@@ -663,7 +664,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             b.setTextColor(getResources().getColor(R.color.white));
             b = findViewById(R.id.btnCalc);
             b.setTextColor(getResources().getColor(R.color.black));
-	    }
+        }
     }
 
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
@@ -725,12 +726,17 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         super.onPostCreate(savedInstanceState);
         //new newver_check_service(this).create(sp.getBoolean("isdev", false));
         app_type = BuildConfig.APPTYPE;
-        /*TableLayout tbl = findViewById(R.id.tbl);
-        Display d = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        d.getSize(size);
-        int height = size.y;
-        tbl.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, height / 3));*/
+        TableLayout tbl = findViewById(R.id.tbl);
+        /*try {
+            Display d = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            d.getSize(size);
+            int height = size.y;
+            int width = size.x;
+            tbl.setLayoutParams(new TableLayout.LayoutParams(width - 20, height / 3));
+        }catch (Throwable throwable){
+            Toast.makeText(this, throwable.toString(), Toast.LENGTH_LONG).show();
+        }*/
         sp.edit().remove("count_catchservice").apply();
         if(!sp.getBoolean("never_request_permissions", false) && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)){
@@ -739,26 +745,26 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 10);*/
-                View v = getLayoutInflater().inflate(R.layout.never_show_again, null);
-                AlertDialog request = new AlertDialog.Builder(this)
-                        .setTitle(R.string.confirm)
-                        .setView(v)
-                        .setMessage(R.string.activity_requet_permissions)
-                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if(((CheckBox) v.findViewById(R.id.never_show_again)).isChecked()) {
-                                    sp.edit().putBoolean("never_request_permissions", true).apply();
-                                }
-                                ActivityCompat
-                                        .requestPermissions(MainActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                10);
+            View v = getLayoutInflater().inflate(R.layout.never_show_again, null);
+            AlertDialog request = new AlertDialog.Builder(this)
+                    .setTitle(R.string.confirm)
+                    .setView(v)
+                    .setMessage(R.string.activity_requet_permissions)
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if(((CheckBox) v.findViewById(R.id.never_show_again)).isChecked()) {
+                                sp.edit().putBoolean("never_request_permissions", true).apply();
                             }
-                        })
-                        .create();
-                request.show();
+                            ActivityCompat
+                                    .requestPermissions(MainActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            10);
+                        }
+                    })
+                    .create();
+            request.show();
         }
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
@@ -776,14 +782,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 String text = sp.getString("saveResultText", "none");
                 int i = 0;
                 StringBuilder ex = new StringBuilder();
-	            StringBuilder ans = new StringBuilder();
-	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
+                StringBuilder ans = new StringBuilder();
+                while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
                     ex.append(text.charAt(i));
                     i++;
                 }
                 TextView ver = findViewById(R.id.textAns2);
-	            if(!DarkMode)
-	                ver.setTextColor(getResources().getColor(R.color.black));
+                if(!DarkMode)
+                    ver.setTextColor(getResources().getColor(R.color.black));
                 ver.setText(ex.toString());
                 show_ans();
                 i++;
@@ -983,16 +989,16 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             return;
         }
         barr[0] = temp;
-    	save_memory();
+        save_memory();
     }
 
     public void memory_mr(View view){
-    	TextView t = findViewById(R.id.textStr);
-    	t.setText(barr[0].toString());
-    	show_str();
-    	t = findViewById(R.id.textAns2);
-    	hide_ans();
-    	t.setText("");
+        TextView t = findViewById(R.id.textStr);
+        t.setText(barr[0].toString());
+        show_str();
+        t = findViewById(R.id.textAns2);
+        hide_ans();
+        t.setText("");
     }
 
     String recall_type = "";
@@ -1034,19 +1040,19 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     View.OnLongClickListener memory_actions = new View.OnLongClickListener() {
-	    @Override
-	    public boolean onLongClick(View v) {
-	        try {
+        @Override
+        public boolean onLongClick(View v) {
+            try {
                 if(v.getId() == R.id.btnMR)
                     showMemAlert("rc");
                 else
                     showMemAlert("st");
             }catch (Exception e){
-	            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
             }
 
-		    return true;
-	    }
+            return true;
+        }
     };
 
     void show_str(){
@@ -1185,25 +1191,25 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         };
         registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
         BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-		        DarkMode = sp.getBoolean("dark_mode", false);
-		        TextView t = findViewById(R.id.textStr);
-		        String str = t.getText().toString(), ans;
-		        t = findViewById(R.id.textAns2);
-		        ans = t.getText().toString();
-		        if(DarkMode){
-			        setTheme(android.R.style.Theme_Material_NoActionBar);
-		        }else{
-			        setTheme(R.style.AppTheme);
-		        }
-		        setContentView(R.layout.activity_main);
-		        t.setText(ans);
-		        t = findViewById(R.id.textStr);
-		        t.setText(str);
-		        apply_theme();
-		        apply_supertext_btns();
-	        }
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                DarkMode = sp.getBoolean("dark_mode", false);
+                TextView t = findViewById(R.id.textStr);
+                String str = t.getText().toString(), ans;
+                t = findViewById(R.id.textAns2);
+                ans = t.getText().toString();
+                if(DarkMode){
+                    setTheme(android.R.style.Theme_Material_NoActionBar);
+                }else{
+                    setTheme(R.style.AppTheme);
+                }
+                setContentView(R.layout.activity_main);
+                t.setText(ans);
+                t = findViewById(R.id.textStr);
+                t.setText(str);
+                apply_theme();
+                apply_supertext_btns();
+            }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
         BroadcastReceiver br = new BroadcastReceiver() {
@@ -1557,10 +1563,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 ans = Double.valueOf(answer);
                 s1.push(new BigDecimal(answer));
             }else{
-	            BigDecimal ansb = BigDecimal.valueOf(ans);
+                BigDecimal ansb = BigDecimal.valueOf(ans);
 
-	            ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
-	            s1.push(ansb);
+                ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+                s1.push(ansb);
             }
             return;
         }
@@ -1751,7 +1757,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         String s;
         int len = stri.length();
         if(digits == 0)
-        	return;
+            return;
 
         for(int i = 0; i < len; i++){
             s = Character.toString(str[i]);
@@ -2366,15 +2372,15 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 if(last == '.'){
                     return;
                 }else{
-                	if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
-						t.setText(txt + btntxt + "(");
-						equallu("not");
-	                }else {
-		                if (last != '(' && last != '^') {
-			                t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
-			                equallu("not");
-		                }
-	                }
+                    if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
+                        t.setText(txt + btntxt + "(");
+                        equallu("not");
+                    }else {
+                        if (last != '(' && last != '^') {
+                            t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
+                            equallu("not");
+                        }
+                    }
                     /*if(!isdigit(last)){
 
                         t.setText(txt + btntxt + "(");
@@ -2517,7 +2523,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         t = findViewById(R.id.textStr);
         String btntxt = btn.getText().toString().substring(0, 1);
         add_text(btntxt);
-       // log("onClick action;");
+        // log("onClick action;");
     }
 
     public void delall(View v){
@@ -2548,12 +2554,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 if(text.charAt(text.length() - 2) == '√' || text.charAt(len - 2) == '^')
                     a = 2;
                 if(text.charAt(len - 2) == 's' || text.charAt(len - 2) == 'g')
-                	a = 4;
+                    a = 4;
                 if(text.charAt(len - 2) == 'n'){
-                	if(text.charAt(len - 3) == 'l')
-                		a = 3;
-                	else if(text.charAt(len - 3) == 'i' || text.charAt(len - 3) == 'a')
-                		a = 4;
+                    if(text.charAt(len - 3) == 'l')
+                        a = 3;
+                    else if(text.charAt(len - 3) == 'i' || text.charAt(len - 3) == 'a')
+                        a = 4;
                 }
             }
             was_error = false;

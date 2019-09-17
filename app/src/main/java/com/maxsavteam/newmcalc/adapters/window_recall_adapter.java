@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc;
+package com.maxsavteam.newmcalc.adapters;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,8 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.maxsavteam.newmcalc.R;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class window_recall_adapter extends RecyclerView.Adapter<window_recall_adapter.ViewHolder> {
 	private Context con;
@@ -20,13 +21,13 @@ public class window_recall_adapter extends RecyclerView.Adapter<window_recall_ad
 	private BigDecimal[] data;
 	private inter I;
 	private SharedPreferences sp;
-	boolean DarkMode = false;
+	private boolean DarkMode = false;
 
-	void setInterface(inter T){
+	public void setInterface(inter T){
 		this.I = T;
 	}
 
-	window_recall_adapter(Context c, BigDecimal[] bd_arr){
+	public window_recall_adapter(Context c, BigDecimal[] bd_arr){
 		this.con = c;
 		this.data = bd_arr;
 		this.inflater = LayoutInflater.from(c);
