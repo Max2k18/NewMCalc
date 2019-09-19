@@ -43,10 +43,8 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     SharedPreferences sp;
     Intent history_action;
-    AlertDialog create_description;
     String his_des;
     ArrayList< ArrayList<String> > str = new ArrayList<>();
-    ArrayList<String> desc = new ArrayList<>();
 
     protected void backPressed(){
         sendBroadcast(history_action);
@@ -77,45 +75,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         return super.onOptionsItemSelected(item);
     }
 
-    void animation_hide_toolbar(){
-        LinearLayout lay = findViewById(R.id.tools_onlongclick);
-        Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_hide);
-        anim.setDuration(500);
-        anim.setInterpolator(this, android.R.anim.accelerate_interpolator);
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                lay.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        lay.clearAnimation();
-        lay.setAnimation(anim);
-        lay.animate();
-        anim.start();
-    }
-
-    void animation_show_toolbar(){
-        LinearLayout lay = findViewById(R.id.tools_onlongclick);
-        lay.setVisibility(View.VISIBLE);
-        Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_show);
-        anim.setInterpolator(this, android.R.anim.accelerate_interpolator);
-        anim.setDuration(500);
-        lay.clearAnimation();
-        lay.setAnimation(anim);
-        lay.animate();
-        anim.start();
-    }
-
     @Override
     public void onItemClick(View view, int position) {
         history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
@@ -133,13 +92,10 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     static int POSITION_to_del = -1;
     View view_ondelete;
 
-    boolean delete_mode = false;
-
     @Override
-    public void onDelete(int position, int adapter_position, View v) {
+    public void onDelete(int position, View v) {
         //Toast.makeText(this, Boolean.toString(in_order), Toast.LENGTH_SHORT).show();
         //Toast.makeText(getApplicationContext(), v.getResources().getResourceName(v.getId()), Toast.LENGTH_LONG).show();
-        String ids = v.getResources().getResourceName(v.getId());
         if(POSITION_to_del == -1 && in_order){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show();
             return;
@@ -147,7 +103,8 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         if (in_order)
             return;
         v.findViewById(R.id.btnDelInRow).setVisibility(View.GONE);
-        v.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#C80000")));
+        v.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        //v.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#C80000")));
         TextView t;
         for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
             t = v.findViewById(id);
@@ -414,7 +371,11 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         /*desc.remove(POSITION_to_del);
         save_history_description();*/
         view_ondelete.setEnabled(true);
-        view_ondelete.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.transparent)));
+        if(DarkMode)
+            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        else
+            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        //view_ondelete.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.transparent)));
         if(!DarkMode){
             TextView t;
             for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
@@ -563,43 +524,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         }
         Button btn = findViewById(R.id.btnCancel);
         btn.setTextColor(getResources().getColor(R.color.white));
-        update_service ups = new update_service(this);        /*BroadcastReceiver br = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                AlertDialog.Builder b = new AlertDialog.Builder(history.this);
-                b.setCancelable(false)
-                        .setTitle(R.string.installation)
-                        .setMessage(R.string.update_avail_to_install)
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                        ups.install();
-                    }
-                });
-                AlertDialog inst = b.create();
-                inst.show();
-            }
-        };
-        BroadcastReceiver brfail = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                AlertDialog.Builder b = new AlertDialog.Builder(history.this);
-                b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-            }
-        };
-        registerReceiver(br, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_SUC"));
-        registerReceiver(brfail, new IntentFilter("android.intent.action.NEWMCALC_UPDATE_FAIL"));*/
         start_type = getIntent().getStringExtra("start_type");
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");
@@ -662,7 +586,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 SwipeController sc = new SwipeController(new SwipeControllerActions() {
                     @Override
                     public void onRightClicked(int position) {
-                        onDelete(position, position, rv.getChildAt(position));
+                        onDelete(position, rv.getChildAt(position));
                     }
 
                     @Override

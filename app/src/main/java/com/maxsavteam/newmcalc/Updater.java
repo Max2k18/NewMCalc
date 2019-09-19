@@ -39,7 +39,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
-import com.maxsavteam.newmcalc.upd.UPDChecker;
 
 import java.io.File;
 import java.io.FileReader;
@@ -150,7 +149,6 @@ public class Updater extends AppCompatActivity {
 	String up_path = "", up_ver = "";
 	String up_type = "simple", newDevVer = "";
 	int newCodeDev = 0, newCodeSimple = 0;
-	update_service ups;
 	View.OnLongClickListener defLang = new View.OnLongClickListener() {
 		@Override
 		public boolean onLongClick(View v) {
@@ -233,7 +231,6 @@ public class Updater extends AppCompatActivity {
 	}
 
 	boolean DarkMode = false;
-	UPDChecker updChecker;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -264,7 +261,6 @@ public class Updater extends AppCompatActivity {
 		mv.findViewById(R.id.imgBtnTw).setOnClickListener(social);
 		mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
 		mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
-		ups = new update_service(this);
 		//updChecker.start(10, 1000, sp);
 		if(DarkMode)
 			apply_dark_mode();
@@ -277,49 +273,7 @@ public class Updater extends AppCompatActivity {
 		if(sp.getBoolean("storage_denied", false)){
 			findViewById(R.id.import_export).setVisibility(View.GONE);
 		}
-		BroadcastReceiver br = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				AlertDialog.Builder b = new AlertDialog.Builder(Updater.this);
-				b.setCancelable(false)
-						.setTitle(R.string.installation)
-						.setMessage(R.string.update_avail_to_install)
-						.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
-							}
-						}).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-						ups.install();
-					}
-				});
-				AlertDialog inst = b.create();
-				if(DarkMode)
-					inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-				inst.show();
-			}
-		};
-		BroadcastReceiver brfail = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				AlertDialog.Builder b = new AlertDialog.Builder(Updater.this);
-				b.setTitle(R.string.installation).setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				});
-				AlertDialog inst = b.create();
-				if(DarkMode)
-					inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-				inst.show();
-			}
-		};
-		registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
-		registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ". NEWMCALC_UPDATE_FAIL"));
+		//Toast.makeText(this, Boolean.toString(sp.getBoolean("storage_denied", false)), Toast.LENGTH_LONG).show();
 		about_dev = new AlertDialog.Builder(this).setCancelable(true).setTitle(R.string.about_dev).setView(mv).create();
 		try {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);

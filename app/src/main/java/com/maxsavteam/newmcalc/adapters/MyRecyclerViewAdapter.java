@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.history;
 
 import java.util.ArrayList;
 
@@ -27,9 +26,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context con;
-    private SharedPreferences sp;
+    SharedPreferences sp;
     private boolean DarkMode;
-    private com.maxsavteam.newmcalc.history history;
 
     // data is passed into the constructor
     public MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
@@ -37,7 +35,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         this.mData = data;
         con = context;
         sp = PreferenceManager.getDefaultSharedPreferences(con);
-        history = new history();
         DarkMode = sp.getBoolean("dark_mode", false);
         parnet_layout = mInflater.inflate(R.layout.activity_history, null);
     }
@@ -109,6 +106,28 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return mData.size();
     }
 
+    public ArrayList< ArrayList<String> > getArr(){
+        return mData;
+    }
+
+    private void swipe_btn(View v, String swipe){
+        ImageButton imgInfo = v.findViewById(R.id.btnInfoInRow), imgDel = v.findViewById(R.id.btnDelInRow);
+        int visInfo = imgInfo.getVisibility(), visDel = imgDel.getVisibility();
+        int on = View.VISIBLE, off = View.GONE;
+        if(swipe.equals("left")){
+            if(visInfo == off && visDel == off){
+                imgInfo.setVisibility(on);
+            }else if(visInfo == off && visDel == on){
+                imgDel.setVisibility(off);
+            }
+        }else if(swipe.equals("right")){
+            if(visInfo == off && visDel == off)
+                imgDel.setVisibility(on);
+            else if(visInfo == on && visDel == off)
+                imgInfo.setVisibility(off);
+        }
+    }
+
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{//}, View.OnTouchListener {
         TextView example;
@@ -170,26 +189,28 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 		            par = (View) par.getParent();
 		            TextView t = par.findViewById(R.id.tvPosition);
 		            if (mClickListener != null) {
-			            mClickListener.onDelete(Integer.valueOf(t.getText().toString()), getAdapterPosition(), par);
+			            mClickListener.onDelete(Integer.valueOf(t.getText().toString()), par);
 		            }
 		            //Toast.makeText(con.getApplicationContext(), con.getResources().getResourceName(par.getId()) + " " + t.getText().toString(), Toast.LENGTH_SHORT).show();
 	            }
             });
+            //btnDel = itemView.findViewById(R.id.btnInfoInRow);
             btnInfo.setOnClickListener(view -> {
+                //View par = (View) view.getParent().getParent();
                 if(mClickListener != null){
                     mClickListener.ShowInfoButtonPressed(view, getAdapterPosition());
                 }
             });
             itemView.setOnClickListener(this);
+            /*SwipeDetector sd = new SwipeDetector();
+            sd.setTouch(this);
+            itemView.setOnTouchListener(sd);*/
             if(DarkMode)
                 itemView.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
             else
                 itemView.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
         }
 
-        public int getPos(){
-            return getAdapterPosition();
-        }
 
         @Override
         public void onClick(View view) {
@@ -214,7 +235,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
-        void onDelete(int position, int adapter_position, View v);
+        void onDelete(int position, View v);
         void ShowInfoButtonPressed(View view, int position);
         void onDescriptionDelete(View view, int position);
         void onEdit_Add(View view, int position, String mode);

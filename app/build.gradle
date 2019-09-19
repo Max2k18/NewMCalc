@@ -47,12 +47,12 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 108
-        versionName "1.8.4.2.B108"
+        versionCode 120
+        versionName "1.8.5.B120"
         buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "190917"
+        buildConfigField "int", "COMPILE_DATE", "190919"
         buildConfigField "String", "APPTYPE", "\"stable\""
-        buildConfigField "String", "CoreVersion", "\"v0.8.04.91917\""
+        buildConfigField "String", "CoreVersion", "\"v0.9.01.91919\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912\""
     }
@@ -60,6 +60,10 @@ android {
         release {
             buildConfigField("Boolean", "ISDEBUG", "false")
             minifyEnabled true
+            shrinkResources true
+            aaptOptions {
+                cruncherEnabled = false
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {

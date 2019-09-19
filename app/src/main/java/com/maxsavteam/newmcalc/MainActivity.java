@@ -30,8 +30,10 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
@@ -53,13 +55,14 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
-import com.maxsavteam.newmcalc.upd.UPDChecker;
+import com.maxsavteam.newmcalc.exceptions.MyEmptyStackException;
 
 import java.io.File;
 import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -87,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public String newDevVer = "";
     public boolean add_menu_opened = false;
     public AlertDialog not_btn_pr = null;
-    public update_service ups;
     public String uptype = "simple";
     public int newCodeDev = 0, newVerCode = 0;
     public FirebaseAnalytics fr;
@@ -95,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public BigDecimal[] barr;
     public BigDecimal result_calc_for_mem;
     public TextView text_example;
-    UPDChecker updChecker;
     String FI, PI, E;
     final int UPDCHECKER_PERIOD = 1, UPDDELAY = 10000;
     final int READ_STORAGE_RESUEST_CODE = 10, WRITE_STORAGE_REQUEST_CODE = 12;
@@ -218,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         return true;
     }
 
-    protected void sh_dl_update(String flag, int versionNew, String newver, String text, boolean compileWithView){
+    /*protected void sh_dl_update(String flag, int versionNew, String newver, String text, boolean compileWithView){
         View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
         CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
         if(DarkMode)
@@ -262,30 +263,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(flag.equals("fromUPDChecker")){
             al.show();
         }
-    }
-
-    protected void check_up(Integer versionMy, Integer versionNew){
-        if(!ups.isup()){
-            /*if(DarkMode)
-                al.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
-            boolean isdev = sp.getBoolean("isdev", false);
-            if(newVerCode > versionMy && newVerCode >= newCodeDev){
-                if(sp.getInt("notremindfor", 0) != newVerCode) {
-                    sp.edit().putBoolean("simple_upd_exist", true).putString("version", newVer).apply();
-                    uptype = "simple";
-                    sh_dl_update("", newVerCode, newVer, getResources().getString(R.string.updateavailable), true);
-                    al.show();
-                    about_app.cancel();
-                }
-            }else if(versionMy < newCodeDev && isdev){
-                sp.edit().putBoolean("dev_upd_exist", true).putString("version", newDevVer).apply();
-                sh_dl_update("", newCodeDev, newDevVer, getResources().getString(R.string.dev_update), false);
-                uptype = "dev";
-                al.show();
-                about_app.cancel();
-            }
-        }
-    }
+    }*/
 
     public void onClickAdd(View v){
         if(v.getId() == R.id.imgBtnSettings){
@@ -455,9 +433,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         PI = getResources().getString(R.string.pi);
         FI = getResources().getString(R.string.fi);
         E = "e";
-
-        ups = new update_service(MainActivity.this);
-        updChecker = new UPDChecker(this);
         try{
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch (Exception e){
@@ -673,51 +648,20 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             int id = view.getId();
             t = findViewById(R.id.textStr);
             String txt = t.getText().toString();
-            if(id == R.id.btnMinus){
-                if(txt.equals(""))
-                    return false;
-                String newt = "";
-                int i = txt.length()-1;
-                while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
-                    newt = txt.charAt(i) + newt;
-                    i--;
-                }
-
-                s1.push(BigDecimal.valueOf(1));
-                s1.push(new BigDecimal(newt));
-                mult("/");
-                if(!was_error){
-                    BigDecimal ans = s1.peek();
-                    s1.pop();
-                    if(txt.length() == newt.length()){
-                        t.setText(ans.toString());
-                    }else{
-                        txt = txt.substring(0, txt.length() - newt.length());
-                        txt += ans.toString();
-                        t.setText(txt);
-                    }
-                    equallu("not");
-                }
-            }else
                 //Toast.makeText(MainActivity.this, ((Button) view).getText().toString(), Toast.LENGTH_SHORT).show();
-                add_text(((Button) view).getText().toString().substring(1));
+            add_text(((Button) view).getText().toString().substring(1));
             return true;
         }
     };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == 10){
-            if(grantResults.length == 2){
-                if(grantResults[0] == PackageManager.PERMISSION_DENIED){
-                    sp.edit().putBoolean("storage_denied", true).apply();
-                }
-                if(grantResults[1] == PackageManager.PERMISSION_DENIED){
-                    sp.edit().putBoolean("storage_denied", true).apply();
-                }
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    sp.edit().remove("storage_denied").apply();
+        if(requestCode == 10 && grantResults.length == 2){
+            if(grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1] == PackageManager.PERMISSION_DENIED){
+                sp.edit().putBoolean("storage_denied", true).apply();
             }
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)
+                sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
 
@@ -766,9 +710,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     .create();
             request.show();
         }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-            sp.edit().remove("storage_denied").apply();
+        if(read && write){
+            sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
         read_memory();
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
@@ -862,10 +805,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         about_app = builder.create();
         if(DarkMode)
             about_app.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-
-        if(BuildConfig.UCModuleActivated) {
-            updChecker.start(UPDCHECKER_PERIOD, UPDDELAY, sp);
-        }
 
         Button b = findViewById(R.id.btnMR);
         b.setOnLongClickListener(memory_actions);
@@ -1077,7 +1016,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     int bytescountupdate = 0;
 
     protected void register_broadcasters(){
-        BroadcastReceiver on_version_checked = new BroadcastReceiver() {
+        /*BroadcastReceiver on_version_checked = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String type = intent.getStringExtra("type");
@@ -1101,7 +1040,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 }
             }
         };
-        registerReceiver(on_version_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));
+        registerReceiver(on_version_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));*/
 
 
         BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
@@ -1124,72 +1063,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
         Map<Integer, Boolean> m = new HashMap<>();
 
-        BroadcastReceiver test = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                File f = new File(Environment.getExternalStorageDirectory() + "/" + intent.getStringExtra("output"));
-                String type = intent.getStringExtra("type");
-				/*newDevVer = newVer = "";
-				newCodeDev = newVerCode = 0;*/
-                if(type.equals("simple")){
-                    String message = "";
-                    try {
-                        FileReader fr = new FileReader(f);
-                        while(fr.ready()){
-                            message += (char) fr.read();
-                        }
-                        fr.close();
-                        int i = 0;
-                        newVer = "";
-                        while(i < message.length() && message.charAt(i) != ';'){
-                            newVer += message.charAt(i);
-                            i++;
-                        }
-                        i++;
-                        newVerCode = 0;
-                        while(i < message.length() && message.charAt(i) != ';'){
-                            newVerCode = newVerCode * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
-                            i++;
-                        }
-                        if(!sp.getBoolean("isdev", false))
-                            if(m.get(newVerCode) == null) {
-                                check_up(BuildConfig.VERSION_CODE, newVerCode);
-                                m.put(newVerCode, true);
-                            }
-                    }catch (Exception e){
-                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
-                    }
-                }else if(type.equals("tc")){
-                    String message = "";
-                    try {
-                        FileReader fr = new FileReader(f);
-                        while(fr.ready()){
-                            message += (char) fr.read();
-                        }
-                        int i = 0;
-                        newDevVer = "";
-                        while(i < message.length() && message.charAt(i) != ';'){
-                            newDevVer += message.charAt(i);
-                            i++;
-                        }
-                        i++;
-                        newCodeDev = 0;
-                        while(i < message.length() && message.charAt(i) != ';'){
-                            newCodeDev = newCodeDev * 10 + Integer.valueOf(Character.toString(message.charAt(i)));
-                            i++;
-                        }
-                        if(m.get(newCodeDev) == null){
-                            check_up(BuildConfig.VERSION_CODE, newCodeDev);
-                            m.put(newCodeDev, true);
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        registerReceiver(test, new IntentFilter(BuildConfig.APPLICATION_ID + ".TEST_FILE_DOWNLOADED"));
         BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1212,36 +1085,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
-        BroadcastReceiver br = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(not_btn_pr != null)
-                    not_btn_pr.cancel();
-                if(!isOtherActivityOpened){
-                    AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
-                    b.setCancelable(false)
-                            .setTitle(R.string.installation)
-                            .setMessage(R.string.update_avail_to_install)
-                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            ups.install();
-                        }
-                    });
-                    AlertDialog inst = b.create();
-                    if(DarkMode)
-                        inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-                    inst.show();
-                }
-
-            }
-        };
         BroadcastReceiver on_his_action = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1294,64 +1137,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         };
         registerReceiver(on_his_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION"));
-        BroadcastReceiver on_choose_action = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                sp.edit().remove("toChoose").remove("btnHeight").remove("btnWidth").apply();
-                if(!intent.getStringExtra("value").equals("")){
-                    t = findViewById(R.id.textStr);
-                    String txt = t.getText().toString();
-                    if(intent.getStringExtra("value").equals("1/X")){
-                        if(txt.equals(""))
-                            return;
-                        String newt = "";
-                        int i = txt.length()-1;
-                        while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
-                            newt = txt.charAt(i) + newt;
-                            i--;
-                        }
-
-                        s1.push(BigDecimal.valueOf(1));
-                        s1.push(new BigDecimal(newt));
-                        mult("/");
-                        if(!was_error){
-                            BigDecimal ans = s1.peek();
-                            s1.pop();
-                            if(txt.length() == newt.length()){
-                                t.setText(ans.toString());
-                            }else{
-                                txt = txt.substring(0, txt.length() - newt.length());
-                                txt += ans.toString();
-                                t.setText(txt);
-                            }
-                            equallu("not");
-                        }
-                    }else
-                        add_text(intent.getStringExtra("value"));
-                }
-            }
-        };
-        registerReceiver(on_choose_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".ON_CHOOSE_ACTION"));
-        BroadcastReceiver brfail = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(not_btn_pr != null)
-                    not_btn_pr.cancel();
-                if(!isOtherActivityOpened){
-                    AlertDialog.Builder b = new AlertDialog.Builder(MainActivity.this);
-                    b.setTitle(":(").setMessage(R.string.cannot_update).setNegativeButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-                    AlertDialog inst = b.create();
-                    if(DarkMode)
-                        inst.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-                    inst.show();
-                }
-            }
-        };
         BroadcastReceiver on_sp_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1365,67 +1150,20 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             }
         };
-        registerReceiver(br, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_SUC"));
-        registerReceiver(brfail, new IntentFilter(BuildConfig.APPLICATION_ID + ".NEWMCALC_UPDATE_FAIL"));
         registerReceiver(on_sp_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-        BroadcastReceiver btn_not = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                not_btn_pr = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.confirm)
-                        .setMessage(R.string.confirm_stop_update)
-                        .setCancelable(false).setNegativeButton(R.string.stop, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                                if(ups.isup())
-                                    ups.kill();
-                            }
-                        }).setPositiveButton(R.string.hide, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        }).create();
-                if(DarkMode)
-                    not_btn_pr.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-                not_btn_pr.show();
-            }
-        };
-        registerReceiver(btn_not, new IntentFilter(BuildConfig.APPLICATION_ID + ".NOT_BTN_PRESSED"));
-
-        BroadcastReceiver on_dev_up_avail = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(!isOtherActivityOpened){
-                    uptype = "dev";
-                    sh_dl_update("", intent.getIntExtra("newCodeDev", 0), intent.getStringExtra("newVerDev"),  getResources().getString(R.string.dev_update), false);
-                }
-            }
-        };
-        registerReceiver(on_dev_up_avail, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVIAL_DEV"));
-        BroadcastReceiver on_simple_up = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if(!isOtherActivityOpened){
-                    uptype = "simple";
-                    sh_dl_update("", intent.getIntExtra("newCode", 0), intent.getStringExtra("newVer"),  getResources().getString(R.string.updateavailable), true);
-                }
-            }
-        };
-        registerReceiver(on_simple_up, new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_AVAIL"));
     }
 
     void format(int id){
-        //View v = getLayoutInflater().inflate(R.layout.activity_main, null);
         TextView t = findViewById(id);
         String txt = t.getText().toString();
         if(txt.equals("") || txt.length() < 4)
             return;
         t.setText(format_core2(txt));
-
     }
 
+    /**
+     MaxSav Team Technologies
+     */
     private String format_core2(String txt){
         String number = "";
         int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
@@ -1499,9 +1237,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         }
         String news = "";
         for(int j = 0; j < before_e.length(); j++){
-            if(before_e.charAt(j) == '.'){
-                continue;
-            }else{
+            if(before_e.charAt(j) != '.'){
                 news += Character.toString(before_e.charAt(j));
             }
         }
@@ -1518,37 +1254,42 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         return result;
     }
 
-    protected void mult(String x){
-        if(x.length() == 3 || x.equals("ln") || x.equals("R")){
-            double d = s1.peek().doubleValue(), ans = 1;
-            if(x.equals("log") && d <= 0){
-                Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            s1.pop();
-            switch(x){
-                case "cos":{
-                    ans = Math.cos(d);
-                    break;
+    protected void mult(String x) throws MyEmptyStackException {
+        if(was_error)
+            return;
+        try {
+            if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
+                double d = s1.peek().doubleValue(), ans = 1;
+                if (x.equals("log") && d <= 0) {
+                    //Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                case "sin": {
-                    ans = Math.sin(d);
-                    break;
+                s1.pop();
+                switch (x) {
+                    case "cos": {
+                        ans = Math.cos(d);
+                        break;
+                    }
+                    case "sin": {
+                        ans = Math.sin(d);
+                        break;
+                    }
+                    case "tan": {
+                        ans = Math.tan(d);
+                        break;
+                    }
+                    case "log": {
+                        ans = Math.log10(d);
+                        break;
+                    }
+                    case "ln": {
+                        ans = Math.log(d);
+                        break;
+                    }
+                    case "R":
+                        ans = Math.sqrt(d);
+                        break;
                 }
-                case "tan": {
-                    ans = Math.tan(d);
-                    break;
-                }
-                case "log": {
-                    ans = Math.log10(d);
-                    break;
-                }case "ln":{
-                    ans = Math.log(d);
-                    break;
-                }case "R":
-                    ans = Math.sqrt(d);
-                    break;
-            }
 
             String answer = Double.toString(ans);
             int len = answer.length();
@@ -1565,10 +1306,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }else{
                 BigDecimal ansb = BigDecimal.valueOf(ans);
 
-                ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
-                s1.push(ansb);
+                    ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+                    s1.push(ansb);
+                }
+                return;
             }
-            return;
+        }catch (EmptyStackException e){
+            was_error = true;
+            throw new MyEmptyStackException();
         }
         BigDecimal b = s1.peek();
         s1.pop();
@@ -1592,18 +1337,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 case "/":
                     if(b1 == 0){
                         was_error = true;
-                        Toast.makeText(getApplicationContext(), "Error: division by zero", Toast.LENGTH_LONG).show();
                         return;
                     }
                     ansd = a1 / b1;
-                    //ans = a.divide(b, 10, RoundingMode.HALF_EVEN);
-                    /*String answer = ans.toString();
-                    int len = answer.length();
-                    while (len > 0 && answer.charAt(len - 1) == '0') {
-                        len--;
-                        answer = answer.substring(0, len);
-                    }
-                    ans = new BigDecimal(answer);*/
                     break;
                 case "^":
                     ansd = Math.pow(a1, b1);
@@ -1630,17 +1366,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             //Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
             String str = e.toString();
             if(str.contains("Non-terminating decimal expansion; no exact representable decimal result")){
-                ans = a.divide(b, 2, RoundingMode.HALF_EVEN);
+                ans = a.divide(b, 3, RoundingMode.HALF_EVEN);
                 s1.push(ans);
             }else{
                 was_error = true;
-                str = str.replaceAll("java.lang.ArithmeticException: ", "");
-                Toast.makeText(getApplicationContext(), "Error: " + str, Toast.LENGTH_SHORT).show();
-                /*TextView t = findViewById(R.id.txtAns);
-                t.setText("Error: " + str);
-                t.setContentDescription(t.getText());
-                t.setVisibility(View.VISIBLE);*/
             }
+        }catch(Exception e){
+            was_error = true;
+            hide_ans();
         }
 
     }
@@ -1663,22 +1396,28 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             s0.push(Character.toString(x));
             return;
         }
-        if(s0.empty() && x != '('){
+        if(s0.empty()){
             s0.push(Character.toString(x));
             return;
         }
 
-        if(s0.peek().equals("(")){
+        if(!s0.empty() && s0.peek().equals("(")){
             s0.push(Character.toString(x));
             return;
         }
-        if(priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)) == priority.get(s0.peek())){
-            mult(s0.peek());
-            s0.pop();
-            in_s0(x);
+        try {
+            if (!s0.empty() && (priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)).equals(priority.get(s0.peek())))) {
+                mult(s0.peek());
+                s0.pop();
+                in_s0(x);
+                return;
+            }
+        }catch (MyEmptyStackException e){
+            e.printStackTrace();
+            was_error = true;
             return;
         }
-        if(priority.get(Character.toString(x)) > priority.get(s0.peek()))
+        if(!s0.empty() && priority.get(Character.toString(x)) > priority.get(s0.peek()))
             s0.push(Character.toString(x));
     }
 
@@ -1822,23 +1561,30 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
             if(s.equals("P")){
                 BigDecimal f = new BigDecimal(3.14159265);
+                s1.push(f);
                 if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
                 }
-                if(i != stri.length()-1 && isdigit(stri.charAt(i+1))){
+                char next = '\0';
+                if(i != stri.length() - 1)
+                    next = stri.charAt(i+1);
+                if(i != stri.length()-1 && (isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
                     in_s0('*');
                 }
-                s1.push(BigDecimal.valueOf(Math.PI));
+                //s1.push(f);
                 continue;
-            }else if(s.equals(Character.toString('F'))){
+            }else if(s.equals("F")){
                 BigDecimal f = new BigDecimal(1.618);
+                s1.push(f);
                 if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
                 }
-                if(i != stri.length()-1 && isdigit(stri.charAt(i+1))){
+                char next = '\0';
+                if(i != stri.length() - 1)
+                    next = stri.charAt(i+1);
+                if(i != stri.length()-1 && (isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
                     in_s0('*');
                 }
-                s1.push(f.divide(new BigDecimal(1), 3, RoundingMode.HALF_EVEN));
                 continue;
             }else if(s.equals("!")){
                 if(i != len - 1 && stri.charAt(i + 1) == '!'){
@@ -1886,13 +1632,13 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 continue;
             }else if(s.equals("e")){
                 BigDecimal f = new BigDecimal(Math.E);
+                s1.push(f);
                 if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
                 }
                 if(i != stri.length()-1 && isdigit(stri.charAt(i+1))){
                     in_s0('*');
                 }
-                s1.push(f);
                 continue;
             }else if(s.equals("R")){
                 if(i == len-1){
@@ -1913,17 +1659,31 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
             if(isdigit(str[i])){
                 x = "";
-                while((i < stri.length()) && ((stri.charAt(i) == '.') || isdigit(str[i]) || stri.charAt(i) == 'E' || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
+                while((i < stri.length()) && ((stri.charAt(i) == '.') || isdigit(str[i]) || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
                     s = Character.toString(str[i]);
                     x += s;
                     i++;
                 }
-                i--;
-                if(x.contains("E")){
-                    x = calc_e(x);
-                    //Toast.makeText(getApplicationContext(), x, Toast.LENGTH_LONG).show();
-                }
+                /*if(x.contains("E"))
+                    x = calc_e(x);*/
                 s1.push(new BigDecimal(x));
+                if(i < stri.length() && str[i] == 'E'){
+                    in_s0('^');
+                    i++;
+                    BigDecimal t = BigDecimal.ONE;
+                    if(str[i] == '+'){
+                        t = BigDecimal.ONE;
+                    }else if(str[i] == '-'){
+                        t = BigDecimal.valueOf(-1.0);
+                    }
+                    x = "";
+                    while(i < stri.length() && (stri.charAt(i) == '.' || isdigit(stri.charAt(i)))){
+                        x += Character.toString(stri.charAt(i));
+                        i++;
+                    }
+                    s1.push(new BigDecimal(x).multiply(t));
+                }
+                i--;
             }else{
                 if(str[i] != ')'){
                     if(str[i] == '^'){
@@ -1938,6 +1698,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                                 if(str[i] == '('){
                                     i++;
                                     continue;
+                                }else if(str[i] == '^'){
+                                    i += 2;
                                 }
 
                                 if(str[i] == '-' && str[i-1] == '('){
@@ -1957,9 +1719,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                                 s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(cf)));
                                 if(!isdigit(str[i]) && str[i] != ')')
                                     in_s0(str[i]);
-                                i++;
                             }
-                            i-= 2;
+                            i--;
                             continue;
                         }else if(i != stri.length()-1 && str[i + 1] != '('){
                             //i++;
@@ -1986,34 +1747,45 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
                     in_s0(str[i]);
                 }else{
-                    while(!s0.empty() && !s0.peek().equals("(")){
-                        mult(s0.peek());
-                        s0.pop();
-                    }
-                    if(!s0.empty() && s0.peek().equals("(")){
-                        s0.pop();
-                    }
-                    if(i != stri.length()-1){
-                        if(isdigit(stri.charAt(i+1))){
-                            in_s0('*');
+                    try {
+                        while (!s0.empty() && !s0.peek().equals("(")) {
+                            mult(s0.peek());
+                            s0.pop();
                         }
+                        if (!s0.empty() && s0.peek().equals("(")) {
+                            s0.pop();
+                        }
+                        if (i != stri.length() - 1) {
+                            if (isdigit(stri.charAt(i + 1))) {
+                                in_s0('*');
+                            }
+                        }
+                    }catch (MyEmptyStackException e){
+                        was_error = true;
+                        e.printStackTrace();
+                        break;
                     }
                 }
             }
         }
-        while(!s0.isEmpty() && s1.size() >= 2){
-            mult(s0.peek());
-            s0.pop();
-        }
-        if(!s0.isEmpty() && s1.size() == 1){
-            if(s0.peek().equals("R")){
+        try {
+            while (!s0.isEmpty() && s1.size() >= 2) {
                 mult(s0.peek());
                 s0.pop();
             }
-            if(!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))){
-                mult(s0.peek());
-                s0.pop();
+            if (!s0.isEmpty() && s1.size() == 1) {
+                if (s0.peek().equals("R")) {
+                    mult(s0.peek());
+                    s0.pop();
+                }
+                if (!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))) {
+                    mult(s0.peek());
+                    s0.pop();
+                }
             }
+        }catch (MyEmptyStackException e){
+            e.printStackTrace();
+            was_error = true;
         }
         if(!was_error){
             switch (type) {
@@ -2034,16 +1806,15 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         }
                     }
                     String for_his = sb.toString();
-                    if (his.indexOf(for_his + "," + s1.peek().toString() + ";") != 0) {
+                    if (his.indexOf(for_his + "," + s1.peek().toPlainString() + ";") != 0) {
                         his = original + "," + s1.peek().toString() + ";" + his;
                         sp.edit().putString("history", his).apply();
                     }
                     if (sp.getBoolean("saveResult", false))
-                        sp.edit().putString("saveResultText", original + ";" + s1.peek().toString()).apply();
+                        sp.edit().putString("saveResultText", original + ";" + s1.peek().toPlainString()).apply();
                     break;
                 case "not":
                     TextView preans = findViewById(R.id.textAns2);
-                    preans.setText(s1.peek().toPlainString());
                     preans.setText(s1.peek().toPlainString());
                     format(R.id.textAns2);
                     show_ans();
@@ -2056,6 +1827,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     memory_calculated = true;
                     break;
             }
+        }else{
+            hide_ans();
         }
 
     }
@@ -2540,6 +2313,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         set_text_toDef();
         //log("all text del");
     }
+
+    /*public boolean iscpecial(char c){
+        return c == '!' || c == '%' || Character.toString(c).equals(FI) || Character.toString(c).equals(PI) || c == 'e';
+    }*/
 
     public void delSymbol(View v){
         TextView txt = findViewById(R.id.textStr);
