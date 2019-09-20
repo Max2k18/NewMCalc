@@ -35,7 +35,7 @@ public class SwipeController extends Callback {
 
 	private SwipeControllerActions buttonsActions = null;
 
-	private static final float buttonWidth = 300;
+	private static final float buttonWidth = 225;
 
 	private Context context;
 

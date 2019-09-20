@@ -1012,8 +1012,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         TextView t = findViewById(R.id.textAns2);
         t.setVisibility(View.INVISIBLE);
     }
-    String newversionsimple = "", newversiondev = "";
-    int bytescountupdate = 0;
 
     protected void register_broadcasters(){
         /*BroadcastReceiver on_version_checked = new BroadcastReceiver() {
@@ -1717,8 +1715,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                                     i++;
                                 }
                                 s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(cf)));
-                                if(!isdigit(str[i]) && str[i] != ')')
-                                    in_s0(str[i]);
+                                /*if(!isdigit(str[i]) && str[i] != ')')
+                                    in_s0(str[i]);*/
+                                break;
                             }
                             i--;
                             continue;
