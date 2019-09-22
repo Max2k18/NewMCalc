@@ -50,10 +50,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
 import com.maxsavteam.newmcalc.exceptions.MyEmptyStackException;
 
@@ -78,28 +80,21 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     public static Stack<BigDecimal> s1 = new Stack<>();
     public static Boolean was_error = false;
 
-    public boolean isOtherActivityOpened = false;
-    public SharedPreferences sp;
-    public Button btn;
-    public TextView t;
-    public char last;
-    public int brackets = 0;
-    public String original = "";
-    public String newVer = "";
-    public AlertDialog about_app, al;
-    public String newDevVer = "";
-    public boolean add_menu_opened = false;
-    public AlertDialog not_btn_pr = null;
-    public String uptype = "simple";
-    public int newCodeDev = 0, newVerCode = 0;
-    public FirebaseAnalytics fr;
-    public String app_type;
-    public BigDecimal[] barr;
-    public BigDecimal result_calc_for_mem;
+    private boolean isOtherActivityOpened = false;
+    private SharedPreferences sp;
+    private Button btn;
+    private TextView t;
+    private char last;
+    private int brackets = 0;
+    private String original = "";
+    private AlertDialog about_app, al;
+    private String uptype = "simple";
+    private FirebaseAnalytics fr;
+    private BigDecimal[] barr;
+    private BigDecimal result_calc_for_mem;
+    private MyFragmentPagerAdapter myFragmentPagerAdapter;
     public TextView text_example;
     String FI, PI, E;
-    final int UPDCHECKER_PERIOD = 1, UPDDELAY = 10000;
-    final int READ_STORAGE_RESUEST_CODE = 10, WRITE_STORAGE_REQUEST_CODE = 12;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -316,11 +311,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
 
 
-    public void show_hide(View v){
+    /*public void show_hide(View v){
         LinearLayout ll = findViewById(R.id.additional_tools);
         int loc = sp.getInt("btn_add_align", 0);
         Button b = findViewById(v.getId());
-        ConstraintLayout cl = findViewById(R.id.constraight);
         findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
         findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
         findViewById(R.id.btnImgHistory).setBackground(cl.getBackground());
@@ -357,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         }
         ll.setLayoutParams(par);
-    }
+    }*/
 
     /*protected void btn_change(){
         int loc = sp.getInt("btn_add_align", 0);
@@ -416,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         fr = FirebaseAnalytics.getInstance(getApplicationContext());
         Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
         myTrace.start();
-        btn = findViewById(R.id.btnDelete);
+        /*btn = findViewById(R.id.btnDelete);
         btn.setOnLongClickListener(fordel);
         //TextView ver = findViewById(R.id.lblVer);
         ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE;
@@ -428,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(DarkMode)
             btn1.setTextColor(getResources().getColor(R.color.white));
         else
-            btn1.setTextColor(getResources().getColor(R.color.black));
+            btn1.setTextColor(getResources().getColor(R.color.black));*/
 
         PI = getResources().getString(R.string.pi);
         FI = getResources().getString(R.string.fi);
@@ -630,16 +624,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 t = findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.black));
             }
-            /*Button b = findViewById(R.id.btnDelAll);
-            b.setBackgroundColor(getResources().getColor(R.color.black));
-            b.setTextColor(getResources().getColor(R.color.white));*/
-            Button b = findViewById(R.id.btnDelAll);
-            //b.setBackgroundColor(getResources().getColor(R.color.white));
-            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.black)));
-            b.setTextColor(getResources().getColor(R.color.white));
-            b = findViewById(R.id.btnCalc);
-            b.setTextColor(getResources().getColor(R.color.black));
-        }
+	    }
     }
 
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
@@ -664,6 +649,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
+    String app_type = BuildConfig.APPTYPE;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -755,16 +741,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(app_type.equals("tester") && !receive){
             sp.edit().putBoolean("isdev", true).apply();
         }
-        /*if(app_type.equals("developer")){
-            Crashlytics.setUserIdentifier("developer");
-            TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            if(!tm.getDeviceId().equals("869480036532475")) {
-                finishAndRemoveTask();
-                overridePendingTransition(R.anim.abc_popup_enter, R.anim.alpha_hide);
-            }
-        }*/
-
-        apply_supertext_btns();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.about_layout, null);
@@ -806,22 +782,23 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(DarkMode)
             about_app.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 
-        Button b = findViewById(R.id.btnMR);
+        /*Button b = findViewById(R.id.btnMR);
         b.setOnLongClickListener(memory_actions);
         b = findViewById(R.id.btnMS);
         b.setOnLongClickListener(memory_actions);
         b = findViewById(R.id.btnMemPlus);
         b.setOnClickListener(memory_plus);
         b = findViewById(R.id.btnMemMinus);
-        b.setOnClickListener(memory_minus);
+        b.setOnClickListener(memory_minus);*/
         trace.stop();
         //должно быть всегда in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
 
-    private void apply_supertext_btns(){
+   /* private void apply_supertext_btns(){
         String[] arr = getResources().getStringArray(R.array.additional_chars);
-        int[] btnIds = {
+
+        /*int[] btnIds = {
                 R.id.btn7,
                 R.id.btn8,
                 R.id.btn4,
@@ -839,8 +816,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 R.id.btnZero,
                 R.id.btnDot
         };
+        View view = getLayoutInflater().inflate(R.layout.fragment_1, null);
+        ViewPager viewPager = findViewById(R.id.viewpager);
         for(int ii = 0; ii < btnIds.length; ii++){
-            Button btn = findViewById(btnIds[ii]);
+            Button btn = view.findViewById(btnIds[ii]);
             btn.setTransformationMethod(null);
             btn.setOnLongClickListener(additional_longclick);
             String num = btn.getText().toString().substring(0, 1);
@@ -850,7 +829,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>"));
             }
         }
-    }
+    }*/
 
     View.OnClickListener memory_plus = new View.OnClickListener() {
         @Override
@@ -1013,6 +992,26 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         t.setVisibility(View.INVISIBLE);
     }
 
+    void set_viewpager(){
+        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
+        ViewPager viewPager = findViewById(R.id.viewpager);
+        viewPager.setAdapter(myFragmentPagerAdapter);
+        myFragmentPagerAdapter.prepare_to_initialize(
+                new View.OnClickListener[]{ //Fragment1
+                }, new View.OnLongClickListener[]{ //Fragment1
+                        additional_longclick,
+                        returnback,
+                        fordel
+                }, new View.OnClickListener[]{ //Fragment2
+                        memory_plus,
+                        memory_minus
+                }, new View.OnLongClickListener[]{ //Fragment2
+                        memory_actions
+                }
+        );
+        viewPager.setCurrentItem(0);
+    }
+
     protected void register_broadcasters(){
         /*BroadcastReceiver on_version_checked = new BroadcastReceiver() {
             @Override
@@ -1059,8 +1058,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         };
         registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
 
-        Map<Integer, Boolean> m = new HashMap<>();
-
         BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1083,6 +1080,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
+
         BroadcastReceiver on_his_action = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -1433,7 +1431,8 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     @SuppressLint("SetTextI18n")
-    public void calc(String stri, String type, int digits, int actions){
+    //public void calc(String stri, String type, int digits, int actions){
+    public void calc(String stri, String type){
         s0.clear();
         s1.clear();
         if(type.equals("all"))
@@ -1477,7 +1476,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 return;
             }
         }
-        if(!stri.contains("R") && !stri.contains("P") && !stri.contains("F") && !stri.contains("e")) {
+        /*if(!stri.contains("R") && !stri.contains("P") && !stri.contains("F") && !stri.contains("e")) {
             if (actions == 0) {
                 return;
             } else {
@@ -1487,14 +1486,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     return;
                 }
             }
-        }
+        }*/
         char[] str = new char[stri.length()];
         stri.getChars(0, stri.length(), str, 0);
         String x;
         String s;
         int len = stri.length();
-        if(digits == 0)
-            return;
+        /*if(digits == 0)
+            return;*/
 
         for(int i = 0; i < len; i++){
             s = Character.toString(str[i]);
@@ -1686,7 +1685,11 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 if(str[i] != ')'){
                     if(str[i] == '^'){
                         if(i != stri.length()-1 && str[i + 1] == '('){
-                            i += 2;
+                        	i++;
+                        	in_s0('^');
+                        	s0.push("(");
+                        	continue;
+                            /*i += 2;
                             in_s0('^');
                             s0.push("(");
                             x = "";
@@ -1716,15 +1719,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                                 }
                                 s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(cf)));
                                 /*if(!isdigit(str[i]) && str[i] != ')')
-                                    in_s0(str[i]);*/
+                                    in_s0(str[i]);
                                 break;
-                            }
-                            i--;
-                            continue;
+                            }*/
                         }else if(i != stri.length()-1 && str[i + 1] != '('){
                             //i++;
                             in_s0('^');
-                            x = "";
                             continue;
                         }
                     }
@@ -1911,20 +1911,24 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(len != 0) {
             show_str();
             scroll_to_end();
-        }
-        if(type.equals("for_memory") && len == 0)
-            return;
-        if(len != 0 && stri.charAt(len-1) == '^' && type.equals("all")){
+        }else
+        	return;
+        if(stri.charAt(len-1) == '^' && type.equals("all")){
             stri += "(";
             brackets++;
             txt.setText(stri);
             return;
         }
-        //int twidth = txt.getWidth();
-        float sz = txt.getTextSize();
-        if(len != 0 && !isdigit(stri.charAt(len-1)) && stri.charAt(len-1) != ')' && stri.charAt(len-1) != '!' && stri.charAt(len-1) != '%')
-            if(!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt)))
+        char last = stri.charAt(len - 1);
+        if(!isdigit(last) && last != ')' && last != '!' && last != '%'
+                && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
+            /*if (!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt))) {
+                hide_ans();
                 return;
+            }*/
+            hide_ans();
+            return;
+        }
         //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
         resize_text();
         //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
@@ -1938,62 +1942,78 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         if(brackets < 0)
             return;
 
+        if(last == '(')
+        	return;
+
         //if(type.equals("all")){
-        if(!stri.equals("")){
-            was_error = false;
-            if(stri.charAt(stri.length() - 1) != '('){
-                if(brackets > 0){
-                    for(int i = 0; i < brackets; i++){
-                        stri += ")";
-                    }
-                    brackets = 0;
-                }
-            }
-            original = stri;
-            int digits = 0, actions = 0;
-            for(int i = 0; i < stri.length(); i++){
-                if(isdigit(stri.charAt(i))
-                        || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
-                        || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
-                        || Character.toString(stri.charAt(i)).equals("e")){
-                    digits++;
-                }
-                if(isaction(stri.charAt(i)))
-                    actions++;
+	    was_error = false;
+	    if(stri.charAt(stri.length() - 1) != '('){
+	        if(brackets > 0){
+	            for(int i = 0; i < brackets; i++){
+	                stri += ")";
+	            }
+	            brackets = 0;
+	        }
+	    }
+	    original = stri;
+	    int digits = 0, actions = 0;
+	    /*for(int i = 0; i < stri.length(); i++){
+	        if(isdigit(stri.charAt(i))
+	                || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
+	                || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
+	                || Character.toString(stri.charAt(i)).equals("e")){
+	            digits++;
+	        }
+	        if(isaction(stri.charAt(i)))
+	            actions++;
 
-                if(stri.charAt(i) == ' '){
-                    StringBuilder stringBuilder = new StringBuilder(stri);
-                    stringBuilder.deleteCharAt(i);
-                    stri = new String(stringBuilder);
-                }
-            }
-            if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
-                    || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
-                    || stri.contains(getResources().getString(R.string.sqrt))){
-                char[] mas = stri.toCharArray();
-                String p = "";
-
-                for(int i = 0; i < stri.length(); i++){
-                    p = Character.toString(mas[i]);
-                    if(p.equals(getResources().getString(R.string.div))){
-                        mas[i] = '/';
-                    }else if(p.equals(getResources().getString(R.string.multiply))){
-                        mas[i] = '*';
-                    }else if(p.equals(getResources().getString(R.string.pi))){
-                        mas[i] = 'P';
-                    }else if(p.equals(getResources().getString(R.string.fi))){
-                        mas[i] = 'F';
-                    }else if(p.equals(getResources().getString(R.string.sqrt))){
-                        mas[i] = 'R';
-                    }
-                }
-                stri = new String(mas);
-            }
-            if(actions == 0 && type.equals("for_memory")){
-                result_calc_for_mem = new BigDecimal(stri);
-            }
-            calc(stri, type, digits, actions);
+	        if(stri.charAt(i) == ' '){
+	            StringBuilder stringBuilder = new StringBuilder(stri);
+	            stringBuilder.deleteCharAt(i);
+	            stri = new String(stringBuilder);
+	        }
+	    }*/
+	    StringBuilder sb = new StringBuilder();
+	    for(int i = 0; i < stri.length(); i++){
+	        if(stri.charAt(i) != ' ')
+	            sb.append(stri.charAt(i));
         }
+	    stri = new String(sb);
+	    try{
+	        BigDecimal b = null;
+	        b = new BigDecimal(stri);
+	        if(b != null){
+	            hide_ans();
+	            return;
+            }
+        }catch (NumberFormatException e){
+	        //return;
+            e.printStackTrace();
+        }
+	    if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
+	            || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
+	            || stri.contains(getResources().getString(R.string.sqrt))){
+	        char[] mas = stri.toCharArray();
+	        String p;
+
+	        for(int i = 0; i < stri.length(); i++){
+	            p = Character.toString(mas[i]);
+	            if(p.equals(getResources().getString(R.string.div))){
+	                mas[i] = '/';
+	            }else if(p.equals(getResources().getString(R.string.multiply))){
+	                mas[i] = '*';
+	            }else if(p.equals(getResources().getString(R.string.pi))){
+	                mas[i] = 'P';
+	            }else if(p.equals(getResources().getString(R.string.fi))){
+	                mas[i] = 'F';
+	            }else if(p.equals(getResources().getString(R.string.sqrt))){
+	                mas[i] = 'R';
+	            }
+	        }
+	        stri = new String(mas);
+	    }
+	    //calc(stri, type, digits, actions);
+        calc(stri, type);
     }
 
     protected void check_dot(){
@@ -2200,7 +2220,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             return;
         }
 
-        if(!isdigit(btntxt) && !btntxt.equals("(") && !btntxt.equals(")") && !islet(btntxt.charAt(0))){
+        if(!isdigit(btntxt) && !btntxt.equals("(") && !islet(btntxt.charAt(0))){
             if(len != 0){
                 if(txt.charAt(len-1) == 'π' || txt.charAt(len-1) == 'φ' || txt.charAt(len-1) == 'e'){
                     t.setText(txt + btntxt);
@@ -2214,6 +2234,17 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             t.setText(txt + btntxt);
             equallu("not");
             return;
+        }
+        if(btntxt.equals("+") || btntxt.equals("-")
+                || btntxt.equals(getResources().getString(R.string.multiply))
+                || btntxt.equals(getResources().getString(R.string.div))){
+            if(last == '(' && !btntxt.equals("-")) {
+                return;
+            }else if(last == '(' && btntxt.equals("-")){
+                t.setText(txt + btntxt);
+                equallu("not");
+                return;
+            }
         }
 
         if(btntxt.equals(".")){
@@ -2250,7 +2281,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 }
                 return;
             }
-            if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !btntxt.equals(".") && !isdigit(btntxt.toCharArray()[0])))) {
+            if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !isdigit(btntxt.charAt(0))))) {
                 if(btntxt.equals("("))
                     brackets++;
                 t.setText(txt + btntxt);
@@ -2280,7 +2311,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         }
                     }
                 }else{
-                    if(isdigit(btntxt.charAt(0)) || (btntxt.equals("-"))){
+                    if(isdigit(btntxt.charAt(0)) || btntxt.equals("-")){
                         t.setText(btntxt);
                         equallu("not");
                     }

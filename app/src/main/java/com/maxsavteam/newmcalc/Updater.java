@@ -218,9 +218,7 @@ public class Updater extends AppCompatActivity {
 			}
 		}else if(v.getId() == R.id.switchDarkMode){
 			sp.edit().putBoolean("dark_mode", sw.isChecked()).apply();
-			sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-			sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
-			finish();
+			restart();
 		}
 
 	}
@@ -364,7 +362,11 @@ public class Updater extends AppCompatActivity {
 		tr.stop();
 	}
 
-	int updatebytescount = 0;
+	public void restart(){
+		Intent intent = new Intent(this, MainActivity.class);
+		this.startActivity(intent);
+		this.finishAffinity();
+	}
 
 	public void postcreate() {
 		other_settings();

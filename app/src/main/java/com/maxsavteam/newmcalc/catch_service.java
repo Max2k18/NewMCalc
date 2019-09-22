@@ -47,6 +47,8 @@ public class catch_service extends AppCompatActivity {
 			in.setData(Uri.parse("https://instagram.com/" + default_inst));
 		else if(v.getId() == R.id.siteBtn)
 			in.setData(Uri.parse("https://maxsavteam.tk/Mobile/"));
+		else if(v.getId() == R.id.playMarketBtn)
+			in.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID));
 		startActivity(in);
 	}
 
