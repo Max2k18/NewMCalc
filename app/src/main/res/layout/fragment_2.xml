@@ -19,14 +19,16 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnMemMinus"
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMS"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="M-"
-                android:textSize="24sp" />
+                android:onClick="memory_ms"
+                android:text="MS/st"
+                android:textAllCaps="false"
+                android:textSize="20sp" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnMR"
@@ -39,16 +41,15 @@
                 android:textAllCaps="false"
                 android:textSize="20sp" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMS"
+            <Button
+                android:id="@+id/btnMemMinus"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:onClick="memory_ms"
-                android:text="MS/st"
-                android:textAllCaps="false"
-                android:textSize="20sp" />
+                android:onClick="memory_plus_min"
+                android:text="M-"
+                android:textSize="24sp" />
 
 
             <androidx.appcompat.widget.AppCompatButton
@@ -57,6 +58,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
+                android:onClick="memory_plus_min"
                 android:text="M+"
                 android:textSize="24sp" />
 
@@ -102,7 +104,6 @@
                 android:id="@+id/btnImgHistory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
                 android:backgroundTint="@android:color/transparent"
                 android:onClick="onClickAdd"
                 android:scaleType="centerInside"

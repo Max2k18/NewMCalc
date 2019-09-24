@@ -24,11 +24,9 @@ import com.maxsavteam.newmcalc.R;
 
 public class Fragment2 extends Fragment {
 	private Context c;
-	private View.OnClickListener[] clicks;
 	private View.OnLongClickListener[] longClickListeners;
-	public Fragment2(Context context, View.OnClickListener[] v, View.OnLongClickListener[] longClick){
+	public Fragment2(Context context, View.OnLongClickListener[] longClick){
 		c = context;
-		this.clicks = v;
 		this.longClickListeners = longClick;
 	}
 
@@ -42,10 +40,6 @@ public class Fragment2 extends Fragment {
 		b.setOnLongClickListener(longClickListeners[0]);
 		b = view.findViewById(R.id.btnMS);
 		b.setOnLongClickListener(longClickListeners[0]);
-		b = view.findViewById(R.id.btnMemPlus);
-		b.setOnClickListener(clicks[0]);
-		b = view.findViewById(R.id.btnMemMinus);
-		b.setOnClickListener(clicks[1]);
 		int[] ids = new int[]{
 				R.id.btnMR,
 				R.id.btnMS,

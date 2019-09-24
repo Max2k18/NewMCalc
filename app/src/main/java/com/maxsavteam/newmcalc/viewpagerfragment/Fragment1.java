@@ -23,7 +23,7 @@ public class Fragment1 extends Fragment {
 	private boolean DarkMode = false;
 	private Context c;
 	private View.OnLongClickListener[] longClickListeners;
-	public Fragment1(Context context, View.OnClickListener[] v, View.OnLongClickListener[] longClick){
+	public Fragment1(Context context, View.OnLongClickListener[] longClick){
 		c = context;
 		this.longClickListeners = longClick;
 	}
@@ -35,6 +35,20 @@ public class Fragment1 extends Fragment {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
 		DarkMode = sp.getBoolean("dark_mode", false);
 		String[] arr = c.getResources().getStringArray(R.array.additional_chars);
+		/*Button b = view.findViewById(R.id.btnMR);
+		b.setOnLongClickListener(longClickListeners[3]);
+		b = view.findViewById(R.id.btnMS);
+		b.setOnLongClickListener(longClickListeners[3]);
+		int[] ids = new int[]{
+				R.id.btnMR,
+				R.id.btnMS,
+				R.id.btnMemMinus,
+				R.id.btnMemPlus
+		};
+		for(int id : ids){
+			b = view.findViewById(id);
+			b.setTextColor(ColorStateList.valueOf(c.getResources().getColor(R.color.colorAccent)));
+		}*/
 		int[] btnIds = {
 				R.id.btn7,
 				R.id.btn8,

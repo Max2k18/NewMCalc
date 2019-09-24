@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
+import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 
 import java.math.BigDecimal;
 
@@ -28,6 +29,7 @@ public class memory_actions_activity extends AppCompatActivity implements window
 	boolean DarkMode;
 	String type;
 	Intent activity_intent;
+	private MemorySaverReader memorySaverReader;
 
 	void backPressed(){
 		finish();
@@ -35,15 +37,6 @@ public class memory_actions_activity extends AppCompatActivity implements window
 	}
 	public void cancel_all(View v){
 		backPressed();
-	}
-
-	public void save_memory(){
-		String mem = "";
-		for(int i = 0; i < 10; i++){
-			mem += barr[i].toString() + "$";
-		}
-		sp.edit().putString("memory", mem).apply();
-		//Toast.makeText(getApplicationContext(), sp.getString("memory", "none"), Toast.LENGTH_SHORT).show();
 	}
 
 	public void clear_all(View v){
@@ -57,7 +50,7 @@ public class memory_actions_activity extends AppCompatActivity implements window
 						for(int ii = 0; ii < 10; ii++){
 							barr[ii] = BigDecimal.valueOf(0);
 						}
-						save_memory();
+						memorySaverReader.save(barr);
 						adapter.notifyDataSetChanged();
 						dialogInterface1.cancel();
 						Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED");
@@ -96,6 +89,7 @@ public class memory_actions_activity extends AppCompatActivity implements window
 			setTheme(R.style.AppTheme);
 		}
 		setContentView(R.layout.activity_memory_actions);
+		memorySaverReader = new MemorySaverReader(this);
 
 		if(DarkMode)
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
@@ -112,22 +106,7 @@ public class memory_actions_activity extends AppCompatActivity implements window
 			e.printStackTrace();
 		}
 
-		String mem_loc = sp.getString("memory", "0$0$0$0$0$0$0$0$0$0$");
-		barr = new BigDecimal[10];
-		for(int i = 0; i < 10; i++){
-			barr[i] = BigDecimal.valueOf(0);
-		}
-		int i = 0, cell = 0;
-		while(i < mem_loc.length()){
-			String num = "";
-			while(mem_loc.charAt(i) != '$'){
-				num += mem_loc.charAt(i);
-				i++;
-			}
-			barr[cell] = new BigDecimal(num);
-			cell++;
-			i++;
-		}
+		barr = memorySaverReader.read();
 		RecyclerView rv = findViewById(R.id.memory_actions_rv);
 		adapter = new window_recall_adapter(this, barr);
 		adapter.setInterface(this);
@@ -142,7 +121,7 @@ public class memory_actions_activity extends AppCompatActivity implements window
 		if(type.equals("st")){
 			String value = activity_intent.getStringExtra("value");
 			barr[position] = new BigDecimal(value);
-			save_memory();
+			memorySaverReader.save(barr);
 			Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED");
 			sendBroadcast(intent);
 			backPressed();

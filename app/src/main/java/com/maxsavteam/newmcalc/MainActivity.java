@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
@@ -58,6 +59,7 @@ import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
 import com.maxsavteam.newmcalc.exceptions.MyEmptyStackException;
+import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 
 import java.io.File;
 import java.io.FileReader;
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
     public TextView text_example;
     String FI, PI, E;
+    private MemorySaverReader memorySaverReader;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -140,55 +143,28 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
     @Override
     public void onBackPressed() {
-        if(ups.isup()){
-            AlertDialog.Builder dialogal = new AlertDialog.Builder(this)
-                    .setTitle(R.string.confirm)
-                    .setMessage(R.string.confirm_exit_on_up)
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            if(ups.isup()){
-                                ups.kill();
-                            }
-                            finishAndRemoveTask();
-                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-                        }
-                    });
-
-            AlertDialog dal = dialogal.create();
-            if(DarkMode)
-                dal.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-            dal.show();
-        }else{
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(R.string.exit)
-                    .setMessage(R.string.areyousureexit)
-                    .setCancelable(false)
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            finishAndRemoveTask();
-                            overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-                        }
-                    });
-            AlertDialog al_1 = builder.create();
-            if(DarkMode)
-                al_1.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-            al_1.show();
-        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle(R.string.exit)
+                .setMessage(R.string.areyousureexit)
+                .setCancelable(false)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        finishAndRemoveTask();
+                        overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
+                    }
+                });
+        AlertDialog al_1 = builder.create();
+        if(DarkMode)
+            al_1.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+        al_1.show();
         //super.onBackPressed();
     }
 
@@ -213,52 +189,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-    /*protected void sh_dl_update(String flag, int versionNew, String newver, String text, boolean compileWithView){
-        View mView = getLayoutInflater().inflate(R.layout.alert_checkbox, null);
-        CheckBox mcheck = mView.findViewById(R.id.checkBoxAlert);
-        if(DarkMode)
-            mcheck.setTextColor(getResources().getColor(R.color.white));
-        sp.edit().putBoolean("notification_showed", true).apply();
-        //mcheck.setOnClickListener(forcheck);
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(R.string.updateavail)
-                .setMessage(text
-                        + "\n\n" + getResources().getString(R.string.version) + " " + newver + "\n"
-                        + getResources().getString(R.string.build) + " " + versionNew)
-                .setCancelable(false)
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sp.edit().remove("notification_showed").apply();
-                        dialog.cancel();
-                        if(mcheck.isChecked()){
-                            sp.edit().putInt("notremindfor", versionNew).apply();
-                        }
-                    }
-                })
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        sp.edit().remove("notification_showed").apply();
-                        dialog.cancel();
-                        if(uptype.equals("dev")){
-                            ups.run("/forTesters/NewMCalc.apk", newversiondev, bytescountupdate);
-                        }
-                        else{
-                            ups.run("/NewMCalc.apk", newversionsimple, bytescountupdate);
-                        }
-                    }
-                });
-        if(compileWithView)
-            builder.setView(mView);
-        al = builder.create();
-        if(DarkMode)
-            al.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-        if(flag.equals("fromUPDChecker")){
-            al.show();
-        }
-    }*/
 
     public void onClickAdd(View v){
         if(v.getId() == R.id.imgBtnSettings){
@@ -290,119 +220,40 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 resultIntent.putExtra("type", "number");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "history":
                 sp.edit().putString("action", "history").apply();
                 resultIntent = new Intent(getApplicationContext(), history.class);
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
             case "pass":
                 resultIntent = new Intent(getApplicationContext(), numgen.class);
                 resultIntent.putExtra("type", "pass");
                 resultIntent.putExtra("start_type", "app");
                 startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
         }
     }
 
 
-
-    /*public void show_hide(View v){
-        LinearLayout ll = findViewById(R.id.additional_tools);
-        int loc = sp.getInt("btn_add_align", 0);
-        Button b = findViewById(v.getId());
-        findViewById(R.id.imgBtnSettings).setBackground(cl.getBackground());
-        findViewById(R.id.btnImgNumGen).setBackground(cl.getBackground());
-        findViewById(R.id.btnImgHistory).setBackground(cl.getBackground());
-        findViewById(R.id.btnImgPassgen).setBackground(cl.getBackground());
-        int time = 100;
-        RelativeLayout.LayoutParams par = new RelativeLayout.LayoutParams(35, 85);
-        Button sh = findViewById(R.id.btnShAdd);
-        Button sh2 = findViewById(R.id.btnShAdd2);
-        if((b.getText().toString().equals(">") && loc == 0) || (b.getText().toString().equals("<") && loc == 1)){
-            par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35 + 80 * 4, getResources().getDisplayMetrics()),
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
-            //b.setText(onhide);
-            if(loc == 0){
-                b.setText("<");
-            }else {
-                sh2.setVisibility(View.VISIBLE);
-                sh.setVisibility(View.GONE);
-                sh2.setText(">");
-            }
-            add_menu_opened = true;
-        }else{
-            add_menu_opened = false;
-            par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
-                    (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
-            //b.setText(onshow);
-            if(loc == 0){
-                sh.setVisibility(View.VISIBLE);
-                sh2.setVisibility(View.GONE);
-                sh.setText(">");
-            }else if(loc == 1){
-                sh.setVisibility(View.VISIBLE);
-                sh2.setVisibility(View.GONE);
-                sh.setText("<");
-            }
-        }
-        ll.setLayoutParams(par);
-    }*/
-
-    /*protected void btn_change(){
-        int loc = sp.getInt("btn_add_align", 0);
-        RelativeLayout rl = findViewById(R.id.relativelayout);
-        ConstraintLayout.LayoutParams par =(ConstraintLayout.LayoutParams) rl.getLayoutParams();
-        if(loc == 0){
-            onshow = ">";
-            onhide = "<";
-        }else if(loc == 1){
-            onshow = "<";
-            onhide = ">";
-        }
-        Button sh2 = findViewById(R.id.btnShAdd);
-        if(loc == 0){
-            sh2 = findViewById(R.id.btnShAdd);
-            //sh2.setVisibility(View.VISIBLE);
-            //sh2 = findViewById(R.id.btnShAdd2);
-            //sh2.setVisibility(View.GONE);
-            par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
-            rl.setLayoutParams(par);
-            rl.setGravity(Gravity.LEFT);
-            rl.setTranslationX(22);
-            sh2.setText(">");
-        }else if(loc == 1){
-            sh2 = findViewById(R.id.btnShAdd);
-            //sh2.setVisibility(View.VISIBLE);
-            //sh2 = findViewById(R.id.btnShAdd);
-            //sh2.setVisibility(View.GONE);
-            par.horizontalBias = Float.valueOf(Integer.toString(loc) + ".0f");
-            rl.setLayoutParams(par);
-            rl.setGravity(Gravity.RIGHT);
-            rl.setTranslationX(-20);
-            sh2.setText("<");
-        }
-    }*/
-
     boolean DarkMode = false;
-    String ver_desc = "";
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        DarkMode = sp.getBoolean("dark_mode", false);
-        sp.edit().remove("simple_upd_exist").apply();
-        sp.edit().remove("dev_upd_exist").apply();
-        sp.edit().remove("notification_showed").apply();
-        if(DarkMode){
-            setTheme(android.R.style.Theme_Material_NoActionBar);
-        }else{
-            setTheme(R.style.AppTheme);
+	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	    DarkMode = sp.getBoolean("dark_mode", false);
+	    sp.edit().remove("simple_upd_exist").apply();
+	    sp.edit().remove("dev_upd_exist").apply();
+	    sp.edit().remove("notification_showed").apply();
+	    if(DarkMode){
+	    	setTheme(android.R.style.Theme_Material_NoActionBar);
+	    }else{
+	        setTheme(R.style.AppTheme);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -410,19 +261,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         fr = FirebaseAnalytics.getInstance(getApplicationContext());
         Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
         myTrace.start();
-        /*btn = findViewById(R.id.btnDelete);
-        btn.setOnLongClickListener(fordel);
-        //TextView ver = findViewById(R.id.lblVer);
-        ver_desc = getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE;
-        //ver.setText(ver_desc);
-        //ver.setText(getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE);// + "\n" + "CompileName: " + BuildConfig.COMPILENAME);
-        Button btn1 = findViewById(R.id.btnCalc);
-        btn1.setOnLongClickListener(returnback);
-        text_example = findViewById(R.id.textStr);
-        if(DarkMode)
-            btn1.setTextColor(getResources().getColor(R.color.white));
-        else
-            btn1.setTextColor(getResources().getColor(R.color.black));*/
 
         PI = getResources().getString(R.string.pi);
         FI = getResources().getString(R.string.fi);
@@ -432,22 +270,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         }catch (Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
         }
-        Intent start_in = getIntent();
-        /*RelativeLayout.LayoutParams par;
-        add_menu_opened = false;
-        par = new RelativeLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 35, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 80, getResources().getDisplayMetrics()));
-        LinearLayout ll = findViewById(R.id.additional_tools);
-        ll.setLayoutParams(par);*/
-        if(start_in.getBooleanExtra("shortcut_action", false)){
+		Intent start_in = getIntent();
+		if(start_in.getBooleanExtra("shortcut_action", false)){
             goto_add_scr(start_in.getStringExtra("to_"));
-            /*if(sp.getInt("btn_add_align", 0) == 0){
-                show_hide(findViewById(R.id.btnShAdd));
-            }else{
-                show_hide(findViewById(R.id.btnShAdd2));
-            }*/
-            //show_hide(findViewById(R.id.btnShAdd));
-        }
+		}
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
             Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
@@ -477,22 +303,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
             shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
         }
-        /*BroadcastReceiver on_lang = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                set_lang();
-            }
-        };
-        registerReceiver(on_lang, new IntentFilter(BuildConfig.APPLICATION_ID + ".LANG_CH"));*/
-       /* btn1.setWidth(btn2.getWidth());
-        btn1.setHeight(btn2.getHeight());
-        btn.setHeight(btn2.getHeight());
-        btn.setWidth(btn2.getWidth());
-        btn1 = findViewById(R.id.btnDelAll);
-        btn1.setHeight(btn2.getHeight());
-        btn1.setWidth(btn2.getWidth());*/
-
-        // btn_change();
+        set_viewpager();
 
         myTrace.stop();
         fr.logEvent("OnCreate", Bundle.EMPTY);
@@ -564,27 +375,9 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     public void apply_theme(){
-        if(DarkMode){
-            ImageButton img;
-            int[] imgbtnids = new int[]{
-                    R.id.imgBtnSettings,
-                    R.id.btnImgHistory,
-                    R.id.btnImgNumGen,
-                    R.id.btnImgPassgen
-            };
-            Drawable[] drawables;
-            drawables = new Drawable[]{
-                    getResources().getDrawable(settings_dark),
-                    getResources().getDrawable(R.drawable.history_dark),
-                    getResources().getDrawable(R.drawable.dice_dark),
-                    getResources().getDrawable(R.drawable.passgen_dark)
-            };
-            for(int i = 0; i < imgbtnids.length; i++){
-                img = findViewById(imgbtnids[i]);
-                img.setImageDrawable(drawables[i]);
-            }
-            getWindow().setBackgroundDrawableResource(R.drawable.black);
-            TextView t;
+	    if(DarkMode){
+		    getWindow().setBackgroundDrawableResource(R.drawable.black);
+		    TextView t;
             int[] ids = new int[]{
                     R.id.textAns2,
                     R.id.textStr
@@ -593,27 +386,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 t = findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.white));
             }
-            Button b = findViewById(R.id.btnDelAll);
-            //b.setBackgroundColor(getResources().getColor(R.color.white));
-            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-            b.setTextColor(getResources().getColor(R.color.black));
-            b = findViewById(R.id.btnCalc);
-            b.setTextColor(getResources().getColor(R.color.white));
-            b = findViewById(R.id.btnShAdd);
-            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-            b = findViewById(R.id.btnShAdd2);
-            b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-            int[] colorAccentIds = new int[]{
-                    R.id.btnMemMinus,
-                    R.id.btnMemPlus,
-                    R.id.btnMR,
-                    R.id.btnMS
-            };
-            for(int id : colorAccentIds){
-                b = findViewById(id);
-                b.setTextColor(getResources().getColor(R.color.colorAccent));
-            }
-        }else{
+	    }else{
             TextView t;
             getWindow().setBackgroundDrawableResource(R.drawable.white);
             int[] ids = new int[]{
@@ -654,52 +427,36 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        //new newver_check_service(this).create(sp.getBoolean("isdev", false));
-        app_type = BuildConfig.APPTYPE;
-        TableLayout tbl = findViewById(R.id.tbl);
-        /*try {
-            Display d = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            d.getSize(size);
-            int height = size.y;
-            int width = size.x;
-            tbl.setLayoutParams(new TableLayout.LayoutParams(width - 20, height / 3));
-        }catch (Throwable throwable){
-            Toast.makeText(this, throwable.toString(), Toast.LENGTH_LONG).show();
-        }*/
-        sp.edit().remove("count_catchservice").apply();
-        if(!sp.getBoolean("never_request_permissions", false) && (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)){
-                /*ActivityCompat
-                        .requestPermissions(this,
-                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                10);*/
-            View v = getLayoutInflater().inflate(R.layout.never_show_again, null);
-            AlertDialog request = new AlertDialog.Builder(this)
-                    .setTitle(R.string.confirm)
-                    .setView(v)
-                    .setMessage(R.string.activity_requet_permissions)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if(((CheckBox) v.findViewById(R.id.never_show_again)).isChecked()) {
-                                sp.edit().putBoolean("never_request_permissions", true).apply();
+        memorySaverReader = new MemorySaverReader(this);
+	    boolean read = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+	    boolean write = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if(!sp.getBoolean("never_request_permissions", false)
+		        && (!read || !write)){
+                View v = getLayoutInflater().inflate(R.layout.never_show_again, null);
+                AlertDialog request = new AlertDialog.Builder(this)
+                        .setTitle(R.string.confirm)
+                        .setView(v)
+                        .setMessage(R.string.activity_requet_permissions)
+                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if(((CheckBox) v.findViewById(R.id.never_show_again)).isChecked()) {
+                                    sp.edit().putBoolean("never_request_permissions", true).apply();
+                                }
+                                ActivityCompat
+                                        .requestPermissions(MainActivity.this,
+                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                10);
                             }
-                            ActivityCompat
-                                    .requestPermissions(MainActivity.this,
-                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                            10);
-                        }
-                    })
-                    .create();
-            request.show();
+                        })
+                        .create();
+                request.show();
         }
         if(read && write){
             sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
-        read_memory();
+        barr = memorySaverReader.read();
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
@@ -711,14 +468,14 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 String text = sp.getString("saveResultText", "none");
                 int i = 0;
                 StringBuilder ex = new StringBuilder();
-                StringBuilder ans = new StringBuilder();
-                while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
+	            StringBuilder ans = new StringBuilder();
+	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
                     ex.append(text.charAt(i));
                     i++;
                 }
                 TextView ver = findViewById(R.id.textAns2);
-                if(!DarkMode)
-                    ver.setTextColor(getResources().getColor(R.color.black));
+	            if(!DarkMode)
+	                ver.setTextColor(getResources().getColor(R.color.black));
                 ver.setText(ex.toString());
                 show_ans();
                 i++;
@@ -742,156 +499,28 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             sp.edit().putBoolean("isdev", true).apply();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        @SuppressLint("InflateParams") View view = getLayoutInflater().inflate(R.layout.about_layout, null);
-        String message = getResources().getString(R.string.about_text)
-                + "\n\n" + getResources().getString(R.string.version) + " " + BuildConfig.VERSION_NAME
-                + (app_type.equals("stable") ? " stable" : " not stable")
-                + "\n" + getResources().getString(R.string.build) + " " + BuildConfig.VERSION_CODE
-                + "\nCompile date: " + BuildConfig.COMPILE_DATE;// + "\n\n" + "©" + "MaxSav Team, 2018-2019";
-        if(!app_type.equals("stable")){
-            message += "\n\nCV: " + BuildConfig.CoreVersion
-                    + "\nUDV: " + BuildConfig.UpdateDowVersion
-                    + "\nUCV: " + BuildConfig.UpdateCheckerVersion;
-        }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (app_type.equals("developer")) {
-                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_developer), Html.FROM_HTML_MODE_LEGACY);
-            } else if (app_type.equals("tester")) {
-                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_tester), Html.FROM_HTML_MODE_LEGACY);
-            }
-        }else{
-            if (app_type.equals("developer")) {
-                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_developer));
-            } else if (app_type.equals("tester")) {
-                message += "\n\n" + Html.fromHtml(getResources().getString(R.string.build_tester));
-            }
-        }
-        message += "\n\n" + "©" + "MaxSav Team, 2018-2019";
-        builder.setCancelable(false)
-                .setTitle(R.string.about)
-                .setMessage(message)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setView(view);
-        about_app = builder.create();
-        if(DarkMode)
-            about_app.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-
-        /*Button b = findViewById(R.id.btnMR);
-        b.setOnLongClickListener(memory_actions);
-        b = findViewById(R.id.btnMS);
-        b.setOnLongClickListener(memory_actions);
-        b = findViewById(R.id.btnMemPlus);
-        b.setOnClickListener(memory_plus);
-        b = findViewById(R.id.btnMemMinus);
-        b.setOnClickListener(memory_minus);*/
         trace.stop();
         //должно быть всегда in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
 
-   /* private void apply_supertext_btns(){
-        String[] arr = getResources().getStringArray(R.array.additional_chars);
+    public void memory_plus_min(View v){
+	    text_example = findViewById(R.id.textStr);
+	    String text = text_example.getText().toString();
+	    if(text.equals("") || !TextUtils.isDigitsOnly(text))
+		    return;
 
-        /*int[] btnIds = {
-                R.id.btn7,
-                R.id.btn8,
-                R.id.btn4,
-                R.id.btn5,
-                R.id.btn1,
-                R.id.btn2,
-
-                R.id.btn9,
-                R.id.btnMult,
-                R.id.btn6,
-                R.id.btnDiv,
-                R.id.btn3,
-                R.id.btnPlus,
-
-                R.id.btnZero,
-                R.id.btnDot
-        };
-        View view = getLayoutInflater().inflate(R.layout.fragment_1, null);
-        ViewPager viewPager = findViewById(R.id.viewpager);
-        for(int ii = 0; ii < btnIds.length; ii++){
-            Button btn = view.findViewById(btnIds[ii]);
-            btn.setTransformationMethod(null);
-            btn.setOnLongClickListener(additional_longclick);
-            String num = btn.getText().toString().substring(0, 1);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>", Html.FROM_HTML_MODE_COMPACT));
-            }else{
-                btn.setText(Html.fromHtml(num + "<sup><small><small><small>" + arr[ii] + "</small></small></small></sup>"));
-            }
-        }
-    }*/
-
-    View.OnClickListener memory_plus = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if(text_example.getText().toString().equals(""))
-                return;
-
-            BigDecimal temp;
-            try{
-                temp = new BigDecimal(text_example.getText().toString());
-            }catch(NumberFormatException e){
-                return;
-            }
-            temp = temp.add(barr[0]);
-            barr[0] = temp;
-            save_memory();
-        }
-    };
-    View.OnClickListener memory_minus = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if(text_example.getText().toString().equals(""))
-                return;
-            BigDecimal temp;
-            try{
-                temp = new BigDecimal(text_example.getText().toString());
-            }catch(NumberFormatException e){
-                return;
-            }
-            temp = temp.subtract(barr[0]);
-            barr[0] = temp;
-            save_memory();
-        }
-    };
-
-    void read_memory(){
-        String mem_loc = sp.getString("memory", "0$0$0$0$0$0$0$0$0$0$");
-        barr = new BigDecimal[10];
-        for(int i = 0; i < 10; i++){
-            barr[i] = BigDecimal.valueOf(0);
-        }
-        int i = 0, cell = 0;
-        while(i < mem_loc.length()){
-            String num = "";
-            while(mem_loc.charAt(i) != '$'){
-                num += mem_loc.charAt(i);
-                i++;
-            }
-            barr[cell] = new BigDecimal(num);
-            cell++;
-            i++;
-        }
+	    BigDecimal temp;
+	    temp = new BigDecimal(text_example.getText().toString());
+	    if(v.getId() == R.id.btnMemPlus) {
+		    temp = temp.add(barr[0]);
+	    }else{
+		    temp = temp.subtract(barr[0]);
+	    }
+	    barr[0] = temp;
+	    memorySaverReader.save(barr);
     }
 
-    public void save_memory(){
-        String mem = "";
-        for(int i = 0; i < 10; i++){
-            mem += barr[i].toString() + "$";
-        }
-        sp.edit().putString("memory", mem).apply();
-        //Toast.makeText(getApplicationContext(), sp.getString("memory", "none"), Toast.LENGTH_SHORT).show();
-    }
 
     public boolean memory_calculated = false, store_custom = false;
     public int store_params = 0;
@@ -907,16 +536,16 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             return;
         }
         barr[0] = temp;
-        save_memory();
+    	memorySaverReader.save(barr);
     }
 
     public void memory_mr(View view){
-        TextView t = findViewById(R.id.textStr);
-        t.setText(barr[0].toString());
-        show_str();
-        t = findViewById(R.id.textAns2);
-        hide_ans();
-        t.setText("");
+    	TextView t = findViewById(R.id.textStr);
+    	t.setText(barr[0].toString());
+    	show_str();
+    	t = findViewById(R.id.textAns2);
+    	hide_ans();
+    	t.setText("");
     }
 
     String recall_type = "";
@@ -958,19 +587,19 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     View.OnLongClickListener memory_actions = new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-            try {
+	    @Override
+	    public boolean onLongClick(View v) {
+	        try {
                 if(v.getId() == R.id.btnMR)
                     showMemAlert("rc");
                 else
                     showMemAlert("st");
             }catch (Exception e){
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+	            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
             }
 
-            return true;
-        }
+		    return true;
+	    }
     };
 
     void show_str(){
@@ -997,14 +626,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         ViewPager viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(myFragmentPagerAdapter);
         myFragmentPagerAdapter.prepare_to_initialize(
-                new View.OnClickListener[]{ //Fragment1
-                }, new View.OnLongClickListener[]{ //Fragment1
+        		new View.OnLongClickListener[]{ //Fragment1
                         additional_longclick,
                         returnback,
                         fordel
-                }, new View.OnClickListener[]{ //Fragment2
-                        memory_plus,
-                        memory_minus
                 }, new View.OnLongClickListener[]{ //Fragment2
                         memory_actions
                 }
@@ -1013,37 +638,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     protected void register_broadcasters(){
-        /*BroadcastReceiver on_version_checked = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String type = intent.getStringExtra("type");
-                String version = intent.getStringExtra("version");
-                int code = intent.getIntExtra("code", 0);
-                uptype = (type.equals("simple") ? type : "dev");
-                if(!ups.isup()) {
-                    if (type.equals("simple")) {
-                        sp.edit().putBoolean("simple_upd_exist", true).putString("version", newVer).apply();
-                        newversionsimple = version;
-                        bytescountupdate = intent.getIntExtra("bytes", 0);
-                        if (sp.getInt("notremindfor", 0) != code) {
-                            sh_dl_update("fromUPDChecker", code, version, getResources().getString(R.string.updateavailable), true);
-                        }
-                    } else if (type.equals("tc")) {
-                        newversiondev = version;
-                        bytescountupdate = intent.getIntExtra("bytes", 0);
-                        sp.edit().putBoolean("dev_upd_exist", true).putString("version", newVer).apply();
-                        sh_dl_update("fromUPDChecker", code, version, getResources().getString(R.string.dev_update), false);
-                    }
-                }
-            }
-        };
-        registerReceiver(on_version_checked, new IntentFilter(BuildConfig.APPLICATION_ID + ".VERSIONS_CHECKED"));*/
-
-
         BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                read_memory();
+                barr = memorySaverReader.read();
             }
         };
         registerReceiver(on_memory_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
@@ -1059,25 +657,25 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
 
         BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                DarkMode = sp.getBoolean("dark_mode", false);
-                TextView t = findViewById(R.id.textStr);
-                String str = t.getText().toString(), ans;
-                t = findViewById(R.id.textAns2);
-                ans = t.getText().toString();
-                if(DarkMode){
-                    setTheme(android.R.style.Theme_Material_NoActionBar);
-                }else{
-                    setTheme(R.style.AppTheme);
-                }
-                setContentView(R.layout.activity_main);
-                t.setText(ans);
-                t = findViewById(R.id.textStr);
-                t.setText(str);
-                apply_theme();
-                apply_supertext_btns();
-            }
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+		        DarkMode = sp.getBoolean("dark_mode", false);
+		        TextView t = findViewById(R.id.textStr);
+		        String str = t.getText().toString(), ans;
+		        t = findViewById(R.id.textAns2);
+		        ans = t.getText().toString();
+		        if(DarkMode){
+			        setTheme(android.R.style.Theme_Material_NoActionBar);
+		        }else{
+			        setTheme(R.style.AppTheme);
+		        }
+		        setContentView(R.layout.activity_main);
+		        t.setText(ans);
+		        t = findViewById(R.id.textStr);
+		        t.setText(str);
+		        apply_theme();
+		        set_viewpager();
+	        }
         };
         registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
 
@@ -1287,24 +885,26 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         break;
                 }
 
-            String answer = Double.toString(ans);
-            int len = answer.length();
-            if(answer.charAt(len-1) == '0'){
-                while (len > 0 && answer.charAt(len - 1) == '0') {
-                    len--;
-                    answer = answer.substring(0, len);
-                }
-                if(answer.charAt(len-1) == '.'){
-                    answer = answer.substring(0, len-1);
-                }
-                ans = Double.valueOf(answer);
-                s1.push(new BigDecimal(answer));
-            }else{
-                BigDecimal ansb = BigDecimal.valueOf(ans);
+	            BigDecimal ansb = BigDecimal.valueOf(ans);
+	            ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+                String answer = ansb.toPlainString();
+                int len = answer.length();
+                if (answer.charAt(len - 1) == '0' && answer.contains(".")) {
+                    while (len > 0 && answer.charAt(len - 1) == '0') {
+                        len--;
+                        answer = answer.substring(0, len);
+                    }
+                    if (answer.charAt(len - 1) == '.') {
+                        answer = answer.substring(0, len - 1);
+                    }
+                    s1.push(new BigDecimal(answer));
+                } /*else {
 
-                    ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+                    BigDecimal bb = new BigDecimal("0");
+                    if(ansb.equals(bb))
+                    	ansb = BigDecimal.ZERO;
                     s1.push(ansb);
-                }
+                }*/
                 return;
             }
         }catch (EmptyStackException e){
@@ -1441,7 +1041,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             if(type.equals("all")){
                 TextView tans = findViewById(R.id.textStr);
                 if(stri.equals("P")){
-                    tans.setText(Double.toString(3.14159265));
+                    tans.setText(Double.toString(Math.PI));
                     original = getResources().getString(R.string.pi);
                 }else if(stri.equals("F")) {
                     tans.setText(Double.toString(1.618));
@@ -1465,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 TextView preans = findViewById(R.id.textAns2);
                 show_ans();
                 if(stri.equals("P")){
-                    preans.setText(Double.toString(3.14159265));
+                    preans.setText(Double.toString(Math.PI));
                 }else if(stri.equals("F"))
                     preans.setText(Double.toString(1.618));
                 else preans.setText(Double.toString(Math.E));
@@ -1476,24 +1076,11 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 return;
             }
         }
-        /*if(!stri.contains("R") && !stri.contains("P") && !stri.contains("F") && !stri.contains("e")) {
-            if (actions == 0) {
-                return;
-            } else {
-                if(digits == 0 && !stri.contains("cos") && !stri.contains("sin") && !stri.contains("log") && !stri.contains("ln") && !stri.contains("tan"))
-                    return;
-                else if (!stri.contains("%") && actions == 1 && (digits == 1 || digits == 0) && !stri.contains("R") && !stri.contains("!")) {
-                    return;
-                }
-            }
-        }*/
         char[] str = new char[stri.length()];
         stri.getChars(0, stri.length(), str, 0);
         String x;
         String s;
         int len = stri.length();
-        /*if(digits == 0)
-            return;*/
 
         for(int i = 0; i < len; i++){
             s = Character.toString(str[i]);
@@ -1557,7 +1144,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 }
             }
             if(s.equals("P")){
-                BigDecimal f = new BigDecimal(3.14159265);
+                BigDecimal f = new BigDecimal(Math.PI);
                 s1.push(f);
                 if(i != 0 && isdigit(stri.charAt(i-1))){
                     in_s0('*');
@@ -1979,7 +1566,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 	            sb.append(stri.charAt(i));
         }
 	    stri = new String(sb);
-	    try{
+	    /*try{
 	        BigDecimal b = null;
 	        b = new BigDecimal(stri);
 	        if(b != null){
@@ -1989,7 +1576,11 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         }catch (NumberFormatException e){
 	        //return;
             e.printStackTrace();
-        }
+        }*/
+	    if(android.text.TextUtils.isDigitsOnly(stri)){
+	    	hide_ans();
+	    	return;
+	    }
 	    if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
 	            || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
 	            || stri.contains(getResources().getString(R.string.sqrt))){
@@ -2051,6 +1642,11 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         //log("add text. len - " + len + ", btntxt - " + btntxt);
         if(len != 0)
             last = txt.charAt(len-1);
+
+        if(txt.equals("0") && isdigit(btntxt)){
+        	t.setText(btntxt);
+        	return;
+        }
         if(btntxt.equals("φ") || btntxt.equals("π") || btntxt.equals("e")){
             if(len == 0){
                 t.setText(btntxt);
@@ -2164,15 +1760,15 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 if(last == '.'){
                     return;
                 }else{
-                    if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
-                        t.setText(txt + btntxt + "(");
-                        equallu("not");
-                    }else {
-                        if (last != '(' && last != '^') {
-                            t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
-                            equallu("not");
-                        }
-                    }
+                	if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
+						t.setText(txt + btntxt + "(");
+						equallu("not");
+	                }else {
+		                if (last != '(' && last != '^') {
+			                t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
+			                equallu("not");
+		                }
+	                }
                     /*if(!isdigit(last)){
 
                         t.setText(txt + btntxt + "(");
@@ -2326,7 +1922,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         t = findViewById(R.id.textStr);
         String btntxt = btn.getText().toString().substring(0, 1);
         add_text(btntxt);
-        // log("onClick action;");
+       // log("onClick action;");
     }
 
     public void delall(View v){
@@ -2361,12 +1957,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                 if(text.charAt(text.length() - 2) == '√' || text.charAt(len - 2) == '^')
                     a = 2;
                 if(text.charAt(len - 2) == 's' || text.charAt(len - 2) == 'g')
-                    a = 4;
+                	a = 4;
                 if(text.charAt(len - 2) == 'n'){
-                    if(text.charAt(len - 3) == 'l')
-                        a = 3;
-                    else if(text.charAt(len - 3) == 'i' || text.charAt(len - 3) == 'a')
-                        a = 4;
+                	if(text.charAt(len - 3) == 'l')
+                		a = 3;
+                	else if(text.charAt(len - 3) == 'i' || text.charAt(len - 3) == 'a')
+                		a = 4;
                 }
             }
             was_error = false;
