@@ -47,12 +47,12 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 132
-        versionName "1.9.1.B132"
+        versionCode 134
+        versionName "1.9.1.B134"
         buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "190924"
+        buildConfigField "int", "COMPILE_DATE", "190925"
         buildConfigField "String", "APPTYPE", "\"stable\""
-        buildConfigField "String", "CoreVersion", "\"v1.0.02.91924\""
+        buildConfigField "String", "CoreVersion", "\"v1.0.03.91925\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
     }

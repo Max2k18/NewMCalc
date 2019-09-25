@@ -25,21 +25,6 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/imageButton2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:backgroundTint="@color/colorAccent"
-                android:drawingCacheQuality="auto"
-                android:hapticFeedbackEnabled="true"
-                android:longClickable="false"
-                android:onClick="click_addtional_tools"
-                android:scaleType="centerInside"
-                android:src="@drawable/arrow_up"
-                android:tag="up"
-                android:visibility="gone" />
-
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDelAll"
                 style="@style/Widget.AppCompat.Button.Colored"

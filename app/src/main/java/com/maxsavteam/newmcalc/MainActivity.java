@@ -14,41 +14,31 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
@@ -56,13 +46,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
-import com.maxsavteam.newmcalc.adapters.window_recall_adapter;
-import com.maxsavteam.newmcalc.exceptions.MyEmptyStackException;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 
-import java.io.File;
-import java.io.FileReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -72,11 +59,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 
-import static com.maxsavteam.newmcalc.R.drawable.settings_dark;
 
-
-
-public class MainActivity extends AppCompatActivity implements window_recall_adapter.inter {
+public class MainActivity extends AppCompatActivity{
 
     public static Stack<String> s0 = new Stack<>();
     public static Stack<BigDecimal> s1 = new Stack<>();
@@ -84,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
     private boolean isOtherActivityOpened = false;
     private SharedPreferences sp;
-    private Button btn;
     private TextView t;
     private char last;
     private int brackets = 0;
@@ -309,71 +292,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
-    protected void set_enabled_additional_buttons(boolean b){
-        int[] ids = new int[]{R.id.imgBtnSettings, R.id.btnImgHistory, R.id.btnImgNumGen, R.id.btnImgPassgen};
-        for(int i : ids){
-            findViewById(i).setEnabled(b);
-        }
-    }
-
-    public void click_addtional_tools(View v){
-        ImageButton btn = (ImageButton) v;
-        LinearLayout lay = findViewById(R.id.additional_tools);
-        if(btn.getTag().toString().equals("up")){
-            Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_show);
-            anim.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    btn.setImageDrawable(getDrawable(R.drawable.arrow_down));
-                    btn.setTag("down");
-                    //btn.setEnabled(false);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    //btn.setEnabled(true);
-                    set_enabled_additional_buttons(true);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            lay.clearAnimation();
-            lay.setAnimation(anim);
-            lay.setVisibility(View.VISIBLE);
-            lay.animate();
-            anim.start();
-        }else if(btn.getTag().toString().equals("down")){
-            Animation anim = AnimationUtils.loadAnimation(this, R.anim.anim_scale_hide);
-            anim.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                    btn.setImageDrawable(getDrawable(R.drawable.arrow_up));
-                    btn.setTag("up");
-                    //btn.setEnabled(false);
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    lay.setVisibility(View.GONE);
-                    //btn.setEnabled(true);
-                    set_enabled_additional_buttons(false);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            lay.clearAnimation();
-            lay.setAnimation(anim);
-            lay.animate();
-            anim.start();
-        }
-    }
-
     public void apply_theme(){
 	    if(DarkMode){
 		    getWindow().setBackgroundDrawableResource(R.drawable.black);
@@ -550,23 +468,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
     String recall_type = "";
     AlertDialog showMemAl;
-
-    @Override
-    public void onRecallClick(View view, int position) {
-        if(recall_type.equals("rc")){
-            TextView t = findViewById(R.id.textStr);
-            t.setText(barr[position].toString());
-            t = findViewById(R.id.textAns2);
-            hide_ans();
-            t.setText("");
-        }else if(recall_type.equals("st")){
-            store_custom = true;
-            store_params = position;
-            memory_ms(findViewById(R.id.btnMS));
-        }
-        showMemAl.cancel();
-    }
-
     private void showMemAlert(final String type){
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);
@@ -848,7 +749,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
         return result;
     }
 
-    protected void mult(String x) throws MyEmptyStackException {
+    protected void mult(String x){
         if(was_error)
             return;
         try {
@@ -897,19 +798,12 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                     if (answer.charAt(len - 1) == '.') {
                         answer = answer.substring(0, len - 1);
                     }
-                    s1.push(new BigDecimal(answer));
-                } /*else {
-
-                    BigDecimal bb = new BigDecimal("0");
-                    if(ansb.equals(bb))
-                    	ansb = BigDecimal.ZERO;
-                    s1.push(ansb);
-                }*/
+                }
+                s1.push(new BigDecimal(answer));
                 return;
             }
         }catch (EmptyStackException e){
             was_error = true;
-            throw new MyEmptyStackException();
         }
         BigDecimal b = s1.peek();
         s1.pop();
@@ -1001,16 +895,10 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
             s0.push(Character.toString(x));
             return;
         }
-        try {
-            if (!s0.empty() && (priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)).equals(priority.get(s0.peek())))) {
-                mult(s0.peek());
-                s0.pop();
-                in_s0(x);
-                return;
-            }
-        }catch (MyEmptyStackException e){
-            e.printStackTrace();
-            was_error = true;
+        if (!s0.empty() && (priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)).equals(priority.get(s0.peek())))) {
+            mult(s0.peek());
+            s0.pop();
+            in_s0(x);
             return;
         }
         if(!s0.empty() && priority.get(Character.toString(x)) > priority.get(s0.peek()))
@@ -1276,39 +1164,6 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
                         	in_s0('^');
                         	s0.push("(");
                         	continue;
-                            /*i += 2;
-                            in_s0('^');
-                            s0.push("(");
-                            x = "";
-                            double cf = 1.0;
-                            while(i < stri.length() && str[i] != ')'){
-                                x = "";
-                                if(str[i] == '('){
-                                    i++;
-                                    continue;
-                                }else if(str[i] == '^'){
-                                    i += 2;
-                                }
-
-                                if(str[i] == '-' && str[i-1] == '('){
-                                    cf = -1.0;
-                                    i++;
-                                    //continue;
-                                }else{
-                                    cf = 1.0;
-                                    //i++;
-                                }
-
-                                while((i < stri.length()) && ((stri.charAt(i) == '.') || isdigit(str[i]) || stri.charAt(i) == 'E' || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
-                                    s = Character.toString(str[i]);
-                                    x += s;
-                                    i++;
-                                }
-                                s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(cf)));
-                                /*if(!isdigit(str[i]) && str[i] != ')')
-                                    in_s0(str[i]);
-                                break;
-                            }*/
                         }else if(i != stri.length()-1 && str[i + 1] != '('){
                             //i++;
                             in_s0('^');
@@ -1333,45 +1188,34 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
 
                     in_s0(str[i]);
                 }else{
-                    try {
-                        while (!s0.empty() && !s0.peek().equals("(")) {
-                            mult(s0.peek());
-                            s0.pop();
+                    while (!s0.empty() && !s0.peek().equals("(")) {
+                        mult(s0.peek());
+                        s0.pop();
+                    }
+                    if (!s0.empty() && s0.peek().equals("(")) {
+                        s0.pop();
+                    }
+                    if (i != stri.length() - 1) {
+                        if (isdigit(stri.charAt(i + 1))) {
+                            in_s0('*');
                         }
-                        if (!s0.empty() && s0.peek().equals("(")) {
-                            s0.pop();
-                        }
-                        if (i != stri.length() - 1) {
-                            if (isdigit(stri.charAt(i + 1))) {
-                                in_s0('*');
-                            }
-                        }
-                    }catch (MyEmptyStackException e){
-                        was_error = true;
-                        e.printStackTrace();
-                        break;
                     }
                 }
             }
         }
-        try {
-            while (!s0.isEmpty() && s1.size() >= 2) {
+        while (!s0.isEmpty() && s1.size() >= 2) {
+            mult(s0.peek());
+            s0.pop();
+        }
+        if (!s0.isEmpty() && s1.size() == 1) {
+            if (s0.peek().equals("R")) {
                 mult(s0.peek());
                 s0.pop();
             }
-            if (!s0.isEmpty() && s1.size() == 1) {
-                if (s0.peek().equals("R")) {
-                    mult(s0.peek());
-                    s0.pop();
-                }
-                if (!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))) {
-                    mult(s0.peek());
-                    s0.pop();
-                }
+            if (!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))) {
+                mult(s0.peek());
+                s0.pop();
             }
-        }catch (MyEmptyStackException e){
-            e.printStackTrace();
-            was_error = true;
         }
         if(!was_error){
             switch (type) {
@@ -1918,7 +1762,7 @@ public class MainActivity extends AppCompatActivity implements window_recall_ada
     }
 
     public void onClick(@NonNull View v){
-        btn = findViewById(v.getId());
+        Button btn = findViewById(v.getId());
         t = findViewById(R.id.textStr);
         String btntxt = btn.getText().toString().substring(0, 1);
         add_text(btntxt);
