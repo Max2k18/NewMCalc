@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Display;
@@ -29,6 +30,7 @@ public class Fragment2 extends Fragment {
 		c = context;
 		this.longClickListeners = longClick;
 	}
+	private Point display_size = new Point();
 
 	@Nullable
 	@Override
@@ -40,6 +42,9 @@ public class Fragment2 extends Fragment {
 		b.setOnLongClickListener(longClickListeners[0]);
 		b = view.findViewById(R.id.btnMS);
 		b.setOnLongClickListener(longClickListeners[0]);
+		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		Display d = wm.getDefaultDisplay();
+		d.getSize(display_size);
 		int[] ids = new int[]{
 				R.id.btnMR,
 				R.id.btnMS,
@@ -55,7 +60,9 @@ public class Fragment2 extends Fragment {
 				R.id.imgBtnSettings,
 				R.id.btnImgHistory,
 				R.id.btnImgNumGen,
-				R.id.btnImgPassgen
+				R.id.btnImgPassgen,
+				R.id.imgBtnAboutAG,
+				R.id.imgBtnBin
 		};
 		if(DarkMode) {
 			Drawable[] drawables;
@@ -63,17 +70,15 @@ public class Fragment2 extends Fragment {
 					c.getResources().getDrawable(R.drawable.settings_dark),
 					c.getResources().getDrawable(R.drawable.history_dark),
 					c.getResources().getDrawable(R.drawable.dice_dark),
-					c.getResources().getDrawable(R.drawable.passgen_dark)
+					c.getResources().getDrawable(R.drawable.passgen_dark),
+					c.getResources().getDrawable(R.drawable.help_dark),
+					c.getResources().getDrawable(R.drawable.binary_dark)
 			};
 			for (int i = 0; i < imgbtnids.length; i++) {
 				img = view.findViewById(imgbtnids[i]);
 				img.setImageDrawable(drawables[i]);
 				ViewGroup.LayoutParams par = img.getLayoutParams();
-				WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
-				Display d = wm.getDefaultDisplay();
-				Point p = new Point();
-				d.getSize(p);
-				int width = p.x;
+				int width = display_size.x;
 				par.height = width / 5;
 				par.width = width / 5;
 				img.setLayoutParams(par);
@@ -84,22 +89,26 @@ public class Fragment2 extends Fragment {
 					c.getResources().getDrawable(R.drawable.settings),
 					c.getResources().getDrawable(R.drawable.history),
 					c.getResources().getDrawable(R.drawable.dice),
-					c.getResources().getDrawable(R.drawable.passgen)
+					c.getResources().getDrawable(R.drawable.passgen),
+					c.getResources().getDrawable(R.drawable.help),
+					c.getResources().getDrawable(R.drawable.binary)
 			};
 			for (int i = 0; i < imgbtnids.length; i++) {
 				img = view.findViewById(imgbtnids[i]);
 				img.setImageDrawable(drawables[i]);
 				ViewGroup.LayoutParams par = img.getLayoutParams();
-				WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
-				Display d = wm.getDefaultDisplay();
-				Point p = new Point();
-				d.getSize(p);
-				int width = p.x;
+				int width = display_size.x;
 				par.height = width / 5;
 				par.width = width / 5;
 				img.setLayoutParams(par);
 			}
 		}
+		ImageButton btn = view.findViewById(imgbtnids[4]);
+		ViewGroup.LayoutParams par = btn.getLayoutParams();
+		int width = display_size.x;
+		par.width = width / 7;
+		par.height = width / 7;
+		btn.setLayoutParams(par);
 
 		return view;
 	}

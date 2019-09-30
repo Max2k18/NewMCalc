@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -507,21 +508,25 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         setContentView(R.layout.activity_history);
         history_action = new Intent(BuildConfig.APPLICATION_ID  + ".HISTORY_ACTION");
         history_action.putExtra("example", "").putExtra("result", "");
-
-        if(DarkMode){
-        	getWindow().setBackgroundDrawableResource(R.drawable.black);
-        }else{
-            getWindow().setBackgroundDrawable(getDrawable(R.drawable.white));
-        }
-        RecyclerView rv = findViewById(R.id.rv_view);
+        ActionBar appActionBar = getSupportActionBar();
         try{
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
-            getSupportActionBar().setTitle(R.string.hitory);
+            appActionBar.setDisplayHomeAsUpEnabled(true);
+            appActionBar.setTitle(R.string.hitory);
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
         }
+        if(DarkMode){
+        	getWindow().setBackgroundDrawableResource(R.drawable.black);
+            appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+        }else{
+            getWindow().setBackgroundDrawable(getDrawable(R.drawable.white));
+            appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+        }
+        appActionBar.setElevation(0);
+        RecyclerView rv = findViewById(R.id.rv_view);
         Button btn = findViewById(R.id.btnCancel);
         btn.setTextColor(getResources().getColor(R.color.white));
         start_type = getIntent().getStringExtra("start_type");

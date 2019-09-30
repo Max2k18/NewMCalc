@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,6 +36,24 @@ public class memory_actions_activity extends AppCompatActivity implements window
 		finish();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
+
+	@Override
+	public void onBackPressed() {
+		backPressed();
+	}
+
+	private void apply_actionbar(){
+		ActionBar appActionBar = getSupportActionBar();
+		if(DarkMode){
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+		}else{
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+		}
+		appActionBar.setElevation(0);
+	}
+
 	public void cancel_all(View v){
 		backPressed();
 	}
@@ -93,18 +112,21 @@ public class memory_actions_activity extends AppCompatActivity implements window
 
 		if(DarkMode)
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
+		else
+			getWindow().setBackgroundDrawableResource(R.drawable.white);
 
 		activity_intent = getIntent();
 		type = activity_intent.getStringExtra("type");
 		try{
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
 			getSupportActionBar().setTitle( ( type.equals("rc") ? "Recall Memory" : "Store Memory" ) );
+			getSupportActionBar().setElevation(0);
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}catch(Exception e){
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
+		apply_actionbar();
 
 		barr = memorySaverReader.read();
 		RecyclerView rv = findViewById(R.id.memory_actions_rv);

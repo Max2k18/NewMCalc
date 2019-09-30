@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -240,10 +241,6 @@ public class Updater extends AppCompatActivity {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.updater_main);
-		if(DarkMode)
-			getWindow().setBackgroundDrawableResource(R.drawable.black);
-		else
-			getWindow().setBackgroundDrawableResource(R.drawable.white);
 
         /*Slide slide = new Slide();
         slide.setDuration(100);
@@ -259,55 +256,15 @@ public class Updater extends AppCompatActivity {
 		mv.findViewById(R.id.imgBtnTw).setOnClickListener(social);
 		mv.findViewById(R.id.imgBtnVk).setOnClickListener(social);
 		mv.findViewById(R.id.btnImgMore).setOnClickListener(social);
-		//updChecker.start(10, 1000, sp);
-		if(DarkMode)
-			apply_dark_mode();
-        /*try {
 
-        }catch (Exception e){
-            e.printStackTrace();
-        }*/
-		//set_lang("create");
+		apply_theme();
+
 		if(sp.getBoolean("storage_denied", false)){
 			findViewById(R.id.import_export).setVisibility(View.GONE);
 		}
 		//Toast.makeText(this, Boolean.toString(sp.getBoolean("storage_denied", false)), Toast.LENGTH_LONG).show();
 		about_dev = new AlertDialog.Builder(this).setCancelable(true).setTitle(R.string.about_dev).setView(mv).create();
-		try {
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-
-		}
 		postcreate();
-
-		/*if (sp.getBoolean("isdev", false)) {
-			devVer.addValueEventListener(new ValueEventListener() {
-				@Override
-				public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-					newDevVer = dataSnapshot.getValue(String.class);
-				}
-
-				@Override
-				public void onCancelled(@NonNull DatabaseError databaseError) {
-
-				}
-			});
-		}
-
-		refCount.addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				newversion = (String) dataSnapshot.getValue();
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError databaseError) {
-				newversion = "";
-			}
-		});*/
 
 		AlertDialog.Builder build = new AlertDialog.Builder(this);
 		build.setTitle(R.string.confirm)
@@ -370,30 +327,6 @@ public class Updater extends AppCompatActivity {
 
 	public void postcreate() {
 		other_settings();
-		/*if (sp.getBoolean("isdev", false)) {
-			if (!sp.getBoolean("stop_receive_all", false) && !sp.getBoolean("show_laydev", true))
-				findViewById(R.id.btnStopReceive).setVisibility(View.VISIBLE);
-			//findViewById(R.id.layDev).setVisibility(View.GONE);
-		} else {
-			if (sp.getBoolean("show_laydev", true)) {
-				View mView = getLayoutInflater().inflate(R.layout.join_testers, null);
-				mView.findViewById(R.id.btnNotJoin).setOnClickListener(notJoin);
-				mView.findViewById(R.id.btnGetBuilds).setOnClickListener(join);
-				AlertDialog.Builder builddev = new AlertDialog.Builder(this);
-				builddev.setView(mView).setCancelable(false);
-				deval = builddev.create();
-				if(DarkMode) {
-					deval.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-					Button b = mView.findViewById(R.id.btnNotJoin);
-					b.setTextColor(getResources().getColor(R.color.white));
-					b = mView.findViewById(R.id.btnGetBuilds);
-					b.setTextColor(getResources().getColor(R.color.white));
-					TextView t = mView.findViewById(R.id.txtGetBuilds);
-					t.setTextColor(getResources().getColor(R.color.white));
-				}
-				deval.show();
-			}
-		}*/
 		Button b = findViewById(R.id.btnReport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		b.setTextColor(getResources().getColor(R.color.white));
@@ -412,11 +345,27 @@ public class Updater extends AppCompatActivity {
 		}
 	}
 
-	public void apply_dark_mode(){
-		if(!DarkMode)
-			return;
-		TextView t = findViewById(R.id.txtxCopyRight);
-		t.setTextColor(getResources().getColor(R.color.white));
+	public void apply_theme(){
+		ActionBar appActionBar = getSupportActionBar();
+		try {
+			appActionBar.setDisplayHomeAsUpEnabled(true);
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		} catch (Exception e) {
+			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+
+		}
+		if(DarkMode) {
+			getWindow().setBackgroundDrawableResource(R.drawable.black);
+			TextView t = findViewById(R.id.txtxCopyRight);
+			t.setTextColor(getResources().getColor(R.color.white));
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+		}else{
+			getWindow().setBackgroundDrawableResource(R.drawable.white);
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+		}
+		appActionBar.setElevation(0);
 	}
 
 	public void apply_dark_at_othersettings(){

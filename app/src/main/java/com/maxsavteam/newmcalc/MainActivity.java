@@ -14,6 +14,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -38,6 +39,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -51,6 +53,7 @@ import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.EmptyStackException;
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity{
     public TextView text_example;
     String FI, PI, E;
     private MemorySaverReader memorySaverReader;
+    private String MULTIPLY_SIGN;
+    private String DIVIDE_SIGN;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -182,6 +187,8 @@ public class MainActivity extends AppCompatActivity{
             goto_add_scr("history");
         }else if(v.getId() == R.id.btnImgPassgen){
             goto_add_scr("pass");
+        }else if(v.getId() == R.id.imgBtnBin){
+            goto_add_scr("bin");
         }
     }
 
@@ -191,6 +198,7 @@ public class MainActivity extends AppCompatActivity{
             case "settings":
                 resultIntent = new Intent(getApplicationContext(), Updater.class);
                 resultIntent.putExtra("action", "simple");
+                resultIntent.putExtra("start_type", "app");
                 if (uptype.equals("simple"))
                     resultIntent.putExtra("update_path", "/NewMCalc.apk");
                 else
@@ -219,6 +227,12 @@ public class MainActivity extends AppCompatActivity{
                 startActivity(resultIntent);
 	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
+            case "bin":
+                resultIntent = new Intent(this, number_system.class);
+                resultIntent.putExtra("start_type", "app");
+                startActivity(resultIntent);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+                break;
         }
     }
 
@@ -235,6 +249,7 @@ public class MainActivity extends AppCompatActivity{
 	    sp.edit().remove("notification_showed").apply();
 	    if(DarkMode){
 	    	setTheme(android.R.style.Theme_Material_NoActionBar);
+            //setTheme(R.style.AppTheme);
 	    }else{
 	        setTheme(R.style.AppTheme);
         }
@@ -293,29 +308,47 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void apply_theme(){
-	    if(DarkMode){
-		    getWindow().setBackgroundDrawableResource(R.drawable.black);
-		    TextView t;
-            int[] ids = new int[]{
-                    R.id.textAns2,
-                    R.id.textStr
-            };
-            for (int id : ids) {
-                t = findViewById(id);
-                t.setTextColor(getResources().getColor(R.color.white));
+        ActionBar bar = null;
+        bar = getSupportActionBar();
+        try {
+            if (DarkMode) {
+                getWindow().setBackgroundDrawableResource(R.drawable.black);
+                TextView t;
+                int[] ids = new int[]{
+                        R.id.textAns2,
+                        R.id.textStr
+                };
+                for (int id : ids) {
+                    t = findViewById(id);
+                    t.setTextColor(getResources().getColor(R.color.white));
+                }
+                bar.setBackgroundDrawable(getDrawable(R.drawable.black));
+            } else {
+                TextView t;
+                getWindow().setBackgroundDrawableResource(R.drawable.white);
+                int[] ids = new int[]{
+                        R.id.textAns2,
+                        R.id.textStr
+                };
+                for (int id : ids) {
+                    t = findViewById(id);
+                    t.setTextColor(getResources().getColor(R.color.black));
+                }
+                bar.setBackgroundDrawable(getDrawable(R.drawable.white));
+                //barTitle.setTextColor(Color.BLACK);
             }
-	    }else{
-            TextView t;
-            getWindow().setBackgroundDrawableResource(R.drawable.white);
-            int[] ids = new int[]{
-                    R.id.textAns2,
-                    R.id.textStr
-            };
-            for (int id : ids) {
-                t = findViewById(id);
-                t.setTextColor(getResources().getColor(R.color.black));
-            }
-	    }
+            bar.setElevation(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void aboutAG(View v){
+        Intent in = new Intent(this, catch_service.class);
+        in.putExtra("action", "aboutAG");
+        startActivity(in);
+        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
     }
 
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
@@ -375,6 +408,8 @@ public class MainActivity extends AppCompatActivity{
             sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
         barr = memorySaverReader.read();
+        MULTIPLY_SIGN = getResources().getString(R.string.multiply);
+        DIVIDE_SIGN = getResources().getString(R.string.div);
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
@@ -919,7 +954,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @SuppressLint("SetTextI18n")
-    //public void calc(String stri, String type, int digits, int actions){
     public void calc(String stri, String type){
         s0.clear();
         s1.clear();
@@ -1128,6 +1162,69 @@ public class MainActivity extends AppCompatActivity{
                         break;
                     }
                 }
+            }else if(s.equals("A")){
+                i += 2;
+                String n = "";
+                int actions = 0;
+                while(stri.charAt(i) != ')'){
+                    if(stri.charAt(i) == '+'){
+                        actions++;
+                        s1.push(new BigDecimal(n));
+                        n = "";
+                    }else{
+                        n += Character.toString(stri.charAt(i));
+                    }
+                    i++;
+                }
+                s1.push(new BigDecimal(n));
+                BigDecimal sum = BigDecimal.ZERO;
+                for(int j = 0; j <= actions; j++){
+                    sum = sum.add(s1.peek());
+                    s1.pop();
+                }
+                sum = sum.divide(BigDecimal.valueOf(actions + 1), 2, RoundingMode.HALF_EVEN);
+                String answer = sum.toPlainString();
+                int len1 = answer.length();
+                if(answer.charAt(len1 - 1) == '0'){
+                    while(answer.charAt(len1 - 1) == '0' || answer.charAt(len1 - 1) == '.'){
+                        len1--;
+                        answer = answer.substring(0, len1);
+                    }
+                }
+                s1.push(new BigDecimal(answer));
+                continue;
+            }else if(s.equals("G")){
+                i += 2;
+                String n = "";
+                int actions = 0;
+                while(stri.charAt(i) != ')'){
+                    if(stri.charAt(i) == '*'){
+                        actions++;
+                        s1.push(new BigDecimal(n));
+                        n = "";
+                    }else{
+                        n += Character.toString(stri.charAt(i));
+                    }
+                    i++;
+                }
+                s1.push(new BigDecimal(n));
+                BigDecimal sum = BigDecimal.ONE;
+                for(int j = 0; j <= actions; j++) {
+                    sum = sum.multiply(s1.peek());
+                    s1.pop();
+                }
+                MathContext mc = new MathContext(4);
+                sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue()));
+                String answer = sum.toPlainString();
+                int len1 = answer.length();
+                if(answer.charAt(len1 - 1) == '0' && answer.contains(".")){
+                    while(answer.charAt(len1 - 1) == '0' || answer.charAt(len1 - 1) == '.'){
+                        len1--;
+                        answer = answer.substring(0, len1);
+                    }
+                }
+                s1.push(new BigDecimal(answer));
+                continue;
             }
             if(isdigit(str[i])){
                 x = "";
@@ -1476,6 +1573,18 @@ public class MainActivity extends AppCompatActivity{
         equallu("all");
     }
 
+    enum EnterModes{
+        SIMPLE,
+        AVERAGE,
+        GEOMETRIC
+    }
+
+    EnterModes add_text_mode = EnterModes.SIMPLE;
+
+    boolean isSpecific(char last){
+        return last == ')' || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI);
+    }
+
     @SuppressLint("SetTextI18n")
     public void add_text(String btntxt){
         t = findViewById(R.id.textStr);
@@ -1486,6 +1595,66 @@ public class MainActivity extends AppCompatActivity{
         //log("add text. len - " + len + ", btntxt - " + btntxt);
         if(len != 0)
             last = txt.charAt(len-1);
+
+        if(btntxt.equals("A")){
+            if(len == 0){
+                t.setText(btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.AVERAGE;
+                return;
+            }
+            if(add_text_mode != EnterModes.SIMPLE)
+                return;
+
+            if(isdigit(last) || isSpecific(last)){
+                t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.AVERAGE;
+            }else if(!isdigit(last) && !isSpecific(last)){
+                t.setText(txt + btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.AVERAGE;
+            }
+        }else if(btntxt.equals("G")){
+            if(len == 0){
+                t.setText(btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.GEOMETRIC;
+                return;
+            }
+            if(add_text_mode != EnterModes.SIMPLE)
+                return;
+
+            if(isdigit(last) || isSpecific(last)){
+                t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.GEOMETRIC;
+            }else if(!isdigit(last) && !isSpecific(last)){
+                t.setText(txt + btntxt + "(");
+                equallu("not");
+                add_text_mode = EnterModes.GEOMETRIC;
+            }
+        }
+        if(add_text_mode != EnterModes.SIMPLE){
+            if(btntxt.equals(")")){
+                if(isdigit(last)){
+                    t.setText(txt + btntxt);
+                    equallu("not");
+                }else{
+                    txt = txt.substring(0, txt.length() - 1);
+                    t.setText(txt + btntxt);
+                    equallu("not");
+                }
+                add_text_mode = EnterModes.SIMPLE;
+                return;
+            }
+            if (add_text_mode == EnterModes.AVERAGE && (btntxt.length() > 1 || (!btntxt.equals("+") && !btntxt.equals("."))) && !isdigit(btntxt.charAt(0))) {
+                return;
+            }
+            if (add_text_mode == EnterModes.GEOMETRIC && (btntxt.length() > 1 || (!btntxt.equals(MULTIPLY_SIGN) && !btntxt.equals("."))) && !isdigit(btntxt.charAt(0))) {
+                return;
+            }
+        }
 
         if(txt.equals("0") && isdigit(btntxt)){
         	t.setText(btntxt);
@@ -1797,9 +1966,26 @@ public class MainActivity extends AppCompatActivity{
         if(len != 0){
             char last = text.charAt(len - 1);
             int a = 1;
+            if(last == ')' && (text.contains("A") || text.contains("G"))){
+                int i = len-1;
+                while(i >= 1 && text.charAt(i) != '(')
+                    i--;
+                i--;
+                if(text.charAt(i) == 'A'){
+                    add_text_mode = EnterModes.AVERAGE;
+                }else if(text.charAt(i) == 'G'){
+                    add_text_mode = EnterModes.GEOMETRIC;
+                }
+            }
             if(last == '(' && len > 1){
-                if(text.charAt(text.length() - 2) == '√' || text.charAt(len - 2) == '^')
+                if(text.charAt(text.length() - 2) == '√'
+                        || text.charAt(len - 2) == '^') {
                     a = 2;
+                }
+                if( text.charAt(len - 2) == 'A' || text.charAt(len-2) == 'G'){
+                    a = 2;
+                    add_text_mode = EnterModes.SIMPLE;
+                }
                 if(text.charAt(len - 2) == 's' || text.charAt(len - 2) == 'g')
                 	a = 4;
                 if(text.charAt(len - 2) == 'n'){

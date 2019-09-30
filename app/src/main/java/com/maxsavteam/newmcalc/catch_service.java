@@ -8,9 +8,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.preference.PreferenceManager;
@@ -28,6 +31,7 @@ public class catch_service extends AppCompatActivity {
 
 	SharedPreferences sp;
 	String default_vk = "maksin.colf", default_inst = "maksin.colf";
+	String dynamic_vk = "https://maxsavteam.page.link/VK", dynamic_inst = "https://maxsavteam.page.link/Instagram";
 
 	@Override
 	public void onBackPressed(){
@@ -42,9 +46,9 @@ public class catch_service extends AppCompatActivity {
 	public void social(View v){
 		Intent in = new Intent(Intent.ACTION_VIEW);
 		if(v.getId() == R.id.vkBtn)
-			in.setData(Uri.parse("https://vk.com/" + default_vk));
+			in.setData(Uri.parse(dynamic_vk));
 		else if(v.getId() == R.id.instBtn)
-			in.setData(Uri.parse("https://instagram.com/" + default_inst));
+			in.setData(Uri.parse(dynamic_inst));
 		else if(v.getId() == R.id.siteBtn)
 			in.setData(Uri.parse("https://maxsavteam.tk/Mobile/"));
 		else if(v.getId() == R.id.playMarketBtn)
@@ -64,6 +68,16 @@ public class catch_service extends AppCompatActivity {
 
 	boolean DarkMode;
 	String APP_TYPE = BuildConfig.APPTYPE;
+	private void apply_actionbar(){
+		ActionBar appActionBar = getSupportActionBar();
+		if(DarkMode){
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+		}else{
+			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+		}
+	}
 
 	@SuppressLint("SetTextI18n")
 	@Override
@@ -82,28 +96,15 @@ public class catch_service extends AppCompatActivity {
 		try{
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setTitle("");
-			//getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+			getSupportActionBar().setElevation(0);
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		}catch(Exception e){
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 
 		}
-		/*BroadcastReceiver on_shortcut_numgen = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Intent resultIntent = new Intent(getApplicationContext(), numgen.class);
-				resultIntent.putExtra("type", "number");
-				startActivity(resultIntent);
-				overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-			}
-		};
-		registerReceiver(on_shortcut_numgen, new IntentFilter("com.maxsavteam.newmcalc.ShortCutNumGen"));*/
+		apply_actionbar();
 		assert action != null;
-		if ("about_app".equals(action)) {/*if(DarkMode)
-					setTheme(android.R.style.Theme_Material_NoActionBar);
-				else
-					setTheme(R.style.AppTheme);*/
-
+		if ("about_app".equals(action)) {
 			setContentView(R.layout.about_activity);
 			if(!APP_TYPE.equals("stable"))
 				((TextView) findViewById(R.id.appname)).setText(Html.fromHtml(getResources().getString(R.string.app_name) + "<sup>" + BuildConfig.APPTYPE + "</sup>"));
@@ -126,6 +127,25 @@ public class catch_service extends AppCompatActivity {
 					((TextView) findViewById(id)).setTextColor(getResources().getColor(white));
 				}
 
+			}else{
+				getWindow().setBackgroundDrawableResource(R.drawable.white);
+			}
+		}else if(action.equals("aboutAG")){
+			setContentView(R.layout.about_average_geometric);
+			int[] ids = new int[]{
+					R.id.lblAboutAG,
+					R.id.lblA,
+					R.id.lblG,
+					R.id.lblAboutA,
+					R.id.lblAboutG
+			};
+			if(DarkMode) {
+				getWindow().setBackgroundDrawableResource(R.drawable.black);
+				for (int id : ids) {
+					((TextView) findViewById(id)).setTextColor(Color.WHITE);
+				}
+			}else{
+				getWindow().setBackgroundDrawableResource(R.drawable.white);
 			}
 		}
 	}

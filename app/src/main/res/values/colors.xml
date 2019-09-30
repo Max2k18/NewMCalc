@@ -3,6 +3,7 @@
     <color name="colorPrimary">#000</color>
     <color name="colorPrimaryDark">#000</color>
     <color name="colorAccent">#2AA659</color>
+    <color name="colorPrimaryLight">#fff</color>
     <color name="redbackground">#D81B60</color>
     <color name="forgenbtn">#586AE1</color>
     <color name="black">#000</color>

@@ -47,12 +47,12 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 134
-        versionName "1.9.1.B134"
+        versionCode 142
+        versionName "1.10.0.B142"
         buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "190925"
+        buildConfigField "int", "COMPILE_DATE", "190930"
         buildConfigField "String", "APPTYPE", "\"stable\""
-        buildConfigField "String", "CoreVersion", "\"v1.0.03.91925\""
+        buildConfigField "String", "CoreVersion", "\"v1.1.01.91926\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
     }
@@ -93,7 +93,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-crash:16.2.1'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation 'com.google.firebase:firebase-database:19.1.0'
-    implementation 'com.google.firebase:firebase-inappmessaging-display:19.0.0'
+    implementation 'com.google.firebase:firebase-inappmessaging-display:19.0.1'
+    implementation 'com.google.android.material:material:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
