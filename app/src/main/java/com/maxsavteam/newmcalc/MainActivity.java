@@ -22,6 +22,7 @@ import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
@@ -298,8 +299,16 @@ public class MainActivity extends AppCompatActivity{
                     .setIcon(Icon.createWithResource(this, R.drawable.history))
                     .setIntent(t)
                     .build();
+	        t.putExtra("to_", "bin");
+            ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder(getApplicationContext(), "idNumSys")
+		            .setLongLabel(getResources().getString(R.string.number_system_convrter))
+		            .setShortLabel(getResources().getString(R.string.number_system_convrter))
+		            .setIcon(Icon.createWithResource(this, R.drawable.binary))
+		            .setIntent(t)
+		            .build();
 
-            shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortcut2, shortcut1));
+
+            shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortCutNumSys, shortcut2, shortcut1));
         }
         set_viewpager();
 
@@ -493,12 +502,8 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void memory_mr(View view){
-    	TextView t = findViewById(R.id.textStr);
-    	t.setText(barr[0].toString());
-    	show_str();
-    	t = findViewById(R.id.textAns2);
-    	hide_ans();
-    	t.setText("");
+    	String value = barr[0].toString();
+    	add_value_from_mem(value);
     }
 
     String recall_type = "";
@@ -538,26 +543,26 @@ public class MainActivity extends AppCompatActivity{
 	    }
     };
 
-    void show_str(){
+    private void show_str(){
         TextView t = findViewById(R.id.textStr);
         //t.setTextIsSelectable(false);
         t.setVisibility(View.VISIBLE);
     }
-    void hide_str(){
+    private void hide_str(){
         TextView t = findViewById(R.id.textStr);
         t.setVisibility(View.INVISIBLE);
     }
 
-    void show_ans(){
+    private void show_ans(){
         TextView t = findViewById(R.id.textAns2);
         t.setVisibility(View.VISIBLE);
     }
-    void hide_ans(){
+    private void hide_ans(){
         TextView t = findViewById(R.id.textAns2);
         t.setVisibility(View.INVISIBLE);
     }
 
-    void set_viewpager(){
+    private void set_viewpager(){
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
         ViewPager viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(myFragmentPagerAdapter);
@@ -573,7 +578,28 @@ public class MainActivity extends AppCompatActivity{
         viewPager.setCurrentItem(0);
     }
 
-    protected void register_broadcasters(){
+    private void add_value_from_mem(String value){
+        TextView t = findViewById(R.id.textStr);
+        String txt = t.getText().toString();
+        if(txt.equals("")) {
+            t.setText(value);
+            show_str();
+            hide_ans();
+        }else{
+            char last = txt.charAt(txt.length() - 1);
+            if(isdigit(last) || last == '%' || last == '!'
+                    || Character.toString(last).equals(FI)
+                    || Character.toString(last).equals(PI) || last == 'e' || last == ')'){
+                t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
+                equallu("not");
+            }else{
+                t.setText(String.format("%s%s", txt, value));
+                equallu("not");
+            }
+        }
+    }
+
+    private void register_broadcasters(){
         BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -584,10 +610,8 @@ public class MainActivity extends AppCompatActivity{
         BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                TextView t = findViewById(R.id.textStr);
-                t.setText(intent.getStringExtra("value"));
-                show_str();
-                hide_ans();
+                String value = intent.getStringExtra("value");
+                add_value_from_mem(value);
             }
         };
         registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
@@ -954,7 +978,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @SuppressLint("SetTextI18n")
-    public void calc(String stri, String type){
+    private void calc(String stri, String type){
         s0.clear();
         s1.clear();
         if(type.equals("all"))
@@ -1129,12 +1153,22 @@ public class MainActivity extends AppCompatActivity{
                             s1.push(fact(y));
                         }
                     }
+                    if(i != len - 1) {
+                        char next = stri.charAt(i + 1);
+                        if(isdigit(next) || next == 'P' || next == 'F' || next == 'e')
+                            in_s0('*');
+                    }
                     continue;
                 }
             }else if(s.equals("%")){
                 BigDecimal y = s1.peek();
                 s1.pop();
                 s1.push(y.divide(new BigDecimal(100)));
+                if(i != len - 1) {
+                    char next = stri.charAt(i + 1);
+                    if(isdigit(next) || next == 'P' || next == 'F' || next == 'e')
+                        in_s0('*');
+                }
                 continue;
             }else if(s.equals("e")){
                 BigDecimal f = new BigDecimal(Math.E);
@@ -1318,7 +1352,15 @@ public class MainActivity extends AppCompatActivity{
             switch (type) {
                 case "all":
                     TextView tans = findViewById(R.id.textStr);
-                    tans.setText(s1.peek().toPlainString());
+                    String ans = s1.peek().toPlainString();
+                    if(ans.contains(".")) {
+                        if (ans.length() - ans.indexOf(".") > 9){
+                            BigDecimal d = s1.peek();
+                            d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                            ans = d.toPlainString();
+                        }
+                    }
+                    tans.setText(ans);
                     format(R.id.textStr);
                     tans = findViewById(R.id.textAns2);
                     tans.setText(original);
@@ -1342,7 +1384,15 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case "not":
                     TextView preans = findViewById(R.id.textAns2);
-                    preans.setText(s1.peek().toPlainString());
+                    String ans1 = s1.peek().toPlainString();
+                    if(ans1.contains(".")) {
+                        if (ans1.length() - ans1.indexOf(".") > 9){
+                            BigDecimal d = s1.peek();
+                            d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                            ans1 = d.toPlainString();
+                        }
+                    }
+                    preans.setText(ans1);
                     format(R.id.textAns2);
                     show_ans();
                     set_text_toDef();
@@ -1431,7 +1481,7 @@ public class MainActivity extends AppCompatActivity{
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
     }
 
-    public void equallu(String type){
+    private void equallu(String type){
         TextView txt = findViewById(R.id.textStr);
         String stri = txt.getText().toString();
         format(R.id.textStr);
@@ -1518,6 +1568,16 @@ public class MainActivity extends AppCompatActivity{
 	        //return;
             e.printStackTrace();
         }*/
+	    try{
+	    	BigDecimal b = null;
+	    	b = new BigDecimal(stri);
+	    	if(b != null){
+	    		hide_ans();
+	    		return;
+		    }
+	    }catch (NumberFormatException e){
+		    Log.e("All ok", e.toString());
+	    }
 	    if(android.text.TextUtils.isDigitsOnly(stri)){
 	    	hide_ans();
 	    	return;
@@ -1656,9 +1716,19 @@ public class MainActivity extends AppCompatActivity{
             }
         }
 
-        if(txt.equals("0") && isdigit(btntxt)){
-        	t.setText(btntxt);
-        	return;
+        if(isdigit(btntxt)){
+            if(txt.equals("0")) {
+                t.setText(btntxt);
+                return;
+            }
+            if(len > 1){
+                if(last == '0' && !isdigit(txt.charAt(len - 2))){
+                    txt = txt.substring(0, len - 1) + btntxt;
+                    t.setText(txt);
+                    equallu("not");
+                    return;
+                }
+            }
         }
         if(btntxt.equals("φ") || btntxt.equals("π") || btntxt.equals("e")){
             if(len == 0){
@@ -1867,17 +1937,17 @@ public class MainActivity extends AppCompatActivity{
         }else{
             if(btntxt.equals("!") || btntxt.equals("%")){
                 if(!txt.equals("")){
-                    if( last != ')' && !isdigit(last) && (len > 1 && last != '(' && islet(txt.charAt(len - 2))
-                            && !Character.toString(txt.charAt(len - 2)).equals(PI) && !Character.toString(txt.charAt(len-2)).equals(FI) && txt.charAt(len - 2) != 'e') ){
-                        if(btntxt.equals("!")){
-                            if(last == '!'){
-                                if(txt.charAt(len - 2) != '!'){
-                                    t.setText(txt + btntxt);
-                                    equallu("not");
-                                    return;
-                                }
+                    if(btntxt.equals("!")){
+                        if(last == '!'){
+                            if(txt.charAt(len - 2) != '!'){
+                                t.setText(txt + btntxt);
+                                equallu("not");
+                                return;
                             }
                         }
+                    }
+                    if( last != ')' && !isdigit(last) && (len > 1 && last != '(' && islet(txt.charAt(len - 2))
+                            && !Character.toString(txt.charAt(len - 2)).equals(PI) && !Character.toString(txt.charAt(len-2)).equals(FI) && txt.charAt(len - 2) != 'e') ){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
                         equallu("not");

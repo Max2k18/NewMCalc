@@ -358,11 +358,11 @@ public class Updater extends AppCompatActivity {
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
 			TextView t = findViewById(R.id.txtxCopyRight);
 			t.setTextColor(getResources().getColor(R.color.white));
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 		}else{
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}
 		appActionBar.setElevation(0);

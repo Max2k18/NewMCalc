@@ -45,10 +45,10 @@ public class memory_actions_activity extends AppCompatActivity implements window
 	private void apply_actionbar(){
 		ActionBar appActionBar = getSupportActionBar();
 		if(DarkMode){
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 		}else{
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}
 		appActionBar.setElevation(0);

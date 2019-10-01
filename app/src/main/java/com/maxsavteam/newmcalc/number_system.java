@@ -11,11 +11,9 @@ import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
-import android.text.Html;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Display;
@@ -26,7 +24,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +37,7 @@ public class number_system extends AppCompatActivity {
 	private EditText fromText, toText;
 	private SharedPreferences sp;
 	private boolean DarkMode;
+	private Point display_size = new Point();
 
 	protected void backPressed(){
 		finish();
@@ -82,8 +80,8 @@ public class number_system extends AppCompatActivity {
 		Point p = new Point();
 		d.getSize(p);
 		ViewGroup.LayoutParams par = btn.getLayoutParams();
-		par.width = p.x / 6;
-		par.height = p.x / 6;
+		par.width = p.x / 5;
+		par.height = p.x / 5;
 		btn.setLayoutParams(par);
 		ActionBar appActionBar = getSupportActionBar();
 		appActionBar.setTitle("");
@@ -96,16 +94,17 @@ public class number_system extends AppCompatActivity {
 		//appActionBar.setHomeAsUpIndicator(getDrawable(R.drawable.black))
 		if(dark_mode){
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
-			btn.setImageDrawable(getDrawable(R.drawable.copy_dark));
+			btn.setImageDrawable(getDrawable(R.drawable.ic_content_copy_white_100dp));
 			int[] textViewIds = new int[]{R.id.fromSystem, R.id.toSystem, R.id.lblChooseSys};
 			for(int id : textViewIds){
 				((TextView) findViewById(id)).setTextColor(Color.WHITE);
 			}
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_black);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 		}else{
+			btn.setImageDrawable(getDrawable(R.drawable.ic_content_copy_black_100dp));
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
-			appActionBar.setHomeAsUpIndicator(R.drawable.left_arrow_for_light);
+			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 			//getTheme().applyStyle(R.style.ActionBarLight, true);
 		}
@@ -161,7 +160,7 @@ public class number_system extends AppCompatActivity {
 		to.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				toSys = Integer.valueOf(data[position]);
+				//toSys = Integer.valueOf(data[position]);
 				int choice = Integer.valueOf(data[position]);
 				if(choice == fromSys){
 					fromSys = toSys;

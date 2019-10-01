@@ -145,4 +145,5 @@
     <string name="chooseToSys">in</string>
     <string name="chooseSysLabel">Select number systems to convert number</string>
     <string name="CompileDateLbl">Compiled:</string>
+    <string name="number_system_convrter">Number System Converter</string>
 </resources>
