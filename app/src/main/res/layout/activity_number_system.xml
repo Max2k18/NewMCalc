@@ -45,7 +45,7 @@
                     android:gravity="center"
                     android:text="@string/chooseFromSys"
                     android:textColor="@color/black"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
 
                 <Spinner
                     android:id="@+id/chooseFromWhichSys"
@@ -60,7 +60,8 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:gravity="center"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
@@ -82,7 +83,7 @@
                     android:gravity="center"
                     android:text="@string/chooseToSys"
                     android:textColor="@color/black"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
 
                 <Spinner
                     android:id="@+id/chooseToWhichSys"
@@ -99,7 +100,8 @@
                     android:editable="false"
                     android:ems="10"
                     android:gravity="center"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
@@ -109,6 +111,8 @@
             android:id="@+id/btnImgCopyNum"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/white"
             android:backgroundTint="@android:color/transparent"
             android:onClick="copy"
             android:scaleType="centerInside"

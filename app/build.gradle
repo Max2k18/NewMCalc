@@ -48,10 +48,10 @@ android {
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         versionCode 150
-        versionName "1.10.1.B150"
+        versionName "1.10.1.dev.B150"
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "int", "COMPILE_DATE", "191001"
-        buildConfigField "String", "APPTYPE", "\"stable\""
+        buildConfigField "String", "APPTYPE", "\"dev\""
         buildConfigField "String", "CoreVersion", "\"v1.2.01.101901\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""

@@ -489,17 +489,26 @@ public class MainActivity extends AppCompatActivity{
 
     public void memory_ms(View view){
         TextView t = findViewById(R.id.textStr);
-        if(t.getText().toString().equals(""))
+        String txt = t.getText().toString();
+        if(txt.equals(""))
             return;
         BigDecimal temp;
         try{
-            temp = new BigDecimal(t.getText().toString());
+            temp = new BigDecimal(txt);
         }catch(NumberFormatException e){
+            equallu("all");
+            if (count_of_ms_recalls < 1) {
+                count_of_ms_recalls++;
+                memory_ms(view);
+            }
             return;
         }
+        count_of_ms_recalls = 0;
         barr[0] = temp;
     	memorySaverReader.save(barr);
+    	returnback.onLongClick(findViewById(R.id.btnCalc));
     }
+    int count_of_ms_recalls = 0;
 
     public void memory_mr(View view){
     	String value = barr[0].toString();
@@ -587,6 +596,8 @@ public class MainActivity extends AppCompatActivity{
             hide_ans();
         }else{
             char last = txt.charAt(txt.length() - 1);
+            if(new BigDecimal(value).signum() < 0)
+                value = "(" + value + ")";
             if(isdigit(last) || last == '%' || last == '!'
                     || Character.toString(last).equals(FI)
                     || Character.toString(last).equals(PI) || last == 'e' || last == ')'){
@@ -1036,7 +1047,7 @@ public class MainActivity extends AppCompatActivity{
                         s0.push("*");
                     }
                 }
-                if(i + 4 <= stri.length()){
+                //if(i + 4 <= stri.length()){
                     String let = "";
                     while(i < stri.length() && islet(stri.charAt(i))){
                         let += Character.toString(stri.charAt(i));
@@ -1076,7 +1087,7 @@ public class MainActivity extends AppCompatActivity{
                             break;
                     }
                     continue;
-                }else{
+                /*}else{
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalidstateforsin), Toast.LENGTH_LONG).show();
                     was_error = true;
                     break;
@@ -1086,8 +1097,8 @@ public class MainActivity extends AppCompatActivity{
                         }else{
                             s0.pop();
                         }
-                    }*/
-                }
+                    }
+                }*/
             }
             if(s.equals("P")){
                 BigDecimal f = new BigDecimal(Math.PI);
@@ -1349,65 +1360,71 @@ public class MainActivity extends AppCompatActivity{
             }
         }
         if(!was_error){
-            switch (type) {
-                case "all":
-                    TextView tans = findViewById(R.id.textStr);
-                    String ans = s1.peek().toPlainString();
-                    if(ans.contains(".")) {
-                        if (ans.length() - ans.indexOf(".") > 9){
-                            BigDecimal d = s1.peek();
-                            d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                            ans = d.toPlainString();
-                        }
-                    }
-                    tans.setText(ans);
-                    format(R.id.textStr);
-                    tans = findViewById(R.id.textAns2);
-                    tans.setText(original);
-                    show_ans();
-                    scroll_to_end();
-
-                    String his = sp.getString("history", "");
-                    StringBuilder sb = new StringBuilder(original);
-                    for (int i = 0; i < sb.length(); i++) {
-                        if (sb.charAt(i) == ' ') {
-                            sb.deleteCharAt(i);
-                        }
-                    }
-                    String for_his = sb.toString();
-                    if (his.indexOf(for_his + "," + s1.peek().toPlainString() + ";") != 0) {
-                        his = original + "," + s1.peek().toString() + ";" + his;
-                        sp.edit().putString("history", his).apply();
-                    }
-                    if (sp.getBoolean("saveResult", false))
-                        sp.edit().putString("saveResultText", original + ";" + s1.peek().toPlainString()).apply();
-                    break;
-                case "not":
-                    TextView preans = findViewById(R.id.textAns2);
-                    String ans1 = s1.peek().toPlainString();
-                    if(ans1.contains(".")) {
-                        if (ans1.length() - ans1.indexOf(".") > 9){
-                            BigDecimal d = s1.peek();
-                            d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                            ans1 = d.toPlainString();
-                        }
-                    }
-                    preans.setText(ans1);
-                    format(R.id.textAns2);
-                    show_ans();
-                    set_text_toDef();
-                    resize_text();
-                    scroll_to_end();
-                    break;
-                case "for_memory":
-                    result_calc_for_mem = s1.peek();
-                    memory_calculated = true;
-                    break;
-            }
+            write_result_of_calculation(type);
         }else{
             hide_ans();
         }
 
+    }
+
+    private void write_result_of_calculation(String type){
+        switch (type) {
+            case "all":
+                TextView tans = findViewById(R.id.textStr);
+                String ans = s1.peek().toPlainString();
+                if(ans.contains(".")) {
+                    if (ans.length() - ans.indexOf(".") > 9){
+                        BigDecimal d = s1.peek();
+                        d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                        ans = d.toPlainString();
+                    }
+                }
+                tans.setText(ans);
+                format(R.id.textStr);
+                tans = findViewById(R.id.textAns2);
+                tans.setText(original);
+                show_ans();
+                scroll_to_end();
+
+                String his = sp.getString("history", "");
+                StringBuilder sb = new StringBuilder(original);
+                for (int i = 0; i < sb.length(); i++) {
+                    if (sb.charAt(i) == ' ') {
+                        sb.deleteCharAt(i);
+                    }
+                }
+                String for_his = sb.toString();
+                if (his.indexOf(for_his + "," + s1.peek().toPlainString() + ";") != 0) {
+                    his = original + "," + s1.peek().toString() + ";" + his;
+                    sp.edit().putString("history", his).apply();
+                }
+                if (sp.getBoolean("saveResult", false))
+                    sp.edit().putString("saveResultText", original + ";" + s1.peek().toPlainString()).apply();
+                break;
+            case "not":
+                TextView preans = findViewById(R.id.textAns2);
+                String ans1 = s1.peek().toPlainString();
+                if(ans1.contains(".")) {
+                    if (ans1.length() - ans1.indexOf(".") > 9){
+                        BigDecimal d = s1.peek();
+                        d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                        ans1 = d.toPlainString();
+                    }
+                }
+                preans.setText(ans1);
+                format(R.id.textAns2);
+                show_ans();
+                set_text_toDef();
+                resize_text();
+                scroll_to_end();
+                break;
+            case "for_memory":
+                result_calc_for_mem = s1.peek();
+                memory_calculated = true;
+                break;
+            default:
+                throw new IllegalArgumentException("Arguments should be of two types: all, not");
+        }
     }
 
     public boolean isaction(char c){
@@ -1557,17 +1574,6 @@ public class MainActivity extends AppCompatActivity{
 	            sb.append(stri.charAt(i));
         }
 	    stri = new String(sb);
-	    /*try{
-	        BigDecimal b = null;
-	        b = new BigDecimal(stri);
-	        if(b != null){
-	            hide_ans();
-	            return;
-            }
-        }catch (NumberFormatException e){
-	        //return;
-            e.printStackTrace();
-        }*/
 	    try{
 	    	BigDecimal b = null;
 	    	b = new BigDecimal(stri);

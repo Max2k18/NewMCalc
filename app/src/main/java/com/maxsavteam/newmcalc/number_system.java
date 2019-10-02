@@ -80,8 +80,8 @@ public class number_system extends AppCompatActivity {
 		Point p = new Point();
 		d.getSize(p);
 		ViewGroup.LayoutParams par = btn.getLayoutParams();
-		par.width = p.x / 5;
-		par.height = p.x / 5;
+		par.width = p.x / 6;
+		par.height = p.x / 6;
 		btn.setLayoutParams(par);
 		ActionBar appActionBar = getSupportActionBar();
 		appActionBar.setTitle("");
