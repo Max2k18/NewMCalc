@@ -3,17 +3,20 @@ package com.maxsavteam.newmcalc;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.preference.PreferenceManager;
@@ -21,6 +24,7 @@ import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +83,15 @@ public class catch_service extends AppCompatActivity {
 		}
 	}
 
+	final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
+			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
+			" - App type: " + BuildConfig.APPTYPE + "\n" +
+			" - Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
+			" - Core version: " + BuildConfig.CoreVersion + "\n\n" +
+			" - UpdateChecker Module activated: " + BuildConfig.UCModuleActivated + "\n" +
+			" - UpdateChecker version: " + BuildConfig.UpdateCheckerVersion + "\n" +
+			" - UpdateDownloader version: " + BuildConfig.UpdateDowVersion;
+
 	@SuppressLint("SetTextI18n")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,11 +119,37 @@ public class catch_service extends AppCompatActivity {
 		assert action != null;
 		if ("about_app".equals(action)) {
 			setContentView(R.layout.about_activity);
-			if(!APP_TYPE.equals("stable"))
-				((TextView) findViewById(R.id.appname)).setText(Html.fromHtml(getResources().getString(R.string.app_name) + "<sup>" + BuildConfig.APPTYPE + "</sup>"));
+			/*if(!APP_TYPE.equals("stable"))
+				((TextView) findViewById(R.id.appname)).setText(Html.fromHtml(getResources().getString(R.string.app_name) + "<sup>" + BuildConfig.APPTYPE + "</sup>"));*/
 			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
 			((TextView) findViewById(R.id.compiledate)).setText(Integer.toString(BuildConfig.COMPILE_DATE));
 			((TextView) findViewById(R.id.build)).setText(Integer.toString(BuildConfig.VERSION_CODE));
+
+			ImageView img = findViewById(R.id.appIcon);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				img.setImageIcon(Icon.createWithResource(this, R.drawable.newmcalc));
+			}
+			img.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					AlertDialog debug_info;
+					AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
+					builder.setTitle("Debug info")
+							.setMessage(debugInfoStr)
+							.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.cancel();
+								}
+							})
+							.setCancelable(false);
+					debug_info = builder.create();
+					if(DarkMode)
+						debug_info.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+					debug_info.show();
+					return true;
+				}
+			});
 			if (DarkMode) {
 				getWindow().setBackgroundDrawableResource(R.drawable.black);
 				int[] ids = new int[]{
@@ -126,7 +165,6 @@ public class catch_service extends AppCompatActivity {
 				for (int id : ids) {
 					((TextView) findViewById(id)).setTextColor(getResources().getColor(white));
 				}
-
 			}else{
 				getWindow().setBackgroundDrawableResource(R.drawable.white);
 			}

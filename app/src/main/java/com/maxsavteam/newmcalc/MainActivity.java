@@ -465,22 +465,33 @@ public class MainActivity extends AppCompatActivity{
         //должно быть всегда in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
-
+    int count_of_memory_plu_min_calls = 0;
     public void memory_plus_min(View v){
 	    text_example = findViewById(R.id.textStr);
 	    String text = text_example.getText().toString();
-	    if(text.equals("") || !TextUtils.isDigitsOnly(text))
+	    if(text.equals(""))
 		    return;
 
-	    BigDecimal temp;
-	    temp = new BigDecimal(text_example.getText().toString());
+	    BigDecimal temp = null;
+	    try {
+            temp = new BigDecimal(text_example.getText().toString());
+        }catch(NumberFormatException e){
+	        equallu("all");
+	        if(count_of_memory_plu_min_calls < 1){
+	            count_of_memory_plu_min_calls++;
+	            memory_plus_min(v);
+            }
+	        return;
+        }
 	    if(v.getId() == R.id.btnMemPlus) {
 		    temp = temp.add(barr[0]);
-	    }else{
-		    temp = temp.subtract(barr[0]);
+	    }else if(v.getId() == R.id.btnMemMinus){
+		    temp = barr[0].subtract(temp);
 	    }
+	    count_of_memory_plu_min_calls = 0;
 	    barr[0] = temp;
 	    memorySaverReader.save(barr);
+	    returnback.onLongClick(findViewById(R.id.btnCalc));
     }
 
 
@@ -515,8 +526,6 @@ public class MainActivity extends AppCompatActivity{
     	add_value_from_mem(value);
     }
 
-    String recall_type = "";
-    AlertDialog showMemAl;
     private void showMemAlert(final String type){
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);

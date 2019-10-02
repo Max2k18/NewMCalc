@@ -82,8 +82,11 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         String ex = adapter.getItem(position).get(0);
         if(ex.contains("~")) {
             int j;
-            for (j = 0; j < ex.length() && ex.charAt(j) != '~'; j++);
-            ex = ex.substring(0, j);
+	        j = 0;
+	        while (j < ex.length() && ex.charAt(j) != '~') {
+		        j++;
+	        }
+	        ex = ex.substring(0, j);
         }
         history_action.putExtra("example", ex).putExtra("result", adapter.getItem(position).get(1));
         backPressed();
@@ -403,7 +406,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 t.setTextColor(getResources().getColor(R.color.white));
             }
             String[] strings = getResources().getStringArray(R.array.history_not_found);
-            t.setText(strings[0] + "\n" + strings[1] + "\n" + strings[2]);
+            t.setText(String.format("%s\n%s\n%s", strings[0], strings[1], strings[2]));
         }
     }
 
