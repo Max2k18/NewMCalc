@@ -6,7 +6,7 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
 
 I translate text through Google Translator, because I do not know English so well (I'm from Belarus)
 
-I waiting for feedback
+#### **I waiting for feedback**
 
 ## Change history
 ### 1.10.3.160
