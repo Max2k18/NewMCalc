@@ -418,13 +418,15 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         in_order = false;
         POSITION_to_del = -1;
         view_ondelete.setEnabled(true);
-        view_ondelete.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.transparent)));
-        if(!DarkMode){
+        if (DarkMode) {
+            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        } else {
             TextView t;
             for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
                 t = view_ondelete.findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.black));
             }
+            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
         }
         animate_hide();
     }

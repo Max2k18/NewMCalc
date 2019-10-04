@@ -5,11 +5,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 import androidx.recyclerview.widget.ItemTouchHelper.*;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.net.nsd.NsdManager;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.maxsavteam.newmcalc.R;
 
@@ -35,13 +40,18 @@ public class SwipeController extends Callback {
 
 	private SwipeControllerActions buttonsActions = null;
 
-	private static final float buttonWidth = 250;
+	private static float buttonWidth = 250;
 
 	private Context context;
 
-	public SwipeController(SwipeControllerActions buttonsActions, Context context1) {
+	public SwipeController(SwipeControllerActions buttonsActions, Context context) {
 		this.buttonsActions = buttonsActions;
-		this.context = context1;
+		this.context = context;
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display d = wm.getDefaultDisplay();
+		Point sizes = new Point();
+		d.getSize(sizes);
+		buttonWidth = sizes.x / 5;
 	}
 
 	@Override
@@ -187,7 +197,7 @@ public class SwipeController extends Callback {
 	}
 
 	private void drawText(String text, Canvas c, RectF button, Paint p) {
-		float textSize = 50;
+		float textSize = buttonWidth / 5;
 		p.setColor(Color.WHITE);
 		p.setAntiAlias(true);
 		p.setTextSize(textSize);

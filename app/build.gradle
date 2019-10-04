@@ -4,42 +4,6 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
-    signingConfigs {
-        debug {
-            if (project.hasProperty("Keys.repo")) {
-                def projectPropsFile = file(project.property("Keys.repo") + "/newMCalcDebug.properties")
-                if (projectPropsFile.exists()) {
-                    Properties props = new Properties()
-                    props.load(new FileInputStream(projectPropsFile))
-                    storeFile file(file(project.property("Keys.repo") + props['RELEASE_STORE_FILE']))
-                    storePassword props['RELEASE_STORE_PASS']
-                    keyAlias props['RELEASE_ALIAS']
-                    keyPassword props['RELEASE_KEY_PASS']
-                }
-            } else {
-                println "======================================================="
-                println "[ERROR] - Please configure release-compilation environment - e.g. in ~/.signing directory"
-                println "======================================================="
-            }
-        }
-        release {
-            if (project.hasProperty("Keys.repo")) {
-                def projectPropsFile = file(project.property("Keys.repo") + "/newMCalc.properties")
-                if (projectPropsFile.exists()) {
-                    Properties props = new Properties()
-                    props.load(new FileInputStream(projectPropsFile))
-                    storeFile file(file(project.property("Keys.repo") + props['RELEASE_STORE_FILE']))
-                    storePassword props['RELEASE_STORE_PASS']
-                    keyAlias props['RELEASE_ALIAS']
-                    keyPassword props['RELEASE_KEY_PASS']
-                }
-            } else {
-                println "======================================================="
-                println "[ERROR] - Please configure release-compilation environment - e.g. in ~/.signing directory"
-                println "======================================================="
-            }
-        }
-    }
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc"
@@ -47,10 +11,10 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 154
-        versionName "1.10.2.B154"
+        versionCode 159
+        versionName "1.10.3.B159"
         buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "191002"
+        buildConfigField "int", "COMPILE_DATE", "191003" // It consist of year, months, day
         buildConfigField "String", "APPTYPE", "\"stable\""
         buildConfigField "String", "CoreVersion", "\"v1.2.02.101901\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""

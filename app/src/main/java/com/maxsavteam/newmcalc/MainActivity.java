@@ -51,7 +51,9 @@ import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
+import com.maxsavteam.newmcalc.core.CoreMain;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
+import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -64,10 +66,7 @@ import java.util.Objects;
 import java.util.Stack;
 
 
-public class MainActivity extends AppCompatActivity{
-
-    public static Stack<String> s0 = new Stack<>();
-    public static Stack<BigDecimal> s1 = new Stack<>();
+public class MainActivity extends AppCompatActivity implements CoreMain.CoreLinkBridge{
     public static Boolean was_error = false;
 
     private boolean isOtherActivityOpened = false;
@@ -87,6 +86,8 @@ public class MainActivity extends AppCompatActivity{
     private MemorySaverReader memorySaverReader;
     private String MULTIPLY_SIGN;
     private String DIVIDE_SIGN;
+    private Utils utils;
+    private CoreMain coreMain;
 
     View.OnLongClickListener fordel = (View v) -> {
         TextView t = findViewById(R.id.textStr);
@@ -245,9 +246,10 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
 	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	    DarkMode = sp.getBoolean("dark_mode", false);
-	    sp.edit().remove("simple_upd_exist").apply();
-	    sp.edit().remove("dev_upd_exist").apply();
 	    sp.edit().remove("notification_showed").apply();
+	    utils = new Utils();
+	    coreMain = new CoreMain();
+	    coreMain.setInterface(this);
 	    if(DarkMode){
 	    	setTheme(android.R.style.Theme_Material_NoActionBar);
             //setTheme(R.style.AppTheme);
@@ -488,10 +490,10 @@ public class MainActivity extends AppCompatActivity{
 	    }else if(v.getId() == R.id.btnMemMinus){
 		    temp = barr[0].subtract(temp);
 	    }
-	    count_of_memory_plu_min_calls = 0;
+        if(count_of_memory_plu_min_calls > 0)
+            returnback.onLongClick(findViewById(R.id.btnCalc));
 	    barr[0] = temp;
 	    memorySaverReader.save(barr);
-	    returnback.onLongClick(findViewById(R.id.btnCalc));
     }
 
 
@@ -514,10 +516,12 @@ public class MainActivity extends AppCompatActivity{
             }
             return;
         }
+        if(count_of_ms_recalls > 0)
+            returnback.onLongClick(findViewById(R.id.btnCalc));
         count_of_ms_recalls = 0;
         barr[0] = temp;
     	memorySaverReader.save(barr);
-    	returnback.onLongClick(findViewById(R.id.btnCalc));
+    	
     }
     int count_of_ms_recalls = 0;
 
@@ -607,7 +611,7 @@ public class MainActivity extends AppCompatActivity{
             char last = txt.charAt(txt.length() - 1);
             if(new BigDecimal(value).signum() < 0)
                 value = "(" + value + ")";
-            if(isdigit(last) || last == '%' || last == '!'
+            if(Utils.isdigit(last) || last == '%' || last == '!'
                     || Character.toString(last).equals(FI)
                     || Character.toString(last).equals(PI) || last == 'e' || last == ')'){
                 t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
@@ -666,11 +670,11 @@ public class MainActivity extends AppCompatActivity{
                 if(!intent.getStringExtra("example").equals("")){
                     String txt = t.getText().toString();
                     if(!txt.equals("") && txt.contains(".")){
-                        if(islet(txt.charAt(txt.length() - 1)))
+                        if(Utils.islet(txt.charAt(txt.length() - 1)))
                             return;
                         boolean was_action = false;
                         for(int i = txt.length() - 1; i >= 0; i--){
-                            if(isaction(txt.charAt(i)) || islet(txt.charAt(i))
+                            if(isaction(txt.charAt(i)) || Utils.islet(txt.charAt(i))
                                     || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.fi))
                                     || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.pi)) || txt.charAt(i) == 'e'){
                                 was_action = true;
@@ -693,7 +697,7 @@ public class MainActivity extends AppCompatActivity{
                         equallu("not");
                         return;
                     }
-                    if(!isdigit(last)){
+                    if(!Utils.isdigit(last)){
                         if(last != '!' && last != '%'){
                             txt = txt  + result;
                             t.setText(txt);
@@ -741,7 +745,7 @@ public class MainActivity extends AppCompatActivity{
     private String format_core2(String txt){
         String number = "";
         int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
-        for(; i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
+        for(; i >= 0 && (Utils.isdigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
             if(txt.charAt(i) != ' '){
                 number = txt.charAt(i) + number;
             }else
@@ -772,14 +776,6 @@ public class MainActivity extends AppCompatActivity{
             number_on_ret = number.charAt(i) + number_on_ret;
         }
         return txt + number_on_ret;
-    }
-
-    protected boolean isdigit(char c){
-        return c >= '0' && c <= '9';
-    }
-
-    protected boolean isdigit(String x){
-        return x.compareTo("0") >= 0 && x.compareTo("9") <= 0;
     }
 
     protected String calc_e(String s){
@@ -827,564 +823,16 @@ public class MainActivity extends AppCompatActivity{
         Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
         return result;
     }
-
-    protected void mult(String x){
-        if(was_error)
-            return;
-        try {
-            if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
-                double d = s1.peek().doubleValue(), ans = 1;
-                if (x.equals("log") && d <= 0) {
-                    //Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                s1.pop();
-                switch (x) {
-                    case "cos": {
-                        ans = Math.cos(d);
-                        break;
-                    }
-                    case "sin": {
-                        ans = Math.sin(d);
-                        break;
-                    }
-                    case "tan": {
-                        ans = Math.tan(d);
-                        break;
-                    }
-                    case "log": {
-                        ans = Math.log10(d);
-                        break;
-                    }
-                    case "ln": {
-                        ans = Math.log(d);
-                        break;
-                    }
-                    case "R":
-                        ans = Math.sqrt(d);
-                        break;
-                }
-
-	            BigDecimal ansb = BigDecimal.valueOf(ans);
-	            ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
-                String answer = ansb.toPlainString();
-                int len = answer.length();
-                if (answer.charAt(len - 1) == '0' && answer.contains(".")) {
-                    while (len > 0 && answer.charAt(len - 1) == '0') {
-                        len--;
-                        answer = answer.substring(0, len);
-                    }
-                    if (answer.charAt(len - 1) == '.') {
-                        answer = answer.substring(0, len - 1);
-                    }
-                }
-                s1.push(new BigDecimal(answer));
-                return;
-            }
-        }catch (EmptyStackException e){
-            was_error = true;
-        }
-        BigDecimal b = s1.peek();
-        s1.pop();
-        BigDecimal a = s1.peek();
-        BigDecimal ans = s1.peek();
-        s1.pop();
-        double a1, b1, ansd = 0.0;
-        a1 = a.doubleValue();
-        b1 = b.doubleValue();
-        try{
-            switch (x) {
-                case "+":
-                    ansd = a1 + b1;
-                    break;
-                case "-":
-                    ansd = a1 - b1;
-                    break;
-                case "*":
-                    ansd = a1 * b1;
-                    break;
-                case "/":
-                    if(b1 == 0){
-                        was_error = true;
-                        return;
-                    }
-                    ansd = a1 / b1;
-                    break;
-                case "^":
-                    ansd = Math.pow(a1, b1);
-                    break;
-            }
-            ans = new BigDecimal(BigDecimal.valueOf(ansd).toPlainString());
-            if(!ans.equals(BigDecimal.valueOf(0.0)) && !(ans.toString().contains("E")))
-                ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
-
-            String answer = ans.toPlainString();
-            int len = answer.length();
-            if(answer.charAt(len-1) == '0'){
-                while (len > 0 && answer.charAt(len - 1) == '0') {
-                    len--;
-                    answer = answer.substring(0, len);
-                }
-                if(answer.charAt(len-1) == '.'){
-                    answer = answer.substring(0, len-1);
-                }
-                ans = new BigDecimal(answer);
-            }
-            s1.push(ans);
-        }catch (ArithmeticException e){
-            //Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-            String str = e.toString();
-            if(str.contains("Non-terminating decimal expansion; no exact representable decimal result")){
-                ans = a.divide(b, 3, RoundingMode.HALF_EVEN);
-                s1.push(ans);
-            }else{
-                was_error = true;
-            }
-        }catch(Exception e){
-            was_error = true;
-            hide_ans();
-        }
-
-    }
-
-    protected boolean islet(char c){
-        return c >= 'a' && c <= 'z';
-    }
-
-    protected void in_s0(char x){
-        Map<String, Integer> priority = new HashMap<>();
-        priority.put("(", 0);
-        priority.put("-", 1);
-        priority.put("+", 1);
-        priority.put("/", 2);
-        priority.put("*", 2);
-        priority.put("^", 3);
-        priority.put("R", 3);
-        //Toast.makeText(getApplicationContext(), priority.get("(") + " " + priority.get("-"), Toast.LENGTH_SHORT).show();
-        if(x == '('){
-            s0.push(Character.toString(x));
-            return;
-        }
-        if(s0.empty()){
-            s0.push(Character.toString(x));
-            return;
-        }
-
-        if(!s0.empty() && s0.peek().equals("(")){
-            s0.push(Character.toString(x));
-            return;
-        }
-        if (!s0.empty() && (priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)).equals(priority.get(s0.peek())))) {
-            mult(s0.peek());
-            s0.pop();
-            in_s0(x);
-            return;
-        }
-        if(!s0.empty() && priority.get(Character.toString(x)) > priority.get(s0.peek()))
-            s0.push(Character.toString(x));
-    }
-
-    protected BigDecimal fact(BigDecimal x){
-        /*if(x.compareTo(new BigDecimal(1)) == 0 || x.signum() == 0){
-            return new BigDecimal(1);
-        }
-        return x.multiply(fact(x.subtract(BigDecimal.valueOf(1))));*/
-        BigDecimal ans = BigDecimal.valueOf(1);
-        for(BigDecimal i = BigDecimal.valueOf(1); i.compareTo(x) <= 0;){
-            ans = ans.multiply(i);
-            i = i.add(new BigDecimal(1));
-        }
-        return ans;
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void calc(String stri, String type){
-        s0.clear();
-        s1.clear();
-        if(type.equals("all"))
-            brackets = 0;
-        if(stri.equals("P") || stri.equals("F") || stri.equals("e")){
-            if(type.equals("all")){
-                TextView tans = findViewById(R.id.textStr);
-                if(stri.equals("P")){
-                    tans.setText(Double.toString(Math.PI));
-                    original = getResources().getString(R.string.pi);
-                }else if(stri.equals("F")) {
-                    tans.setText(Double.toString(1.618));
-                    original = getResources().getString(R.string.fi);
-                }
-                else {
-                    tans.setText(Double.toString(Math.E));
-                    original = stri;
-                }
-
-                tans = findViewById(R.id.textAns2);
-                show_ans();
-                tans.setText(original);
-                HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-
-                HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scroll_to_end();
-                return;
-            }else if(type.equals("not")){
-                TextView preans = findViewById(R.id.textAns2);
-                show_ans();
-                if(stri.equals("P")){
-                    preans.setText(Double.toString(Math.PI));
-                }else if(stri.equals("F"))
-                    preans.setText(Double.toString(1.618));
-                else preans.setText(Double.toString(Math.E));
-                //preans.setText(s1.peek().toString());
-                HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-                scrollviewans.setVisibility(HorizontalScrollView.VISIBLE);
-                scroll_to_end();
-                return;
-            }
-        }
-        char[] str = new char[stri.length()];
-        stri.getChars(0, stri.length(), str, 0);
-        String x;
-        String s;
-        int len = stri.length();
-
-        for(int i = 0; i < len; i++){
-            s = Character.toString(str[i]);
-            if(s.equals("s") || s.equals("t") || s.equals("l") || s.equals("c")){
-                if(i != 0){
-                    if(stri.charAt(i-1) == ')'){
-                        s0.push("*");
-                    }
-                }
-                //if(i + 4 <= stri.length()){
-                    String let = "";
-                    while(i < stri.length() && islet(stri.charAt(i))){
-                        let += Character.toString(stri.charAt(i));
-                        i++;
-                    }
-                    if(i != stri.length() && stri.charAt(i) != '('){
-                        was_error = true;
-                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalidstateforsin) + getResources().getString(R.string.invalidfor) + let, Toast.LENGTH_LONG).show();
-                        break;
-                    }else{
-                        if(i == stri.length()){
-                            was_error = true;
-                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalidstateforsin) + getResources().getString(R.string.invalidfor) + let, Toast.LENGTH_LONG).show();
-                            break;
-                        }
-                    }
-                    switch (let) {
-                        case "sin":
-                            s0.push("sin");
-                            s0.push("(");
-                            break;
-                        case "cos":
-                            s0.push("cos");
-                            s0.push("(");
-                            break;
-                        case "tan":
-                            s0.push("tag");
-                            s0.push("(");
-                            break;
-                        case "log":
-                            s0.push("log");
-                            s0.push("(");
-                            break;
-                        case "ln":
-                            s0.push("ln");
-                            s0.push("(");
-                            break;
-                    }
-                    continue;
-                /*}else{
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalidstateforsin), Toast.LENGTH_LONG).show();
-                    was_error = true;
-                    break;
-                    /*if(i != 0 && !isdigit(stri.charAt(i-1))){
-                        if(stri.charAt(i-1) == '(' || stri.charAt(i-1) == '.'){
-                            break;
-                        }else{
-                            s0.pop();
-                        }
-                    }
-                }*/
-            }
-            if(s.equals("P")){
-                BigDecimal f = new BigDecimal(Math.PI);
-                s1.push(f);
-                if(i != 0 && isdigit(stri.charAt(i-1))){
-                    in_s0('*');
-                }
-                char next = '\0';
-                if(i != stri.length() - 1)
-                    next = stri.charAt(i+1);
-                if(i != stri.length()-1 && (isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
-                    in_s0('*');
-                }
-                //s1.push(f);
-                continue;
-            }else if(s.equals("F")){
-                BigDecimal f = new BigDecimal(1.618);
-                s1.push(f);
-                if(i != 0 && isdigit(stri.charAt(i-1))){
-                    in_s0('*');
-                }
-                char next = '\0';
-                if(i != stri.length() - 1)
-                    next = stri.charAt(i+1);
-                if(i != stri.length()-1 && (isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
-                    in_s0('*');
-                }
-                continue;
-            }else if(s.equals("!")){
-                if(i != len - 1 && stri.charAt(i + 1) == '!'){
-                    BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
-                    if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(500)) > 0){
-                        was_error = true;
-                        break;
-                    }
-                    for(; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract( BigDecimal.valueOf(2) ) ){
-                        ans = ans.multiply(y);
-                    }
-                    i++;
-                    s1.pop();
-                    s1.push(ans);
-                    continue;
-                }else {
-                    BigDecimal y = s1.peek();
-                    if (y.signum() == -1) {
-                        was_error = true;
-                        Toast.makeText(getApplicationContext(), "Error: Unable to find negative factorial.", Toast.LENGTH_SHORT).show();
-                        break;
-                    } else {
-                        if (y.compareTo(new BigDecimal(1000)) > 0) {
-                            was_error = true;
-                            Toast.makeText(getApplicationContext(), "For some reason, we cannot calculate the factorial of this number " +
-                                    "(because it is too large and may not have enough device resources when executed)", Toast.LENGTH_LONG).show();
-                            break;
-                        } else {
-                            s1.pop();
-                            String fa = y.toString();
-                            if (fa.contains(".")) {
-                                int index = fa.lastIndexOf(".");
-                                fa = fa.substring(0, index);
-                                y = new BigDecimal(fa);
-                            }
-                            s1.push(fact(y));
-                        }
-                    }
-                    if(i != len - 1) {
-                        char next = stri.charAt(i + 1);
-                        if(isdigit(next) || next == 'P' || next == 'F' || next == 'e')
-                            in_s0('*');
-                    }
-                    continue;
-                }
-            }else if(s.equals("%")){
-                BigDecimal y = s1.peek();
-                s1.pop();
-                s1.push(y.divide(new BigDecimal(100)));
-                if(i != len - 1) {
-                    char next = stri.charAt(i + 1);
-                    if(isdigit(next) || next == 'P' || next == 'F' || next == 'e')
-                        in_s0('*');
-                }
-                continue;
-            }else if(s.equals("e")){
-                BigDecimal f = new BigDecimal(Math.E);
-                s1.push(f);
-                if(i != 0 && isdigit(stri.charAt(i-1))){
-                    in_s0('*');
-                }
-                if(i != stri.length()-1 && isdigit(stri.charAt(i+1))){
-                    in_s0('*');
-                }
-                continue;
-            }else if(s.equals("R")){
-                if(i == len-1){
-                    was_error = true;
-                    break;
-                }else{
-                    if(stri.charAt(i + 1) == '('){
-                        in_s0('R');
-                        continue;
-                    }else{
-                        Toast.makeText(getApplicationContext(),
-                                getResources().getString(R.string.invalidstateforsin) + " " + getResources().getString(R.string.invalidfor)
-                                        + " √", Toast.LENGTH_LONG).show();
-                        was_error = true;
-                        break;
-                    }
-                }
-            }else if(s.equals("A")){
-                i += 2;
-                String n = "";
-                int actions = 0;
-                while(stri.charAt(i) != ')'){
-                    if(stri.charAt(i) == '+'){
-                        actions++;
-                        s1.push(new BigDecimal(n));
-                        n = "";
-                    }else{
-                        n += Character.toString(stri.charAt(i));
-                    }
-                    i++;
-                }
-                s1.push(new BigDecimal(n));
-                BigDecimal sum = BigDecimal.ZERO;
-                for(int j = 0; j <= actions; j++){
-                    sum = sum.add(s1.peek());
-                    s1.pop();
-                }
-                sum = sum.divide(BigDecimal.valueOf(actions + 1), 2, RoundingMode.HALF_EVEN);
-                String answer = sum.toPlainString();
-                int len1 = answer.length();
-                if(answer.charAt(len1 - 1) == '0'){
-                    while(answer.charAt(len1 - 1) == '0' || answer.charAt(len1 - 1) == '.'){
-                        len1--;
-                        answer = answer.substring(0, len1);
-                    }
-                }
-                s1.push(new BigDecimal(answer));
-                continue;
-            }else if(s.equals("G")){
-                i += 2;
-                String n = "";
-                int actions = 0;
-                while(stri.charAt(i) != ')'){
-                    if(stri.charAt(i) == '*'){
-                        actions++;
-                        s1.push(new BigDecimal(n));
-                        n = "";
-                    }else{
-                        n += Character.toString(stri.charAt(i));
-                    }
-                    i++;
-                }
-                s1.push(new BigDecimal(n));
-                BigDecimal sum = BigDecimal.ONE;
-                for(int j = 0; j <= actions; j++) {
-                    sum = sum.multiply(s1.peek());
-                    s1.pop();
-                }
-                MathContext mc = new MathContext(4);
-                sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue()));
-                String answer = sum.toPlainString();
-                int len1 = answer.length();
-                if(answer.charAt(len1 - 1) == '0' && answer.contains(".")){
-                    while(answer.charAt(len1 - 1) == '0' || answer.charAt(len1 - 1) == '.'){
-                        len1--;
-                        answer = answer.substring(0, len1);
-                    }
-                }
-                s1.push(new BigDecimal(answer));
-                continue;
-            }
-            if(isdigit(str[i])){
-                x = "";
-                while((i < stri.length()) && ((stri.charAt(i) == '.') || isdigit(str[i]) || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
-                    s = Character.toString(str[i]);
-                    x += s;
-                    i++;
-                }
-                /*if(x.contains("E"))
-                    x = calc_e(x);*/
-                s1.push(new BigDecimal(x));
-                if(i < stri.length() && str[i] == 'E'){
-                    in_s0('^');
-                    i++;
-                    BigDecimal t = BigDecimal.ONE;
-                    if(str[i] == '+'){
-                        t = BigDecimal.ONE;
-                    }else if(str[i] == '-'){
-                        t = BigDecimal.valueOf(-1.0);
-                    }
-                    x = "";
-                    while(i < stri.length() && (stri.charAt(i) == '.' || isdigit(stri.charAt(i)))){
-                        x += Character.toString(stri.charAt(i));
-                        i++;
-                    }
-                    s1.push(new BigDecimal(x).multiply(t));
-                }
-                i--;
-            }else{
-                if(str[i] != ')'){
-                    if(str[i] == '^'){
-                        if(i != stri.length()-1 && str[i + 1] == '('){
-                        	i++;
-                        	in_s0('^');
-                        	s0.push("(");
-                        	continue;
-                        }else if(i != stri.length()-1 && str[i + 1] != '('){
-                            //i++;
-                            in_s0('^');
-                            continue;
-                        }
-                    }
-                    if((i == 0 && str[i] == '-') || (str[i] == '-' && stri.charAt(i-1) == '(')){
-                        x = "";
-                        i++;
-                        while((i < stri.length()) && ((stri.charAt(i) == '.') || isdigit(str[i]) || stri.charAt(i) == 'E' || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
-                            s = Character.toString(str[i]);
-                            x += s;
-                            i++;
-                        }
-                        i--;
-                        s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
-                        continue;
-                    }
-                    if(i != 0 && str[i] == '(' && (isdigit(str[i-1]) || str[i-1] == ')')){
-                        in_s0('*');
-                    }
-
-                    in_s0(str[i]);
-                }else{
-                    while (!s0.empty() && !s0.peek().equals("(")) {
-                        mult(s0.peek());
-                        s0.pop();
-                    }
-                    if (!s0.empty() && s0.peek().equals("(")) {
-                        s0.pop();
-                    }
-                    if (i != stri.length() - 1) {
-                        if (isdigit(stri.charAt(i + 1))) {
-                            in_s0('*');
-                        }
-                    }
-                }
-            }
-        }
-        while (!s0.isEmpty() && s1.size() >= 2) {
-            mult(s0.peek());
-            s0.pop();
-        }
-        if (!s0.isEmpty() && s1.size() == 1) {
-            if (s0.peek().equals("R")) {
-                mult(s0.peek());
-                s0.pop();
-            }
-            if (!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))) {
-                mult(s0.peek());
-                s0.pop();
-            }
-        }
-        if(!was_error){
-            write_result_of_calculation(type);
-        }else{
-            hide_ans();
-        }
-
-    }
-
-    private void write_result_of_calculation(String type){
+    
+    private void write_result_of_calculation(String type, BigDecimal result){
         switch (type) {
             case "all":
                 TextView tans = findViewById(R.id.textStr);
-                String ans = s1.peek().toPlainString();
+                String ans = result.toPlainString();
                 if(ans.contains(".")) {
                     if (ans.length() - ans.indexOf(".") > 9){
-                        BigDecimal d = s1.peek();
-                        d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                        BigDecimal d = result;
+                        d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
                         ans = d.toPlainString();
                     }
                 }
@@ -1394,6 +842,7 @@ public class MainActivity extends AppCompatActivity{
                 tans.setText(original);
                 show_ans();
                 scroll_to_end();
+                resize_text();
 
                 String his = sp.getString("history", "");
                 StringBuilder sb = new StringBuilder(original);
@@ -1403,20 +852,20 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
                 String for_his = sb.toString();
-                if (his.indexOf(for_his + "," + s1.peek().toPlainString() + ";") != 0) {
-                    his = original + "," + s1.peek().toString() + ";" + his;
+                if (his.indexOf(for_his + "," + result.toPlainString() + ";") != 0) {
+                    his = original + "," + result.toString() + ";" + his;
                     sp.edit().putString("history", his).apply();
                 }
                 if (sp.getBoolean("saveResult", false))
-                    sp.edit().putString("saveResultText", original + ";" + s1.peek().toPlainString()).apply();
+                    sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
                 break;
             case "not":
                 TextView preans = findViewById(R.id.textAns2);
-                String ans1 = s1.peek().toPlainString();
+                String ans1 = result.toPlainString();
                 if(ans1.contains(".")) {
                     if (ans1.length() - ans1.indexOf(".") > 9){
-                        BigDecimal d = s1.peek();
-                        d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                        BigDecimal d = result;
+                        d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
                         ans1 = d.toPlainString();
                     }
                 }
@@ -1428,7 +877,7 @@ public class MainActivity extends AppCompatActivity{
                 scroll_to_end();
                 break;
             case "for_memory":
-                result_calc_for_mem = s1.peek();
+                result_calc_for_mem = result;
                 memory_calculated = true;
                 break;
             default:
@@ -1507,6 +956,16 @@ public class MainActivity extends AppCompatActivity{
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
     }
 
+    @Override
+    public void onSuccess(BigDecimal result, String type) {
+        write_result_of_calculation(type, result);
+    }
+
+    @Override
+    public void onError(String error) {
+        hide_ans();
+    }
+
     private void equallu(String type){
         TextView txt = findViewById(R.id.textStr);
         String stri = txt.getText().toString();
@@ -1524,7 +983,7 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
         char last = stri.charAt(len - 1);
-        if(!isdigit(last) && last != ')' && last != '!' && last != '%'
+        if(!Utils.isdigit(last) && last != ')' && last != '!' && last != '%'
                 && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
             /*if (!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt))) {
                 hide_ans();
@@ -1560,23 +1019,6 @@ public class MainActivity extends AppCompatActivity{
 	        }
 	    }
 	    original = stri;
-	    int digits = 0, actions = 0;
-	    /*for(int i = 0; i < stri.length(); i++){
-	        if(isdigit(stri.charAt(i))
-	                || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.fi))
-	                || Character.toString(stri.charAt(i)).equals(getResources().getString(R.string.pi))
-	                || Character.toString(stri.charAt(i)).equals("e")){
-	            digits++;
-	        }
-	        if(isaction(stri.charAt(i)))
-	            actions++;
-
-	        if(stri.charAt(i) == ' '){
-	            StringBuilder stringBuilder = new StringBuilder(stri);
-	            stringBuilder.deleteCharAt(i);
-	            stri = new String(stringBuilder);
-	        }
-	    }*/
 	    StringBuilder sb = new StringBuilder();
 	    for(int i = 0; i < stri.length(); i++){
 	        if(stri.charAt(i) != ' ')
@@ -1620,18 +1062,18 @@ public class MainActivity extends AppCompatActivity{
 	        stri = new String(mas);
 	    }
 	    //calc(stri, type, digits, actions);
-        calc(stri, type);
+        coreMain.prepare(stri, type);
     }
 
     protected void check_dot(){
         TextView t = findViewById(R.id.textStr);
         String txt = t.getText().toString();
         int i = txt.length()-1;
-        if(!isdigit(txt.charAt(i))){
+        if(!Utils.isdigit(txt.charAt(i))){
             return;
         }
         boolean dot = false;
-        while(i >= 0 && (isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
+        while(i >= 0 && (Utils.isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
             if(txt.charAt(i) == '.'){
                 dot = true;
                 break;
@@ -1681,11 +1123,11 @@ public class MainActivity extends AppCompatActivity{
             if(add_text_mode != EnterModes.SIMPLE)
                 return;
 
-            if(isdigit(last) || isSpecific(last)){
+            if(Utils.isdigit(last) || isSpecific(last)){
                 t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.AVERAGE;
-            }else if(!isdigit(last) && !isSpecific(last)){
+            }else if(!Utils.isdigit(last) && !isSpecific(last)){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.AVERAGE;
@@ -1700,11 +1142,11 @@ public class MainActivity extends AppCompatActivity{
             if(add_text_mode != EnterModes.SIMPLE)
                 return;
 
-            if(isdigit(last) || isSpecific(last)){
+            if(Utils.isdigit(last) || isSpecific(last)){
                 t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.GEOMETRIC;
-            }else if(!isdigit(last) && !isSpecific(last)){
+            }else if(!Utils.isdigit(last) && !isSpecific(last)){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.GEOMETRIC;
@@ -1712,7 +1154,7 @@ public class MainActivity extends AppCompatActivity{
         }
         if(add_text_mode != EnterModes.SIMPLE){
             if(btntxt.equals(")")){
-                if(isdigit(last)){
+                if(Utils.isdigit(last)){
                     t.setText(txt + btntxt);
                     equallu("not");
                 }else{
@@ -1723,21 +1165,21 @@ public class MainActivity extends AppCompatActivity{
                 add_text_mode = EnterModes.SIMPLE;
                 return;
             }
-            if (add_text_mode == EnterModes.AVERAGE && (btntxt.length() > 1 || (!btntxt.equals("+") && !btntxt.equals("."))) && !isdigit(btntxt.charAt(0))) {
+            if (add_text_mode == EnterModes.AVERAGE && (btntxt.length() > 1 || (!btntxt.equals("+") && !btntxt.equals("."))) && !Utils.isdigit(btntxt.charAt(0))) {
                 return;
             }
-            if (add_text_mode == EnterModes.GEOMETRIC && (btntxt.length() > 1 || (!btntxt.equals(MULTIPLY_SIGN) && !btntxt.equals("."))) && !isdigit(btntxt.charAt(0))) {
+            if (add_text_mode == EnterModes.GEOMETRIC && (btntxt.length() > 1 || (!btntxt.equals(MULTIPLY_SIGN) && !btntxt.equals("."))) && !Utils.isdigit(btntxt.charAt(0))) {
                 return;
             }
         }
 
-        if(isdigit(btntxt)){
+        if(Utils.isdigit(btntxt)){
             if(txt.equals("0")) {
                 t.setText(btntxt);
                 return;
             }
             if(len > 1){
-                if(last == '0' && !isdigit(txt.charAt(len - 2))){
+                if(last == '0' && !Utils.isdigit(txt.charAt(len - 2))){
                     txt = txt.substring(0, len - 1) + btntxt;
                     t.setText(txt);
                     equallu("not");
@@ -1751,7 +1193,7 @@ public class MainActivity extends AppCompatActivity{
                 equallu("not");
                 return;
             }else{
-                if(!isdigit(txt.charAt(len-1))){
+                if(!Utils.isdigit(txt.charAt(len-1))){
                     if(txt.charAt(len-1) != '.') {
                         t.setText(txt + btntxt);
                         equallu("not");
@@ -1777,12 +1219,12 @@ public class MainActivity extends AppCompatActivity{
             if(len == 0 || last == '(')
                 return;
 
-            if(isdigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
+            if(Utils.isdigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 return;
             }
-            if(!isdigit(last)){
+            if(!Utils.isdigit(last)){
                 if(last == '!' || last == '%'){
                     t.setText(txt + btntxt + "(");
                     equallu("not");
@@ -1801,10 +1243,10 @@ public class MainActivity extends AppCompatActivity{
             }else{
                 String x = "";
                 for(int i = 0; i < len; i++){
-                    if(!isdigit(txt.charAt(i)) && txt.charAt(i) != '.'){
+                    if(!Utils.isdigit(txt.charAt(i)) && txt.charAt(i) != '.'){
                         break;
                     }else{
-                        if(isdigit(txt.charAt(i)) || txt.charAt(i) != '.')
+                        if(Utils.isdigit(txt.charAt(i)) || txt.charAt(i) != '.')
                             x += Character.toString(txt.charAt(i));
                     }
                 }
@@ -1830,7 +1272,7 @@ public class MainActivity extends AppCompatActivity{
                     if(last == '.'){
                         return;
                     }else{
-                        if(!isdigit(last)){
+                        if(!Utils.isdigit(last)){
                             t.setText(txt + btntxt + "(");
                             brackets++;
                             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
@@ -1858,7 +1300,7 @@ public class MainActivity extends AppCompatActivity{
                 if(last == '.'){
                     return;
                 }else{
-                	if(!isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
+                	if(!Utils.isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
 						t.setText(txt + btntxt + "(");
 						equallu("not");
 	                }else {
@@ -1867,7 +1309,7 @@ public class MainActivity extends AppCompatActivity{
 			                equallu("not");
 		                }
 	                }
-                    /*if(!isdigit(last)){
+                    /*if(!Utils.isdigit(last)){
 
                         t.setText(txt + btntxt + "(");
                         brackets++;
@@ -1898,7 +1340,7 @@ public class MainActivity extends AppCompatActivity{
                 }
                 if(txt.charAt(len-1) == '(')
                     return;
-                if(!isdigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
+                if(!Utils.isdigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
                         && !Character.toString(last).equals(getResources().getString(R.string.fi)) && last != 'e' && last != '!'){
                     if(len != 1){
                         txt = txt.substring(0, len-1);
@@ -1914,7 +1356,7 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
 
-        if(!isdigit(btntxt) && !btntxt.equals("(") && !islet(btntxt.charAt(0))){
+        if(!Utils.isdigit(btntxt) && !btntxt.equals("(") && !Utils.islet(btntxt.charAt(0))){
             if(len != 0){
                 if(txt.charAt(len-1) == 'π' || txt.charAt(len-1) == 'φ' || txt.charAt(len-1) == 'e'){
                     t.setText(txt + btntxt);
@@ -1945,7 +1387,7 @@ public class MainActivity extends AppCompatActivity{
             if(txt.equals(""))
                 t.setText("0.");
             else
-            if(!isdigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
+            if(!Utils.isdigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
                 t.setText(txt + "0.");
             else
                 check_dot();
@@ -1961,13 +1403,13 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }
                     }
-                    if( last != ')' && !isdigit(last) && (len > 1 && last != '(' && islet(txt.charAt(len - 2))
+                    if( last != ')' && !Utils.isdigit(last) && (len > 1 && last != '(' && Utils.islet(txt.charAt(len - 2))
                             && !Character.toString(txt.charAt(len - 2)).equals(PI) && !Character.toString(txt.charAt(len-2)).equals(FI) && txt.charAt(len - 2) != 'e') ){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
                         equallu("not");
                     }else{
-                        if(isdigit(last) || last == ')'){
+                        if(Utils.isdigit(last) || last == ')'){
                             t.setText(txt + btntxt);
                             equallu("not");
                         }
@@ -1975,7 +1417,7 @@ public class MainActivity extends AppCompatActivity{
                 }
                 return;
             }
-            if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !isdigit(btntxt.charAt(0))))) {
+            if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !Utils.isdigit(btntxt.charAt(0))))) {
                 if(btntxt.equals("("))
                     brackets++;
                 t.setText(txt + btntxt);
@@ -1986,9 +1428,9 @@ public class MainActivity extends AppCompatActivity{
                 equallu("not");
             }else{
                 if(!txt.equals("")){
-                    if(!isdigit(btntxt.charAt(0)) && !btntxt.equals(".")){
+                    if(!Utils.isdigit(btntxt.charAt(0)) && !btntxt.equals(".")){
 
-                        if(!isdigit(txt.charAt(len-1))){
+                        if(!Utils.isdigit(txt.charAt(len-1))){
                             if(len != 1){
                                 txt = txt.substring(0, len-1);
                                 t.setText(txt + btntxt);
@@ -1999,13 +1441,13 @@ public class MainActivity extends AppCompatActivity{
                             equallu("not");
                         }
                     }else{
-                        if(isdigit(btntxt.charAt(0))){
+                        if(Utils.isdigit(btntxt.charAt(0))){
                             t.setText(txt + btntxt);
                             equallu("not");
                         }
                     }
                 }else{
-                    if(isdigit(btntxt.charAt(0)) || btntxt.equals("-")){
+                    if(Utils.isdigit(btntxt.charAt(0)) || btntxt.equals("-")){
                         t.setText(btntxt);
                         equallu("not");
                     }

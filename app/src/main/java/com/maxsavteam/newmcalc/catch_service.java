@@ -1,40 +1,31 @@
 package com.maxsavteam.newmcalc;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.preference.PreferenceManager;
-import android.text.Html;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import static com.maxsavteam.newmcalc.R.color.*;
+import static com.maxsavteam.newmcalc.R.color.white;
 
 public class catch_service extends AppCompatActivity {
 
 	SharedPreferences sp;
-	String default_vk = "maksin.colf", default_inst = "maksin.colf";
 	String dynamic_vk = "https://maxsavteam.page.link/VK", dynamic_inst = "https://maxsavteam.page.link/Instagram";
 
 	@Override
@@ -71,7 +62,6 @@ public class catch_service extends AppCompatActivity {
 	}
 
 	boolean DarkMode;
-	String APP_TYPE = BuildConfig.APPTYPE;
 	private void apply_actionbar(){
 		ActionBar appActionBar = getSupportActionBar();
 		if(DarkMode){
@@ -134,7 +124,7 @@ public class catch_service extends AppCompatActivity {
 				public boolean onLongClick(View v) {
 					AlertDialog debug_info;
 					AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
-					builder.setTitle("Debug info")
+					builder.setTitle("Build info")
 							.setMessage(debugInfoStr)
 							.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 								@Override
