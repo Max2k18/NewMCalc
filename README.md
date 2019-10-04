@@ -13,3 +13,19 @@ I waiting for feedback
 * The Core has been moved from MainActivity to a separate package.
 * The number of decimal places has been changed from 8 to 15 decimal places.
 * Fixed the appearance of two buttons when canceling deletion from the history.
+
+### 1.10.2
+* Memory actions improved
+
+### 1.10.1
+* Icon for the converter has been added to the Shortcuts menu.
+
+### 1.10.0
+* Converter of number system was added
+* ActionBars were redrawn in light theme
+
+### 1.9.2
+* Arithmetic mean and geometric mean were added
+
+### 1.9.0
+* New navigation at main screen
