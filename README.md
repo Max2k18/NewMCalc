@@ -2,7 +2,7 @@
 ## A little about this repository
 This is the repository of an application published on [Google Play](https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc).
 I will try to add here a list of changes with each version. 
-But I decided to conduct only from version 1.10.3, and I do not remember the changes of the previous ones. Sorry :)
+But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
 I translate text through Google Translator, because I do not know English so well (I'm from Belarus)
 
