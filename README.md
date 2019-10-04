@@ -9,23 +9,27 @@ I translate text through Google Translator, because I do not know English so wel
 I waiting for feedback
 
 ## Change history
-### 1.10.3
+### 1.10.3.160
+  * The bug related to adding a percent sign has been fixed.
+  * Crash when deleting some records from the history is fixed.
+
+### 1.10.3.B158
   * The Core has been moved from MainActivity to a separate package.
   * The number of decimal places has been changed from 8 to 15 decimal places.
   * Fixed the appearance of two buttons when canceling deletion from the history.
 
-### 1.10.2
+### 1.10.2.B154
   * Memory actions improved
 
-### 1.10.1
+### 1.10.1.B150
   * Icon for the converter has been added to the Shortcuts menu.
 
-### 1.10.0
+### 1.10.0.B142
   * Converter of number system was added
   * ActionBars were redrawn in light theme
 
-### 1.9.2
+### 1.9.2.B132
   * Arithmetic mean and geometric mean were added
 
-### 1.9.0
+### 1.9.0.B127
    * New navigation at main screen
