@@ -26,20 +26,21 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context con;
-    SharedPreferences sp;
     private boolean DarkMode;
+    private ArrayList<ViewHolder> views = new ArrayList<ViewHolder>();
 
     // data is passed into the constructor
     public MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         con = context;
-        sp = PreferenceManager.getDefaultSharedPreferences(con);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(con);
         DarkMode = sp.getBoolean("dark_mode", false);
-        parnet_layout = mInflater.inflate(R.layout.activity_history, null);
     }
 
-    private View parnet_layout;
+    public ArrayList<ViewHolder> getViews(){
+        return views;
+    }
 
     // inflates the row layout from xml when needed
     @Override
@@ -58,6 +59,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         String ex = mData.get(position).get(0);
         String ans = mData.get(position).get(1);
         String desc = "";
+        views.add(holder);
         holder.tvWithDesc.setText("false");
         holder.with_description = false;
         holder.txtDesc.setVisibility(View.GONE);
@@ -69,7 +71,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             holder.with_description = true;
             holder.tvWithDesc.setText("true");
             int i;
-            for(i = 0; i < ex.length() && ex.charAt(i) != '~'; i++);
+            i = 0;
+            while (i < ex.length() && ex.charAt(i) != '~') {
+                i++;
+            }
             for(int j = i + 1; j < ex.length(); j++){
                 desc += ex.charAt(j);
             }
@@ -182,7 +187,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 b.setTextColor(con.getResources().getColor(R.color.colorAccent));
             }
             //c = itemView.findViewById(R.id.checkBox);
-            btnDel.setOnClickListener(new View.OnClickListener() {
+            /*btnDel.setOnClickListener(new View.OnClickListener() {
 	            @Override
 	            public void onClick(View view) {
 		            View par = (View) view.getParent();
@@ -193,7 +198,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 		            }
 		            //Toast.makeText(con.getApplicationContext(), con.getResources().getResourceName(par.getId()) + " " + t.getText().toString(), Toast.LENGTH_SHORT).show();
 	            }
-            });
+            });*/
             //btnDel = itemView.findViewById(R.id.btnInfoInRow);
             btnInfo.setOnClickListener(view -> {
                 //View par = (View) view.getParent().getParent();
@@ -235,7 +240,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
-        void onDelete(int position, View v);
+        void onDelete(int position, ViewHolder v);
         void ShowInfoButtonPressed(View view, int position);
         void onDescriptionDelete(View view, int position);
         void onEdit_Add(View view, int position, String mode);

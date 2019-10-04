@@ -11,8 +11,8 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 159
-        versionName "1.10.3.B159"
+        versionCode 160
+        versionName "1.10.3.160"
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "int", "COMPILE_DATE", "191003" // It consist of year, months, day
         buildConfigField "String", "APPTYPE", "\"stable\""

@@ -4,6 +4,11 @@
     package="com.maxsavteam.newmcalc"
     android:installLocation="auto">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/newmcalc"
@@ -12,7 +17,8 @@
         android:roundIcon="@drawable/newmcalc"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:targetApi="o">
+        tools:targetApi="o"
+        android:fullBackupContent="@xml/backup_descriptor">
         <activity android:name=".number_system" />
         <activity android:name=".memory_actions_activity" />
         <activity android:name=".catch_service" />
@@ -39,8 +45,5 @@
             </intent-filter>
         </activity>
     </application>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

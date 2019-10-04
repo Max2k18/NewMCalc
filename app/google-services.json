@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "669428254565-a3fisfrf3hugmuiseqtqvp14sc8q959v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maxsavteam.newmcalc",
+            "certificate_hash": "ce45a34897b3da80d7237282806b06420b6f2953"
+          }
+        },
+        {
           "client_id": "669428254565-t1d37g1utdomb42okkfiocv6k3dn5kkf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -79,18 +79,6 @@ public final class CoreMain {
 						break;
 				}
 				continue;
-                /*}else{
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.invalidstateforsin), Toast.LENGTH_LONG).show();
-                    was_error = true;
-                    break;
-                    /*if(i != 0 && !Utils.isdigit(stri.charAt(i-1))){
-                        if(stri.charAt(i-1) == '(' || stri.charAt(i-1) == '.'){
-                            break;
-                        }else{
-                            s0.pop();
-                        }
-                    }
-                }*/
 			}
 			if(s.equals("P")){
 				BigDecimal f = new BigDecimal(Math.PI);

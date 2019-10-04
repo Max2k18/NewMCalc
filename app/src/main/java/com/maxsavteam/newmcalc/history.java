@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
+import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
 
@@ -97,25 +98,22 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     View view_ondelete;
 
     @Override
-    public void onDelete(int position, View v) {
-        //Toast.makeText(this, Boolean.toString(in_order), Toast.LENGTH_SHORT).show();
-        //Toast.makeText(getApplicationContext(), v.getResources().getResourceName(v.getId()), Toast.LENGTH_LONG).show();
+    public void onDelete(int position, ViewHolder v) {
         if(POSITION_to_del == -1 && in_order){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show();
             return;
         }
         if (in_order)
             return;
-        v.findViewById(R.id.btnDelInRow).setVisibility(View.GONE);
-        v.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        //v.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#C80000")));
+        v.itemView.findViewById(R.id.btnDelInRow).setVisibility(View.GONE);
+        v.itemView.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         TextView t;
         for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
-            t = v.findViewById(id);
+            t = v.itemView.findViewById(id);
             t.setTextColor(getResources().getColor(R.color.white));
         }
-        v.setEnabled(false);
-        view_ondelete = v;
+        v.itemView.setEnabled(false);
+        view_ondelete = v.itemView;
         POSITION_to_del = position;
 
         LinearLayout lay = findViewById(R.id.cancel_delete);
@@ -596,7 +594,12 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 SwipeController sc = new SwipeController(new SwipeControllerActions() {
                     @Override
                     public void onRightClicked(int position) {
-                        onDelete(position, rv.getChildAt(position));
+                        ArrayList<MyRecyclerViewAdapter.ViewHolder> ar = adapter.getViews();
+                        /*
+                         * Crutch, because recyclerview returns child count one value, but adapter returns right value.
+                         * I tried to google, but so far I haven't found anything.
+                         */
+                        onDelete(position, ar.get(position));
                     }
 
                     @Override

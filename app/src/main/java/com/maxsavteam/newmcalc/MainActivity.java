@@ -497,8 +497,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
 
-    public boolean memory_calculated = false, store_custom = false;
-    public int store_params = 0;
+    public boolean memory_calculated = false;
 
     public void memory_ms(View view){
         TextView t = findViewById(R.id.textStr);
@@ -1366,7 +1365,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             }
         }
 
-        if(last == '!' && !btntxt.equals(".") && !btntxt.equals("!")){
+        if((last == '!' || last == '%') && !btntxt.equals(".") && !btntxt.equals("!") && !btntxt.equals("%")){
             t.setText(txt + btntxt);
             equallu("not");
             return;
@@ -1376,7 +1375,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 || btntxt.equals(getResources().getString(R.string.div))){
             if(last == '(' && !btntxt.equals("-")) {
                 return;
-            }else if(last == '(' && btntxt.equals("-")){
+            }else if(last == '('){
                 t.setText(txt + btntxt);
                 equallu("not");
                 return;
@@ -1401,6 +1400,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                                 equallu("not");
                                 return;
                             }
+                        }
+                    }else{
+                        if(last != '%'){
+                            t.setText(txt + btntxt);
+                            equallu("not");
+                            return;
                         }
                     }
                     if( last != ')' && !Utils.isdigit(last) && (len > 1 && last != '(' && Utils.islet(txt.charAt(len - 2))
