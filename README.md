@@ -9,6 +9,10 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.10.3.165
+  * Fixed strange behavior when deleting from history.
+  * Fixed adding a "(" sign.
+
 ### 1.10.3.160
   * The bug related to adding a percent sign has been fixed.
   * Crash when deleting some records from the history is fixed.
