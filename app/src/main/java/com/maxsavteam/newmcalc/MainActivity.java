@@ -610,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             char last = txt.charAt(txt.length() - 1);
             if(new BigDecimal(value).signum() < 0)
                 value = "(" + value + ")";
-            if(Utils.isdigit(last) || last == '%' || last == '!'
+            if(Utils.isDigit(last) || last == '%' || last == '!'
                     || Character.toString(last).equals(FI)
                     || Character.toString(last).equals(PI) || last == 'e' || last == ')'){
                 t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
@@ -696,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                         equallu("not");
                         return;
                     }
-                    if(!Utils.isdigit(last)){
+                    if(!Utils.isDigit(last)){
                         if(last != '!' && last != '%'){
                             txt = txt  + result;
                             t.setText(txt);
@@ -744,7 +744,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     private String format_core2(String txt){
         String number = "";
         int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
-        for(; i >= 0 && (Utils.isdigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
+        for(; i >= 0 && (Utils.isDigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
             if(txt.charAt(i) != ' '){
                 number = txt.charAt(i) + number;
             }else
@@ -982,7 +982,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             return;
         }
         char last = stri.charAt(len - 1);
-        if(!Utils.isdigit(last) && last != ')' && last != '!' && last != '%'
+        if(!Utils.isDigit(last) && last != ')' && last != '!' && last != '%'
                 && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
             /*if (!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt))) {
                 hide_ans();
@@ -1034,7 +1034,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	    }catch (NumberFormatException e){
 		    Log.e("All ok", e.toString());
 	    }
-	    if(android.text.TextUtils.isDigitsOnly(stri)){
+	    if(TextUtils.isDigitsOnly(stri)){
 	    	hide_ans();
 	    	return;
 	    }
@@ -1068,11 +1068,11 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         TextView t = findViewById(R.id.textStr);
         String txt = t.getText().toString();
         int i = txt.length()-1;
-        if(!Utils.isdigit(txt.charAt(i))){
+        if(!Utils.isDigit(txt.charAt(i))){
             return;
         }
         boolean dot = false;
-        while(i >= 0 && (Utils.isdigit(txt.charAt(i)) || txt.charAt(i) == '.')){
+        while(i >= 0 && (Utils.isDigit(txt.charAt(i)) || txt.charAt(i) == '.')){
             if(txt.charAt(i) == '.'){
                 dot = true;
                 break;
@@ -1122,11 +1122,11 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             if(add_text_mode != EnterModes.SIMPLE)
                 return;
 
-            if(Utils.isdigit(last) || isSpecific(last)){
+            if(Utils.isDigit(last) || isSpecific(last)){
                 t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.AVERAGE;
-            }else if(!Utils.isdigit(last) && !isSpecific(last)){
+            }else if(!Utils.isDigit(last) && !isSpecific(last)){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.AVERAGE;
@@ -1141,11 +1141,11 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             if(add_text_mode != EnterModes.SIMPLE)
                 return;
 
-            if(Utils.isdigit(last) || isSpecific(last)){
+            if(Utils.isDigit(last) || isSpecific(last)){
                 t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.GEOMETRIC;
-            }else if(!Utils.isdigit(last) && !isSpecific(last)){
+            }else if(!Utils.isDigit(last) && !isSpecific(last)){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 add_text_mode = EnterModes.GEOMETRIC;
@@ -1153,7 +1153,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
         if(add_text_mode != EnterModes.SIMPLE){
             if(btntxt.equals(")")){
-                if(Utils.isdigit(last)){
+                if(Utils.isDigit(last)){
                     t.setText(txt + btntxt);
                     equallu("not");
                 }else{
@@ -1164,21 +1164,21 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 add_text_mode = EnterModes.SIMPLE;
                 return;
             }
-            if (add_text_mode == EnterModes.AVERAGE && (btntxt.length() > 1 || (!btntxt.equals("+") && !btntxt.equals("."))) && !Utils.isdigit(btntxt.charAt(0))) {
+            if (add_text_mode == EnterModes.AVERAGE && (btntxt.length() > 1 || (!btntxt.equals("+") && !btntxt.equals("."))) && !Utils.isDigit(btntxt.charAt(0))) {
                 return;
             }
-            if (add_text_mode == EnterModes.GEOMETRIC && (btntxt.length() > 1 || (!btntxt.equals(MULTIPLY_SIGN) && !btntxt.equals("."))) && !Utils.isdigit(btntxt.charAt(0))) {
+            if (add_text_mode == EnterModes.GEOMETRIC && (btntxt.length() > 1 || (!btntxt.equals(MULTIPLY_SIGN) && !btntxt.equals("."))) && !Utils.isDigit(btntxt.charAt(0))) {
                 return;
             }
         }
 
-        if(Utils.isdigit(btntxt)){
+        if(Utils.isDigit(btntxt)){
             if(txt.equals("0")) {
                 t.setText(btntxt);
                 return;
             }
             if(len > 1){
-                if(last == '0' && !Utils.isdigit(txt.charAt(len - 2))){
+                if(last == '0' && !Utils.isDigit(txt.charAt(len - 2))){
                     txt = txt.substring(0, len - 1) + btntxt;
                     t.setText(txt);
                     equallu("not");
@@ -1192,7 +1192,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 equallu("not");
                 return;
             }else{
-                if(!Utils.isdigit(txt.charAt(len-1))){
+                if(!Utils.isDigit(txt.charAt(len-1))){
                     if(txt.charAt(len-1) != '.') {
                         t.setText(txt + btntxt);
                         equallu("not");
@@ -1218,12 +1218,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             if(len == 0 || last == '(')
                 return;
 
-            if(Utils.isdigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
+            if(Utils.isDigit(last) || Character.toString(last).equals(FI) || Character.toString(last).equals(PI) || last == 'e'){
                 t.setText(txt + btntxt + "(");
                 equallu("not");
                 return;
             }
-            if(!Utils.isdigit(last)){
+            if(!Utils.isDigit(last)){
                 if(last == '!' || last == '%'){
                     t.setText(txt + btntxt + "(");
                     equallu("not");
@@ -1242,10 +1242,10 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             }else{
                 String x = "";
                 for(int i = 0; i < len; i++){
-                    if(!Utils.isdigit(txt.charAt(i)) && txt.charAt(i) != '.'){
+                    if(!Utils.isDigit(txt.charAt(i)) && txt.charAt(i) != '.'){
                         break;
                     }else{
-                        if(Utils.isdigit(txt.charAt(i)) || txt.charAt(i) != '.')
+                        if(Utils.isDigit(txt.charAt(i)) || txt.charAt(i) != '.')
                             x += Character.toString(txt.charAt(i));
                     }
                 }
@@ -1271,7 +1271,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     if(last == '.'){
                         return;
                     }else{
-                        if(!Utils.isdigit(last)){
+                        if(!Utils.isDigit(last)){
                             t.setText(txt + btntxt + "(");
                             brackets++;
                             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
@@ -1288,6 +1288,18 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(btntxt.equals(")") && len == 0){
             return;
         }
+        if(btntxt.equals("(")){
+            if(last == '.')
+                return;
+            if(Utils.isDigit(last) || last == '!' || last == '%' || Utils.isConstNum(last, this)){
+                t.setText(txt + MULTIPLY_SIGN + btntxt);
+                equallu("not");
+            }else{
+                t.setText(txt + btntxt);
+                equallu("not");
+            }
+            return;
+        }
         if(btntxt.equals("sin") || btntxt.equals("log") || btntxt.equals("tan") || btntxt.equals("cos") || btntxt.equals("ln")){
             if(len == 0){
                 t = findViewById(R.id.textStr);
@@ -1299,7 +1311,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 if(last == '.'){
                     return;
                 }else{
-                	if(!Utils.isdigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
+                	if(!Utils.isDigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e'){
 						t.setText(txt + btntxt + "(");
 						equallu("not");
 	                }else {
@@ -1308,22 +1320,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 			                equallu("not");
 		                }
 	                }
-                    /*if(!Utils.isdigit(last)){
-
-                        t.setText(txt + btntxt + "(");
-                        brackets++;
-                        //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
-                        equallu("not");
-                    }else{
-                        t.setText(txt + getResources().getString(R.string.multiply) + btntxt + "(");
-                        equallu("not");
-                    }*/
                 }
             }
             return;
         }
 
-        if(len != 0 && txt.charAt(len-1) == '(' && btntxt.equals("-")){
+        if(len != 0 && last == '(' && btntxt.equals("-")){
             t.setText(txt + btntxt);
             equallu("not");
             return;
@@ -1332,15 +1334,15 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(btntxt.equals(")")){
             //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
             if(brackets > 0){
-                if(txt.charAt(len-1) == ')'){
+                if(last == ')'){
                     t.setText(txt + btntxt);
                     equallu("not");
                     return;
                 }
-                if(txt.charAt(len-1) == '(')
+                if(last == '(')
                     return;
-                if(!Utils.isdigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
-                        && !Character.toString(last).equals(getResources().getString(R.string.fi)) && last != 'e' && last != '!'){
+                if(!Utils.isDigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
+                        && !Character.toString(last).equals(getResources().getString(R.string.fi)) && last != 'e' && last != '!' && last != '%'){
                     if(len != 1){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
@@ -1355,7 +1357,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             return;
         }
 
-        if(!Utils.isdigit(btntxt) && !btntxt.equals("(") && !Utils.islet(btntxt.charAt(0))){
+        if(!Utils.isDigit(btntxt) && !btntxt.equals("(") && !Utils.islet(btntxt.charAt(0))){
             if(len != 0){
                 if(txt.charAt(len-1) == 'π' || txt.charAt(len-1) == 'φ' || txt.charAt(len-1) == 'e'){
                     t.setText(txt + btntxt);
@@ -1386,7 +1388,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             if(txt.equals(""))
                 t.setText("0.");
             else
-            if(!Utils.isdigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
+            if(!Utils.isDigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
                 t.setText(txt + "0.");
             else
                 check_dot();
@@ -1408,13 +1410,13 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                             return;
                         }
                     }
-                    if( last != ')' && !Utils.isdigit(last) && (len > 1 && last != '(' && Utils.islet(txt.charAt(len - 2))
+                    if( last != ')' && !Utils.isDigit(last) && (len > 1 && last != '(' && Utils.islet(txt.charAt(len - 2))
                             && !Character.toString(txt.charAt(len - 2)).equals(PI) && !Character.toString(txt.charAt(len-2)).equals(FI) && txt.charAt(len - 2) != 'e') ){
                         txt = txt.substring(0, len-1);
                         t.setText(txt + btntxt);
                         equallu("not");
                     }else{
-                        if(Utils.isdigit(last) || last == ')'){
+                        if(Utils.isDigit(last) || last == ')'){
                             t.setText(txt + btntxt);
                             equallu("not");
                         }
@@ -1422,7 +1424,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 }
                 return;
             }
-            if(len > 1 && (btntxt.equals("(") || (txt.charAt(len-1) == ')' && !Utils.isdigit(btntxt.charAt(0))))) {
+            if(len >= 1 && (btntxt.equals("(") || (last == ')' && !Utils.isDigit(btntxt.charAt(0))))) {
                 if(btntxt.equals("("))
                     brackets++;
                 t.setText(txt + btntxt);
@@ -1433,9 +1435,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 equallu("not");
             }else{
                 if(!txt.equals("")){
-                    if(!Utils.isdigit(btntxt.charAt(0)) && !btntxt.equals(".")){
+                    if(!Utils.isDigit(btntxt.charAt(0))){
 
-                        if(!Utils.isdigit(txt.charAt(len-1))){
+                        if(!Utils.isDigit(txt.charAt(len-1))){
                             if(len != 1){
                                 txt = txt.substring(0, len-1);
                                 t.setText(txt + btntxt);
@@ -1446,13 +1448,13 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                             equallu("not");
                         }
                     }else{
-                        if(Utils.isdigit(btntxt.charAt(0))){
+                        if(Utils.isDigit(btntxt.charAt(0))){
                             t.setText(txt + btntxt);
                             equallu("not");
                         }
                     }
                 }else{
-                    if(Utils.isdigit(btntxt.charAt(0)) || btntxt.equals("-")){
+                    if(Utils.isDigit(btntxt.charAt(0)) || btntxt.equals("-")){
                         t.setText(btntxt);
                         equallu("not");
                     }

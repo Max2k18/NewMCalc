@@ -1,14 +1,9 @@
 package com.maxsavteam.newmcalc.core;
 
-import android.widget.Toast;
-
-import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -33,27 +28,27 @@ public final class CoreMain {
 		calc(example, type);
 	}
 
-	private void calc(String stri, String type){
+	private void calc(String example, String type){
 		s0.clear();
 		s1.clear();
-		char[] str = new char[stri.length()];
-		stri.getChars(0, stri.length(), str, 0);
+		char[] str = new char[example.length()];
+		example.getChars(0, example.length(), str, 0);
 		String x;
 		String s;
-		int len = stri.length();
+		int len = example.length();
 
 		for(int i = 0; i < len; i++){
 			s = Character.toString(str[i]);
 			if(s.equals("s") || s.equals("t") || s.equals("l") || s.equals("c")){
 				if(i != 0){
-					if(stri.charAt(i-1) == ')'){
+					if(example.charAt(i-1) == ')'){
 						s0.push("*");
 					}
 				}
-				//if(i + 4 <= stri.length()){
+				//if(i + 4 <= example.length()){
 				String let = "";
-				while(i < stri.length() && Utils.islet(stri.charAt(i))){
-					let += Character.toString(stri.charAt(i));
+				while(i < example.length() && Utils.islet(example.charAt(i))){
+					let += Character.toString(example.charAt(i));
 					i++;
 				}
 				switch (let) {
@@ -83,13 +78,13 @@ public final class CoreMain {
 			if(s.equals("P")){
 				BigDecimal f = new BigDecimal(Math.PI);
 				s1.push(f);
-				if(i != 0 && Utils.isdigit(stri.charAt(i-1))){
+				if(i != 0 && Utils.isDigit(example.charAt(i-1))){
 					in_s0('*');
 				}
 				char next = '\0';
-				if(i != stri.length() - 1)
-					next = stri.charAt(i+1);
-				if(i != stri.length()-1 && (Utils.isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
+				if(i != example.length() - 1)
+					next = example.charAt(i+1);
+				if(i != example.length()-1 && (Utils.isDigit(example.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
 					in_s0('*');
 				}
 				//s1.push(f);
@@ -97,18 +92,18 @@ public final class CoreMain {
 			}else if(s.equals("F")){
 				BigDecimal f = new BigDecimal(1.618);
 				s1.push(f);
-				if(i != 0 && Utils.isdigit(stri.charAt(i-1))){
+				if(i != 0 && Utils.isDigit(example.charAt(i-1))){
 					in_s0('*');
 				}
 				char next = '\0';
-				if(i != stri.length() - 1)
-					next = stri.charAt(i+1);
-				if(i != stri.length()-1 && (Utils.isdigit(stri.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
+				if(i != example.length() - 1)
+					next = example.charAt(i+1);
+				if(i != example.length()-1 && (Utils.isDigit(example.charAt(i+1))  || next == 'F' || next == 'P' || next == 'e')){
 					in_s0('*');
 				}
 				continue;
 			}else if(s.equals("!")){
-				if(i != len - 1 && stri.charAt(i + 1) == '!'){
+				if(i != len - 1 && example.charAt(i + 1) == '!'){
 					BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
 					if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(500)) > 0){
 						was_error = true;
@@ -146,8 +141,8 @@ public final class CoreMain {
 						}
 					}
 					if(i != len - 1) {
-						char next = stri.charAt(i + 1);
-						if(Utils.isdigit(next) || next == 'P' || next == 'F' || next == 'e')
+						char next = example.charAt(i + 1);
+						if(Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
 							in_s0('*');
 					}
 					continue;
@@ -157,18 +152,18 @@ public final class CoreMain {
 				s1.pop();
 				s1.push(y.divide(new BigDecimal(100)));
 				if(i != len - 1) {
-					char next = stri.charAt(i + 1);
-					if(Utils.isdigit(next) || next == 'P' || next == 'F' || next == 'e')
+					char next = example.charAt(i + 1);
+					if(Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
 						in_s0('*');
 				}
 				continue;
 			}else if(s.equals("e")){
 				BigDecimal f = new BigDecimal(Math.E);
 				s1.push(f);
-				if(i != 0 && Utils.isdigit(stri.charAt(i-1))){
+				if(i != 0 && Utils.isDigit(example.charAt(i-1))){
 					in_s0('*');
 				}
-				if(i != stri.length()-1 && Utils.isdigit(stri.charAt(i+1))){
+				if(i != example.length()-1 && Utils.isDigit(example.charAt(i+1))){
 					in_s0('*');
 				}
 				continue;
@@ -177,7 +172,7 @@ public final class CoreMain {
 					was_error = true;
 					break;
 				}else{
-					if(stri.charAt(i + 1) == '('){
+					if(example.charAt(i + 1) == '('){
 						in_s0('R');
 						continue;
 					}else{
@@ -190,13 +185,13 @@ public final class CoreMain {
 				i += 2;
 				String n = "";
 				int actions = 0;
-				while(stri.charAt(i) != ')'){
-					if(stri.charAt(i) == '+'){
+				while(example.charAt(i) != ')'){
+					if(example.charAt(i) == '+'){
 						actions++;
 						s1.push(new BigDecimal(n));
 						n = "";
 					}else{
-						n += Character.toString(stri.charAt(i));
+						n += Character.toString(example.charAt(i));
 					}
 					i++;
 				}
@@ -214,13 +209,13 @@ public final class CoreMain {
 				i += 2;
 				String n = "";
 				int actions = 0;
-				while(stri.charAt(i) != ')'){
-					if(stri.charAt(i) == '*'){
+				while(example.charAt(i) != ')'){
+					if(example.charAt(i) == '*'){
 						actions++;
 						s1.push(new BigDecimal(n));
 						n = "";
 					}else{
-						n += Character.toString(stri.charAt(i));
+						n += Character.toString(example.charAt(i));
 					}
 					i++;
 				}
@@ -235,9 +230,9 @@ public final class CoreMain {
 				s1.push(new BigDecimal(Utils.delete_zeros(answer)));
 				continue;
 			}
-			if(Utils.isdigit(str[i])){
+			if(Utils.isDigit(str[i])){
 				x = "";
-				while((i < stri.length()) && ((stri.charAt(i) == '.') || Utils.isdigit(str[i]) || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
+				while((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(str[i]) || (example.charAt(i) == '-' && example.charAt(i-1) == 'E'))){
 					s = Character.toString(str[i]);
 					x += s;
 					i++;
@@ -249,7 +244,7 @@ public final class CoreMain {
 					x = "1.618";
 				}
 				s1.push(new BigDecimal(x));
-				if(i < stri.length() && str[i] == 'E'){
+				if(i < example.length() && str[i] == 'E'){
 					in_s0('^');
 					i++;
 					BigDecimal t = BigDecimal.ONE;
@@ -259,8 +254,8 @@ public final class CoreMain {
 						t = BigDecimal.valueOf(-1.0);
 					}
 					x = "";
-					while(i < stri.length() && (stri.charAt(i) == '.' || Utils.isdigit(stri.charAt(i)))){
-						x += Character.toString(stri.charAt(i));
+					while(i < example.length() && (example.charAt(i) == '.' || Utils.isDigit(example.charAt(i)))){
+						x += Character.toString(example.charAt(i));
 						i++;
 					}
 					s1.push(new BigDecimal(x).multiply(t));
@@ -269,21 +264,21 @@ public final class CoreMain {
 			}else{
 				if(str[i] != ')'){
 					if(str[i] == '^'){
-						if(i != stri.length()-1 && str[i + 1] == '('){
+						if(i != example.length()-1 && str[i + 1] == '('){
 							i++;
 							in_s0('^');
 							s0.push("(");
 							continue;
-						}else if(i != stri.length()-1 && str[i + 1] != '('){
+						}else if(i != example.length()-1 && str[i + 1] != '('){
 							//i++;
 							in_s0('^');
 							continue;
 						}
 					}
-					if((i == 0 && str[i] == '-') || (str[i] == '-' && stri.charAt(i-1) == '(')){
+					if((i == 0 && str[i] == '-') || (str[i] == '-' && example.charAt(i-1) == '(')){
 						x = "";
 						i++;
-						while((i < stri.length()) && ((stri.charAt(i) == '.') || Utils.isdigit(str[i]) || stri.charAt(i) == 'E' || (stri.charAt(i) == '-' && stri.charAt(i-1) == 'E'))){
+						while((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(str[i]) || example.charAt(i) == 'E' || (example.charAt(i) == '-' && example.charAt(i-1) == 'E'))){
 							s = Character.toString(str[i]);
 							x += s;
 							i++;
@@ -292,7 +287,7 @@ public final class CoreMain {
 						s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
 						continue;
 					}
-					if(i != 0 && str[i] == '(' && (Utils.isdigit(str[i-1]) || str[i-1] == ')')){
+					if(i != 0 && str[i] == '(' && (Utils.isDigit(str[i-1]) || str[i-1] == ')')){
 						in_s0('*');
 					}
 
@@ -305,8 +300,8 @@ public final class CoreMain {
 					if (!s0.empty() && s0.peek().equals("(")) {
 						s0.pop();
 					}
-					if (i != stri.length() - 1) {
-						if (Utils.isdigit(stri.charAt(i + 1))) {
+					if (i != example.length() - 1) {
+						if (Utils.isDigit(example.charAt(i + 1))) {
 							in_s0('*');
 						}
 					}

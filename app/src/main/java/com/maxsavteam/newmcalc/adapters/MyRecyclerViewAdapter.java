@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc.R;
@@ -27,7 +28,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private ItemClickListener mClickListener;
     private Context con;
     private boolean DarkMode;
-    private ArrayList<ViewHolder> views = new ArrayList<ViewHolder>();
+    private ArrayList<ViewHolder> views = new ArrayList<>();
 
     // data is passed into the constructor
     public MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
@@ -42,7 +43,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return views;
     }
 
+    // Array need to clear, because when you call notifyDataSetChange(), old elements don't cleared
+    public void clearViews(){
+        views = new ArrayList<>();
+    }
+
     // inflates the row layout from xml when needed
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         /*if(DarkMode)

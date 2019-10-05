@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -94,17 +95,18 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         //Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
-    static int POSITION_to_del = -1;
-    View view_ondelete;
+    static int POSITION_TO_DEL = -1;
+    View VIEW_ON_DELETE;
 
     @Override
     public void onDelete(int position, ViewHolder v) {
-        if(POSITION_to_del == -1 && in_order){
+        if(POSITION_TO_DEL == -1 && IN_ORDER){
             Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (in_order)
-            return;
+        if (IN_ORDER) {
+	        return;
+        }
         v.itemView.findViewById(R.id.btnDelInRow).setVisibility(View.GONE);
         v.itemView.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
         TextView t;
@@ -113,8 +115,8 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             t.setTextColor(getResources().getColor(R.color.white));
         }
         v.itemView.setEnabled(false);
-        view_ondelete = v.itemView;
-        POSITION_to_del = position;
+        VIEW_ON_DELETE = v.itemView;
+        POSITION_TO_DEL = position;
 
         LinearLayout lay = findViewById(R.id.cancel_delete);
         lay.setVisibility(View.VISIBLE);
@@ -153,20 +155,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         lay.setAnimation(animation);
         lay.animate();
         animation.start();
-        /*try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
-        //lay.postOnAnimation((Runnable) lay.animate());
     }
 
 	@Override
 	public void ShowInfoButtonPressed(View view, int position) {
         //view = (View) view.getParent().getParent();
         TextView t = view.findViewById(R.id.tvWithDesc);
-        Boolean with = Boolean.parseBoolean(t.getText().toString());
+        boolean with = Boolean.parseBoolean(t.getText().toString());
         if(view.findViewById(R.id.with_desc).getVisibility() == View.VISIBLE
                 || view.findViewById(R.id.without_desc).getVisibility() == View.VISIBLE){
             LinearLayout lay;
@@ -258,7 +253,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 		                    @Override
 		                    public void onAnimationEnd(Animation animation) {
 			                    lay.setVisibility(View.GONE);
-			                    adapter.notifyDataSetChanged();
+			                    adapter.clearViews();adapter.notifyDataSetChanged();
 		                    }
 
 		                    @Override
@@ -291,64 +286,49 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 .setView(input)
                 .setMessage(R.string.enter_text)
                 .setTitle(R.string.desc)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String new_desc = input.getText().toString();
-                        if(mode.equals("edit")){
-                            if(!new_desc.equals("")) {
-                                String previous = str.get(position).get(0);
-                                int j;
-                                //noinspection StatementWithEmptyBody
-                                for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
-                                previous = previous.substring(0, j);
-                                new_desc = new_desc.replaceAll(",", "&,");
-                                previous += "~" + new_desc;
-                                str.get(position).set(0, previous);
-                                save_history();
-                                ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
-                            }else{
-                                String previous = str.get(position).get(0);
-                                int j;
-                                //noinspection StatementWithEmptyBody
-                                for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
-                                previous = previous.substring(0, j);
-                                str.get(position).set(0, previous);
-                                save_history();
-                                view.findViewById(R.id.with_desc).setVisibility(View.GONE);
-                                view.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
-                            }
-                            adapter.notifyDataSetChanged();
-                        }else if(mode.equals("add")){
-                            if(new_desc.equals(""))
-                                return;
-                            String s = str.get(position).get(0);
+                .setPositiveButton("OK", (dialogInterface, i) -> {
+                    String new_desc = input.getText().toString();
+                    if(mode.equals("edit")){
+                        if(!new_desc.equals("")) {
+                            String previous = str.get(position).get(0);
+                            int j;
+                            //noinspection StatementWithEmptyBody
+                            for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
+                            previous = previous.substring(0, j);
                             new_desc = new_desc.replaceAll(",", "&,");
-                            s += "~" + new_desc;
-                            str.get(position).set(0, s);
-                            new_desc = new_desc.replaceAll(Character.toString('&'), "");
-                            /*String temp = new_desc;
-                            new_desc = "";
-                            for(int j = 0; j < temp.length(); j++){
-                            	if(temp.charAt(i) != '&'){
-                            		new_desc += temp.charAt(j);
-	                            }
-                            }*/
-                            view.findViewById(R.id.without_desc).setVisibility(View.GONE);
-                            ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
-                            view.findViewById(R.id.with_desc).setVisibility(View.GONE);
+                            previous += "~" + new_desc;
+                            str.get(position).set(0, previous);
                             save_history();
+                            ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
+                        }else{
+                            String previous = str.get(position).get(0);
+                            int j;
+                            //noinspection StatementWithEmptyBody
+                            for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
+                            previous = previous.substring(0, j);
+                            str.get(position).set(0, previous);
+                            save_history();
+                            view.findViewById(R.id.with_desc).setVisibility(View.GONE);
+                            view.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
                         }
-                        adapter.notifyDataSetChanged();
-                        dialogInterface.cancel();
+                        adapter.clearViews();adapter.notifyDataSetChanged();
+                    }else if(mode.equals("add")){
+                        if(new_desc.equals(""))
+                            return;
+                        String s = str.get(position).get(0);
+                        new_desc = new_desc.replaceAll(",", "&,");
+                        s += "~" + new_desc;
+                        str.get(position).set(0, s);
+                        new_desc = new_desc.replaceAll(Character.toString('&'), "");
+                        view.findViewById(R.id.without_desc).setVisibility(View.GONE);
+                        ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
+                        view.findViewById(R.id.with_desc).setVisibility(View.GONE);
+                        save_history();
                     }
+                    adapter.clearViews();adapter.notifyDataSetChanged();
+                    dialogInterface.cancel();
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                })
+                .setNegativeButton(R.string.cancel, (dialog, i) -> dialog.cancel())
                 .create();
         if(mode.equals("edit")){
             String desc = ((TextView) view.findViewById(R.id.txtDesc2)).getText().toString();
@@ -369,29 +349,29 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     public void delete(){
         animate_hide();
-        str.remove(POSITION_to_del);
-        /*desc.remove(POSITION_to_del);
+	    if(mTimer != null){
+		    mTimer.cancel();
+		    mTimer = null;
+	    }
+        str.remove(POSITION_TO_DEL);
+        /*desc.remove(POSITION_TO_DEL);
         save_history_description();*/
-        view_ondelete.setEnabled(true);
+        VIEW_ON_DELETE.setEnabled(true);
         if(DarkMode)
-            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+            VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         else
-            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
-        //view_ondelete.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.transparent)));
+            VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        //VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(android.R.color.transparent)));
         if(!DarkMode){
             TextView t;
             for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
-                t = view_ondelete.findViewById(id);
+                t = VIEW_ON_DELETE.findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.black));
             }
         }
-        if(mTimer != null){
-            mTimer.cancel();
-            mTimer = null;
-        }
         save_history();
-        adapter.notifyItemRemoved(POSITION_to_del);
-        adapter.notifyDataSetChanged();
+        adapter.notifyItemRemoved(POSITION_TO_DEL);
+        adapter.clearViews();adapter.notifyDataSetChanged();
         if(str.size() == 0){
             if(DarkMode){
                 setTheme(android.R.style.Theme_Material_NoActionBar);
@@ -413,18 +393,18 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             mTimer.cancel();
             mTimer = null;
         }
-        in_order = false;
-        POSITION_to_del = -1;
-        view_ondelete.setEnabled(true);
+        IN_ORDER = false;
+        POSITION_TO_DEL = -1;
+        VIEW_ON_DELETE.setEnabled(true);
         if (DarkMode) {
-            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+            VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         } else {
             TextView t;
             for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
-                t = view_ondelete.findViewById(id);
+                t = VIEW_ON_DELETE.findViewById(id);
                 t.setTextColor(getResources().getColor(R.color.black));
             }
-            view_ondelete.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+            VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
         }
         animate_hide();
     }
@@ -433,7 +413,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     int countdown_del = 6;
     TextView tCount;
     LinearLayout cancel;
-    public boolean in_order = false;
+    public boolean IN_ORDER = false;
 
     class MyTimer extends TimerTask{
         @SuppressLint("SetTextI18n")
@@ -441,7 +421,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         public void run() {
             if (countdown_del != 0) {
                 countdown_del--;
-                in_order = true;
+                IN_ORDER = true;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -454,7 +434,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                     mTimer.cancel();
                     mTimer = null;
                 }
-                in_order = false;
+                IN_ORDER = false;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
