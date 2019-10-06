@@ -11,12 +11,12 @@ android {
         //noinspection OldTargetApi,ExpiredTargetSdkVersion
         targetSdkVersion 28
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 170
-        versionName "1.10.3.170"
+        versionCode 171
+        versionName "1.10.3.171"
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "int", "COMPILE_DATE", "191006" // It consist of year, months, day
         buildConfigField "String", "APPTYPE", "\"stable\""
-        buildConfigField "String", "CoreVersion", "\"v2.0.02.101906\""
+        buildConfigField "String", "CoreVersion", "\"v2.0.03.101906\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
     }

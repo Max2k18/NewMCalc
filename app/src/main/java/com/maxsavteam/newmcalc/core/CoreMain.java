@@ -104,62 +104,76 @@ public final class CoreMain {
 				}
 				continue;
 			}else if(s.equals("!")){
-				if(i != len - 1 && example.charAt(i + 1) == '!'){
-					BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
-					if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(500)) > 0){
-						was_error = true;
-						coreLinkBridge.onError(""); // I do not know how to name this error
-						break;
-					}
-					for(; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract( BigDecimal.valueOf(2) ) ){
-						ans = ans.multiply(y);
-					}
-					i++;
-					s1.pop();
-					s1.push(ans);
-					continue;
-				}else {
-					BigDecimal y = s1.peek();
-					if (y.signum() == -1) {
-						was_error = true;
-						coreLinkBridge.onError("Error: Unable to find negative factorial.");
-						break;
-					} else {
-						if (y.compareTo(new BigDecimal(1000)) > 0) {
+				try {
+					if (i != len - 1 && example.charAt(i + 1) == '!') {
+						BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
+						if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(500)) > 0) {
 							was_error = true;
-							coreLinkBridge.onError("For some reason, we cannot calculate the factorial of this number " +
-									"(because it is too large and may not have enough device resources when executed)");
+							coreLinkBridge.onError(""); // I do not know how to name this error
+							break;
+						}
+						for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
+							ans = ans.multiply(y);
+						}
+						i++;
+						s1.pop();
+						s1.push(ans);
+						continue;
+					} else {
+						BigDecimal y = s1.peek();
+						if (y.signum() == -1) {
+							was_error = true;
+							coreLinkBridge.onError("Error: Unable to find negative factorial.");
 							break;
 						} else {
-							s1.pop();
-							String fa = y.toString();
-							if (fa.contains(".")) {
-								int index = fa.lastIndexOf(".");
-								fa = fa.substring(0, index);
-								y = new BigDecimal(fa);
+							if (y.compareTo(new BigDecimal(1000)) > 0) {
+								was_error = true;
+								coreLinkBridge.onError("For some reason, we cannot calculate the factorial of this number " +
+										"(because it is too large and may not have enough device resources when executed)");
+								break;
+							} else {
+								s1.pop();
+								String fa = y.toString();
+								if (fa.contains(".")) {
+									int index = fa.lastIndexOf(".");
+									fa = fa.substring(0, index);
+									y = new BigDecimal(fa);
+								}
+								s1.push(Utils.fact(y));
 							}
-							s1.push(Utils.fact(y));
 						}
+						if (i != len - 1) {
+							char next = example.charAt(i + 1);
+							if (Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
+								in_s0('*');
+						}
+						continue;
 					}
-					if(i != len - 1) {
+				}catch (Exception e){
+					e.printStackTrace();
+					was_error = true;
+					coreLinkBridge.onError(e.toString());
+					break;
+				}
+			}else if(s.equals("%")){
+				try {
+					BigDecimal y = s1.peek();
+					s1.pop();
+					y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
+					y = new BigDecimal(Utils.delete_zeros(y.toPlainString()));
+					s1.push(y);
+					if (i != len - 1) {
 						char next = example.charAt(i + 1);
-						if(Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
+						if (Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
 							in_s0('*');
 					}
 					continue;
+				}catch (Exception e){
+					e.printStackTrace();
+					was_error = true;
+					coreLinkBridge.onError(e.toString());
+					break;
 				}
-			}else if(s.equals("%")){
-				BigDecimal y = s1.peek();
-				s1.pop();
-				y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
-				y = new BigDecimal(Utils.delete_zeros(y.toPlainString()));
-				s1.push(y);
-				if(i != len - 1) {
-					char next = example.charAt(i + 1);
-					if(Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
-						in_s0('*');
-				}
-				continue;
 			}else if(s.equals("e")){
 				BigDecimal f = new BigDecimal(Math.E);
 				s1.push(f);

@@ -9,6 +9,9 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.10.3.171
+  * Crash when calculating the percentage is accurately corrected.
+
 ### 1.10.3.170
   * Fixed a possible crash when calculating the percentage.
   * Fixed incorrect calculations of exponentiation.

@@ -472,15 +472,15 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                         .setPositiveButton(R.string.rate, (dialog, i) -> {
                             Toast.makeText(this, getResources().getString(R.string.thank_you), Toast.LENGTH_SHORT).show();
                             sp.edit().putBoolean("offer_was_showed", true).apply();
+                            Intent go_to = new Intent(Intent.ACTION_VIEW);
+                            go_to.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
+                            startActivity(go_to);
                             dialog.cancel();
                         })
                         .setNegativeButton(R.string.no_thanks, ((dialog, which) -> {
                             Toast.makeText(this, ":(", Toast.LENGTH_SHORT).show();
                             sp.edit().putBoolean("offer_was_showed", true).apply();
-                            Intent go_to = new Intent(Intent.ACTION_VIEW);
-                            go_to.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
                             dialog.cancel();
-                            startActivity(go_to);
                         }))
                         .setNeutralButton(R.string.later, ((dialog, which) -> {
                             Toast.makeText(this, R.string.we_will_wait, Toast.LENGTH_SHORT).show();
