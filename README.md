@@ -4,6 +4,8 @@ This is the repository of an application published on [Google Play](https://play
 I will try to add here a list of changes with each version. 
 But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
+I have some plans that can be added or changed in the application (see file Plans). You can help me :)
+
 I translate text through Google Translator, because I do not know English so well (I'm from Belarus)
 
 #### **I waiting for feedback**

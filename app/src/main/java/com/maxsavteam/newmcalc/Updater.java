@@ -323,6 +323,7 @@ public class Updater extends AppCompatActivity {
 		Intent intent = new Intent(this, MainActivity.class);
 		this.startActivity(intent);
 		this.finishAffinity();
+		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	public void postcreate() {
@@ -649,33 +650,11 @@ public class Updater extends AppCompatActivity {
 	}
 
 	public void other_settings() {
-		//setContentView(R.layout.other_settings);
 		apply_dark_at_othersettings();
 		Button b = findViewById(R.id.btnImport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		b = findViewById(R.id.btnExport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		/*int loc = sp.getInt("btn_add_align", 0);
-		Button l, r;
-		if (loc == 0) {
-			l = findViewById(R.id.btnLeft);
-			r = findViewById(R.id.btnRight);
-		} else{
-			l = findViewById(R.id.btnRight);
-			r = findViewById(R.id.btnLeft);
-
-		}
-		if(DarkMode){
-			l.setBackgroundColor(getResources().getColor(R.color.white));
-			l.setTextColor(getResources().getColor(R.color.black));
-			r.setBackgroundColor(getResources().getColor(R.color.black));
-			r.setTextColor(getResources().getColor(R.color.white));
-		}else{
-			l.setBackgroundColor(getResources().getColor(R.color.black));
-			l.setTextColor(getResources().getColor(R.color.white));
-			r.setBackgroundColor(getResources().getColor(R.color.white));
-			r.setTextColor(getResources().getColor(R.color.black));
-		}*/
 		Switch sw = findViewById(R.id.switchDarkMode);
 		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		sw.setChecked(sp.getBoolean("dark_mode", false));
@@ -683,10 +662,7 @@ public class Updater extends AppCompatActivity {
 			@Override
 			public boolean onLongClick(View v) {
 				sp.edit().clear().apply();
-				sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-				sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
-				Toast.makeText(getApplicationContext(), "Storage cleared", Toast.LENGTH_SHORT).show();
-				finish();
+				restart();
 				return true;
 			}
 		});
@@ -728,9 +704,7 @@ public class Updater extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), R.string.on_import, Toast.LENGTH_LONG).show();
 			fr.close();
 			//postcreate();
-			sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
-			sendBroadcast(new Intent(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
-			finish();
+			restart();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();

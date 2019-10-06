@@ -75,6 +75,7 @@ public class catch_service extends AppCompatActivity {
 
 	final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
+			" - Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
 			" - App type: " + BuildConfig.APPTYPE + "\n" +
 			" - Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
 			" - Core version: " + BuildConfig.CoreVersion + "\n\n" +
@@ -112,7 +113,7 @@ public class catch_service extends AppCompatActivity {
 			/*if(!APP_TYPE.equals("stable"))
 				((TextView) findViewById(R.id.appname)).setText(Html.fromHtml(getResources().getString(R.string.app_name) + "<sup>" + BuildConfig.APPTYPE + "</sup>"));*/
 			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
-			((TextView) findViewById(R.id.compiledate)).setText(Integer.toString(BuildConfig.COMPILE_DATE));
+			((TextView) findViewById(R.id.compiledate)).setText(BuildConfig.COMPILE_DATE);
 			((TextView) findViewById(R.id.build)).setText(Integer.toString(BuildConfig.VERSION_CODE));
 
 			ImageView img = findViewById(R.id.appIcon);

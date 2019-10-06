@@ -1,28 +1,56 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
+//apply plugin: 'io.github.rockerhieu:versionberg'
 
 android {
-    compileSdkVersion 29
-    defaultConfig {
-        applicationId "com.maxsavteam.newmcalc"
-        minSdkVersion 22
-        //noinspection OldTargetApi,ExpiredTargetSdkVersion
-        targetSdkVersion 28
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 171
-        versionName "1.10.3.171"
-        buildConfigField "Boolean", "UCModuleActivated", "false"
-        buildConfigField "int", "COMPILE_DATE", "191006" // It consist of year, months, day
-        buildConfigField "String", "APPTYPE", "\"stable\""
-        buildConfigField "String", "CoreVersion", "\"v2.0.03.101906\""
-        buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
-        buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
+    signingConfigs {
+        release {
+            storeFile file('D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks')
+            storePassword '1234567890'
+            keyAlias = 'key0'
+            keyPassword '1234567890'
+        }
     }
+    compileSdkVersion 29
+
+    def versionPropsFile = file('version.properties')
+    String time_zone = "GMT+3" //you can modify this
+    if(versionPropsFile.canRead()){
+        Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def code = versionProps['VERSION_CODE'].toInteger() + 1
+
+        versionProps['VERSION_CODE']=code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        defaultConfig {
+            applicationId "com.maxsavteam.newmcalc"
+            minSdkVersion 22
+            //noinspection OldTargetApi,ExpiredTargetSdkVersion
+            targetSdkVersion 28
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            versionCode code
+            versionName "1.10.3." + code.toString()
+            buildConfigField "Boolean", "UCModuleActivated", "false"
+            buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
+            buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
+            buildConfigField "String", "CoreVersion", "\"v2.0.03.101906\""
+            buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
+            buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
+        }
+    }else
+        throw new GradleScriptException("Cannot read version.propertis")
+
     buildTypes {
         release {
             buildConfigField("Boolean", "ISDEBUG", "false")
+            buildConfigField "String", "APPTYPE", "\"stable\""
             minifyEnabled true
             shrinkResources true
             aaptOptions {
@@ -32,9 +60,11 @@ android {
         }
         debug {
             buildConfigField("Boolean", "ISDEBUG", "true")
+            buildConfigField "String", "APPTYPE", "\"dev\""
             debuggable true
             jniDebuggable true
             zipAlignEnabled true
+            versionNameSuffix "-DEBUG"
         }
     }
     buildToolsVersion '29.0.2'
@@ -45,6 +75,15 @@ android {
     productFlavors {
     }
     android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
+}
+def static getBuildDate(String format){
+    return new Date().format(format)
+}
+
+static String getBuildTime(String tzone){
+    def df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
+    df.setTimeZone(TimeZone.getTimeZone(tzone))
+    return df.format(new Date())
 }
 
 dependencies {

@@ -1319,7 +1319,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(btntxt.equals("(")){
             if(last == '.')
                 return;
-            if(Utils.isDigit(last) || last == '!' || last == '%' || Utils.isConstNum(last, this)){
+            if((Utils.isDigit(last) || last == '!' || last == '%' || Utils.isConstNum(last, this)) && !txt.equals("")){
                 t.setText(txt + MULTIPLY_SIGN + btntxt);
                 equallu("not");
             }else{
@@ -1452,14 +1452,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 }
                 return;
             }
-            if(len >= 1 && (btntxt.equals("(") || (last == ')' && !Utils.isDigit(btntxt.charAt(0))))) {
-                if(btntxt.equals("("))
-                    brackets++;
+            if(len >= 1 && (last == ')' && !Utils.isDigit(btntxt.charAt(0)))) {
                 t.setText(txt + btntxt);
-                equallu("not");
-            }else if(len == 0 && btntxt.equals("(")){
-                brackets++;
-                t.setText(btntxt);
                 equallu("not");
             }else{
                 if(!txt.equals("")){
