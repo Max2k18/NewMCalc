@@ -19,6 +19,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -458,13 +459,46 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 ver = null;
             }
         }
-        boolean receive = sp.getBoolean("stop_receive_all", false);
-        if(app_type.equals("tester") && !receive){
-            sp.edit().putBoolean("isdev", true).apply();
+        boolean offer_to_rate = sp.getBoolean("offer_was_showed", false);
+        int offers_count = sp.getInt("offers_count", 0);
+        if(!offer_to_rate){
+            if(offers_count == 10){
+                offers_count = 0;
+                AlertDialog rate;
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.please_rate_out_app)
+                        .setMessage(R.string.rate_message)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.rate, (dialog, i) -> {
+                            Toast.makeText(this, getResources().getString(R.string.thank_you), Toast.LENGTH_SHORT).show();
+                            sp.edit().putBoolean("offer_was_showed", true).apply();
+                            dialog.cancel();
+                        })
+                        .setNegativeButton(R.string.no_thanks, ((dialog, which) -> {
+                            Toast.makeText(this, ":(", Toast.LENGTH_SHORT).show();
+                            sp.edit().putBoolean("offer_was_showed", true).apply();
+                            Intent go_to = new Intent(Intent.ACTION_VIEW);
+                            go_to.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
+                            dialog.cancel();
+                            startActivity(go_to);
+                        }))
+                        .setNeutralButton(R.string.later, ((dialog, which) -> {
+                            Toast.makeText(this, R.string.we_will_wait, Toast.LENGTH_SHORT).show();
+                            dialog.cancel();
+                        }));
+
+                rate = builder.create();
+                if(DarkMode)
+                    Objects.requireNonNull(rate.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
+                rate.show();
+            }else{
+                offers_count++;
+            }
+            sp.edit().putInt("offers_count", offers_count).apply();
         }
 
         trace.stop();
-        //должно быть всегда in the end
+        //should be always in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
     int count_of_memory_plu_min_calls = 0;
@@ -875,10 +909,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 resize_text();
                 scroll_to_end();
                 break;
-            case "for_memory":
-                result_calc_for_mem = result;
-                memory_calculated = true;
-                break;
             default:
                 throw new IllegalArgumentException("Arguments should be of two types: all, not");
         }
@@ -1018,12 +1048,14 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	        }
 	    }
 	    original = stri;
-	    StringBuilder sb = new StringBuilder();
-	    for(int i = 0; i < stri.length(); i++){
-	        if(stri.charAt(i) != ' ')
-	            sb.append(stri.charAt(i));
+	    if(stri.contains(" ")){
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < stri.length(); i++) {
+                if (stri.charAt(i) != ' ')
+                    sb.append(stri.charAt(i));
+            }
+            stri = new String(sb);
         }
-	    stri = new String(sb);
 	    try{
 	    	BigDecimal b = null;
 	    	b = new BigDecimal(stri);
@@ -1033,10 +1065,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 		    }
 	    }catch (NumberFormatException e){
 		    Log.e("All ok", e.toString());
-	    }
-	    if(TextUtils.isDigitsOnly(stri)){
-	    	hide_ans();
-	    	return;
 	    }
 	    if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
 	            || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))

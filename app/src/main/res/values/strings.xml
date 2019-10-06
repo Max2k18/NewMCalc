@@ -146,4 +146,12 @@
     <string name="chooseSysLabel">Select number systems to convert number</string>
     <string name="CompileDateLbl">Compiled:</string>
     <string name="number_system_convrter">Number System Converter</string>
+    <string name="thank_you">Thank you!</string>
+    <string name="we_will_wait">Ok, we will wait</string>
+    <string name="please_rate_out_app">Please, rate the our app</string>
+    <string name="rate_message">Rate our application and leave a review. So we will understand how much you like our application and in which direction to develop it. Thank!</string>
+    <string name="rate">Rate</string>
+    <string name="no_thanks">No thanks</string>
+    <string name="later">Later</string>
+    <string name="link_app_in_google_play" translatable="false">https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc</string>
 </resources>

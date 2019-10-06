@@ -116,4 +116,11 @@
     <string name="chooseToSys">в</string>
     <string name="chooseFromSys" translatable="false">из</string>
     <string name="number_system_convrter">Конвертер систем счисления</string>
+    <string name="thank_you">Спасибо!</string>
+    <string name="we_will_wait">Хорошо, мы подождём</string>
+    <string name="please_rate_out_app">Пожалуйста, оцените приложение</string>
+    <string name="rate_message">Поставьте оценку нашему приложению и оставьте отзыв. Так мы поймём, насколько Вам нравится наше приложение и в какую сторону его развивать. Спасибо!</string>
+    <string name="rate">Оценить</string>
+    <string name="no_thanks">Нет, спасибо</string>
+    <string name="later">Позже</string>
 </resources>

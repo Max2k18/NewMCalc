@@ -47,7 +47,7 @@ public class catch_service extends AppCompatActivity {
 		else if(v.getId() == R.id.siteBtn)
 			in.setData(Uri.parse("https://maxsavteam.tk/Mobile/"));
 		else if(v.getId() == R.id.playMarketBtn)
-			in.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID));
+			in.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
 		startActivity(in);
 	}
 

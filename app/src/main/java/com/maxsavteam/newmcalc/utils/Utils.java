@@ -36,10 +36,14 @@ public final class Utils {
 
 	public static String delete_zeros(String source){
 		int len = source.length();
-		if(source.charAt(len - 1) == '0'){
-			while(source.charAt(len - 1) == '0' || source.charAt(len - 1) == '.'){
-				len--;
-				source = source.substring(0, len);
+		if(source.contains(".")) {
+			if (source.charAt(len - 1) == '0') {
+				while (source.charAt(len - 1) == '0') {
+					len--;
+					source = source.substring(0, len);
+				}
+				if(source.charAt(len - 1) == '.')
+					source = source.substring(0, len - 1);
 			}
 		}
 		return source;

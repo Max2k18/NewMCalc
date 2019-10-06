@@ -31,6 +31,7 @@ public final class CoreMain {
 	private void calc(String example, String type){
 		s0.clear();
 		s1.clear();
+		was_error = false;
 		char[] str = new char[example.length()];
 		example.getChars(0, example.length(), str, 0);
 		String x;
@@ -150,7 +151,9 @@ public final class CoreMain {
 			}else if(s.equals("%")){
 				BigDecimal y = s1.peek();
 				s1.pop();
-				s1.push(y.divide(new BigDecimal(100)));
+				y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
+				y = new BigDecimal(Utils.delete_zeros(y.toPlainString()));
+				s1.push(y);
 				if(i != len - 1) {
 					char next = example.charAt(i + 1);
 					if(Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
@@ -412,17 +415,7 @@ public final class CoreMain {
 				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
 
 			String answer = ans.toPlainString();
-			int len = answer.length();
-			if(answer.charAt(len-1) == '0'){
-				while (len > 0 && answer.charAt(len - 1) == '0') {
-					len--;
-					answer = answer.substring(0, len);
-				}
-				if(answer.charAt(len-1) == '.'){
-					answer = answer.substring(0, len-1);
-				}
-				ans = new BigDecimal(answer);
-			}
+			ans = new BigDecimal(Utils.delete_zeros(answer));
 			s1.push(ans);
 		}catch (ArithmeticException e){
 			//Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
