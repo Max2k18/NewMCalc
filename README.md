@@ -11,6 +11,11 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.10.4.188
+  * Errors during calculations are now displayed in the notification.
+  * Bugs were fixed when calculating, for example, the logarithm of a negative number, etc.
+  * Modularity++
+
 ### 1.10.3.171
   * Crash when calculating the percentage is accurately corrected.
 

@@ -123,4 +123,5 @@
     <string name="rate">Оценить</string>
     <string name="no_thanks">Нет, спасибо</string>
     <string name="later">Позже</string>
+    <string name="show_all_errors">Показывать все ошибки при вычислении</string>
 </resources>

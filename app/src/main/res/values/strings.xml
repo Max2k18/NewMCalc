@@ -154,4 +154,5 @@
     <string name="no_thanks">No thanks</string>
     <string name="later">Later</string>
     <string name="link_app_in_google_play" translatable="false">https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc</string>
+    <string name="show_all_errors">Show all calculation errors</string>
 </resources>

@@ -1,5 +1,10 @@
 package com.maxsavteam.newmcalc.core;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.util.Log;
+
+import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
@@ -11,7 +16,14 @@ import java.util.Stack;
 public final class CoreMain {
 	private CoreLinkBridge coreLinkBridge;
 	private boolean was_error = false;
-	
+	private Context context;
+	private Resources res;
+
+	public CoreMain(Context context) {
+		this.context = context;
+		this.res = context.getApplicationContext().getResources();
+	}
+
 	public void setInterface(CoreLinkBridge clb){
 		this.coreLinkBridge = clb;
 	}
@@ -25,6 +37,68 @@ public final class CoreMain {
 	private static Stack<BigDecimal> s1 = new Stack<>();
 	
 	public void prepare(String example, String type){
+		int len = example.length();
+		char last;
+		if(len == 0)
+			return;
+		else
+			last = example.charAt(len - 1);
+
+		if(last == '(')
+			return;
+
+		int brackets = 0;
+		for(int i = 0; i < example.length(); i++){
+			if(example.charAt(i) == '(')
+				brackets++;
+			else if(example.charAt(i) == ')')
+				brackets--;
+		}
+		if(brackets > 0){
+			for(int i = 0; i < brackets; i++){
+				example += ")";
+			}
+		}
+		if(example.contains(" ")){
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < example.length(); i++) {
+				if (example.charAt(i) != ' ')
+					sb.append(example.charAt(i));
+			}
+			example = sb.toString();
+		}
+		try{
+			BigDecimal b = null;
+			b = new BigDecimal(example);
+			if(b != null){
+				coreLinkBridge.onError("/Core/Input string is number");
+				return;
+			}
+		}catch (NumberFormatException e){
+			Log.e("All ok", e.toString());
+		}
+		if(example.contains(res.getString(R.string.multiply)) || example.contains(res.getString(R.string.div))
+				|| example.contains(res.getString(R.string.pi)) || example.contains(res.getString(R.string.fi))
+				|| example.contains(res.getString(R.string.sqrt))){
+			char[] mas = example.toCharArray();
+			String p;
+
+			for(int i = 0; i < example.length(); i++){
+				p = Character.toString(mas[i]);
+				if(p.equals(res.getString(R.string.div))){
+					mas[i] = '/';
+				}else if(p.equals(res.getString(R.string.multiply))){
+					mas[i] = '*';
+				}else if(p.equals(res.getString(R.string.pi))){
+					mas[i] = 'P';
+				}else if(p.equals(res.getString(R.string.fi))){
+					mas[i] = 'F';
+				}else if(p.equals(res.getString(R.string.sqrt))){
+					mas[i] = 'R';
+				}
+			}
+			example = new String(mas);
+		}
 		calc(example, type);
 	}
 
@@ -349,6 +423,8 @@ public final class CoreMain {
 			double d = s1.peek().doubleValue(), ans = 1;
 			if (x.equals("log") && d <= 0) {
 				//Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
+				was_error = true;
+				coreLinkBridge.onError("You cannot find the logarithm of a zero or a negative number.");
 				return;
 			}
 			s1.pop();
@@ -366,14 +442,29 @@ public final class CoreMain {
 					break;
 				}
 				case "log": {
+					if(d <= 0){
+						was_error = true;
+						coreLinkBridge.onError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number."));
+						return;
+					}
 					ans = Math.log10(d);
 					break;
 				}
 				case "ln": {
+					if(d <= 0){
+						was_error = true;
+						coreLinkBridge.onError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number."));
+						return;
+					}
 					ans = Math.log(d);
 					break;
 				}
 				case "R":
+					if(d < 0){
+						was_error = true;
+						coreLinkBridge.onError("Illegal argument: the root expression cannot be negative.");
+						return;
+					}
 					ans = Math.sqrt(d);
 					break;
 			}
@@ -381,17 +472,7 @@ public final class CoreMain {
 			BigDecimal ansb = BigDecimal.valueOf(ans);
 			ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
 			String answer = ansb.toPlainString();
-			int len = answer.length();
-			if (answer.charAt(len - 1) == '0' && answer.contains(".")) {
-				while (len > 0 && answer.charAt(len - 1) == '0') {
-					len--;
-					answer = answer.substring(0, len);
-				}
-				if (answer.charAt(len - 1) == '.') {
-					answer = answer.substring(0, len - 1);
-				}
-			}
-			s1.push(new BigDecimal(answer));
+			s1.push(new BigDecimal(Utils.delete_zeros(answer)));
 			return;
 		}
 		BigDecimal b = s1.peek();
@@ -416,6 +497,7 @@ public final class CoreMain {
 				case "/":
 					if(b1 == 0){
 						was_error = true;
+						coreLinkBridge.onError("Division by zero.");
 						return;
 					}
 					ansd = a1 / b1;

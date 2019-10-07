@@ -71,6 +71,7 @@
                     android:id="@+id/switchSaveOnExit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:onClick="switchSave"
                     android:paddingStart="24dp"
                     android:paddingEnd="24dp"
@@ -86,6 +87,18 @@
                     android:onClick="switchSave"
                     android:text="@string/text_dark_mode"
                     android:textSize="18sp"
+                    android:thumbTint="@color/colorAccent" />
+
+                <Switch
+                    android:id="@+id/show_all_errors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:onClick="switchSave"
+                    android:text="@string/show_all_errors"
+                    android:textSize="16sp"
                     android:thumbTint="@color/colorAccent" />
 
                 <LinearLayout
@@ -166,15 +179,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1.0">
-
-                <Button
-                    android:id="@+id/btnReport"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="report"
-                    android:text="@string/report_problem"
-                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/txtxCopyRight"

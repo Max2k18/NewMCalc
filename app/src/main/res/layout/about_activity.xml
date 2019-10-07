@@ -49,6 +49,11 @@
             android:gravity="center"
             android:orientation="vertical">
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.25" />
+
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -175,46 +180,53 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center">
 
-                <ImageButton
-                    android:id="@+id/vkBtn"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:backgroundTint="@android:color/transparent"
-                    android:onClick="social"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/vk" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
 
-                <ImageButton
-                    android:id="@+id/instBtn"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:backgroundTint="@android:color/transparent"
-                    android:onClick="social"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/instagram" />
+                    <ImageButton
+                        android:id="@+id/vkBtn"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:onClick="social"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/vk" />
 
-                <ImageButton
-                    android:id="@+id/siteBtn"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:backgroundTint="@android:color/transparent"
-                    android:onClick="social"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/website2" />
+                    <ImageButton
+                        android:id="@+id/instBtn"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:onClick="social"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/instagram" />
 
-                <ImageButton
-                    android:id="@+id/playMarketBtn"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:backgroundTint="@android:color/transparent"
-                    android:onClick="social"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/google_play" />
+                    <ImageButton
+                        android:id="@+id/siteBtn"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:onClick="social"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/website2" />
+
+                    <ImageButton
+                        android:id="@+id/playMarketBtn"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:onClick="social"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/google_play" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

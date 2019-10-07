@@ -18,7 +18,7 @@ android {
     compileSdkVersion 29
 
     def versionPropsFile = file('version.properties')
-    String time_zone = "GMT+3" //you can modify this
+    String time_zone = "UTC" //you can modify this
     if(versionPropsFile.canRead()){
         Properties versionProps = new Properties()
 
@@ -36,11 +36,11 @@ android {
             targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.10.3." + code.toString()
+            versionName "1.10.4." + code.toString()
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-            buildConfigField "String", "CoreVersion", "\"v2.0.03.101906\""
+            buildConfigField "String", "CoreVersion", "\"v2.1.0.101907\""
             buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }

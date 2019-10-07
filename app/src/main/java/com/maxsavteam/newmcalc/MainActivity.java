@@ -26,6 +26,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	    DarkMode = sp.getBoolean("dark_mode", false);
 	    sp.edit().remove("notification_showed").apply();
 	    utils = new Utils();
-	    coreMain = new CoreMain();
+	    coreMain = new CoreMain(this);
 	    coreMain.setInterface(this);
 	    if(DarkMode){
 	    	setTheme(android.R.style.Theme_Material_NoActionBar);
@@ -933,8 +934,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     public void resize_text(){
-        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            return;*/
         TextView txt = findViewById(R.id.textStr);
         TextView t = findViewById(R.id.textAns2);
 
@@ -945,9 +944,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         Paint PaintAns = t.getPaint();
         textPaint.getTextBounds(stri, 0, stri.length(), bounds);
         PaintAns.getTextBounds(strians, 0, strians.length(), boundsans);
-        int height = bounds.height();
         int twidth = bounds.width();
-        int widthAns = bounds.width();
         Display dis = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         dis.getSize(size);
@@ -957,12 +954,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
             if(boundsans.width() >= answidth)
                 t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
-            //twidth = txt.getWidth();
             textPaint.getTextBounds(stri, 0, stri.length(), bounds);
             PaintAns.getTextBounds(strians, 0, strians.length(), boundsans);
             twidth = bounds.width();
-            //txt.setWidth(twidth + 10);
-            //sz = txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity;
         }
         while(bounds.width() >= answidth && t.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 29){
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1);
@@ -971,11 +965,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if (twidth < width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity < 46){
             txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1);
-            //twidth = txt.getWidth();
             textPaint.getTextBounds(stri, 0, stri.length(), bounds);
-            twidth = bounds.width();
         }
-        //LinearLayout ll = findViewById(R.id.textAns2);
     }
 
     public void set_text_toDef(){
@@ -992,104 +983,53 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
     @Override
     public void onError(String error) {
+        //if(error.startsWith("/Core/"))
+        boolean showErr = sp.getBoolean("show_calc_errors", true);
+        if(showErr && !error.startsWith("/Core/")){
+            Toast toast = Toast.makeText(this, error, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+            toast.show();
+        }
         hide_ans();
     }
 
     private void equallu(String type){
         TextView txt = findViewById(R.id.textStr);
-        String stri = txt.getText().toString();
+        String example = txt.getText().toString();
         format(R.id.textStr);
-        int len = stri.length();
+        int len = example.length();
         if(len != 0) {
             show_str();
             scroll_to_end();
         }else
         	return;
-        if(stri.charAt(len-1) == '^' && type.equals("all")){
-            stri += "(";
-            brackets++;
-            txt.setText(stri);
-            return;
-        }
-        char last = stri.charAt(len - 1);
+        char last = example.charAt(len - 1);
         if(!Utils.isDigit(last) && last != ')' && last != '!' && last != '%'
                 && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
-            /*if (!stri.contains(getResources().getString(R.string.pi)) && !stri.contains(getResources().getString(R.string.fi)) && !stri.contains("e") && !stri.contains(getResources().getString(R.string.sqrt))) {
-                hide_ans();
-                return;
-            }*/
             hide_ans();
             return;
         }
-        //txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
+        if(last == '(')
+            return;
         resize_text();
-        //Toast.makeText(getApplicationContext(), Float.toString(txt.getTextSize()), Toast.LENGTH_LONG).show();
         brackets = 0;
-        for(int i = 0; i < stri.length(); i++){
-            if(stri.charAt(i) == '(')
+        for(int i = 0; i < example.length(); i++){
+            if(example.charAt(i) == '(')
                 brackets++;
-            else if(stri.charAt(i) == ')')
+            else if(example.charAt(i) == ')')
                 brackets--;
         }
-        if(brackets < 0)
-            return;
-
-        if(last == '(')
-        	return;
-
-        //if(type.equals("all")){
-	    was_error = false;
-	    if(stri.charAt(stri.length() - 1) != '('){
-	        if(brackets > 0){
-	            for(int i = 0; i < brackets; i++){
-	                stri += ")";
-	            }
-	            brackets = 0;
-	        }
-	    }
-	    original = stri;
-	    if(stri.contains(" ")){
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stri.length(); i++) {
-                if (stri.charAt(i) != ' ')
-                    sb.append(stri.charAt(i));
+        if(brackets > 0){
+            StringBuilder exampleBuilder = new StringBuilder(example);
+            for(int i = 0; i < brackets; i++){
+                exampleBuilder.append(")");
             }
-            stri = new String(sb);
+            example = exampleBuilder.toString();
+            brackets = 0;
         }
-	    try{
-	    	BigDecimal b = null;
-	    	b = new BigDecimal(stri);
-	    	if(b != null){
-	    		hide_ans();
-	    		return;
-		    }
-	    }catch (NumberFormatException e){
-		    Log.e("All ok", e.toString());
-	    }
-	    if(stri.contains(getResources().getString(R.string.multiply)) || stri.contains(getResources().getString(R.string.div))
-	            || stri.contains(getResources().getString(R.string.pi)) || stri.contains(getResources().getString(R.string.fi))
-	            || stri.contains(getResources().getString(R.string.sqrt))){
-	        char[] mas = stri.toCharArray();
-	        String p;
-
-	        for(int i = 0; i < stri.length(); i++){
-	            p = Character.toString(mas[i]);
-	            if(p.equals(getResources().getString(R.string.div))){
-	                mas[i] = '/';
-	            }else if(p.equals(getResources().getString(R.string.multiply))){
-	                mas[i] = '*';
-	            }else if(p.equals(getResources().getString(R.string.pi))){
-	                mas[i] = 'P';
-	            }else if(p.equals(getResources().getString(R.string.fi))){
-	                mas[i] = 'F';
-	            }else if(p.equals(getResources().getString(R.string.sqrt))){
-	                mas[i] = 'R';
-	            }
-	        }
-	        stri = new String(mas);
-	    }
-	    //calc(stri, type, digits, actions);
-        coreMain.prepare(stri, type);
+        was_error = false;
+        original = example;
+        coreMain.prepare(example, type);
     }
 
     protected void check_dot(){
