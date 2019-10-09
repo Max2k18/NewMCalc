@@ -22,21 +22,16 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,21 +46,16 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
-
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CoreMain;
+import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 
 
 public class MainActivity extends AppCompatActivity implements CoreMain.CoreLinkBridge{
@@ -92,14 +82,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     private CoreMain coreMain;
 
     View.OnLongClickListener fordel = (View v) -> {
-        TextView t = findViewById(R.id.textStr);
-        t.setText("");
-        TextView ans = findViewById(R.id.textAns2);
-        hide_ans();
-        ans.setText("");
-
-        sp.edit().remove("saveResultText").apply();
-        set_text_toDef();
+        delall(findViewById(R.id.btnDelAll));
         return true;
     };
 
@@ -109,22 +92,19 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         isOtherActivityOpened = true;
     }
 
-    View.OnLongClickListener returnback = new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-            TextView back = findViewById(R.id.textAns2);
-            if(back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE){
+    View.OnLongClickListener returnback = v -> {
+        if(!was_error) {
+            TextView back = findViewById(R.id.textAns2), str = findViewById(R.id.textStr);
+            if (back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE) {
                 return false;
             }
             String txt = back.getText().toString();
-            hide_ans();
-            back.setText("");
-            back = findViewById(R.id.textStr);
-            back.setText(txt);
+            back.setText(str.getText().toString());
+            str.setText(txt);
             scroll_to_end();
-            equallu("not");
             return true;
-        }
+        }else
+            return false;
     };
 
     @Override
@@ -811,52 +791,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
         return txt + number_on_ret;
     }
-
-    protected String calc_e(String s){
-        String result = "";
-        String before_e = "";
-        int i = 0;
-        for(; i < s.length(); i++){
-            if(s.charAt(i) == 'E'){
-                break;
-            }else{
-                before_e += Character.toString(s.charAt(i));
-            }
-        }
-        /*if(before_e.contains(".")){
-            before_e.replaceAll(".", "");
-        }*/
-        String after_e = "";
-        i++;
-        int a = 1;
-        for(; i < s.length(); i++){
-            if(s.charAt(i) == '-'){
-                a = -1;
-                continue;
-            }
-            after_e += Character.toString(s.charAt(i));
-        }
-        for(int j = 0; j < new Integer(after_e)-1; j++){
-            result += "0";
-        }
-        String news = "";
-        for(int j = 0; j < before_e.length(); j++){
-            if(before_e.charAt(j) != '.'){
-                news += Character.toString(before_e.charAt(j));
-            }
-        }
-        before_e = news;
-        news = null;
-        System.gc();
-        if (a == 1){
-            result = before_e + result;
-        }else if(a == -1){
-            result = "0." + result;
-            result += before_e;
-        }
-        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
-        return result;
-    }
     
     private void write_result_of_calculation(String type, BigDecimal result){
         switch (type) {
@@ -982,18 +916,40 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     @Override
-    public void onError(String error) {
+    public void onError(Error error) {
         //if(error.startsWith("/Core/"))
-        boolean showErr = sp.getBoolean("show_calc_errors", true);
-        if(showErr && !error.startsWith("/Core/")){
-            Toast toast = Toast.makeText(this, error, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-            toast.show();
-        }
+		if(!error.getStatus().equals("Core")) {
+			if(error.getShort_error().equals("")){
+				Toast t = Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
+				t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+				t.show();
+			}else
+				write_error(error.getShort_error());
+		}
+    }
+
+    private void set_textViewAns_to_default(){
+        TextView t = findViewById(R.id.textAns2);
+        t.setText("");
+        t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+        t.setTextColor(DarkMode ? Color.WHITE : Color.BLACK);
+    }
+
+    private void write_error(String text){
+        TextView t = findViewById(R.id.textAns2);
         hide_ans();
+        t.setText(text);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+        t.setTextColor(Color.parseColor("#FF4B32"));
+        show_ans();
+        was_error = true;
     }
 
     private void equallu(String type){
+        if(was_error){
+            set_textViewAns_to_default();
+            hide_ans();
+        }
         TextView txt = findViewById(R.id.textStr);
         String example = txt.getText().toString();
         format(R.id.textStr);
@@ -1027,6 +983,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             example = exampleBuilder.toString();
             brackets = 0;
         }
+
         was_error = false;
         original = example;
         coreMain.prepare(example, type);
@@ -1438,9 +1395,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         TextView t = findViewById(R.id.textStr);
         hide_str();
         t.setText("");
-        t = findViewById(R.id.textAns2);
+        set_textViewAns_to_default();
         hide_ans();
-        t.setText("");
         brackets = 0;
         was_error = false;
         sp.edit().remove("saveResultText").apply();
@@ -1448,10 +1404,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         set_text_toDef();
         //log("all text del");
     }
-
-    /*public boolean iscpecial(char c){
-        return c == '!' || c == '%' || Character.toString(c).equals(FI) || Character.toString(c).equals(PI) || c == 'e';
-    }*/
 
     public void delSymbol(View v){
         TextView txt = findViewById(R.id.textStr);
@@ -1499,13 +1451,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             equallu("not");
         }
         if(txt.getText().toString().equals("")){
-            t = findViewById(R.id.textAns2);
-            /*HorizontalScrollView scrollviewans = findViewById(R.id.scrollViewAns);
-            scrollviewans.setVisibility(HorizontalScrollView.INVISIBLE);*/
-            hide_ans();
-            //t.setText("");
-            sp.edit().remove("saveResultText").apply();
-            set_text_toDef();
+            delall(findViewById(R.id.btnDelAll));
         }
         scroll_to_end();
     }

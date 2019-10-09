@@ -40,7 +40,7 @@ android {
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-            buildConfigField "String", "CoreVersion", "\"v2.1.0.101907\""
+            buildConfigField "String", "CoreVersion", "\"v2.1.1.101909\""
             buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }

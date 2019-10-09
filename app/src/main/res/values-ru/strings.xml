@@ -114,7 +114,7 @@
     <string name="CompileDateLbl">Скомпилировано:</string>
     <string name="chooseSysLabel">Выберите системы счисления для преобразования числа</string>
     <string name="chooseToSys">в</string>
-    <string name="chooseFromSys" translatable="false">из</string>
+    <string name="chooseFromSys">из</string>
     <string name="number_system_convrter">Конвертер систем счисления</string>
     <string name="thank_you">Спасибо!</string>
     <string name="we_will_wait">Хорошо, мы подождём</string>
@@ -124,4 +124,7 @@
     <string name="no_thanks">Нет, спасибо</string>
     <string name="later">Позже</string>
     <string name="show_all_errors">Показывать все ошибки при вычислении</string>
+    <string name="invalid_argument">Неверный аргумент</string>
+    <string name="value_is_too_big">Слишком большое знач.</string>
+    <string name="division_by_zero">Деление на ноль</string>
 </resources>

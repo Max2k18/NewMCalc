@@ -37,7 +37,6 @@ public class Updater extends AppCompatActivity {
 
 	private SharedPreferences sp;
 	private AlertDialog dl;
-	private Intent send = new Intent(Intent.ACTION_SEND);
 
 	private void backPressed() {
 		finish();
@@ -77,8 +76,6 @@ public class Updater extends AppCompatActivity {
 		}else if(v.getId() == R.id.switchDarkMode){
 			sp.edit().putBoolean("dark_mode", sw.isChecked()).apply();
 			restart();
-		}else if(v.getId() == R.id.show_all_errors){
-			sp.edit().putBoolean("show_calc_errors", sw.isChecked()).apply();
 		}
 
 	}
@@ -146,8 +143,8 @@ public class Updater extends AppCompatActivity {
 		} else {
 			sw.setText(R.string.switchSaveOff);
 		}
-		sw = findViewById(R.id.show_all_errors);
-		sw.setChecked(sp.getBoolean("show_calc_errors", true));
+		/*sw = findViewById(R.id.show_all_errors);
+		sw.setChecked(sp.getBoolean("show_calc_errors", true));*/
 		Button b = findViewById(R.id.btnImport);
 		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		b = findViewById(R.id.btnExport);

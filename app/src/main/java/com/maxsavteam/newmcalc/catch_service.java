@@ -75,13 +75,13 @@ public class catch_service extends AppCompatActivity {
 
 	final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
-			" - Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
-			" - App type: " + BuildConfig.APPTYPE + "\n" +
-			" - Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
-			" - Core version: " + BuildConfig.CoreVersion + "\n\n" +
-			" - UpdateChecker Module activated: " + BuildConfig.UCModuleActivated + "\n" +
+			"- Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
+			"- App type: " + BuildConfig.APPTYPE + "\n" +
+			"- Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
+			"- Core version: " + BuildConfig.CoreVersion;
+			/*" - UpdateChecker Module activated: " + BuildConfig.UCModuleActivated + "\n" +
 			" - UpdateChecker version: " + BuildConfig.UpdateCheckerVersion + "\n" +
-			" - UpdateDownloader version: " + BuildConfig.UpdateDowVersion;
+			" - UpdateDownloader version: " + BuildConfig.UpdateDowVersion;*/
 
 	@SuppressLint("SetTextI18n")
 	@Override

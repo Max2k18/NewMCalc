@@ -155,4 +155,7 @@
     <string name="later">Later</string>
     <string name="link_app_in_google_play" translatable="false">https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc</string>
     <string name="show_all_errors">Show all calculation errors</string>
+    <string name="invalid_argument">Invalid argument</string>
+    <string name="value_is_too_big">Very big value.</string>
+    <string name="division_by_zero">Division by zero</string>
 </resources>

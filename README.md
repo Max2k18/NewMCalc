@@ -11,6 +11,9 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.10.4.198
+  * Now all error notifications during calculations are displayed in short form on the main screen. (For this class Error was added)
+
 ### 1.10.4.188
   * Errors during calculations are now displayed in the notification.
   * Bugs were fixed when calculating, for example, the logarithm of a negative number, etc.
