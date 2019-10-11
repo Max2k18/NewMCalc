@@ -11,6 +11,10 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.10.4.204
+  * Error writing was fixed
+  * EmptyStackException when calculating fixed
+
 ### 1.10.4.198
   * Now all error notifications during calculations are displayed in short form on the main screen. (For this class Error was added)
 

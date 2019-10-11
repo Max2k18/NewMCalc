@@ -1103,7 +1103,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 return;
             }
             if(len > 1){
-                if(last == '0' && !Utils.isDigit(txt.charAt(len - 2))){
+                if(last == '0' && !Utils.isDigit(txt.charAt(len - 2)) && txt.charAt(len - 2) != '.'){
                     txt = txt.substring(0, len - 1) + btntxt;
                     t.setText(txt);
                     equallu("not");
@@ -1409,6 +1409,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         TextView txt = findViewById(R.id.textStr);
         String text = txt.getText().toString();
         int len = text.length();
+        set_textViewAns_to_default();
         //ans.setVisibility(View.INVISIBLE);
         /**/
         if(len != 0){

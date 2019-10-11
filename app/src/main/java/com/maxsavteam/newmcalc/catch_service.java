@@ -45,7 +45,7 @@ public class catch_service extends AppCompatActivity {
 		else if(v.getId() == R.id.instBtn)
 			in.setData(Uri.parse(dynamic_inst));
 		else if(v.getId() == R.id.siteBtn)
-			in.setData(Uri.parse("https://maxsavteam.tk/Mobile/"));
+			in.setData(Uri.parse("https://m.maxsavteam.tk/"));
 		else if(v.getId() == R.id.playMarketBtn)
 			in.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
 		startActivity(in);
@@ -96,7 +96,6 @@ public class catch_service extends AppCompatActivity {
 		//sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Intent in = getIntent();
 		String action = in.getStringExtra("action");
-		Intent ser;
 		try{
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setTitle("");
@@ -110,8 +109,6 @@ public class catch_service extends AppCompatActivity {
 		assert action != null;
 		if ("about_app".equals(action)) {
 			setContentView(R.layout.about_activity);
-			/*if(!APP_TYPE.equals("stable"))
-				((TextView) findViewById(R.id.appname)).setText(Html.fromHtml(getResources().getString(R.string.app_name) + "<sup>" + BuildConfig.APPTYPE + "</sup>"));*/
 			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
 			((TextView) findViewById(R.id.compiledate)).setText(BuildConfig.COMPILE_DATE);
 			((TextView) findViewById(R.id.build)).setText(Integer.toString(BuildConfig.VERSION_CODE));
@@ -120,26 +117,23 @@ public class catch_service extends AppCompatActivity {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				img.setImageIcon(Icon.createWithResource(this, R.drawable.newmcalc));
 			}
-			img.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					AlertDialog debug_info;
-					AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
-					builder.setTitle("Build info")
-							.setMessage(debugInfoStr)
-							.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.cancel();
-								}
-							})
-							.setCancelable(false);
-					debug_info = builder.create();
-					if(DarkMode)
-						debug_info.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-					debug_info.show();
-					return true;
-				}
+			img.setOnLongClickListener(v -> {
+				AlertDialog debug_info;
+				AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
+				builder.setTitle("Build info")
+						.setMessage(debugInfoStr)
+						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						})
+						.setCancelable(false);
+				debug_info = builder.create();
+				if(DarkMode)
+					debug_info.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+				debug_info.show();
+				return true;
 			});
 			if (DarkMode) {
 				getWindow().setBackgroundDrawableResource(R.drawable.black);
