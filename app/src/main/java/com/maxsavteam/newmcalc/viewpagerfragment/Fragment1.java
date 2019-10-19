@@ -30,8 +30,16 @@ public class Fragment1 extends Fragment {
 
 	@Nullable
 	@Override
+	public View getView() {
+		return view;
+	}
+
+	private View view;
+
+	@Nullable
+	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_1, container, false);
+		view = inflater.inflate(R.layout.fragment_1, container, false);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
 		DarkMode = sp.getBoolean("dark_mode", false);
 		String[] arr = c.getResources().getStringArray(R.array.additional_chars);
@@ -51,7 +59,8 @@ public class Fragment1 extends Fragment {
 				R.id.btnPlus,
 
 				R.id.btnZero,
-				R.id.btnDot
+				R.id.btnDot,
+				R.id.btnMinus
 		};
 		for(int ii = 0; ii < btnIds.length; ii++){
 			Button btn = view.findViewById(btnIds[ii]);

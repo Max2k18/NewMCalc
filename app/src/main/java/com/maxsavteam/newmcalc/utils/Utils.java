@@ -1,10 +1,14 @@
 package com.maxsavteam.newmcalc.utils;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
+import android.util.Pair;
+import android.widget.Button;
 
 import com.maxsavteam.newmcalc.R;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public final class Utils {
 	public static boolean isDigit(char c){
@@ -47,5 +51,69 @@ public final class Utils {
 			}
 		}
 		return source;
+	}
+
+	public static void saveVariables(ArrayList<Pair<Integer, Pair<String, String>>> a, Context context){
+		String to_save = "";
+		for(int i = 0; i < a.size(); i++){
+			to_save += a.get(i).second.first + "," + a.get(i).second.second + "," + a.get(i).first.toString() + ";";
+		}
+		PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit().putString("variables", to_save).apply();
+	}
+
+	public static ArrayList<Pair<Integer, Pair<String, String>>> readVariables(Context context){
+		ArrayList<Pair<Integer, Pair<String, String>>> a = new ArrayList<>();
+		String var_arr = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getString("variables", null);
+		int i = 0;
+		if(var_arr == null)
+			return null;
+
+		while (i < var_arr.length()) {
+			String name = "";
+			while (i < var_arr.length() && var_arr.charAt(i) != ',') {
+				name += var_arr.charAt(i);
+				i++;
+			}
+			i++;
+
+			String value = "";
+			while (i < var_arr.length() && var_arr.charAt(i) != ',') {
+				value += var_arr.charAt(i);
+				i++;
+			}
+			i++;
+			String tag = "";
+			while(i < var_arr.length() && var_arr.charAt(i) != ';'){
+				tag += var_arr.charAt(i);
+				i++;
+			}
+			a.add(new Pair<>(Integer.valueOf(tag), new Pair<>(name, value)));
+			i++;
+		}
+		return a;
+	}
+
+	public static BigDecimal pow(BigDecimal b, int n){
+		if(n == 0)
+			return BigDecimal.ONE;
+
+		if(n < 0 || n > 999999)
+			throw new ArithmeticException("Very big value");
+
+		for(int i = 2; i <= n; i++){
+			b = b.multiply(b);
+		}
+
+		return b;
+	}
+
+	public static boolean isNumber(String s){
+		try{
+			BigDecimal b = null;
+			b = new BigDecimal(s);
+			return true;
+		}catch (NumberFormatException e){
+			return false;
+		}
 	}
 }

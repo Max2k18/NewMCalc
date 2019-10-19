@@ -5,14 +5,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,31 +25,34 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.maxsavteam.newmcalc.utils.Utils;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Objects;
+
+import static com.maxsavteam.newmcalc.R.color.mtrl_textinput_hovered_box_stroke_color;
 import static com.maxsavteam.newmcalc.R.color.white;
 
 public class catch_service extends AppCompatActivity {
 
-	SharedPreferences sp;
-	String dynamic_vk = "https://maxsavteam.page.link/VK", dynamic_inst = "https://maxsavteam.page.link/Instagram";
-
 	@Override
 	public void onBackPressed(){
-		/*ups.set_send_progress(false);
-		ups.set_sh_alert(true);
-		ups.kill();*/
-		sp.edit().remove("count_catchservice").apply();
 		finish();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	public void social(View v){
 		Intent in = new Intent(Intent.ACTION_VIEW);
+		String dynamic_vk = "https://maxsavteam.page.link/VK";
+		String dynamic_inst = "https://maxsavteam.page.link/Instagram";
 		if(v.getId() == R.id.vkBtn)
 			in.setData(Uri.parse(dynamic_vk));
 		else if(v.getId() == R.id.instBtn)
 			in.setData(Uri.parse(dynamic_inst));
 		else if(v.getId() == R.id.siteBtn)
-			in.setData(Uri.parse("https://m.maxsavteam.tk/"));
+			in.setData(Uri.parse("https://max2k18.github.io/m.maxsavteam.github.io/"));
 		else if(v.getId() == R.id.playMarketBtn)
 			in.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
 		startActivity(in);
@@ -61,32 +68,73 @@ public class catch_service extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	boolean DarkMode;
+	private boolean DarkMode;
 	private void apply_actionbar(){
 		ActionBar appActionBar = getSupportActionBar();
 		if(DarkMode){
-			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
+			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 		}else{
-			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
+			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}
 	}
 
-	final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
+	private final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
+			BuildConfig.APPLICATION_ID + "\n" +
+			"Build number: " + BuildConfig.VERSION_CODE + "\n\n" +
 			"- Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
 			"- App type: " + BuildConfig.APPTYPE + "\n" +
 			"- Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
 			"- Core version: " + BuildConfig.CoreVersion;
-			/*" - UpdateChecker Module activated: " + BuildConfig.UCModuleActivated + "\n" +
-			" - UpdateChecker version: " + BuildConfig.UpdateCheckerVersion + "\n" +
-			" - UpdateDownloader version: " + BuildConfig.UpdateDowVersion;*/
+
+	private EditText value, name;
+	private int tag;
+
+	public void apply_variable(View view){
+		String name_s = name.getText().toString();
+		String value_s = value.getText().toString();
+		if(!name_s.equals("") && !value_s.equals("")) {
+			if(name_s.equals("+"))
+				return;
+
+			ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+			if(a == null)
+				a = new ArrayList<>();
+			Intent in;
+			a.add(new Pair<>(tag, new Pair<>(name_s, value_s)));
+			Utils.saveVariables(a, this);
+			in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
+			sendBroadcast(in);
+			onBackPressed();
+		}else{
+			TextView warn = findViewById(R.id.lblWarn);
+			warn.setText(R.string.fill_empty_field);
+			warn.setVisibility(View.VISIBLE);
+		}
+	}
+
+	public void delete_variable(View v){
+		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+		if(a == null)
+			return;
+		for(int i = 0; i < a.size(); i++){
+			if(a.get(i).first == tag){
+				a.remove(i);
+				Utils.saveVariables(a, this);
+				Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
+				sendBroadcast(in);
+				onBackPressed();
+				break;
+			}
+		}
+	}
 
 	@SuppressLint("SetTextI18n")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		DarkMode = sp.getBoolean("dark_mode", false);
 		if(DarkMode)
 			setTheme(android.R.style.Theme_Material_NoActionBar);
@@ -97,7 +145,7 @@ public class catch_service extends AppCompatActivity {
 		Intent in = getIntent();
 		String action = in.getStringExtra("action");
 		try{
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setTitle("");
 			getSupportActionBar().setElevation(0);
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -107,7 +155,7 @@ public class catch_service extends AppCompatActivity {
 		}
 		apply_actionbar();
 		assert action != null;
-		if ("about_app".equals(action)) {
+		if (action.equals("about_app")) {
 			setContentView(R.layout.about_activity);
 			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
 			((TextView) findViewById(R.id.compiledate)).setText(BuildConfig.COMPILE_DATE);
@@ -122,16 +170,11 @@ public class catch_service extends AppCompatActivity {
 				AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
 				builder.setTitle("Build info")
 						.setMessage(debugInfoStr)
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
-							}
-						})
+						.setPositiveButton("OK", (dialog, which) -> dialog.cancel())
 						.setCancelable(false);
 				debug_info = builder.create();
 				if(DarkMode)
-					debug_info.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+					Objects.requireNonNull(debug_info.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
 				debug_info.show();
 				return true;
 			});
@@ -153,7 +196,7 @@ public class catch_service extends AppCompatActivity {
 			}else{
 				getWindow().setBackgroundDrawableResource(R.drawable.white);
 			}
-		}else if(action.equals("aboutAG")){
+		} else if(action.equals("aboutAG")){
 			setContentView(R.layout.about_average_geometric);
 			int[] ids = new int[]{
 					R.id.lblAboutAG,
@@ -169,6 +212,46 @@ public class catch_service extends AppCompatActivity {
 				}
 			}else{
 				getWindow().setBackgroundDrawableResource(R.drawable.white);
+			}
+		}else if(action.equals("add_var")){
+			setContentView(R.layout.activity_add_var);
+			tag = in.getIntExtra("tag", 1);
+			value = findViewById(R.id.value);
+			name = findViewById(R.id.name);
+			if(in.getBooleanExtra("is_existing", false)){
+				value.setText(in.getStringExtra("value"));
+				name.setText(in.getStringExtra("name"));
+				findViewById(R.id.btnDelVar).setVisibility(View.VISIBLE);
+			}
+			Button b = findViewById(R.id.btnSaveVar);
+			int[] textview_ids = new int[]{
+					R.id.lblNameOfVar,
+					R.id.lblValueOfVar
+			};
+			int[] edittext_ids = new int[]{
+					R.id.name,
+					R.id.value
+			};
+			if(DarkMode) {
+				getWindow().setBackgroundDrawableResource(R.drawable.black);
+				for(int id : textview_ids){
+					TextView t = findViewById(id);
+					t.setTextColor(Color.WHITE);
+				}
+				((Button) findViewById(R.id.btnDelVar)).setTextColor(Color.WHITE);
+			}else{
+				getWindow().setBackgroundDrawableResource(R.drawable.white);
+				for(int id : textview_ids){
+					TextView t = findViewById(id);
+					t.setTextColor(Color.BLACK);
+				}
+				((Button) findViewById(R.id.btnDelVar)).setTextColor(Color.WHITE);
+			}
+			b.setTextColor(Color.WHITE);
+			b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+			for(int id : edittext_ids){
+				EditText e = findViewById(id);
+				e.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 			}
 		}
 	}

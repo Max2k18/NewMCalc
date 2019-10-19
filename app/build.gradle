@@ -1,3 +1,4 @@
+import java.lang.reflect.Field
 import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
@@ -16,6 +17,7 @@ android {
         }
     }
     compileSdkVersion 29
+    String apptype = "mid"
 
     def versionPropsFile = file('version.properties')
     String time_zone = "UTC" //you can modify this
@@ -36,7 +38,7 @@ android {
             targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.10.4." + code.toString()
+            versionName "1.11.0"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
@@ -45,26 +47,30 @@ android {
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }
     }else
-        throw new GradleScriptException("Cannot read version.propertis")
+        throw new GradleScriptException("Cannot read version.properties")
 
     buildTypes {
         release {
             buildConfigField("Boolean", "ISDEBUG", "false")
-            buildConfigField "String", "APPTYPE", "\"stable\""
+            apptype = "stable"
+            buildConfigField "String", "APPTYPE", "\"${apptype}\""
             minifyEnabled true
             shrinkResources true
             aaptOptions {
                 cruncherEnabled = false
             }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            //putVersionCode()
         }
         debug {
             buildConfigField("Boolean", "ISDEBUG", "true")
-            buildConfigField "String", "APPTYPE", "\"dev\""
+            apptype = "dev"
+            buildConfigField "String", "APPTYPE", "\"${apptype}\""
             debuggable true
             jniDebuggable true
             zipAlignEnabled true
             versionNameSuffix "-DEBUG"
+            applicationIdSuffix ".beta"
         }
     }
     buildToolsVersion '29.0.2'

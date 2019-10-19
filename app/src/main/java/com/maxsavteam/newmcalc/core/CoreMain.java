@@ -21,9 +21,11 @@ public final class CoreMain {
 	private boolean was_error = false;
 	private Resources res;
 	private String invalid_argument, value_is_too_big, division_by_zero;
+	private Context c;
 
 	public CoreMain(Context context) {
 		this.res = context.getApplicationContext().getResources();
+		this.c = context;
 		invalid_argument = res.getString(R.string.invalid_argument);
 		value_is_too_big = res.getString(R.string.value_is_too_big);
 		division_by_zero = res.getString(R.string.division_by_zero);
@@ -42,6 +44,7 @@ public final class CoreMain {
 	private static Stack<BigDecimal> s1 = new Stack<>();
 
 	private final int MAX_FACTORIAL_VALUE = 1000;
+	private final BigDecimal MAX_POW = new BigDecimal("1000");
 
 	public void prepare(String example, String type){
 		int len = example.length();
@@ -412,7 +415,7 @@ public final class CoreMain {
 				}
 			}catch (MultException e){
 				was_error = true;
-				coreLinkBridge.onError(new Error().setStatus("Core"));
+				coreLinkBridge.onError(new Error().setStatus("Core").setShort_error("Smth went wrong"));
 				break;
 			}
 		}
@@ -445,7 +448,8 @@ public final class CoreMain {
 	private void mult(String x) throws MultException {
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
-				double d = s1.peek().doubleValue(), ans = 1;
+				double d = s1.peek().doubleValue();
+				 BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					//Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
 					was_error = true;
@@ -455,15 +459,15 @@ public final class CoreMain {
 				s1.pop();
 				switch (x) {
 					case "cos": {
-						ans = Math.cos(d);
+						ans = BigDecimal.valueOf(Math.cos(d));
 						break;
 					}
 					case "sin": {
-						ans = Math.sin(d);
+						ans = BigDecimal.valueOf(Math.sin(d));
 						break;
 					}
 					case "tan": {
-						ans = Math.tan(d);
+						ans = BigDecimal.valueOf(Math.tan(d));
 						break;
 					}
 					case "log": {
@@ -472,7 +476,7 @@ public final class CoreMain {
 							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShort_error(invalid_argument));
 							return;
 						}
-						ans = Math.log10(d);
+						ans = BigDecimal.valueOf(Math.log10(d));
 						break;
 					}
 					case "ln": {
@@ -481,7 +485,7 @@ public final class CoreMain {
 							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShort_error(invalid_argument));
 							return;
 						}
-						ans = Math.log(d);
+						ans = BigDecimal.valueOf(Math.log(d));
 						break;
 					}
 					case "R":
@@ -490,13 +494,11 @@ public final class CoreMain {
 							coreLinkBridge.onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShort_error(invalid_argument));
 							return;
 						}
-						ans = Math.sqrt(d);
+						ans = BigDecimal.valueOf(Math.sqrt(d));
 						break;
 				}
-
-				BigDecimal ansb = BigDecimal.valueOf(ans);
-				ansb = ansb.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
-				String answer = ansb.toPlainString();
+				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+				String answer = ans.toPlainString();
 				s1.push(new BigDecimal(Utils.delete_zeros(answer)));
 				return;
 			}
@@ -505,34 +507,37 @@ public final class CoreMain {
 			BigDecimal a = s1.peek();
 			BigDecimal ans = s1.peek();
 			s1.pop();
-			double a1, b1, ansd = 0.0;
+			double a1, b1, ansd = Double.POSITIVE_INFINITY;
 			a1 = a.doubleValue();
 			b1 = b.doubleValue();
 			try {
 				switch (x) {
 					case "+":
-						ansd = a1 + b1;
+						ans = a.add(b);
 						break;
 					case "-":
-						ansd = a1 - b1;
+						ans = a.subtract(b);
 						break;
 					case "*":
-						ansd = a1 * b1;
+						ans = a.multiply(b);
 						break;
 					case "/":
-						if (b1 == 0) {
+						if (b.signum() == 0) {
 							was_error = true;
 							coreLinkBridge.onError(new Error().setError("Division by zero.").setShort_error(division_by_zero));
 							return;
 						}
-						ansd = a1 / b1;
+						ans = a.divide(b);
 						break;
 					case "^":
-						ansd = Math.pow(a1, b1);
+						if(b.compareTo(MAX_POW) > 0){
+							was_error = true;
+							coreLinkBridge.onError(new Error().setShort_error(value_is_too_big));
+							return;
+						}
+						ans = BigDecimal.valueOf(Math.pow(a1, b1));
 						break;
 				}
-				ans = new BigDecimal(BigDecimal.valueOf(ansd).toPlainString());
-
 				String answer = ans.toPlainString();
 				ans = new BigDecimal(Utils.delete_zeros(answer));
 				s1.push(ans);
@@ -540,6 +545,7 @@ public final class CoreMain {
 				String str = e.toString();
 				if (str.contains("Non-terminating decimal expansion; no exact representable decimal result")) {
 					ans = a.divide(b, 3, RoundingMode.HALF_EVEN);
+					ans = new BigDecimal(Utils.delete_zeros(ans.toPlainString()));
 					s1.push(ans);
 				} else {
 					was_error = true;

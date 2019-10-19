@@ -29,6 +29,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal|top"
             android:orientation="horizontal"
             android:weightSum="1.0">
 
@@ -116,7 +117,8 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="copy"
             android:scaleType="centerInside"
-            android:src="@drawable/copy" />
+            android:src="@drawable/copy"
+            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

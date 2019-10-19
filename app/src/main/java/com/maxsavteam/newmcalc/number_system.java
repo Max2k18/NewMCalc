@@ -169,6 +169,7 @@ public class number_system extends AppCompatActivity {
 				}
 				toSys = choice;
 				//toText.setText(translated_to[position_in_set(toSys)]);
+				translate();
 			}
 
 			@Override
@@ -179,6 +180,7 @@ public class number_system extends AppCompatActivity {
 
 		fromText = findViewById(R.id.edNumFrom);
 		toText = findViewById(R.id.edNumTo);
+		toText.setTextIsSelectable(true);
 		fromText.setFocusable(true);
 		fromText.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -221,7 +223,7 @@ public class number_system extends AppCompatActivity {
 			result = from_dec(new BigDecimal(result), toSys);
 			toText.setText(result);
 			translated_to[position_in_set(toSys)] = result;
-			findViewById(R.id.btnImgCopyNum).setVisibility(View.VISIBLE);
+			//findViewById(R.id.btnImgCopyNum).setVisibility(View.VISIBLE);
 		}else{
 			toText.setText("");
 			findViewById(R.id.btnImgCopyNum).setVisibility(View.INVISIBLE);

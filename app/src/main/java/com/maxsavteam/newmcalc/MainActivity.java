@@ -23,15 +23,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +45,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -54,6 +60,7 @@ import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -61,7 +68,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements CoreMain.CoreLinkBridge{
     public static Boolean was_error = false;
 
-    private boolean isOtherActivityOpened = false;
     private SharedPreferences sp;
     private TextView t;
     private char last;
@@ -86,12 +92,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         return true;
     };
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        isOtherActivityOpened = true;
-    }
-
     View.OnLongClickListener returnback = v -> {
         if(!was_error) {
             TextView back = findViewById(R.id.textAns2), str = findViewById(R.id.textStr);
@@ -106,12 +106,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }else
             return false;
     };
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        isOtherActivityOpened = false;
-    }
 
     @Override
     public void onBackPressed() {
@@ -294,16 +288,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
             shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortCutNumSys, shortcut2, shortcut1));
         }
-        set_viewpager();
+        set_viewpager(0);
 
         myTrace.stop();
         fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
     public void apply_theme(){
-        ActionBar bar = null;
+        ActionBar bar;
         bar = getSupportActionBar();
-        try {
+        if (bar != null) {
             if (DarkMode) {
                 getWindow().setBackgroundDrawableResource(R.drawable.black);
                 TextView t;
@@ -331,9 +325,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 //barTitle.setTextColor(Color.BLACK);
             }
             bar.setElevation(0);
-        }catch (Exception e){
-            e.printStackTrace();
-            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -347,10 +338,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View view) {
-            int id = view.getId();
             t = findViewById(R.id.textStr);
-            String txt = t.getText().toString();
-                //Toast.makeText(MainActivity.this, ((Button) view).getText().toString(), Toast.LENGTH_SHORT).show();
             add_text(((Button) view).getText().toString().substring(1));
             return true;
         }
@@ -366,7 +354,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
-    String app_type = BuildConfig.APPTYPE;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -403,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         barr = memorySaverReader.read();
         MULTIPLY_SIGN = getResources().getString(R.string.multiply);
         DIVIDE_SIGN = getResources().getString(R.string.div);
+
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
@@ -598,9 +586,10 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         t.setVisibility(View.INVISIBLE);
     }
 
-    private void set_viewpager(){
+    ViewPager viewPager;
+    private void set_viewpager(int which){
         myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
-        ViewPager viewPager = findViewById(R.id.viewpager);
+        viewPager = findViewById(R.id.viewpager);
         viewPager.setAdapter(myFragmentPagerAdapter);
         myFragmentPagerAdapter.prepare_to_initialize(
         		new View.OnLongClickListener[]{ //Fragment1
@@ -608,10 +597,20 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                         returnback,
                         fordel
                 }, new View.OnLongClickListener[]{ //Fragment2
-                        memory_actions
+                        memory_actions,
+                        on_var_long_click
                 }
         );
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(which);
+	    ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
+	    Display d = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+	    Point p = new Point();
+	    d.getSize(p);
+	    lay.height = p.y / 2;
+	    viewPager.setLayoutParams(lay);
+	    Space space = findViewById(R.id.space_between_pager_and_str);
+	    lay = space.getLayoutParams();
+	    lay.height=  p.y / 11;
     }
 
     private void add_value_from_mem(String value){
@@ -634,6 +633,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 t.setText(String.format("%s%s", txt, value));
                 equallu("not");
             }
+            resize_text();
         }
     }
 
@@ -645,37 +645,22 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             }
         };
         registerReceiver(on_memory_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
+
+        BroadcastReceiver on_var_edited = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                set_viewpager(1);
+            }
+        };
+        registerReceiver(on_var_edited, new IntentFilter(BuildConfig.APPLICATION_ID  + ".VARIABLES_SET_CHANGED"));
+
         BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String value = intent.getStringExtra("value");
-                add_value_from_mem(value);
+                add_value_from_mem(intent.getStringExtra("value"));
             }
         };
         registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
-
-        BroadcastReceiver on_theme_changed = new BroadcastReceiver() {
-	        @Override
-	        public void onReceive(Context context, Intent intent) {
-		        DarkMode = sp.getBoolean("dark_mode", false);
-		        TextView t = findViewById(R.id.textStr);
-		        String str = t.getText().toString(), ans;
-		        t = findViewById(R.id.textAns2);
-		        ans = t.getText().toString();
-		        if(DarkMode){
-			        setTheme(android.R.style.Theme_Material_NoActionBar);
-		        }else{
-			        setTheme(R.style.AppTheme);
-		        }
-		        setContentView(R.layout.activity_main);
-		        t.setText(ans);
-		        t = findViewById(R.id.textStr);
-		        t.setText(str);
-		        apply_theme();
-		        set_viewpager();
-	        }
-        };
-        registerReceiver(on_theme_changed, new IntentFilter(BuildConfig.APPLICATION_ID + ".THEME_CHANGED"));
 
         BroadcastReceiver on_his_action = new BroadcastReceiver() {
             @Override
@@ -793,23 +778,23 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
     
     private void write_result_of_calculation(String type, BigDecimal result){
+        String ans = result.toPlainString();
+        if(ans.contains(".")) {
+            if (ans.length() - ans.indexOf(".") > 9){
+                BigDecimal d = result;
+                d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+                ans = Utils.delete_zeros(d.toPlainString());
+            }
+        }
         switch (type) {
             case "all":
                 TextView tans = findViewById(R.id.textStr);
-                String ans = result.toPlainString();
-                if(ans.contains(".")) {
-                    if (ans.length() - ans.indexOf(".") > 9){
-                        BigDecimal d = result;
-                        d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                        ans = d.toPlainString();
-                    }
-                }
+
                 tans.setText(ans);
                 format(R.id.textStr);
                 tans = findViewById(R.id.textAns2);
                 tans.setText(original);
                 show_ans();
-                scroll_to_end();
                 resize_text();
 
                 String his = sp.getString("history", "");
@@ -826,18 +811,13 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 }
                 if (sp.getBoolean("saveResult", false))
                     sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
+
+                scroll_to_end(HorizontalScrollView.FOCUS_LEFT);
+                //set_viewpager(viewPager.getCurrentItem());
                 break;
             case "not":
                 TextView preans = findViewById(R.id.textAns2);
-                String ans1 = result.toPlainString();
-                if(ans1.contains(".")) {
-                    if (ans1.length() - ans1.indexOf(".") > 9){
-                        BigDecimal d = result;
-                        d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                        ans1 = d.toPlainString();
-                    }
-                }
-                preans.setText(ans1);
+                preans.setText(ans);
                 format(R.id.textAns2);
                 show_ans();
                 set_text_toDef();
@@ -1006,7 +986,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             }
         }
         if(!dot){
-            t.setText(txt + ".");
+            t.setText(String.format("%s.", txt));
         }
     }
 
@@ -1391,6 +1371,66 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
        // log("onClick action;");
     }
 
+    public void variableClick(View v){
+        try {
+            Button btn = (Button) v; //view.findViewById(v.getId());
+            int pos = Integer.valueOf(btn.getTag().toString());
+            String text = btn.getText().toString();
+            //String desc = btn.getContentDescription().toString();
+            if (text.equals("+")) {
+                Intent in = new Intent(this, catch_service.class);
+                in.putExtra("action", "add_var").putExtra("tag", pos);
+                TextView t = findViewById(R.id.textStr);
+                String ts = t.getText().toString();
+                if(!ts.equals("") && ts.length() < 100){
+                    if(Utils.isNumber(ts))
+                        in.putExtra("value", ts).putExtra("name", "").putExtra("is_existing", true);
+                }
+                startActivity(in);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+            } else {
+                String var_arr = sp.getString("variables", null);
+                if (var_arr == null) {
+                    btn.setText("+");
+                } else {
+                    int i = 0;
+                    ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+                    if (a != null) {
+                        for(i = 0; i < a.size(); i++){
+                            if(a.get(i).first == pos){
+                                add_value_from_mem(a.get(i).second.second);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    View.OnLongClickListener on_var_long_click = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            Button btn = (Button) v; //view.findViewById(v.getId());
+            int pos = Integer.valueOf(btn.getTag().toString());
+            Intent in = new Intent(MainActivity.this, catch_service.class);
+            in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
+            ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(MainActivity.this);
+            for(int i = 0; i < a.size(); i++){
+                if(a.get(i).first == pos){
+                    in.putExtra("name", a.get(i).second.first).putExtra("value", a.get(i).second.second);
+                    break;
+                }
+            }
+            startActivity(in);
+            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+            return true;
+        }
+    };
+
     public void delall(View v){
         TextView t = findViewById(R.id.textStr);
         hide_str();
@@ -1457,7 +1497,26 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         scroll_to_end();
     }
 
-    protected void scroll_to_end(){
+    private void scroll_to_end(final int focus){
+        if(findViewById(R.id.textStr).getVisibility() == View.INVISIBLE)
+            return;
+        HorizontalScrollView scrollview = findViewById(R.id.scrollview);
+        scrollview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollview.fullScroll(focus);
+            }
+        }, 50L);
+        HorizontalScrollView scrollview1 = findViewById(R.id.scrollViewAns);
+        scrollview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+            }
+        }, 50L);
+    }
+
+    private void scroll_to_end(){
         if(findViewById(R.id.textStr).getVisibility() == View.INVISIBLE)
             return;
         HorizontalScrollView scrollview = findViewById(R.id.scrollview);

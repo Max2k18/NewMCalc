@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.maxsavteam.newmcalc.viewpagerfragment.Fragment1;
 import com.maxsavteam.newmcalc.viewpagerfragment.Fragment2;
+import com.maxsavteam.newmcalc.viewpagerfragment.Fragment3;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 	private Context context;
@@ -31,28 +32,43 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 		this.viewLongClicksFragment2 = viewLongClicksFragment2;
 	}
 
+	public View getFragmentView(int which){
+		switch (which){
+			case 1:
+				return fragment1.getView();
+			case 2:
+				return fragment2.getView();
+			case 3:
+				return fragment3.getView();
+			default:
+				return null;
+		}
+	}
+
+	private Fragment2 fragment2;
+	private Fragment1 fragment1;
+	private Fragment3 fragment3;
+
 	@NonNull
 	@Override
 	public Fragment getItem(int position) {
-		Fragment1 fragment1 = new Fragment1(context, viewLongClicksFragment1);
-		Fragment2 fragment2 =  new Fragment2(context, viewLongClicksFragment2);
+		fragment1 = new Fragment1(context, viewLongClicksFragment1);
+		fragment2 = new Fragment2(context, viewLongClicksFragment2);
+		fragment3 = new Fragment3(context);
 		switch (position) {
 			case 1:
-			case 2:
 				return fragment2;
+			case 2:
+				return fragment3;
 
 			default:
 				return fragment1;
 		}
-		/*if (position == 2) {
-			return;
-		}
-		return ;*/
 	}
 
 	@Override
 	public int getCount() {
-		return 2;
+		return 3;
 	}
 
 
