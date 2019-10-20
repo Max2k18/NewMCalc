@@ -74,7 +74,9 @@ public class catch_service extends AppCompatActivity {
 		if(DarkMode){
 			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+			getWindow().setNavigationBarColor(Color.BLACK);
 		}else{
+			getWindow().setNavigationBarColor(Color.WHITE);
 			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}

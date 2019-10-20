@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -47,7 +48,9 @@ public class memory_actions_activity extends AppCompatActivity implements window
 		if(DarkMode){
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+			getWindow().setNavigationBarColor(Color.BLACK);
 		}else{
+			getWindow().setNavigationBarColor(Color.WHITE);
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}

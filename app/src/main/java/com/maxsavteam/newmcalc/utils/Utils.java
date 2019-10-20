@@ -3,7 +3,6 @@ package com.maxsavteam.newmcalc.utils;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.util.Pair;
-import android.widget.Button;
 
 import com.maxsavteam.newmcalc.R;
 
@@ -91,20 +90,6 @@ public final class Utils {
 			i++;
 		}
 		return a;
-	}
-
-	public static BigDecimal pow(BigDecimal b, int n){
-		if(n == 0)
-			return BigDecimal.ONE;
-
-		if(n < 0 || n > 999999)
-			throw new ArithmeticException("Very big value");
-
-		for(int i = 2; i <= n; i++){
-			b = b.multiply(b);
-		}
-
-		return b;
 	}
 
 	public static boolean isNumber(String s){

@@ -135,12 +135,11 @@
         <item>(</item>
         <item>)</item>
         <item>!</item>
-        <item>%</item>
-        <item>π</item>
         <item>A</item>
+        <item>π</item>
+        <item>G</item>
         <item>√</item>
         <item>^</item>
-        <item>G</item>
     </string-array>
     <string name="chooseFromSys">from</string>
     <string name="chooseToSys">in</string>
@@ -165,4 +164,7 @@
     <string name="variables">Variables:</string>
     <string name="fill_empty_field">Fill in the blank fields</string>
     <string name="add_cur_val_to_var">Add this value to variables</string>
+    <string name="what_new_window_text">We would like to tell you about the changes in this version. Perhaps these will be coordinating changes that, for example, change the logic of calculations.</string>
+    <string name="important">Important</string>
+    <string name="view">View</string>
 </resources>

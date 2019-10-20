@@ -133,4 +133,7 @@
     <string name="variables">Переменные:</string>
     <string name="fill_empty_field">Заполните пустые поля</string>
     <string name="add_cur_val_to_var">Добавить данное значение в переменные</string>
+    <string name="what_new_window_text">Мы бы хотели Вам рассказать об изменениях в этой версии. Возможно, это будут координальные изменения, которые, например, меняют логику подсчётов.</string>
+    <string name="important">Важно</string>
+    <string name="view">Просмотреть</string>
 </resources>

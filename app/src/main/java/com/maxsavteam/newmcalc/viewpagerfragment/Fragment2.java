@@ -136,7 +136,6 @@ public class Fragment2 extends Fragment {
 		par.width = width / 7;
 		par.height = width / 7;
 		btn.setLayoutParams(par);
-		//setDefaultButtons();
 		setVariableButtons();
 		return view;
 	}

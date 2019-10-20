@@ -59,8 +59,7 @@ public class Fragment1 extends Fragment {
 				R.id.btnPlus,
 
 				R.id.btnZero,
-				R.id.btnDot,
-				R.id.btnMinus
+				R.id.btnDot
 		};
 		for(int ii = 0; ii < btnIds.length; ii++){
 			Button btn = view.findViewById(btnIds[ii]);

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -181,6 +182,7 @@ public class Updater extends AppCompatActivity {
 		Button btn;
 		if(DarkMode) {
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
+			getWindow().setNavigationBarColor(Color.BLACK);
 			TextView t = findViewById(R.id.txtxCopyRight);
 			t.setTextColor(getResources().getColor(R.color.white));
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
@@ -194,6 +196,7 @@ public class Updater extends AppCompatActivity {
 			btn.setTextColor(getResources().getColor(R.color.white));
 		}else{
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
+			getWindow().setNavigationBarColor(Color.WHITE);
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
 		}
@@ -263,7 +266,7 @@ public class Updater extends AppCompatActivity {
 			fw.write("");
 			//fw.append(s);
 			Set<String> se = m.keySet();
-			List<String> l = new ArrayList<String>(se);
+			List<String> l = new ArrayList<>(se);
 			for (int i = 0; i < l.size(); i++) {
 				String ty = m.get(l.get(i)).getClass().getName();
 				ty = ty.replace("java.lang.", "");

@@ -503,7 +503,9 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         	getWindow().setBackgroundDrawableResource(R.drawable.black);
             appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
             appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+            getWindow().setNavigationBarColor(Color.BLACK);
         }else{
+            getWindow().setNavigationBarColor(Color.WHITE);
             getWindow().setBackgroundDrawable(getDrawable(R.drawable.white));
             appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
             appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));

@@ -50,6 +50,11 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
@@ -62,6 +67,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -300,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if (bar != null) {
             if (DarkMode) {
                 getWindow().setBackgroundDrawableResource(R.drawable.black);
+	            getWindow().setNavigationBarColor(Color.BLACK);
                 TextView t;
                 int[] ids = new int[]{
                         R.id.textAns2,
@@ -313,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             } else {
                 TextView t;
                 getWindow().setBackgroundDrawableResource(R.drawable.white);
+	            getWindow().setNavigationBarColor(Color.WHITE);
                 int[] ids = new int[]{
                         R.id.textAns2,
                         R.id.textStr
@@ -354,6 +362,40 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
+    String APPTYPE = BuildConfig.APPTYPE;
+
+    private void showWhatNewWindow(){
+	    if(sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable")) {
+		    AlertDialog window;
+		    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		    builder.setCancelable(false)
+				    .setMessage(R.string.what_new_window_text)
+				    .setTitle(R.string.important)
+				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					    @Override
+					    public void onClick(DialogInterface dialog, int which) {
+						    dialog.cancel();
+					    }
+				    }).setPositiveButton(R.string.view, ((dialog, which) -> {
+			    Intent in = new Intent(Intent.ACTION_VIEW);
+			    in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
+			    startActivity(in);
+		    }));
+		    window = builder.create();
+		    if (DarkMode) {
+			    window.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+		    }
+		    window.getButton(1).setTextColor(getResources().getColor(R.color.colorAccent));
+		    Map<String, ?> m = sp.getAll();
+			for(Map.Entry<String, ?> e : m.entrySet()){
+				if(!e.getKey().equals(BuildConfig.VERSION_NAME + ".VER.SHOWED") && e.getKey().contains(".VER.SHOW")){
+					sp.edit().remove(e.getKey()).apply();
+				}
+			}
+			sp.edit().putBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", true).apply();
+		    window.show();
+	    }
+    }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -390,6 +432,27 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         barr = memorySaverReader.read();
         MULTIPLY_SIGN = getResources().getString(R.string.multiply);
         DIVIDE_SIGN = getResources().getString(R.string.div);
+
+	    FirebaseDatabase db = FirebaseDatabase.getInstance();
+	    DatabaseReference dr = db.getReference("common/showLinkToWhatNewPage");
+	    dr.addListenerForSingleValueEvent(new ValueEventListener() {
+		    @Override
+		    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+		    	try {
+				    boolean show = dataSnapshot.getValue(Boolean.TYPE);
+				    if(show){
+						showWhatNewWindow();
+				    }
+			    }catch (Exception e){
+		    		e.printStackTrace();
+			    }
+		    }
+
+		    @Override
+		    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+		    }
+	    });
 
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");

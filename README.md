@@ -11,6 +11,15 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.11.1 (430)
+From now on, all changes will be published on [this page](http://newmcalc.maxsavteam.tk/what-new/).
+  * Percent removed
+  * Added the ability to delete variables.
+  * After counting, you can immediately write the value to a variable.
+  * Fixed strange counting behavior.
+  * Fixed display of additional zeros after the fractional part of the application (they are no longer shown)
+  * The buttons for selecting the length of the generated password are now square, the buttons for settings, history, etc. have a higher picture quality.
+  
 ### 1.10.4.204
   * Error writing was fixed
   * EmptyStackException when calculating fixed

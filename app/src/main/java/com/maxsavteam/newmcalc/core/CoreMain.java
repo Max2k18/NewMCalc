@@ -244,6 +244,64 @@ public final class CoreMain {
 					}
 				} else if (s.equals("%")) {
 					try {
+
+						/*class Isolated implements CoreLinkBridge{
+							private BigDecimal res;
+
+							public Error getError() {
+								return error;
+							}
+
+							public boolean isWas_error() {
+								return was_error;
+							}
+
+							private Error error;
+							private boolean was_error = false;
+
+							public BigDecimal getRes() {
+								return res;
+							}
+
+							@Override
+							public void onSuccess(BigDecimal result, String type) {
+								res = result;
+							}
+
+							@Override
+							public void onError(Error error) {
+								was_error = true;
+								this.error = error;
+							}
+
+							private void run(String ex){
+								CoreMain core = new CoreMain(c);
+								core.setInterface(this);
+
+								core.prepare(ex, "");
+							}
+						}
+						i++;
+						String x1 = "";
+						while(i < example.length() && example.charAt(i) != '-' && example.charAt(i) != '+'){
+							x1 += example.charAt(i);
+							i++;
+						}
+						x1 = s1.peek().toPlainString() + x1;
+						Isolated isolated = new Isolated();
+						isolated.run(x1);
+						if(isolated.isWas_error()) {
+							was_error = true;
+							coreLinkBridge.onError(isolated.getError());
+							return;
+						}else{
+							BigDecimal top = s1.peek();
+							s1.pop();
+							top = isolated.getRes();
+							top = top.divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
+							top = new BigDecimal(Utils.delete_zeros(top.toPlainString()));
+							s1.push(top);
+						}*/
 						BigDecimal y = s1.peek();
 						s1.pop();
 						y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);

@@ -101,7 +101,9 @@ public class number_system extends AppCompatActivity {
 			}
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+			getWindow().setNavigationBarColor(Color.BLACK);
 		}else{
+			getWindow().setNavigationBarColor(Color.WHITE);
 			btn.setImageDrawable(getDrawable(R.drawable.ic_content_copy_black_100dp));
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
 			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
