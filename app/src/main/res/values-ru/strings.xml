@@ -136,4 +136,5 @@
     <string name="what_new_window_text">Мы бы хотели Вам рассказать об изменениях в этой версии. Возможно, это будут координальные изменения, которые, например, меняют логику подсчётов.</string>
     <string name="important">Важно</string>
     <string name="view">Просмотреть</string>
+    <string name="what_new_in_this_ver">Что нового в этой версии</string>
 </resources>

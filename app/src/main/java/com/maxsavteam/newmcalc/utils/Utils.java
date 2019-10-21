@@ -22,6 +22,10 @@ public final class Utils {
 		return c >= 'a' && c <= 'z';
 	}
 
+	public static boolean isBasicAction(String action){
+		return action.equals("+") || action.equals("-") || action.equals("*") || action.equals("/");
+	}
+
 	public static boolean isConstNum(char c, Context context){
 		String PI = context.getResources().getString(R.string.pi);
 		String FI = context.getResources().getString(R.string.fi);
@@ -93,6 +97,15 @@ public final class Utils {
 	}
 
 	public static boolean isNumber(String s){
+		if(s.contains(" ")){
+			StringBuilder sb = new StringBuilder();
+			for(int i = 0; i < s.length(); i++){
+				if(s.charAt(i) != ' '){
+					sb.append(s.charAt(i));
+				}
+			}
+			s = sb.toString();
+		}
 		try{
 			BigDecimal b = null;
 			b = new BigDecimal(s);

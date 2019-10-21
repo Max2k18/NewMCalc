@@ -19,9 +19,11 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
+import android.net.InetAddresses;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -144,14 +146,17 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.about) {
-            /*if(DarkMode)
-                dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);*/
-            //about_app.show();
             Intent in = new Intent(this, catch_service.class);
             in.putExtra("action", "about_app");
             startActivity(in);
             overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             return true;
+        }else if(id == R.id.what_new){
+	        if (APPTYPE.equals("stable")) {
+		        Intent in = new Intent(Intent.ACTION_VIEW);
+		        in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
+		        startActivity(in);
+	        }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -365,35 +370,39 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     String APPTYPE = BuildConfig.APPTYPE;
 
     private void showWhatNewWindow(){
-	    if(sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable")) {
-		    AlertDialog window;
-		    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		    builder.setCancelable(false)
-				    .setMessage(R.string.what_new_window_text)
-				    .setTitle(R.string.important)
-				    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-					    @Override
-					    public void onClick(DialogInterface dialog, int which) {
-						    dialog.cancel();
-					    }
-				    }).setPositiveButton(R.string.view, ((dialog, which) -> {
-			    Intent in = new Intent(Intent.ACTION_VIEW);
-			    in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
-			    startActivity(in);
-		    }));
-		    window = builder.create();
-		    if (DarkMode) {
-			    window.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+    	try {
+		    if (!sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable")) {
+			    AlertDialog window;
+			    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			    builder.setCancelable(false)
+					    .setMessage(R.string.what_new_window_text)
+					    .setTitle(R.string.important)
+					    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+						    @Override
+						    public void onClick(DialogInterface dialog, int which) {
+							    dialog.cancel();
+						    }
+					    }).setPositiveButton(R.string.view, ((dialog, which) -> {
+				    Intent in = new Intent(Intent.ACTION_VIEW);
+				    in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
+				    startActivity(in);
+			    }));
+			    window = builder.create();
+			    if (DarkMode) {
+				    window.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+			    }
+			    //window.getButton(1).setTextColor(getResources().getColor(R.color.colorAccent));
+			    Map<String, ?> m = sp.getAll();
+			    for (Map.Entry<String, ?> e : m.entrySet()) {
+				    if (!e.getKey().equals(BuildConfig.VERSION_NAME + ".VER.SHOWED") && e.getKey().contains(".VER.SHOW")) {
+					    sp.edit().remove(e.getKey()).apply();
+				    }
+			    }
+			    sp.edit().putBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", true).apply();
+			    window.show();
 		    }
-		    window.getButton(1).setTextColor(getResources().getColor(R.color.colorAccent));
-		    Map<String, ?> m = sp.getAll();
-			for(Map.Entry<String, ?> e : m.entrySet()){
-				if(!e.getKey().equals(BuildConfig.VERSION_NAME + ".VER.SHOWED") && e.getKey().contains(".VER.SHOW")){
-					sp.edit().remove(e.getKey()).apply();
-				}
-			}
-			sp.edit().putBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", true).apply();
-		    window.show();
+	    }catch (Exception e){
+		    Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 	    }
     }
 
@@ -433,26 +442,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         MULTIPLY_SIGN = getResources().getString(R.string.multiply);
         DIVIDE_SIGN = getResources().getString(R.string.div);
 
-	    FirebaseDatabase db = FirebaseDatabase.getInstance();
-	    DatabaseReference dr = db.getReference("common/showLinkToWhatNewPage");
-	    dr.addListenerForSingleValueEvent(new ValueEventListener() {
-		    @Override
-		    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-		    	try {
-				    boolean show = dataSnapshot.getValue(Boolean.TYPE);
-				    if(show){
-						showWhatNewWindow();
-				    }
-			    }catch (Exception e){
-		    		e.printStackTrace();
-			    }
-		    }
-
-		    @Override
-		    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-		    }
-	    });
+	    showWhatNewWindow();
 
         //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
@@ -683,6 +673,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             t.setText(value);
             show_str();
             hide_ans();
+            format(R.id.textStr);
+            resize_text();
         }else{
             char last = txt.charAt(txt.length() - 1);
             if(new BigDecimal(value).signum() < 0)
@@ -696,6 +688,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 t.setText(String.format("%s%s", txt, value));
                 equallu("not");
             }
+	        format(R.id.textStr);
             resize_text();
         }
     }
@@ -1141,6 +1134,11 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
 
         if(Utils.isDigit(btntxt)){
+        	if(len > 1 && last == '%'){
+		        t.setText(txt + MULTIPLY_SIGN + btntxt);
+		        equallu("not");
+		        return;
+	        }
             if(txt.equals("0")) {
                 t.setText(btntxt);
                 return;
@@ -1445,7 +1443,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 in.putExtra("action", "add_var").putExtra("tag", pos);
                 TextView t = findViewById(R.id.textStr);
                 String ts = t.getText().toString();
-                if(!ts.equals("") && ts.length() < 100){
+                if(!ts.equals("") && ts.length() < 1000){
+	                if(ts.contains(" ")){
+		                StringBuilder sb = new StringBuilder();
+		                for(int i = 0; i < ts.length(); i++){
+			                if(ts.charAt(i) != ' '){
+				                sb.append(ts.charAt(i));
+			                }
+		                }
+		                ts = sb.toString();
+	                }
                     if(Utils.isNumber(ts))
                         in.putExtra("value", ts).putExtra("name", "").putExtra("is_existing", true);
                 }
@@ -1482,14 +1489,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             Intent in = new Intent(MainActivity.this, catch_service.class);
             in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
             ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(MainActivity.this);
-            for(int i = 0; i < a.size(); i++){
-                if(a.get(i).first == pos){
-                    in.putExtra("name", a.get(i).second.first).putExtra("value", a.get(i).second.second);
-                    break;
-                }
+            if(a != null) {
+	            for (int i = 0; i < a.size(); i++) {
+		            if (a.get(i).first == pos) {
+			            in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).second.second);
+			            break;
+		            }
+	            }
+	            startActivity(in);
+	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             }
-            startActivity(in);
-            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             return true;
         }
     };
@@ -1513,8 +1522,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         String text = txt.getText().toString();
         int len = text.length();
         set_textViewAns_to_default();
-        //ans.setVisibility(View.INVISIBLE);
-        /**/
         if(len != 0){
             char last = text.charAt(len - 1);
             int a = 1;

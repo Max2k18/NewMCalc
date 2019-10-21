@@ -1,5 +1,7 @@
 package com.maxsavteam.newmcalc.error;
 
+import java.math.BigDecimal;
+
 public class Error {
 
 	private String message = "";
@@ -21,6 +23,16 @@ public class Error {
 
 	public Error setMessage(String message) {
 		this.message = message;
+		return this;
+	}
+
+	public BigDecimal getPossibleResult() {
+		return possibleResult;
+	}
+
+	private BigDecimal possibleResult;
+	public Error setPossibleResult(BigDecimal result){
+		possibleResult = result;
 		return this;
 	}
 

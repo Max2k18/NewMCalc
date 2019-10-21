@@ -7,4 +7,7 @@
         android:id="@+id/about"
         android:title="@string/about"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/what_new"
+        android:title="@string/what_new_in_this_ver"/>
 </menu>

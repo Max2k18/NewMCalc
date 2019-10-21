@@ -140,6 +140,7 @@
         <item>G</item>
         <item>√</item>
         <item>^</item>
+        <item>%</item>
     </string-array>
     <string name="chooseFromSys">from</string>
     <string name="chooseToSys">in</string>
@@ -167,4 +168,5 @@
     <string name="what_new_window_text">We would like to tell you about the changes in this version. Perhaps these will be coordinating changes that, for example, change the logic of calculations.</string>
     <string name="important">Important</string>
     <string name="view">View</string>
+    <string name="what_new_in_this_ver">What\'s new in this version</string>
 </resources>

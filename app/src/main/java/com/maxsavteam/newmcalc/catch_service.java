@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
@@ -220,6 +222,26 @@ public class catch_service extends AppCompatActivity {
 			tag = in.getIntExtra("tag", 1);
 			value = findViewById(R.id.value);
 			name = findViewById(R.id.name);
+			name.addTextChangedListener(new TextWatcher() {
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+				}
+
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+					String str = name.getText().toString();
+					if(str.length() > 20){
+						name.setText(str.substring(0, 20));
+						name.append("");
+					}
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+
+				}
+			});
 			if(in.getBooleanExtra("is_existing", false)){
 				value.setText(in.getStringExtra("value"));
 				name.setText(in.getStringExtra("name"));

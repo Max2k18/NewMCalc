@@ -40,8 +40,8 @@ public final class CoreMain {
 		void onError(Error error);
 	}
 
-	private static Stack<String> s0 = new Stack<>();
-	private static Stack<BigDecimal> s1 = new Stack<>();
+	private Stack<String> s0 = new Stack<>();
+	private Stack<BigDecimal> s1 = new Stack<>();
 
 	private final int MAX_FACTORIAL_VALUE = 1000;
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
@@ -80,10 +80,8 @@ public final class CoreMain {
 		try{
 			BigDecimal b = null;
 			b = new BigDecimal(example);
-			if(b != null){
-				coreLinkBridge.onError(new Error().setStatus("Core").setError("/Core/String is number"));
-				return;
-			}
+			coreLinkBridge.onError(new Error().setStatus("Core").setError("/Core/String is number").setPossibleResult(new BigDecimal(example)));
+			return;
 		}catch (NumberFormatException e){
 			Log.e("All ok", e.toString());
 		}
@@ -243,65 +241,8 @@ public final class CoreMain {
 						break;
 					}
 				} else if (s.equals("%")) {
-					try {
 
-						/*class Isolated implements CoreLinkBridge{
-							private BigDecimal res;
-
-							public Error getError() {
-								return error;
-							}
-
-							public boolean isWas_error() {
-								return was_error;
-							}
-
-							private Error error;
-							private boolean was_error = false;
-
-							public BigDecimal getRes() {
-								return res;
-							}
-
-							@Override
-							public void onSuccess(BigDecimal result, String type) {
-								res = result;
-							}
-
-							@Override
-							public void onError(Error error) {
-								was_error = true;
-								this.error = error;
-							}
-
-							private void run(String ex){
-								CoreMain core = new CoreMain(c);
-								core.setInterface(this);
-
-								core.prepare(ex, "");
-							}
-						}
-						i++;
-						String x1 = "";
-						while(i < example.length() && example.charAt(i) != '-' && example.charAt(i) != '+'){
-							x1 += example.charAt(i);
-							i++;
-						}
-						x1 = s1.peek().toPlainString() + x1;
-						Isolated isolated = new Isolated();
-						isolated.run(x1);
-						if(isolated.isWas_error()) {
-							was_error = true;
-							coreLinkBridge.onError(isolated.getError());
-							return;
-						}else{
-							BigDecimal top = s1.peek();
-							s1.pop();
-							top = isolated.getRes();
-							top = top.divide(BigDecimal.valueOf(100), RoundingMode.HALF_EVEN);
-							top = new BigDecimal(Utils.delete_zeros(top.toPlainString()));
-							s1.push(top);
-						}*/
+					if(s0.empty() || (!s0.empty() && !Utils.isBasicAction(s0.peek()) )){
 						BigDecimal y = s1.peek();
 						s1.pop();
 						y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
@@ -313,11 +254,104 @@ public final class CoreMain {
 								in_s0('*');
 						}
 						continue;
-					} catch (Exception e) {
-						e.printStackTrace();
-						was_error = true;
-						coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShort_error(value_is_too_big));
-						break;
+					}else if(!s0.empty() && Utils.isBasicAction(s0.peek())){
+						try {
+
+							class Isolated implements CoreLinkBridge {
+								private BigDecimal res;
+
+								private Error getError() {
+									return error;
+								}
+
+								private boolean isWas_error() {
+									return was_error;
+								}
+
+								private Error error;
+								private boolean was_error = false;
+
+								public BigDecimal getRes() {
+									return res;
+								}
+
+								@Override
+								public void onSuccess(BigDecimal result, String type) {
+									res = result;
+								}
+
+								@Override
+								public void onError(Error error) {
+									was_error = true;
+									this.error = error;
+									if (error.getError().contains("String is number")) {
+										res = error.getPossibleResult();
+									}
+								}
+
+								private void run(String ex) {
+									CoreMain core = new CoreMain(c);
+									core.setInterface(this);
+
+									core.prepare(ex, "");
+								}
+							}
+							i++;
+							String x1 = "";
+							while (i < example.length() && example.charAt(i) != '-' && example.charAt(i) != '+') {
+								x1 += example.charAt(i);
+								i++;
+							}
+							x1 = s1.peek().toPlainString() + x1;
+							s1.pop();
+							Isolated isolated = new Isolated();
+							isolated.run(x1);
+							if (isolated.isWas_error() && !isolated.getError().getError().contains("String is number")) {
+								was_error = true;
+								coreLinkBridge.onError(isolated.getError());
+								return;
+							} else {
+								BigDecimal top = s1.peek();
+								top = isolated.getRes();
+								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
+								top = new BigDecimal(Utils.delete_zeros(top.toPlainString()));
+								//s1.push(top);
+								BigDecimal finalResult = s1.peek(), percent;
+								s1.pop();
+								percent = finalResult.multiply(top);
+								if (!s0.empty()) {
+									String action = s0.peek();
+									s0.pop();
+
+									if (Utils.isBasicAction(action)) {
+										switch (action) {
+											case "+":
+												finalResult = finalResult.add(percent);
+												break;
+											case "-":
+												finalResult = finalResult.subtract(percent);
+												break;
+											case "*":
+												finalResult = finalResult.multiply(percent);
+												break;
+											case "/":
+												finalResult = finalResult.divide(percent, 10, RoundingMode.HALF_EVEN);
+												finalResult = new BigDecimal(Utils.delete_zeros(finalResult.toPlainString()));
+												break;
+										}
+										finalResult = new BigDecimal(Utils.delete_zeros(finalResult.toPlainString()));
+										s1.push(finalResult);
+									}
+								}
+
+							}
+							continue;
+						}catch (Exception e) {
+							e.printStackTrace();
+							was_error = true;
+							coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShort_error(value_is_too_big));
+							break;
+						}
 					}
 				} else if (s.equals("e")) {
 					BigDecimal f = new BigDecimal(Math.E);
