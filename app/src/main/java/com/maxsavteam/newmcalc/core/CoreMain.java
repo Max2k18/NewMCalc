@@ -246,7 +246,7 @@ public final class CoreMain {
 						BigDecimal y = s1.peek();
 						s1.pop();
 						y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
-						y = new BigDecimal(Utils.delete_zeros(y.toPlainString()));
+						y = new BigDecimal(Utils.deleteZeros(y.toPlainString()));
 						s1.push(y);
 						if (i != len - 1) {
 							char next = example.charAt(i + 1);
@@ -314,7 +314,7 @@ public final class CoreMain {
 								BigDecimal top = s1.peek();
 								top = isolated.getRes();
 								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
-								top = new BigDecimal(Utils.delete_zeros(top.toPlainString()));
+								top = new BigDecimal(Utils.deleteZeros(top.toPlainString()));
 								//s1.push(top);
 								BigDecimal finalResult = s1.peek(), percent;
 								s1.pop();
@@ -336,10 +336,10 @@ public final class CoreMain {
 												break;
 											case "/":
 												finalResult = finalResult.divide(percent, 10, RoundingMode.HALF_EVEN);
-												finalResult = new BigDecimal(Utils.delete_zeros(finalResult.toPlainString()));
+												finalResult = new BigDecimal(Utils.deleteZeros(finalResult.toPlainString()));
 												break;
 										}
-										finalResult = new BigDecimal(Utils.delete_zeros(finalResult.toPlainString()));
+										finalResult = new BigDecimal(Utils.deleteZeros(finalResult.toPlainString()));
 										s1.push(finalResult);
 									}
 								}
@@ -399,7 +399,7 @@ public final class CoreMain {
 					}
 					sum = sum.divide(BigDecimal.valueOf(actions + 1), 2, RoundingMode.HALF_EVEN);
 					String answer = sum.toPlainString();
-					s1.push(new BigDecimal(Utils.delete_zeros(answer)));
+					s1.push(new BigDecimal(Utils.deleteZeros(answer)));
 					continue;
 				} else if (s.equals("G")) {
 					i += 2;
@@ -423,7 +423,7 @@ public final class CoreMain {
 					}
 					sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
 					String answer = sum.toPlainString();
-					s1.push(new BigDecimal(Utils.delete_zeros(answer)));
+					s1.push(new BigDecimal(Utils.deleteZeros(answer)));
 					continue;
 				}
 				if (Utils.isDigit(str[i])) {
@@ -591,7 +591,7 @@ public final class CoreMain {
 				}
 				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
 				String answer = ans.toPlainString();
-				s1.push(new BigDecimal(Utils.delete_zeros(answer)));
+				s1.push(new BigDecimal(Utils.deleteZeros(answer)));
 				return;
 			}
 			BigDecimal b = s1.peek();
@@ -631,13 +631,13 @@ public final class CoreMain {
 						break;
 				}
 				String answer = ans.toPlainString();
-				ans = new BigDecimal(Utils.delete_zeros(answer));
+				ans = new BigDecimal(Utils.deleteZeros(answer));
 				s1.push(ans);
 			} catch (ArithmeticException e) {
 				String str = e.toString();
 				if (str.contains("Non-terminating decimal expansion; no exact representable decimal result")) {
 					ans = a.divide(b, 3, RoundingMode.HALF_EVEN);
-					ans = new BigDecimal(Utils.delete_zeros(ans.toPlainString()));
+					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
 					s1.push(ans);
 				} else {
 					was_error = true;

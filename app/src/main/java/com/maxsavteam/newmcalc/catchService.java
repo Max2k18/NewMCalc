@@ -1,7 +1,6 @@
 package com.maxsavteam.newmcalc;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -29,15 +28,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.maxsavteam.newmcalc.utils.Utils;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.maxsavteam.newmcalc.R.color.mtrl_textinput_hovered_box_stroke_color;
 import static com.maxsavteam.newmcalc.R.color.white;
 
-public class catch_service extends AppCompatActivity {
+public class catchService extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed(){
@@ -158,7 +154,10 @@ public class catch_service extends AppCompatActivity {
 
 		}
 		apply_actionbar();
-		assert action != null;
+		if (action == null) {
+			finish();
+			return;
+		}
 		if (action.equals("about_app")) {
 			setContentView(R.layout.about_activity);
 			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
@@ -171,7 +170,7 @@ public class catch_service extends AppCompatActivity {
 			}
 			img.setOnLongClickListener(v -> {
 				AlertDialog debug_info;
-				AlertDialog.Builder builder = new AlertDialog.Builder(catch_service.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(catchService.this);
 				builder.setTitle("Build info")
 						.setMessage(debugInfoStr)
 						.setPositiveButton("OK", (dialog, which) -> dialog.cancel())

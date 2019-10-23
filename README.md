@@ -11,6 +11,9 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.11.3
+  * Fixed mechanism for working with memory.
+
 ### 1.11.2
   * We returned the percentage function. And now it works in a completely different way.
 

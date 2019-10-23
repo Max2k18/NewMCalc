@@ -40,8 +40,11 @@ public final class Utils {
 		}
 		return ans;
 	}
-
-	public static String delete_zeros(String source){
+	/**
+	 * @param source String in which need to delete back zeros after dot
+	 * @return String without back zeros
+	 */
+	public static String deleteZeros(String source){
 		int len = source.length();
 		if(source.contains(".")) {
 			if (source.charAt(len - 1) == '0') {
@@ -52,6 +55,23 @@ public final class Utils {
 				if(source.charAt(len - 1) == '.')
 					source = source.substring(0, len - 1);
 			}
+		}
+		return source;
+	}
+
+	/**
+	 * @param source String in which need to delete spaces
+	 * @return String without spaces
+	 */
+	public static String deleteSpaces(String source){
+		if(source.contains(" ")){
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < source.length(); i++) {
+				if(source.charAt(i) != ' ') {
+					sb.append(source.charAt(i));
+				}
+			}
+			source = sb.toString();
 		}
 		return source;
 	}
@@ -68,8 +88,9 @@ public final class Utils {
 		ArrayList<Pair<Integer, Pair<String, String>>> a = new ArrayList<>();
 		String var_arr = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).getString("variables", null);
 		int i = 0;
-		if(var_arr == null)
+		if (var_arr == null) {
 			return null;
+		}
 
 		while (i < var_arr.length()) {
 			String name = "";
@@ -96,6 +117,9 @@ public final class Utils {
 		return a;
 	}
 
+	/**
+	 * Returns true if string is number (spaces and dot includes)
+	 */
 	public static boolean isNumber(String s){
 		if(s.contains(" ")){
 			StringBuilder sb = new StringBuilder();

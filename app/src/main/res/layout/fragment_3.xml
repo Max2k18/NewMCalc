@@ -26,7 +26,7 @@
                 android:layout_marginEnd="10dp"
                 android:background="@color/white"
                 android:backgroundTint="@android:color/transparent"
-                android:onClick="onClickAdd"
+                android:onClick="onAdditionalButtonsClick"
                 android:scaleType="fitCenter"
                 app:srcCompat="@drawable/settings" />
 
@@ -38,7 +38,7 @@
                 android:layout_marginEnd="10dp"
                 android:background="@color/white"
                 android:backgroundTint="@android:color/transparent"
-                android:onClick="onClickAdd"
+                android:onClick="onAdditionalButtonsClick"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/dice" />
 
@@ -49,7 +49,7 @@
                 android:layout_marginStart="10dp"
                 android:background="@color/white"
                 android:backgroundTint="@android:color/transparent"
-                android:onClick="onClickAdd"
+                android:onClick="onAdditionalButtonsClick"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/passgen" />
 
@@ -70,7 +70,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="0.25"
                 android:backgroundTint="@android:color/transparent"
-                android:onClick="onClickAdd"
+                android:onClick="onAdditionalButtonsClick"
                 android:scaleType="centerInside"
                 android:src="@drawable/binary" />
 
@@ -81,7 +81,7 @@
                 android:layout_marginStart="10dp"
                 android:background="@color/white"
                 android:backgroundTint="@android:color/transparent"
-                android:onClick="onClickAdd"
+                android:onClick="onAdditionalButtonsClick"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/history" />
         </TableRow>

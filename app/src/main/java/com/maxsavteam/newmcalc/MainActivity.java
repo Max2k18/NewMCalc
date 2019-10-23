@@ -19,12 +19,9 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
-import android.net.InetAddresses;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.InputType;
-import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
@@ -47,16 +44,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
@@ -84,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     private AlertDialog about_app, al;
     private String uptype = "simple";
     private FirebaseAnalytics fr;
-    private BigDecimal[] barr;
+    private BigDecimal[] memoryEntries;
     private BigDecimal result_calc_for_mem;
     private MyFragmentPagerAdapter myFragmentPagerAdapter;
     public TextView text_example;
@@ -102,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
     View.OnLongClickListener returnback = v -> {
         if(!was_error) {
-            TextView back = findViewById(R.id.textAns2), str = findViewById(R.id.textStr);
+            TextView back = findViewById(R.id.AnswerStr), str = findViewById(R.id.ExampleStr);
             if (back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE) {
                 return false;
             }
@@ -146,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.about) {
-            Intent in = new Intent(this, catch_service.class);
+            Intent in = new Intent(this, catchService.class);
             in.putExtra("action", "about_app");
             startActivity(in);
             overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
@@ -164,34 +154,33 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if(!BuildConfig.WhatNewIsExisting){
+        	menu.removeItem(R.id.what_new);
+        }
         return true;
     }
 
-    public void onClickAdd(View v){
+    public void onAdditionalButtonsClick(View v){
         if(v.getId() == R.id.imgBtnSettings){
-            goto_add_scr("settings");
+	        goToAdditionalActivities("settings");
         }else if(v.getId() == R.id.btnImgNumGen){
-            goto_add_scr("numgen");
+	        goToAdditionalActivities("numgen");
         }else if(v.getId() == R.id.btnImgHistory){
-            goto_add_scr("history");
+	        goToAdditionalActivities("history");
         }else if(v.getId() == R.id.btnImgPassgen){
-            goto_add_scr("pass");
+	        goToAdditionalActivities("pass");
         }else if(v.getId() == R.id.imgBtnBin){
-            goto_add_scr("bin");
+	        goToAdditionalActivities("bin");
         }
     }
 
-    protected void goto_add_scr(String where){
+    protected void goToAdditionalActivities(String where){
         Intent resultIntent;
         switch (where) {
             case "settings":
                 resultIntent = new Intent(getApplicationContext(), Updater.class);
                 resultIntent.putExtra("action", "simple");
                 resultIntent.putExtra("start_type", "app");
-                if (uptype.equals("simple"))
-                    resultIntent.putExtra("update_path", "/NewMCalc.apk");
-                else
-                    resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
                 startActivity(resultIntent);
                 overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                 break;
@@ -260,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
 		Intent start_in = getIntent();
 		if(start_in.getBooleanExtra("shortcut_action", false)){
-            goto_add_scr(start_in.getStringExtra("to_"));
+			goToAdditionalActivities(start_in.getStringExtra("to_"));
 		}
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
             ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
@@ -314,8 +303,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	            getWindow().setNavigationBarColor(Color.BLACK);
                 TextView t;
                 int[] ids = new int[]{
-                        R.id.textAns2,
-                        R.id.textStr
+                        R.id.AnswerStr,
+                        R.id.ExampleStr
                 };
                 for (int id : ids) {
                     t = findViewById(id);
@@ -327,8 +316,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 getWindow().setBackgroundDrawableResource(R.drawable.white);
 	            getWindow().setNavigationBarColor(Color.WHITE);
                 int[] ids = new int[]{
-                        R.id.textAns2,
-                        R.id.textStr
+                        R.id.AnswerStr,
+                        R.id.ExampleStr
                 };
                 for (int id : ids) {
                     t = findViewById(id);
@@ -342,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     public void aboutAG(View v){
-        Intent in = new Intent(this, catch_service.class);
+        Intent in = new Intent(this, catchService.class);
         in.putExtra("action", "aboutAG");
         startActivity(in);
         overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
@@ -351,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View view) {
-            t = findViewById(R.id.textStr);
+            t = findViewById(R.id.ExampleStr);
             add_text(((Button) view).getText().toString().substring(1));
             return true;
         }
@@ -370,8 +359,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     String APPTYPE = BuildConfig.APPTYPE;
 
     private void showWhatNewWindow(){
+
     	try {
-		    if (!sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable")) {
+		    if (!sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable") && BuildConfig.WhatNewIsExisting) {
 			    AlertDialog window;
 			    AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			    builder.setCancelable(false)
@@ -438,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(read && write){
             sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
-        barr = memorySaverReader.read();
+        memoryEntries = memorySaverReader.read();
         MULTIPLY_SIGN = getResources().getString(R.string.multiply);
         DIVIDE_SIGN = getResources().getString(R.string.div);
 
@@ -448,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
         trace.start();
 
-        register_broadcasters();
+        registerBroadcastReceivers();
 
         if(sp.getBoolean("saveResult", false)){
             if(!sp.getString("saveResultText", "none").equals("none")){
@@ -460,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     ex.append(text.charAt(i));
                     i++;
                 }
-                TextView ver = findViewById(R.id.textAns2);
+                TextView ver = findViewById(R.id.AnswerStr);
 	            if(!DarkMode)
 	                ver.setTextColor(getResources().getColor(R.color.black));
                 ver.setText(ex.toString());
@@ -470,14 +460,14 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     ans.append(text.charAt(i));
                     i++;
                 }
-                ver = findViewById(R.id.textStr);
+                ver = findViewById(R.id.ExampleStr);
                 if(!DarkMode)
                     ver.setTextColor(getResources().getColor(R.color.black));
                 ver.setSelectAllOnFocus(false);
                 ver.setText(ans.toString());
                 ver.setSelected(false);
                 //equallu("not");
-                format(R.id.textStr);
+                format(R.id.ExampleStr);
                 ver = null;
             }
         }
@@ -523,73 +513,71 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         //should be always in the end
         fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
-    int count_of_memory_plu_min_calls = 0;
-    public void memory_plus_min(View v){
-	    text_example = findViewById(R.id.textStr);
+    int countOfMemoryPlusMinusMethodCalls = 0;
+    
+    public void onMemoryPlusMinusButtonsClick(View v){
+	    text_example = findViewById(R.id.ExampleStr);
 	    String text = text_example.getText().toString();
 	    if(text.equals(""))
 		    return;
 
 	    BigDecimal temp = null;
-	    try {
-            temp = new BigDecimal(text_example.getText().toString());
-        }catch(NumberFormatException e){
-	        equallu("all");
-	        if(count_of_memory_plu_min_calls < 1){
-	            count_of_memory_plu_min_calls++;
-	            memory_plus_min(v);
-            }
-	        return;
-        }
-	    if(v.getId() == R.id.btnMemPlus) {
-		    temp = temp.add(barr[0]);
-	    }else if(v.getId() == R.id.btnMemMinus){
-		    temp = barr[0].subtract(temp);
+	    if(!Utils.isNumber(text)){
+		    equallu("all");
+		    if(countOfMemoryPlusMinusMethodCalls < 1){
+			    countOfMemoryPlusMinusMethodCalls++;
+			    onMemoryPlusMinusButtonsClick(v);
+		    }
+		    return;
+	    }else{
+	    	temp = new BigDecimal(Utils.deleteSpaces(text));
 	    }
-        if(count_of_memory_plu_min_calls > 0)
+	    if(v.getId() == R.id.btnMemPlus) {
+		    temp = temp.add(memoryEntries[0]);
+	    }else if(v.getId() == R.id.btnMemMinus){
+		    temp = memoryEntries[0].subtract(temp);
+	    }
+        if(countOfMemoryPlusMinusMethodCalls > 0)
             returnback.onLongClick(findViewById(R.id.btnCalc));
-	    barr[0] = temp;
-	    memorySaverReader.save(barr);
+	    memoryEntries[0] = temp;
+	    memorySaverReader.save(memoryEntries);
     }
 
-
-    public boolean memory_calculated = false;
-
-    public void memory_ms(View view){
-        TextView t = findViewById(R.id.textStr);
+    public void onMemoryStoreButtonClick(View view){
+        TextView t = findViewById(R.id.ExampleStr);
         String txt = t.getText().toString();
         if(txt.equals(""))
             return;
         BigDecimal temp;
-        try{
-            temp = new BigDecimal(txt);
-        }catch(NumberFormatException e){
-            equallu("all");
-            if (count_of_ms_recalls < 1) {
-                count_of_ms_recalls++;
-                memory_ms(view);
-            }
-            return;
+        if(!Utils.isNumber(txt)){
+	        equallu("all");
+	        if (countOfMemoryStoreMethodCalls < 1) {
+		        countOfMemoryStoreMethodCalls++;
+		        onMemoryStoreButtonClick(view);
+	        }
+	        return;
+        }else{
+        	temp = new BigDecimal(Utils.deleteSpaces(txt));
         }
-        if(count_of_ms_recalls > 0)
+        if(countOfMemoryStoreMethodCalls > 0)
             returnback.onLongClick(findViewById(R.id.btnCalc));
-        count_of_ms_recalls = 0;
-        barr[0] = temp;
-    	memorySaverReader.save(barr);
+	    countOfMemoryStoreMethodCalls = 0;
+        memoryEntries[0] = temp;
+    	memorySaverReader.save(memoryEntries);
     	
     }
-    int count_of_ms_recalls = 0;
+    int countOfMemoryStoreMethodCalls = 0;
 
-    public void memory_mr(View view){
-    	String value = barr[0].toString();
-    	add_value_from_mem(value);
+    public void onMemoryRecallButtonClick(View view){
+    	String value = memoryEntries[0].toString();
+    	addStringExampleToTheExampleStr(value);
     }
 
     private void showMemAlert(final String type){
         Intent in = new Intent(this, memory_actions_activity.class);
         in.putExtra("type", type);
         if(type.equals("st")){
-            TextView t = findViewById(R.id.textStr);
+            TextView t = findViewById(R.id.ExampleStr);
             if(t.getText().toString().equals(""))
                 return;
             BigDecimal temp;
@@ -621,21 +609,21 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     };
 
     private void show_str(){
-        TextView t = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.ExampleStr);
         //t.setTextIsSelectable(false);
         t.setVisibility(View.VISIBLE);
     }
     private void hide_str(){
-        TextView t = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.ExampleStr);
         t.setVisibility(View.INVISIBLE);
     }
 
     private void show_ans(){
-        TextView t = findViewById(R.id.textAns2);
+        TextView t = findViewById(R.id.AnswerStr);
         t.setVisibility(View.VISIBLE);
     }
     private void hide_ans(){
-        TextView t = findViewById(R.id.textAns2);
+        TextView t = findViewById(R.id.AnswerStr);
         t.setVisibility(View.INVISIBLE);
     }
 
@@ -666,14 +654,14 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	    lay.height=  p.y / 11;
     }
 
-    private void add_value_from_mem(String value){
-        TextView t = findViewById(R.id.textStr);
+    private void addStringExampleToTheExampleStr(String value){
+        TextView t = findViewById(R.id.ExampleStr);
         String txt = t.getText().toString();
         if(txt.equals("")) {
             t.setText(value);
             show_str();
             hide_ans();
-            format(R.id.textStr);
+            format(R.id.ExampleStr);
             resize_text();
         }else{
             char last = txt.charAt(txt.length() - 1);
@@ -688,16 +676,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 t.setText(String.format("%s%s", txt, value));
                 equallu("not");
             }
-	        format(R.id.textStr);
+	        format(R.id.ExampleStr);
             resize_text();
         }
     }
 
-    private void register_broadcasters(){
+    private void registerBroadcastReceivers(){
         BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                barr = memorySaverReader.read();
+                memoryEntries = memorySaverReader.read();
             }
         };
         registerReceiver(on_memory_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
@@ -713,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                add_value_from_mem(intent.getStringExtra("value"));
+                addStringExampleToTheExampleStr(intent.getStringExtra("value"));
             }
         };
         registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
@@ -721,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         BroadcastReceiver on_his_action = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                t = findViewById(R.id.textStr);
+                t = findViewById(R.id.ExampleStr);
                 if(!intent.getStringExtra("example").equals("")){
                     String txt = t.getText().toString();
                     if(!txt.equals("") && txt.contains(".")){
@@ -794,9 +782,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         t.setText(format_core2(txt));
     }
 
-    /**
-     MaxSav Team Technologies
-     */
     private String format_core2(String txt){
         String number = "";
         int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
@@ -839,16 +824,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             if (ans.length() - ans.indexOf(".") > 9){
                 BigDecimal d = result;
                 d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                ans = Utils.delete_zeros(d.toPlainString());
+                ans = Utils.deleteZeros(d.toPlainString());
             }
         }
         switch (type) {
             case "all":
-                TextView tans = findViewById(R.id.textStr);
+                TextView tans = findViewById(R.id.ExampleStr);
 
                 tans.setText(ans);
-                format(R.id.textStr);
-                tans = findViewById(R.id.textAns2);
+                format(R.id.ExampleStr);
+                tans = findViewById(R.id.AnswerStr);
                 tans.setText(original);
                 show_ans();
                 resize_text();
@@ -872,9 +857,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 //set_viewpager(viewPager.getCurrentItem());
                 break;
             case "not":
-                TextView preans = findViewById(R.id.textAns2);
+                TextView preans = findViewById(R.id.AnswerStr);
                 preans.setText(ans);
-                format(R.id.textAns2);
+                format(R.id.AnswerStr);
                 show_ans();
                 set_text_toDef();
                 resize_text();
@@ -904,8 +889,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     public void resize_text(){
-        TextView txt = findViewById(R.id.textStr);
-        TextView t = findViewById(R.id.textAns2);
+        TextView txt = findViewById(R.id.ExampleStr);
+        TextView t = findViewById(R.id.AnswerStr);
 
         String stri = txt.getText().toString(), strians = t.getText().toString();
         Rect bounds = new Rect();
@@ -940,8 +925,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     public void set_text_toDef(){
-        TextView txt = findViewById(R.id.textStr);
-        TextView t = findViewById(R.id.textAns2);
+        TextView txt = findViewById(R.id.ExampleStr);
+        TextView t = findViewById(R.id.AnswerStr);
         txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 46);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 34);
     }
@@ -965,14 +950,14 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     private void set_textViewAns_to_default(){
-        TextView t = findViewById(R.id.textAns2);
+        TextView t = findViewById(R.id.AnswerStr);
         t.setText("");
         t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
         t.setTextColor(DarkMode ? Color.WHITE : Color.BLACK);
     }
 
     private void write_error(String text){
-        TextView t = findViewById(R.id.textAns2);
+        TextView t = findViewById(R.id.AnswerStr);
         hide_ans();
         t.setText(text);
         t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
@@ -986,9 +971,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             set_textViewAns_to_default();
             hide_ans();
         }
-        TextView txt = findViewById(R.id.textStr);
+        TextView txt = findViewById(R.id.ExampleStr);
         String example = txt.getText().toString();
-        format(R.id.textStr);
+        format(R.id.ExampleStr);
         int len = example.length();
         if(len != 0) {
             show_str();
@@ -1026,7 +1011,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     protected void check_dot(){
-        TextView t = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.ExampleStr);
         String txt = t.getText().toString();
         int i = txt.length()-1;
         if(!Utils.isDigit(txt.charAt(i))){
@@ -1064,7 +1049,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
     @SuppressLint("SetTextI18n")
     public void add_text(String btntxt){
-        t = findViewById(R.id.textStr);
+        t = findViewById(R.id.ExampleStr);
         String txt = t.getText().toString();
         int len = txt.length();
         if(len >= 300000)
@@ -1268,7 +1253,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
         if(btntxt.equals("sin") || btntxt.equals("log") || btntxt.equals("tan") || btntxt.equals("cos") || btntxt.equals("ln")){
             if(len == 0){
-                t = findViewById(R.id.textStr);
+                t = findViewById(R.id.ExampleStr);
                 t.setText(btntxt + "(");
                 brackets++;
                 //Toast.makeText(getApplicationContext(), Integer.toString(brackets), Toast.LENGTH_SHORT).show();
@@ -1426,7 +1411,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
     public void onClick(@NonNull View v){
         Button btn = findViewById(v.getId());
-        t = findViewById(R.id.textStr);
+        t = findViewById(R.id.ExampleStr);
         String btntxt = btn.getText().toString().substring(0, 1);
         add_text(btntxt);
        // log("onClick action;");
@@ -1439,9 +1424,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             String text = btn.getText().toString();
             //String desc = btn.getContentDescription().toString();
             if (text.equals("+")) {
-                Intent in = new Intent(this, catch_service.class);
+                Intent in = new Intent(this, catchService.class);
                 in.putExtra("action", "add_var").putExtra("tag", pos);
-                TextView t = findViewById(R.id.textStr);
+                TextView t = findViewById(R.id.ExampleStr);
                 String ts = t.getText().toString();
                 if(!ts.equals("") && ts.length() < 1000){
 	                if(ts.contains(" ")){
@@ -1468,7 +1453,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     if (a != null) {
                         for(i = 0; i < a.size(); i++){
                             if(a.get(i).first == pos){
-                                add_value_from_mem(a.get(i).second.second);
+                                addStringExampleToTheExampleStr(a.get(i).second.second);
                                 break;
                             }
                         }
@@ -1486,7 +1471,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         public boolean onLongClick(View v) {
             Button btn = (Button) v; //view.findViewById(v.getId());
             int pos = Integer.valueOf(btn.getTag().toString());
-            Intent in = new Intent(MainActivity.this, catch_service.class);
+            Intent in = new Intent(MainActivity.this, catchService.class);
             in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
             ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(MainActivity.this);
             if(a != null) {
@@ -1504,7 +1489,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     };
 
     public void delall(View v){
-        TextView t = findViewById(R.id.textStr);
+        TextView t = findViewById(R.id.ExampleStr);
         hide_str();
         t.setText("");
         set_textViewAns_to_default();
@@ -1512,13 +1497,13 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         brackets = 0;
         was_error = false;
         sp.edit().remove("saveResultText").apply();
-        t = findViewById(R.id.textStr);
+        t = findViewById(R.id.ExampleStr);
         set_text_toDef();
         //log("all text del");
     }
 
     public void delSymbol(View v){
-        TextView txt = findViewById(R.id.textStr);
+        TextView txt = findViewById(R.id.ExampleStr);
         String text = txt.getText().toString();
         int len = text.length();
         set_textViewAns_to_default();
@@ -1568,7 +1553,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     private void scroll_to_end(final int focus){
-        if(findViewById(R.id.textStr).getVisibility() == View.INVISIBLE)
+        if(findViewById(R.id.ExampleStr).getVisibility() == View.INVISIBLE)
             return;
         HorizontalScrollView scrollview = findViewById(R.id.scrollview);
         scrollview.postDelayed(new Runnable() {
@@ -1587,7 +1572,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     private void scroll_to_end(){
-        if(findViewById(R.id.textStr).getVisibility() == View.INVISIBLE)
+        if(findViewById(R.id.ExampleStr).getVisibility() == View.INVISIBLE)
             return;
         HorizontalScrollView scrollview = findViewById(R.id.scrollview);
         scrollview.postDelayed(new Runnable() {

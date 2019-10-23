@@ -38,7 +38,8 @@ android {
             targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.11.2"
+            versionName "1.11.3"
+            buildConfigField "Boolean", "WhatNewIsExisting", "true"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""

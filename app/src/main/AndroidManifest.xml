@@ -21,7 +21,7 @@
         android:fullBackupContent="@xml/backup_descriptor">
         <activity android:name=".number_system" />
         <activity android:name=".memory_actions_activity" />
-        <activity android:name=".catch_service" />
+        <activity android:name=".catchService" />
         <activity
             android:name=".history"
             android:noHistory="true" />
