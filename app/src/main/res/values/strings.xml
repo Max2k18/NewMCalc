@@ -169,4 +169,7 @@
     <string name="important">Important</string>
     <string name="view">View</string>
     <string name="what_new_in_this_ver">What\'s new in this version</string>
+    <string name="now">Now</string>
+    <string name="force_delete">Force delete</string>
+    <string name="force_delete_guide_text">Long press this button and the selected record will be deleted immediately.</string>
 </resources>

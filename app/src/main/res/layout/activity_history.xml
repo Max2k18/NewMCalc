@@ -20,7 +20,8 @@
             android:id="@+id/rv_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:scrollbars="vertical">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -87,6 +88,7 @@
                 android:backgroundTint="@color/colorAccent"
                 android:onClick="cancel"
                 android:text="@string/cancel" />
+
         </LinearLayout>
 
     </LinearLayout>

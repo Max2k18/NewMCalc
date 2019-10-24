@@ -137,4 +137,7 @@
     <string name="important">Важно</string>
     <string name="view">Просмотреть</string>
     <string name="what_new_in_this_ver">Что нового в этой версии</string>
+    <string name="now">Сейчас</string>
+    <string name="force_delete">Принудительное удаление</string>
+    <string name="force_delete_guide_text">Сделайте долгое нажатие на эту кнопку и выбранная запись удалится незамедлительно.</string>
 </resources>

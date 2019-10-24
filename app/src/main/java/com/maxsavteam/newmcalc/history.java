@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
@@ -40,6 +41,8 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+
 public class history extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
 
     MyRecyclerViewAdapter adapter;
@@ -48,11 +51,18 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     Intent history_action;
     String his_des;
     ArrayList< ArrayList<String> > str = new ArrayList<>();
+    private RecyclerView rv;
 
     protected void backPressed(){
         sendBroadcast(history_action);
         finish();
         overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+    }
+
+    private void restartActivity(){
+        Intent in = new Intent(this, history.class);
+        this.startActivity(in);
+        this.finish();
     }
 
     @Override
@@ -80,6 +90,10 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onItemClick(View view, int position) {
+        if(position == POSITION_TO_DEL){
+            cancelTimer();
+            animate_hide();
+        }
         history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
         String ex = adapter.getItem(position).get(0);
         if(ex.contains("~")) {
@@ -95,31 +109,76 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         //Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
-    static int POSITION_TO_DEL = -1;
+    int POSITION_TO_DEL = -1;
     View VIEW_ON_DELETE;
 
     @Override
     public void onDelete(int position, ViewHolder v) {
-        if(POSITION_TO_DEL == -1 && IN_ORDER){
-            Toast.makeText(this, "something went wrong", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (IN_ORDER) {
-	        return;
-        }
-        v.itemView.findViewById(R.id.btnDelInRow).setVisibility(View.GONE);
-        v.itemView.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
-        TextView t;
-        for(int id : new int[]{R.id.tvAns, R.id.tvAns2}){
-            t = v.itemView.findViewById(id);
-            t.setTextColor(getResources().getColor(R.color.white));
-        }
-        v.itemView.setEnabled(false);
-        VIEW_ON_DELETE = v.itemView;
-        POSITION_TO_DEL = position;
+        try {
+            if (POSITION_TO_DEL == -1 && IN_ORDER) {
+                Toast.makeText(this, "Something went wrong. Please, restart activity", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            if (IN_ORDER) {
+                return;
+            }
+            View view = v.itemView;
+            view.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+            TextView t;
+            for (int id : new int[]{R.id.tvAns, R.id.tvAns2}) {
+                t = view.findViewById(id);
+                t.setTextColor(getResources().getColor(R.color.white));
+            }
+            //view.setEnabled(false);
+            VIEW_ON_DELETE = view;
+            POSITION_TO_DEL = position;
+            showDeleteCountdownAndRun();
+        }catch (Exception e){
+            Toast.makeText(this, e.toString() + "\n\n" + position + "\n\n" + rv.getLayoutManager().getChildCount(), Toast.LENGTH_LONG).show();
+            cancelTimer();
+            animate_hide();
+        }
+    }
+    final int SECONDS_BEFORE_DELETE = 5;
+
+    @SuppressLint("DefaultLocale")
+    private void setupTimer(){
+        if (mTimer != null) {
+            mTimer.cancel();
+        }
+        countdown_del = SECONDS_BEFORE_DELETE;
+        mTimer = new Timer();
+        cancel = findViewById(R.id.cancel_delete);
+        tCount = cancel.findViewById(R.id.txtCountDown);
+        tCount.setText(String.format("%d", countdown_del));
+        MyTimer myTimer = new MyTimer();
+        mTimer.schedule(myTimer, 600, 1000);
+    }
+
+    View.OnLongClickListener forceDelete = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            delete();
+            animate_hide();
+            cancelTimer();
+            setupRecyclerView();
+            return true;
+        }
+    };
+
+    private void cancelTimer(){
+        IN_ORDER = false;
+        if(mTimer != null){
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+
+    private void showDeleteCountdownAndRun(){
         LinearLayout lay = findViewById(R.id.cancel_delete);
         lay.setVisibility(View.VISIBLE);
+        ((TextView)lay.findViewById(R.id.txtCountDown)).setText(String.format("%d", SECONDS_BEFORE_DELETE));
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_scale_show);
         //animation.setDuration(500);
         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -131,19 +190,23 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             @SuppressLint("SetTextI18n")
             @Override
             public void onAnimationEnd(Animation animation) {
-                try {
-                    if (mTimer != null) {
-                        mTimer.cancel();
-                    }
-                    countdown_del = 5;
-                    mTimer = new Timer();
-                    cancel = findViewById(R.id.cancel_delete);
-                    tCount = cancel.findViewById(R.id.txtCountDown);
-                    tCount.setText(Integer.toString(countdown_del));
-                    MyTimer myTimer = new MyTimer();
-                    mTimer.schedule(myTimer, 600, 1000);
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "AnimationEnd\n" + e.toString(), Toast.LENGTH_SHORT).show();
+                //setupTimer();
+                if(!sp.getBoolean("force_delete_guide_was_showed", false)) {
+                    new MaterialTapTargetPrompt.Builder(history.this)
+                            .setTarget(R.id.btnCancel)
+                            .setPrimaryText(getResources().getString(R.string.force_delete))
+                            .setSecondaryText(getResources().getString(R.string.force_delete_guide_text))
+                            .setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
+                                @Override
+                                public void onPromptStateChanged(@NonNull MaterialTapTargetPrompt prompt, int state) {
+                                    if(state == MaterialTapTargetPrompt.STATE_DISMISSED || state == MaterialTapTargetPrompt.STATE_FINISHED) {
+                                        sp.edit().putBoolean("force_delete_guide_was_showed", true).apply();
+                                        setupTimer();
+                                    }
+                                }
+                            }).show();
+                }else{
+                    setupTimer();
                 }
             }
 
@@ -158,8 +221,9 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
 	@Override
-	public void ShowInfoButtonPressed(View view, int position) {
+	public void ShowInfoButtonPressed(ViewHolder viewHolder, int position) {
         //view = (View) view.getParent().getParent();
+        View view = viewHolder.itemView;
         TextView t = view.findViewById(R.id.tvWithDesc);
         boolean with = Boolean.parseBoolean(t.getText().toString());
         if(view.findViewById(R.id.with_desc).getVisibility() == View.VISIBLE
@@ -348,15 +412,9 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
     public void delete(){
-        animate_hide();
-	    if(mTimer != null){
-		    mTimer.cancel();
-		    mTimer = null;
-	    }
+        cancelTimer();
         str.remove(POSITION_TO_DEL);
-        /*desc.remove(POSITION_TO_DEL);
-        save_history_description();*/
-        VIEW_ON_DELETE.setEnabled(true);
+        //VIEW_ON_DELETE.setEnabled(true);
         if(DarkMode)
             VIEW_ON_DELETE.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         else
@@ -370,8 +428,10 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             }
         }
         save_history();
-        adapter.notifyItemRemoved(POSITION_TO_DEL);
-        adapter.clearViews();adapter.notifyDataSetChanged();
+        setupRecyclerView();
+    }
+
+    private void setupRecyclerView(){
         if(str.size() == 0){
             if(DarkMode){
                 setTheme(android.R.style.Theme_Material_NoActionBar);
@@ -385,14 +445,48 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             }
             String[] strings = getResources().getStringArray(R.array.history_not_found);
             t.setText(String.format("%s\n%s\n%s", strings[0], strings[1], strings[2]));
+        }else {
+            try {
+                LinearLayoutManager lay = new LinearLayoutManager(this);
+                lay.setOrientation(RecyclerView.VERTICAL);
+                adapter = new MyRecyclerViewAdapter(getApplicationContext(), str);
+                adapter.setClickListener(this);
+                rv.setAdapter(adapter);
+                rv.setLayoutManager(lay);
+                SwipeController sc = new SwipeController(new SwipeControllerActions() {
+                    @Override
+                    public void onRightClicked(int position) {
+                        ArrayList<MyRecyclerViewAdapter.ViewHolder> ar = adapter.getViews();
+                        /*
+                         * Crutch, because recyclerview returns child count one value, but adapter returns right value.
+                         * I tried to google, but so far I haven't found anything.
+                         */
+                        onDelete(position, ar.get(position));
+                        //Toast.makeText(history.this, Integer.toString(adapter.getViews().size()), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onLeftClicked(int position) {
+                        ShowInfoButtonPressed(adapter.getViews().get(position), position);
+                    }
+                }, this);
+                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(sc);
+                itemTouchHelper.attachToRecyclerView(rv);
+                rv.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                        sc.onDraw(c);
+                    }
+                });
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                Log.e("Layout", e.toString());
+            }
         }
     }
 
     public void cancel(View v){
-        if(mTimer != null){
-            mTimer.cancel();
-            mTimer = null;
-        }
+        cancelTimer();
         IN_ORDER = false;
         POSITION_TO_DEL = -1;
         VIEW_ON_DELETE.setEnabled(true);
@@ -422,27 +516,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             if (countdown_del != 0) {
                 countdown_del--;
                 IN_ORDER = true;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        tCount.setText(Integer.toString(countdown_del));
-                    }
-                });
+                runOnUiThread(() -> tCount.setText(Integer.toString(countdown_del)));
 
             } else {
-                if(mTimer != null) {
-                    mTimer.cancel();
-                    mTimer = null;
-                }
+                cancelTimer();
                 IN_ORDER = false;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        delete();
-                        animate_hide();
-                    }
-                });
-                //animate_hide();
+                runOnUiThread(history.this::delete);
+                animate_hide();
             }
         }
     }
@@ -477,6 +557,31 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     String start_type;
 
     boolean DarkMode;
+    private void applyTheme(){
+        ActionBar appActionBar = getSupportActionBar();
+        try{
+            appActionBar.setDisplayHomeAsUpEnabled(true);
+            appActionBar.setTitle(R.string.hitory);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }catch(Exception e){
+            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+        }
+        if(DarkMode){
+            getWindow().setBackgroundDrawableResource(R.drawable.black);
+            appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
+            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+            getWindow().setNavigationBarColor(Color.BLACK);
+        }else{
+            getWindow().setNavigationBarColor(Color.WHITE);
+            getWindow().setBackgroundDrawable(getDrawable(R.drawable.white));
+            appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
+            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+        }
+        appActionBar.setElevation(0);
+        Button btn = findViewById(R.id.btnCancel);
+        btn.setTextColor(getResources().getColor(R.color.white));
+        btn.setOnLongClickListener(forceDelete);
+    }
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
@@ -491,29 +596,10 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         setContentView(R.layout.activity_history);
         history_action = new Intent(BuildConfig.APPLICATION_ID  + ".HISTORY_ACTION");
         history_action.putExtra("example", "").putExtra("result", "");
-        ActionBar appActionBar = getSupportActionBar();
-        try{
-            appActionBar.setDisplayHomeAsUpEnabled(true);
-            appActionBar.setTitle(R.string.hitory);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }catch(Exception e){
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-        }
-        if(DarkMode){
-        	getWindow().setBackgroundDrawableResource(R.drawable.black);
-            appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
-            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
-            getWindow().setNavigationBarColor(Color.BLACK);
-        }else{
-            getWindow().setNavigationBarColor(Color.WHITE);
-            getWindow().setBackgroundDrawable(getDrawable(R.drawable.white));
-            appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
-            appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
-        }
-        appActionBar.setElevation(0);
-        RecyclerView rv = findViewById(R.id.rv_view);
-        Button btn = findViewById(R.id.btnCancel);
-        btn.setTextColor(getResources().getColor(R.color.white));
+        applyTheme();
+
+        rv = findViewById(R.id.rv_view);
+
         start_type = getIntent().getStringExtra("start_type");
         ArrayList<String> str2 = new ArrayList<>();
         String his = sp.getString("history", "not");
@@ -565,43 +651,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 str.add((ArrayList<String>) str2.clone());
                 str2.clear();
             }
-            try {
-                LinearLayoutManager lay = new LinearLayoutManager(this);
-                lay.setOrientation(RecyclerView.VERTICAL);
-
-                rv.setLayoutManager(lay);
-                adapter = new MyRecyclerViewAdapter(getApplicationContext(), str);
-                adapter.setClickListener(this);
-                rv.setAdapter(adapter);
-                SwipeController sc = new SwipeController(new SwipeControllerActions() {
-                    @Override
-                    public void onRightClicked(int position) {
-                        ArrayList<MyRecyclerViewAdapter.ViewHolder> ar = adapter.getViews();
-                        /*
-                         * Crutch, because recyclerview returns child count one value, but adapter returns right value.
-                         * I tried to google, but so far I haven't found anything.
-                         */
-                        onDelete(position, ar.get(position));
-                    }
-
-                    @Override
-                    public void onLeftClicked(int position) {
-                        ShowInfoButtonPressed(rv.getChildAt(position), position);
-                    }
-                }, this);
-                ItemTouchHelper itemTouchHelper = new ItemTouchHelper(sc);
-                itemTouchHelper.attachToRecyclerView(rv);
-                rv.addItemDecoration(new RecyclerView.ItemDecoration() {
-                    @Override
-                    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-                        sc.onDraw(c);
-                    }
-                });
-            }catch (Exception e){
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-                Log.e("Layout", e.toString());
-            }
-
+            setupRecyclerView();
         }
     }
 }

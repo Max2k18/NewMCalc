@@ -11,6 +11,10 @@ I translate text through Google Translator, because I do not know English so wel
 #### **I waiting for feedback**
 
 ## Change history
+### 1.11.4
+  * You can call value of entry, when last is in order
+  * Force delete, when user long pressing the cancel button
+
 ### 1.11.3
   * Fixed mechanism for working with memory.
 
