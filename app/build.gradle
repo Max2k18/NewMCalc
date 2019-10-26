@@ -1,4 +1,3 @@
-import java.lang.reflect.Field
 import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
@@ -10,6 +9,12 @@ apply plugin: 'com.google.firebase.firebase-perf'
 android {
     signingConfigs {
         release {
+            storeFile file('D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks')
+            storePassword '1234567890'
+            keyAlias = 'key0'
+            keyPassword '1234567890'
+        }
+        forFirebaseTestLab {
             storeFile file('D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks')
             storePassword '1234567890'
             keyAlias = 'key0'
@@ -38,8 +43,8 @@ android {
             targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.11.4"
-            buildConfigField "Boolean", "WhatNewIsExisting", "true"
+            versionName "1.11.4.1"
+            buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
@@ -72,6 +77,16 @@ android {
             zipAlignEnabled true
             versionNameSuffix "-DEBUG"
             applicationIdSuffix ".beta"
+        }
+        forFirebaseTestLab{
+            minifyEnabled true
+            shrinkResources true
+            apptype = "dev"
+            buildConfigField "String", "APPTYPE", "\"${apptype}\""
+            aaptOptions {
+                cruncherEnabled = false
+            }
+            versionNameSuffix "-FIREBASETESTLAB"
         }
     }
     buildToolsVersion '29.0.2'

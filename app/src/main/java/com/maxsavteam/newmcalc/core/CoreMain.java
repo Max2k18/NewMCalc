@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
+import com.google.protobuf.DescriptorProtos;
 import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.error.MultException;
@@ -40,13 +41,13 @@ public final class CoreMain {
 		void onError(Error error);
 	}
 
-	private Stack<String> s0 = new Stack<>();
-	private Stack<BigDecimal> s1 = new Stack<>();
+	private final Stack<String> s0 = new Stack<>();
+	private final Stack<BigDecimal> s1 = new Stack<>();
 
 	private final int MAX_FACTORIAL_VALUE = 1000;
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
 
-	public void prepare(String example, String type){
+	public final void prepare(String example, String type){
 		int len = example.length();
 		char last;
 		if(len == 0)
@@ -66,8 +67,12 @@ public final class CoreMain {
 		}
 		if(brackets > 0){
 			for(int i = 0; i < brackets; i++){
-				example += ")";
+				example = String.format("%s%s", example, ")");
 			}
+		}else if(brackets < 0){
+			was_error = true;
+			coreLinkBridge.onError(new Error().setStatus("Core"));
+			return;
 		}
 		if(example.contains(" ")){
 			StringBuilder sb = new StringBuilder();
@@ -242,7 +247,7 @@ public final class CoreMain {
 					}
 				} else if (s.equals("%")) {
 
-					if(s0.empty() || (!s0.empty() && !Utils.isBasicAction(s0.peek()) )){
+					if (s0.empty() || (!s0.empty() && !Utils.isBasicAction(s0.peek()))) {
 						BigDecimal y = s1.peek();
 						s1.pop();
 						y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
@@ -254,7 +259,7 @@ public final class CoreMain {
 								in_s0('*');
 						}
 						continue;
-					}else if(!s0.empty() && Utils.isBasicAction(s0.peek())){
+					} else if (!s0.empty() && Utils.isBasicAction(s0.peek())) {
 						try {
 
 							class Isolated implements CoreLinkBridge {
@@ -346,7 +351,7 @@ public final class CoreMain {
 
 							}
 							continue;
-						}catch (Exception e) {
+						} catch (Exception e) {
 							e.printStackTrace();
 							was_error = true;
 							coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShort_error(value_is_too_big));
@@ -505,7 +510,7 @@ public final class CoreMain {
 						}
 					}
 				}
-			}catch (MultException e){
+			}catch (Exception e){
 				was_error = true;
 				coreLinkBridge.onError(new Error().setStatus("Core").setShort_error("Smth went wrong"));
 				break;
@@ -537,7 +542,7 @@ public final class CoreMain {
 		}
 	}
 
-	private void mult(String x) throws MultException {
+	private void mult(String x) throws Exception {
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
 				double d = s1.peek().doubleValue();
@@ -599,7 +604,7 @@ public final class CoreMain {
 			BigDecimal a = s1.peek();
 			BigDecimal ans = s1.peek();
 			s1.pop();
-			double a1, b1, ansd = Double.POSITIVE_INFINITY;
+			double a1, b1;
 			a1 = a.doubleValue();
 			b1 = b.doubleValue();
 			try {
@@ -636,7 +641,7 @@ public final class CoreMain {
 			} catch (ArithmeticException e) {
 				String str = e.toString();
 				if (str.contains("Non-terminating decimal expansion; no exact representable decimal result")) {
-					ans = a.divide(b, 3, RoundingMode.HALF_EVEN);
+					ans = a.divide(b, 4, RoundingMode.HALF_EVEN);
 					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
 					s1.push(ans);
 				} else {
@@ -650,11 +655,11 @@ public final class CoreMain {
 		}catch (Exception e) {
 			was_error = true;
 			coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
-			throw new MultException(e.getMessage());
+			throw new Exception(e.getMessage());
 		}
 	}
 
-	private void in_s0(char x) throws MultException{
+	private void in_s0(char x) throws Exception{
 		Map<String, Integer> priority = new HashMap<>();
 		priority.put("(", 0);
 		priority.put("-", 1);
@@ -663,11 +668,19 @@ public final class CoreMain {
 		priority.put("*", 2);
 		priority.put("^", 3);
 		priority.put("R", 3);
-		if(x == '('){
+
+		if(s0.empty()) {
 			s0.push(Character.toString(x));
 			return;
 		}
-		if(s0.empty()){
+
+		Integer priorityOfX = priority.get(Character.toString(x));
+		Integer priorityOfTopAction = priority.get(s0.peek());
+
+		if(priorityOfX == null || priorityOfTopAction == null)
+			throw new NullPointerException("Method: in_s0; priorityOfX equals null or priorityOfTopAction equals null");
+
+		if(x == '(') {
 			s0.push(Character.toString(x));
 			return;
 		}
@@ -676,14 +689,13 @@ public final class CoreMain {
 			s0.push(Character.toString(x));
 			return;
 		}
-		if (!s0.empty() && (priority.get(Character.toString(x)) < priority.get(s0.peek()) || priority.get(Character.toString(x)).equals(priority.get(s0.peek())))) {
+		if (!s0.empty() && (priorityOfX < priorityOfTopAction) || priorityOfX.equals(priority.get(s0.peek()))) {
 			mult(s0.peek());
 			s0.pop();
 			in_s0(x);
 			return;
 		}
-		if(!s0.empty() && priority.get(Character.toString(x)) > priority.get(s0.peek()))
-			s0.push(Character.toString(x));
+		if(!s0.empty() && priorityOfX > priorityOfTopAction) s0.push(Character.toString(x));
 	}
 	
 }

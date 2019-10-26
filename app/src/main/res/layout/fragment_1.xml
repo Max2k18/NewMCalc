@@ -31,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.3"
-                android:onClick="delall"
+                android:onClick="deleteExample"
                 android:text="C"
                 android:textColor="@android:color/background_light"
                 android:textSize="25sp"
