@@ -1,8 +1,13 @@
 package com.maxsavteam.newmcalc.utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.preference.PreferenceManager;
 import android.util.Pair;
+import android.view.Window;
+import android.widget.Button;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.maxsavteam.newmcalc.R;
 
@@ -15,7 +20,8 @@ public final class Utils {
 	}
 
 	public static boolean isDigit(String x){
-		return x.compareTo("0") >= 0 && x.compareTo("9") <= 0;
+		char c = x.toCharArray()[0];
+		return c >= '0' && c <= '9';
 	}
 
 	public static boolean islet(char c){
@@ -33,6 +39,13 @@ public final class Utils {
 	}
 
 	public static BigDecimal fact(BigDecimal x){
+		if(x.toPlainString().contains(".")){
+			String numberString = x.toPlainString();
+			int positionOfDot = numberString.indexOf(".");
+			numberString = numberString.substring(0, positionOfDot);
+			x = new BigDecimal(numberString);
+		}
+
 		BigDecimal ans = BigDecimal.valueOf(1);
 		for(BigDecimal i = BigDecimal.valueOf(1); i.compareTo(x) <= 0;){
 			ans = ans.multiply(i);
@@ -59,7 +72,32 @@ public final class Utils {
 		return source;
 	}
 
-	/**
+	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context){
+		Window window = alertDialog.getWindow();
+		if (window != null) {
+			window.requestFeature(Window.FEATURE_SWIPE_TO_DISMISS);
+		}
+		alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+			@Override
+			public void onShow(DialogInterface dialog) {
+				Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+				Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+				Button neutral = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+				if(negative != null) {
+					negative.setTextColor(context.getResources().getColor(R.color.colorAccent));
+				}
+				if(positive != null) {
+					positive.setTextColor(context.getResources().getColor(R.color.colorAccent));
+				}
+				if(neutral != null){
+					neutral.setTextColor(context.getResources().getColor(R.color.colorAccent));
+				}
+			}
+		});
+	}
+
+	/** Returns string without any spaces
+	 *
 	 * @param source String in which need to delete spaces
 	 * @return String without spaces
 	 */
@@ -79,7 +117,8 @@ public final class Utils {
 	public static void saveVariables(ArrayList<Pair<Integer, Pair<String, String>>> a, Context context){
 		String to_save = "";
 		for(int i = 0; i < a.size(); i++){
-			to_save += a.get(i).second.first + "," + a.get(i).second.second + "," + a.get(i).first.toString() + ";";
+			//to_save = to_save + (a.get(i).second.first + "," + a.get(i).second.second + "," + a.get(i).first.toString() + ";");
+			to_save = String.format("%s%s,%s,%s;", to_save, a.get(i).second.first, a.get(i).second.second, a.get(i).first.toString());
 		}
 		PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit().putString("variables", to_save).apply();
 	}

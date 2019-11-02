@@ -66,6 +66,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669428254565:android:900fe28de250f5fc28838c",
+        "android_client_info": {
+          "package_name": "com.maxsavteam.newmcalc.beta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

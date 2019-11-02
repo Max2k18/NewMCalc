@@ -20,16 +20,16 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1.0"
+            android:alwaysDrawnWithCache="true"
+            android:animateLayoutChanges="true"
+            android:animationCache="true"
             android:gravity="center"
             android:orientation="vertical"
-            android:alwaysDrawnWithCache="true"
-            android:animationCache="true"
-            android:animateLayoutChanges="true"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:visibility="visible">
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/indent2"
@@ -50,22 +50,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1.0">
-
-                <Button
-                    android:id="@+id/btnClsHistory"
-                    style="@style/Widget.AppCompat.Button.Colored"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/btn_rounded"
-                    android:backgroundTint="@color/forcls"
-                    android:onClick="clear_history"
-                    android:text="@string/cls_history"
-                    android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:visibility="visible" />
 
                 <Switch
                     android:id="@+id/switchSaveOnExit"
@@ -130,7 +114,7 @@
                             style="@style/Widget.AppCompat.Button.Colored"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:onClick="import_"
+                            android:onClick="initialize_import"
                             android:text="@string/import_se" />
 
                         <Button
@@ -197,11 +181,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1.0"
+            android:alwaysDrawnWithCache="true"
+            android:animateLayoutChanges="true"
+            android:animationCache="true"
             android:gravity="center"
             android:orientation="vertical"
-            android:alwaysDrawnWithCache="true"
-            android:animationCache="true"
-            android:animateLayoutChanges="true"
             android:visibility="gone">
 
             <LinearLayout

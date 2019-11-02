@@ -3,13 +3,8 @@
     <string name="settings">Настройки</string>
     <string name="therenothing">Здесь нечего показывать...</string>
     <string name="updateavail">Доступно обновление</string>
-    <string name="installvia">Установите приложение через установщик пакетов.</string>
-    <string name="downloaded">Скачано!</string>
-    <string name="downloaderr">Ошибка скачивания!</string>
-    <string name="downloading">Скачивание...</string>
     <string name="version">"Версия: "</string>
     <string name="pleaseupdate">Доступно обновление. Пожалуйста, обновите приложение в настройках (нажмите на три точки в левом верхнем углу экрана -> Настройки)</string>
-    <string name="chooseaction">Выберите действие</string>
     <string name="txtfrom">от</string>
     <string name="txtto">до</string>
     <string name="choosenum">Выберите число</string>
@@ -19,21 +14,17 @@
     <string name="maxintexception">Значения должны быть в пределах от -9,223,372,036,854,775,808 до 9,223,372,036,854,775,807.</string>
     <string name="btnCopy">Скопировать</string>
     <string name="copied">Скопировано в буфер обмена</string>
-    <string name="invalidstateforsin">Неверное утверждение</string>
-    <string name="invalidfor">для</string>
     <string name="build">"Сборка: "</string>
     <string name="hitory">История</string>
     <string name="checking_history">Проверка истории...</string>
     <string name="history_not_found">Хм...\\nИстории тут нет...\\nГде же она?</string>
     <string name="passgen">Генератор паролей</string>
-    <string name="add_chars">Дополнительные символы</string>
     <string name="succesful">Успешно!</string>
     <string name="savedto">Сохранено в</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="exit">Выход</string>
     <string name="areyousureexit">Желаете выйти?</string>
-    <string name="updateavailable">Желаете скачать и установить обновление? Если нет, то Вы можете обновиться в удобное Вам время в настройках</string>
     <string name="donot_remind_for_this_ver">Не напоминать для этой версии</string>
     <string name="about">О приложении</string>
     <string name="about_text">Это приложение создано полностью одним человеком. Его зовут Макс Савицкий. Все системы, всё ядро, всё сделано этим человеком. Также он дал разрешение компании SM-app на издание данного приложения.</string>
@@ -140,4 +131,7 @@
     <string name="now">Сейчас</string>
     <string name="force_delete">Принудительное удаление</string>
     <string name="force_delete_guide_text">Сделайте долгое нажатие на эту кнопку и выбранная запись удалится незамедлительно.</string>
+    <string name="to_continue_need_to_restart_app">Для продолжения нам требуется перезапустить приложение.</string>
+    <string name="want_to_continue_question">Хотите продолжить?</string>
+    <string name="restart">Перезапустить</string>
 </resources>

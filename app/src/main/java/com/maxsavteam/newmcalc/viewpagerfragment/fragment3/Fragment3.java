@@ -1,6 +1,7 @@
-package com.maxsavteam.newmcalc.viewpagerfragment;
+package com.maxsavteam.newmcalc.viewpagerfragment.fragment3;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -17,8 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc.R;
-
-import java.net.ContentHandler;
 
 public class Fragment3 extends Fragment {
 
@@ -72,11 +71,16 @@ public class Fragment3 extends Fragment {
 			};
 		}
 		final int BUTTON_WIDTH = 4;
+		int width = display_size.x;
+		if(c.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+			width = display_size.x;
+		}else if(c.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+			width = display_size.x / 2;
+		}
 		for (int i = 0; i < imgbtnids.length; i++) {
 			img = view.findViewById(imgbtnids[i]);
 			img.setImageDrawable(drawables[i]);
 			ViewGroup.LayoutParams par = img.getLayoutParams();
-			int width = display_size.x;
 			par.height = width / BUTTON_WIDTH;
 			par.width = width / BUTTON_WIDTH;
 			img.setLayoutParams(par);

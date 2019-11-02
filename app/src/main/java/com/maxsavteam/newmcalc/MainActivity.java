@@ -3,10 +3,8 @@ package com.maxsavteam.newmcalc;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -14,6 +12,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -30,10 +29,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,7 +42,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
@@ -49,11 +52,15 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
+import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CoreMain;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
+import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.Utils;
+import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
+import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.FragmentTwoInitializationObject;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -64,243 +71,259 @@ import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements CoreMain.CoreLinkBridge{
-    public static Boolean was_error = false;
 
+    private Boolean was_error = false;
     private SharedPreferences sp;
     private TextView t;
     private char last;
     private int brackets = 0;
     private String original = "";
-    private String uptype = "simple";
     private FirebaseAnalytics fr;
     private BigDecimal[] memoryEntries;
-    private BigDecimal result_calc_for_mem;
-    private MyFragmentPagerAdapter myFragmentPagerAdapter;
-    public TextView text_example;
-    String FI, PI, E;
+	private String FI, PI;
     private MemorySaverReader memorySaverReader;
     private String MULTIPLY_SIGN;
-    private CoreMain coreMain;
+    private CoreMain mCoreMain;
+	private int lastViewPagerOrientationDrawingState = -1;
+    private boolean DarkMode = false;
+    private boolean isBroadcastsRegistered;
+    private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
+    private boolean isOtherActivityOpened = false;
 
-    View.OnLongClickListener btnDeleteSymbolLongClick = (View v) -> {
-        deleteExample(findViewById(R.id.btnDelAll));
-        return true;
-    };
+	@Override
+	protected void onPause() {
+		if(!isOtherActivityOpened)
+			unregisterAllBroadcasts();
+		super.onPause();
+	}
 
-    View.OnLongClickListener returnback = v -> {
-        if(!was_error) {
-            TextView back = findViewById(R.id.AnswerStr), str = findViewById(R.id.ExampleStr);
-            if (back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE) {
-                return false;
-            }
-            String txt = back.getText().toString();
-            back.setText(str.getText().toString());
-            str.setText(txt);
-            scrollExampleToEnd();
-            return true;
-        }else
-            return false;
-    };
+	@Override
+	protected void onResume() {
+		isOtherActivityOpened = false;
+		if(!isBroadcastsRegistered){
+			registerBroadcastReceivers();
+		}
+		super.onResume();
+	}
 
-    @Override
-    public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle(R.string.exit)
-                .setMessage(R.string.areyousureexit)
-                .setCancelable(false)
-                .setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel())
-                .setPositiveButton(R.string.yes, (dialog, which) -> {
-                    dialog.cancel();
-                    finishAndRemoveTask();
-                    overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
-                });
-        AlertDialog al_1 = builder.create();
-        if(DarkMode)
-            Objects.requireNonNull(al_1.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
-        al_1.show();
-        //super.onBackPressed();
-    }
+	@Override
+	protected void onStop() {
+		if(!isOtherActivityOpened)
+			unregisterAllBroadcasts();
+		super.onStop();
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.about) {
-            Intent in = new Intent(this, catchService.class);
-            in.putExtra("action", "about_app");
-            startActivity(in);
-            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-            return true;
-        }else if(id == R.id.what_new){
-	        if (APPTYPE.equals("stable")) {
-		        Intent in = new Intent(Intent.ACTION_VIEW);
-		        in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
-		        startActivity(in);
-	        }
-        }
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	protected void onNightModeChanged(int mode) {
+		if(AppCompatDelegate.MODE_NIGHT_YES == mode && !sp.getBoolean("force_enable_white",false)){
+			sp.edit().putBoolean("dark_mode", true).apply();
+			restartActivity();
+		}else if(AppCompatDelegate.MODE_NIGHT_NO == mode && !sp.getBoolean("force_enable_dark", false)){
+			sp.edit().putBoolean("dark_mode", false).apply();
+			restartActivity();
+		}
+		super.onNightModeChanged(mode);
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        if(!BuildConfig.WhatNewIsExisting){
-        	menu.removeItem(R.id.what_new);
-        }
-        return true;
-    }
-    
-    private void restartActivity(){
-    	Intent in = new Intent(this, MainActivity.class);
-    	this.startActivity(in);
-    	this.finish();
-    }
-	    
-    public void onAdditionalButtonsClick(View v){
-        if(v.getId() == R.id.imgBtnSettings){
-	        goToAdditionalActivities("settings");
-        }else if(v.getId() == R.id.btnImgNumGen){
-	        goToAdditionalActivities("numgen");
-        }else if(v.getId() == R.id.btnImgHistory){
-	        goToAdditionalActivities("history");
-        }else if(v.getId() == R.id.btnImgPassgen){
-	        goToAdditionalActivities("pass");
-        }else if(v.getId() == R.id.imgBtnBin){
-	        goToAdditionalActivities("bin");
-        }
-    }
+	private void goToActivity(Class <?> cls, Intent possibleExtras){
+		Intent intent = new Intent(this, cls);
+		if (possibleExtras != null && possibleExtras.getExtras() != null) {
+			intent.putExtras(possibleExtras.getExtras());
+		}
+		isOtherActivityOpened = true;
+		startActivity(intent);
+		overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+	}
 
-    protected void goToAdditionalActivities(String where){
-        Intent resultIntent;
-        switch (where) {
-            case "settings":
-                resultIntent = new Intent(getApplicationContext(), Updater.class);
-                resultIntent.putExtra("action", "simple");
-                resultIntent.putExtra("start_type", "app");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-                break;
-            case "numgen":
-                resultIntent = new Intent(getApplicationContext(), numgen.class);
-                resultIntent.putExtra("type", "number");
-                resultIntent.putExtra("start_type", "app");
-                startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-                break;
-            case "history":
-                sp.edit().putString("action", "history").apply();
-                resultIntent = new Intent(getApplicationContext(), history.class);
-                resultIntent.putExtra("start_type", "app");
-                startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-                break;
-            case "pass":
-                resultIntent = new Intent(getApplicationContext(), numgen.class);
-                resultIntent.putExtra("type", "pass");
-                resultIntent.putExtra("start_type", "app");
-                startActivity(resultIntent);
-	            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-                break;
-            case "bin":
-                resultIntent = new Intent(this, number_system.class);
-                resultIntent.putExtra("start_type", "app");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-                break;
-        }
-    }
-
-
-    boolean DarkMode = false;
-
-    @SuppressLint("SetTextI18n")
+	@SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    	try {
-		    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		    DarkMode = sp.getBoolean("dark_mode", false);
-		    sp.edit().remove("notification_showed").apply();
-		    coreMain = new CoreMain(this);
-		    coreMain.setInterface(this);
-		    if (DarkMode) {
-			    setTheme(android.R.style.Theme_Material_NoActionBar);
-			    //setTheme(R.style.AppTheme);
-		    } else {
-			    setTheme(R.style.AppTheme);
-		    }
-		    super.onCreate(savedInstanceState);
-		    setContentView(R.layout.activity_main);
-		    applyTheme();
-		    fr = FirebaseAnalytics.getInstance(getApplicationContext());
-		    Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
-		    myTrace.start();
-
-		    PI = getResources().getString(R.string.pi);
-		    FI = getResources().getString(R.string.fi);
-		    E = "e";
-		    try {
-			    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		    } catch (Exception e) {
-			    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-		    }
-		    Intent start_in = getIntent();
-		    if (start_in.getBooleanExtra("shortcut_action", false)) {
-		    	String whereWeNeedToGoToAnotherActivity = start_in.getStringExtra("to_");
-		    	if(whereWeNeedToGoToAnotherActivity != null) {
-				    goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
-			    }
-		    }
-		    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
-			    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-			    Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
-			    t.putExtra("shortcut_action", true);
-			    t.putExtra("to_", "numgen");
-			    ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
-					    .setLongLabel(getResources().getString(R.string.randomgen))
-					    .setShortLabel(getResources().getString(R.string.randomgen))
-					    .setIcon(Icon.createWithResource(this, R.drawable.dice))
-					    .setIntent(t)
-					    .build();
-			    t.putExtra("to_", "pass");
-			    ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
-					    .setLongLabel(getResources().getString(R.string.passgen))
-					    .setShortLabel(getResources().getString(R.string.passgen))
-					    .setIcon(Icon.createWithResource(this, R.drawable.passgen))
-					    .setIntent(t)
-					    .build();
-
-			    t.putExtra("to_", "history");
-			    ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
-					    .setLongLabel(getResources().getString(R.string.hitory))
-					    .setShortLabel(getResources().getString(R.string.hitory))
-					    .setIcon(Icon.createWithResource(this, R.drawable.history))
-					    .setIntent(t)
-					    .build();
-			    t.putExtra("to_", "bin");
-			    ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder(getApplicationContext(), "idNumSys")
-					    .setLongLabel(getResources().getString(R.string.number_system_convrter))
-					    .setShortLabel(getResources().getString(R.string.number_system_convrter))
-					    .setIcon(Icon.createWithResource(this, R.drawable.binary))
-					    .setIntent(t)
-					    .build();
-
-
-			    if (shortcutManager != null) {
-				    shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortCutNumSys, shortcut2, shortcut1));
-			    }
-		    }
-		    setViewPager(0);
-
-		    myTrace.stop();
-		    fr.logEvent("OnCreate", Bundle.EMPTY);
-	    }catch (Exception e){
-		    Toast.makeText(this, "Something went wrong.\nSorry, but we need to restart application", Toast.LENGTH_LONG).show();
-		    restartActivity();
+		if (savedInstanceState != null) {
+			savedInstanceState.clear();
+		}
+	    super.onCreate(savedInstanceState);
+	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	    DarkMode = sp.getBoolean("dark_mode", false);
+	    sp.edit().remove("notification_showed").apply();
+	    if (DarkMode) {
+		    setTheme(android.R.style.Theme_Material_NoActionBar);
+	    } else {
+		    setTheme(R.style.AppTheme);
 	    }
+	    setContentView(R.layout.activity_main);
+	    applyTheme();
+	    mCoreMain = new CoreMain(this);
+	    mCoreMain.setInterface(this);
+	    fr = FirebaseAnalytics.getInstance(getApplicationContext());
+	    Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
+	    myTrace.start();
+	    PI = getResources().getString(R.string.pi);
+	    FI = getResources().getString(R.string.fi);
+	    Intent startIntent = getIntent();
+	    if (startIntent.getBooleanExtra("shortcut_action", false)) {
+	        String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
+	        if(whereWeNeedToGoToAnotherActivity != null) {
+			    goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+		    }
+	    }
+	    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
+		    ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+		    Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
+		    t.putExtra("shortcut_action", true);
+		    t.putExtra("to_", "numgen");
+		    ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
+				    .setLongLabel(getResources().getString(R.string.randomgen))
+				    .setShortLabel(getResources().getString(R.string.randomgen))
+				    .setIcon(Icon.createWithResource(this, R.drawable.dice))
+				    .setIntent(t)
+				    .build();
+		    t.putExtra("to_", "pass");
+		    ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
+				    .setLongLabel(getResources().getString(R.string.passgen))
+				    .setShortLabel(getResources().getString(R.string.passgen))
+				    .setIcon(Icon.createWithResource(this, R.drawable.passgen))
+				    .setIntent(t)
+				    .build();
+
+		    t.putExtra("to_", "history");
+		    ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
+				    .setLongLabel(getResources().getString(R.string.hitory))
+				    .setShortLabel(getResources().getString(R.string.hitory))
+				    .setIcon(Icon.createWithResource(this, R.drawable.history))
+				    .setIntent(t)
+				    .build();
+		    t.putExtra("to_", "bin");
+		    ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder(getApplicationContext(), "idNumSys")
+				    .setLongLabel(getResources().getString(R.string.number_system_convrter))
+				    .setShortLabel(getResources().getString(R.string.number_system_convrter))
+				    .setIcon(Icon.createWithResource(this, R.drawable.binary))
+				    .setIntent(t)
+				    .build();
+
+
+		    if (shortcutManager != null) {
+			    shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortCutNumSys, shortcut2, shortcut1));
+		    }
+	    }
+	    myTrace.stop();
+	    setViewPager(0);
+	    fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
+	private View.OnLongClickListener btnDeleteSymbolLongClick = (View v) -> {
+		deleteExample(findViewById(R.id.btnDelAll));
+		return true;
+	};
+
+	private View.OnLongClickListener returnback = v -> {
+		if(!was_error) {
+			TextView back = findViewById(R.id.AnswerStr), str = findViewById(R.id.ExampleStr);
+			if (back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE) {
+				return false;
+			}
+			String txt = back.getText().toString();
+			back.setText(str.getText().toString());
+			str.setText(txt);
+			scrollExampleToEnd();
+			return true;
+		}else
+			return false;
+	};
+
+	@Override
+	public void onBackPressed() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.exit)
+				.setMessage(R.string.areyousureexit)
+				.setCancelable(false)
+				.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel())
+				.setPositiveButton(R.string.yes, (dialog, which) -> {
+					dialog.cancel();
+					finishAndRemoveTask();
+					overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
+				});
+		AlertDialog al_1 = builder.create();
+		if(DarkMode)
+			Objects.requireNonNull(al_1.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
+		al_1.show();
+		//super.onBackPressed();
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		if (id == R.id.about) {
+			goToActivity(CatchService.class, new Intent().putExtra("action", "about_app"));
+			return true;
+		}else if(id == R.id.what_new){
+			Intent in = new Intent(Intent.ACTION_VIEW);
+			in.setData(Uri.parse("https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME));
+			startActivity(in);
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		if(!BuildConfig.WhatNewIsExisting){
+			menu.removeItem(R.id.what_new);
+		}
+		return true;
+	}
+
+	private void restartActivity(){
+		Intent in = new Intent(this, MainActivity.class);
+		this.startActivity(in);
+		this.finish();
+	}
+
+	public void onAdditionalButtonsClick(View v){
+		if(v.getId() == R.id.imgBtnSettings){
+			goToAdditionalActivities("settings");
+		}else if(v.getId() == R.id.btnImgNumGen){
+			goToAdditionalActivities("numgen");
+		}else if(v.getId() == R.id.btnImgHistory){
+			goToAdditionalActivities("history");
+		}else if(v.getId() == R.id.btnImgPassgen){
+			goToAdditionalActivities("pass");
+		}else if(v.getId() == R.id.imgBtnBin){
+			goToAdditionalActivities("bin");
+		}
+	}
+
+	protected void goToAdditionalActivities(String where){
+		switch (where) {
+			case "settings":
+				goToActivity(Settings.class, new Intent()
+						.putExtra("action", "simple")
+						.putExtra("start_type", "app"));
+				break;
+			case "numgen":
+				goToActivity(NumberPasswordGeneratorActivity.class, new Intent()
+						.putExtra("type", "number")
+						.putExtra("start_type", "app"));
+				break;
+			case "history":
+				goToActivity(History.class, new Intent()
+						.putExtra("start_type", "app"));
+				break;
+			case "pass":
+				goToActivity(NumberPasswordGeneratorActivity.class, new Intent()
+						.putExtra("start_type", "app")
+						.putExtra("type", "pass"));
+				break;
+			case "bin":
+				goToActivity(NumberSystemConverterActivity.class, new Intent()
+						.putExtra("start_type", "app"));
+				break;
+		}
+	}
+
+    @SuppressLint("SourceLockedOrientationActivity")
     private void applyTheme(){
-        ActionBar bar;
-        bar = getSupportActionBar();
+        ActionBar bar = getSupportActionBar();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         if (bar != null) {
             if (DarkMode) {
                 getWindow().setBackgroundDrawableResource(R.drawable.black);
@@ -335,10 +358,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     public void aboutAG(View v){
-        Intent in = new Intent(this, catchService.class);
-        in.putExtra("action", "aboutAG");
-        startActivity(in);
-        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+        goToActivity(CatchService.class, new Intent().putExtra("action", "aboutAG"));
     }
 
     View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
@@ -353,10 +373,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == 10 && grantResults.length == 2){
-            if(grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1] == PackageManager.PERMISSION_DENIED){
+            if(grantResults[0] == PackageManager.PERMISSION_DENIED
+		            || grantResults[1] == PackageManager.PERMISSION_DENIED){
                 sp.edit().putBoolean("storage_denied", true).apply();
             }
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED
+		            && grantResults[1] == PackageManager.PERMISSION_GRANTED)
                 sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
@@ -365,7 +387,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     private void showWhatNewWindow(){
 
     	try {
-		    if (!sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false) && APPTYPE.equals("stable") && BuildConfig.WhatNewIsExisting) {
+		    if (!sp.getBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", false)
+				    && APPTYPE.equals("stable")
+				    && BuildConfig.WhatNewIsExisting) {
 			    AlertDialog window;
 			    AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			    builder.setCancelable(false)
@@ -373,17 +397,22 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 					    .setTitle(R.string.important)
 					    .setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel()).setPositiveButton(R.string.view, ((dialog, which) -> {
 				    Intent in = new Intent(Intent.ACTION_VIEW);
-				    in.setData(Uri.parse("https://max2k18.github.io/newmcalc.maxsavteam.github.io/what-new/#" + BuildConfig.VERSION_NAME));
+				    in.setData(Uri.parse("https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME));
 				    startActivity(in);
 			    }));
 			    window = builder.create();
-			    if (DarkMode) {
-				    Objects.requireNonNull(window.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
+			    Window alertWindow = window.getWindow();
+			    if(alertWindow != null) {
+				    if (DarkMode) {
+					    alertWindow.setBackgroundDrawableResource(R.drawable.grey);
+				    }
 			    }
+			    Utils.recolorAlertDialogButtons(window, this);
 			    //window.getButton(1).setTextColor(getResources().getColor(R.color.colorAccent));
 			    Map<String, ?> m = sp.getAll();
 			    for (Map.Entry<String, ?> e : m.entrySet()) {
-				    if (!e.getKey().equals(BuildConfig.VERSION_NAME + ".VER.SHOWED") && e.getKey().contains(".VER.SHOW")) {
+				    if (!e.getKey().equals(BuildConfig.VERSION_NAME + ".VER.SHOWED")
+						    && e.getKey().contains(".VER.SHOW")) {
 					    sp.edit().remove(e.getKey()).apply();
 				    }
 			    }
@@ -429,39 +458,24 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
 	    showWhatNewWindow();
 
-        //Toast.makeText(this, String.format("%d %d", height, findViewById(R.id.imageButton2).getHeight()), Toast.LENGTH_SHORT).show();
-        Trace trace = FirebasePerformance.getInstance().newTrace("PostCreate");
-        trace.start();
-
         registerBroadcastReceivers();
 
         if(sp.getBoolean("saveResult", false)){
-            if(!sp.getString("saveResultText", "none").equals("none")){
-                String text = sp.getString("saveResultText", "none");
+	        String text = sp.getString("saveResultText", null);
+            if(text != null){
                 int i = 0;
                 StringBuilder ex = new StringBuilder();
 	            StringBuilder ans = new StringBuilder();
-	            while(i < Objects.requireNonNull(text).length() && text.charAt(i) != ';'){
+	            while(i < text.length() && text.charAt(i) != ';'){
                     ex.append(text.charAt(i));
                     i++;
                 }
-                TextView ver = findViewById(R.id.AnswerStr);
-	            if(!DarkMode)
-	                ver.setTextColor(getResources().getColor(R.color.black));
-                ver.setText(ex.toString());
-                show_ans();
-                i++;
-                while(i < text.length() && text.charAt(i) != ';'){
-                    ans.append(text.charAt(i));
-                    i++;
-                }
-                ver = findViewById(R.id.ExampleStr);
-                if(!DarkMode)
-                    ver.setTextColor(getResources().getColor(R.color.black));
+                TextView ver = findViewById(R.id.ExampleStr);
                 ver.setSelectAllOnFocus(false);
-                ver.setText(ans.toString());
+                ver.setText(ex.toString());
                 ver.setSelected(false);
-                //equallu("not");
+                show_str();
+                equallu("all");
                 format(R.id.ExampleStr);
             }
         }
@@ -502,16 +516,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             }
             sp.edit().putInt("offers_count", offers_count).apply();
         }
-
-        trace.stop();
-        //should be always in the end
-        fr.logEvent("OnPostCreate", Bundle.EMPTY);
     }
     int countOfMemoryPlusMinusMethodCalls = 0;
     
     public void onMemoryPlusMinusButtonsClick(View v){
-	    text_example = findViewById(R.id.ExampleStr);
-	    String text = text_example.getText().toString();
+	    TextView textExample = findViewById(R.id.ExampleStr);
+	    String text = textExample.getText().toString();
 	    if(text.equals(""))
 		    return;
 
@@ -568,34 +578,20 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     private void showMemAlert(final String type){
-        Intent in = new Intent(this, memory_actions_activity.class);
+        Intent in = new Intent();
         in.putExtra("type", type);
         if(type.equals("st")){
             TextView t = findViewById(R.id.ExampleStr);
-            if(t.getText().toString().equals(""))
-                return;
-            BigDecimal temp;
-            try{
-                temp = new BigDecimal(t.getText().toString());
-            }catch(NumberFormatException e){
-                return;
-            }
-            in.putExtra("value", temp.toString());
+            if(Utils.isNumber(t.getText().toString()))
+                in.putExtra("value", t.getText().toString());
+            else return;
         }
-        startActivity(in);
-        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+        goToActivity(MemoryActionsActivity.class, in);
     }
 
-    View.OnLongClickListener memory_actions = (View v) -> {
-        try {
-            if(v.getId() == R.id.btnMR)
-                showMemAlert("rc");
-            else
-                showMemAlert("st");
-        }catch (Exception e){
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-        }
-
+    private View.OnLongClickListener memory_actions = (View v) -> {
+        if(v.getId() == R.id.btnMR) showMemAlert("rc");
+        else showMemAlert("st");
 	    return true;
     };
 
@@ -619,30 +615,63 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     ViewPager viewPager;
+    ViewPager landscapeViewPager;
+    @SuppressLint("DefaultLocale")
     private void setViewPager(int which){
-        myFragmentPagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), this);
-        viewPager = findViewById(R.id.viewpager);
-        viewPager.setAdapter(myFragmentPagerAdapter);
-        myFragmentPagerAdapter.prepare_to_initialize(
-        		new View.OnLongClickListener[]{ //Fragment1
-                        additional_longclick,
-                        returnback,
-                        btnDeleteSymbolLongClick
-                }, new View.OnLongClickListener[]{ //Fragment2
-                        memory_actions,
-                        on_var_long_click
-                }
-        );
-        viewPager.setCurrentItem(which);
-	    ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
+    	//if(myFragmentPagerAdapter == null) {
+	    FragmentOneInitializationObject fragmentOneInitializationObject =
+			    new FragmentOneInitializationObject()
+				    .setContext(this)
+				    .setLongClickListeners(new View.OnLongClickListener[]{
+						    additional_longclick,
+						    returnback,
+						    btnDeleteSymbolLongClick
+				    });
+	    FragmentTwoInitializationObject fragmentTwoInitializationObject =
+			    new FragmentTwoInitializationObject()
+					    .setContext(this)
+					    .setLongClickListeners(
+					    		new View.OnLongClickListener[]{
+									    memory_actions,
+									    on_var_long_click
+							    }
+						);
+	    FragmentAdapterInitializationObject initializationObject =
+			    new FragmentAdapterInitializationObject()
+				    .setFragmentManager(getSupportFragmentManager())
+				    .setContext(this)
+				    .setFragmentTwoInitializationObject(fragmentTwoInitializationObject)
+				    .setFragmentOneInitializationObject(fragmentOneInitializationObject);
+	    MyFragmentPagerAdapter myFragmentPagerAdapter =
+			    new MyFragmentPagerAdapter(initializationObject);
+	    //}
 	    Display d = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 	    Point p = new Point();
 	    d.getSize(p);
-	    lay.height = p.y / 2;
-	    viewPager.setLayoutParams(lay);
-	    Space space = findViewById(R.id.space_between_pager_and_str);
-	    lay = space.getLayoutParams();
-	    lay.height=  p.y / 11;
+	    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+	    	viewPager = findViewById(R.id.viewpager);
+		    ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
+		    lay.height = p.y / 2;
+		    viewPager.setLayoutParams(lay);
+		    viewPager.setAdapter(myFragmentPagerAdapter);
+		    viewPager.setCurrentItem(which);
+		    Space space = findViewById(R.id.space_between_pager_and_str);
+		    ViewGroup.LayoutParams spaceLayoutParams = space.getLayoutParams();
+		    spaceLayoutParams.height = p.y / 11;
+		    space.setLayoutParams(spaceLayoutParams);
+	    } else if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		    landscapeViewPager = findViewById(R.id.viewpager2);
+		    ViewGroup.LayoutParams landscapeViewPagerParams = landscapeViewPager.getLayoutParams();
+		    landscapeViewPagerParams.width = p.x / 2;
+		    landscapeViewPagerParams.height = p.y - getSupportActionBar().getHeight();
+		    landscapeViewPager.setLayoutParams(landscapeViewPagerParams);
+		    landscapeViewPager.setAdapter(myFragmentPagerAdapter);
+		    landscapeViewPager.setCurrentItem(which);
+		    LinearLayout linearLayout = findViewById(R.id.landMainLabels);
+		    ViewGroup.LayoutParams linearLayoutLayoutParams = linearLayout.getLayoutParams();
+		    linearLayoutLayoutParams.width = p.x / 2;
+		    linearLayout.setLayoutParams(linearLayoutLayoutParams);
+	    }
     }
 
     private void addStringExampleToTheExampleStr(String value){
@@ -679,7 +708,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 memoryEntries = memorySaverReader.read();
             }
         };
-        registerReceiver(on_memory_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
+        registerReceiver(on_memory_edited,
+		        new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
+		registeredBroadcasts.add(on_memory_edited);
 
         BroadcastReceiver on_var_edited = new BroadcastReceiver() {
             @Override
@@ -687,7 +718,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 setViewPager(1);
             }
         };
-        registerReceiver(on_var_edited, new IntentFilter(BuildConfig.APPLICATION_ID  + ".VARIABLES_SET_CHANGED"));
+        registerReceiver(on_var_edited,
+		        new IntentFilter(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED"));
+		registeredBroadcasts.add(on_var_edited);
 
         BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
             @Override
@@ -695,7 +728,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 addStringExampleToTheExampleStr(intent.getStringExtra("value"));
             }
         };
-        registerReceiver(on_recall_mem, new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
+        registerReceiver(on_recall_mem,
+		        new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
+		registeredBroadcasts.add(on_recall_mem);
 
         BroadcastReceiver on_his_action = new BroadcastReceiver() {
             @Override
@@ -703,112 +738,34 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 t = findViewById(R.id.ExampleStr);
                 String example = intent.getStringExtra("example");
                 if(example != null && !example.equals("")){
-                    String txt = t.getText().toString();
-                    if(!txt.equals("") && txt.contains(".")){
-                        if(Utils.islet(txt.charAt(txt.length() - 1)))
-                            return;
-                        boolean was_action = false;
-                        for(int i = txt.length() - 1; i >= 0; i--){
-                            if(isAction(txt.charAt(i)) || Utils.islet(txt.charAt(i))
-                                    || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.fi))
-                                    || Character.toString(txt.charAt(i)).equals(getResources().getString(R.string.pi)) || txt.charAt(i) == 'e'){
-                                was_action = true;
-                            }
-                            if(txt.charAt(i) == '.'){
-                                if(!was_action){
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    int len = txt.length();
-                    char last;
-                    //String example = intent.getStringExtra("example")
 	                String result = intent.getStringExtra("result");
-                    if(len != 0){
-                        last = txt.charAt(len-1);
-                    }else{
-                        txt = example;
-                        t.setText(txt);
-                        equallu("not");
-                        return;
-                    }
-                    if(!Utils.isDigit(last)){
-                        if(last != '!' && last != '%'){
-                            txt = txt  + result;
-                            t.setText(txt);
-                        }
-                    }else{
-                        txt = txt  + result;
-                        t.setText(txt);
-                    }
-                    sp.edit().remove("action").apply();
-                    sp.edit().remove("history_action").apply();
+
+                    if(t.getText().toString().equals("")) t.setText(example);
+                    else addStringExampleToTheExampleStr(result);
+
                     equallu("not");
                 }
-                sp.edit().remove("action").apply();
-                sp.edit().remove("history_action").apply();
             }
         };
         registerReceiver(on_his_action, new IntentFilter(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION"));
-        BroadcastReceiver on_sp_edited = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Intent resultIntent = new Intent(getApplicationContext(), Updater.class);
-                resultIntent.putExtra("action", "simple");
-                if(uptype.equals("simple"))
-                    resultIntent.putExtra("update_path", "/NewMCalc.apk");
-                else
-                    resultIntent.putExtra("update_path", "/forTesters/NewMCalc.apk");
-                startActivity(resultIntent);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
-            }
-        };
-        registerReceiver(on_sp_edited, new IntentFilter(BuildConfig.APPLICATION_ID + ".SP_EDITED"));
+		registeredBroadcasts.add(on_his_action);
+	    isBroadcastsRegistered = true;
     }
 
-    void format(int id){
+    private void unregisterAllBroadcasts(){
+    	for(BroadcastReceiver broadcastReceiver : registeredBroadcasts){
+    		unregisterReceiver(broadcastReceiver);
+	    }
+    	isBroadcastsRegistered = false;
+    	registeredBroadcasts = new ArrayList<>();
+    }
+
+    private void format(int id){
         TextView t = findViewById(id);
         String txt = t.getText().toString();
         if(txt.equals("") || txt.length() < 4)
             return;
-        t.setText(format_core2(txt));
-    }
-
-    private String format_core2(String txt){
-        String number = "";
-        int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
-        for(; i >= 0 && (Utils.isDigit(txt.charAt(i)) || txt.charAt(i) == ' ' || txt.charAt(i) == '.'); i--){
-            if(txt.charAt(i) != ' '){
-                number = String.format("%c%s", txt.charAt(i), number);
-            }else
-                spaces++;
-        }
-        txt = txt.substring(0, len - number.length() - spaces);
-        len = number.length();
-        if(len < 4)
-            return txt + number;
-        if(number.contains(".")){
-            dot_pos = number.indexOf(".");
-        }
-        String number_on_ret;
-        if(dot_pos == -1)
-            number_on_ret = "";
-        else
-            number_on_ret = number.substring(dot_pos);
-        for(i = (dot_pos == -1 ? len - 1 : number.indexOf(".") - 1); i >= 0; i--, nums++){
-            /*number_on_ret += number.charAt(i);
-            if(i != 0 && i != len - 1){
-                if(i % 3 == 0 && (dot_pos == -1 || i < dot_pos)){
-                    number_on_ret += " ";
-                }
-            }*/
-            if(nums != 0 && nums % 3 == 0){// && (dot_pos == -1 || i < dot_pos)){
-                number_on_ret = String.format(" %s", number_on_ret);
-            }
-            number_on_ret = number.charAt(i) + number_on_ret;
-        }
-        return txt + number_on_ret;
+        t.setText(Format.format(txt));
     }
     
     private void writeCalculationResult(String type, BigDecimal result){
@@ -833,22 +790,14 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 resizeText();
 
                 String his = sp.getString("history", "");
-                StringBuilder sb = new StringBuilder(original);
-                for (int i = 0; i < sb.length(); i++) {
-                    if (sb.charAt(i) == ' ') {
-                        sb.deleteCharAt(i);
-                    }
-                }
-                String for_his = sb.toString();
-                if (his.indexOf(for_his + "," + result.toPlainString() + ";") != 0) {
-                    his = original + "," + result.toString() + ";" + his;
+                if (his.indexOf(original + "," + result.toPlainString() + ";") != 0) {
+                    his = original + "," + Format.format(result.toPlainString()) + ";" + his;
                     sp.edit().putString("history", his).apply();
                 }
                 if (sp.getBoolean("saveResult", false))
                     sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
 
                 scrollExampleToEnd(HorizontalScrollView.FOCUS_LEFT);
-                //setViewPager(viewPager.getCurrentItem());
                 break;
             case "not":
                 TextView preans = findViewById(R.id.AnswerStr);
@@ -863,24 +812,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             default:
                 throw new IllegalArgumentException("Arguments should be of two types: all, not");
         }
-    }
-
-    public boolean isAction(char c){
-        return c == '+'
-                || c == '-'
-                || c == '/'
-                || c == '*'
-                || Character.toString(c).equals(getResources().getString(R.string.multiply))
-                || Character.toString(c).equals(getResources().getString(R.string.div))
-                || Character.toString(c).equals(getResources().getString(R.string.sqrt))
-                || c == 's'
-                || c == 'c'
-                || c == 'l'
-                || c == 't'
-                || c == '!'
-                || c == '%'
-                || c == '^';
-
     }
 
     public void resizeText(){
@@ -919,7 +850,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         }
     }
 
-    public void setTextViewsTextSizeToDefault(){
+    private void setTextViewsTextSizeToDefault(){
         TextView txt = findViewById(R.id.ExampleStr);
         TextView t = findViewById(R.id.AnswerStr);
         txt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 46);
@@ -933,14 +864,13 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
     @Override
     public void onError(Error error) {
-        //if(error.startsWith("/Core/"))
 		if(!error.getStatus().equals("Core")) {
-			if(error.getShort_error().equals("")){
+			if(error.getShortError().equals("")){
 				Toast t = Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
 				t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
 				t.show();
 			}else {
-				writeCalculationError(error.getShort_error());
+				writeCalculationError(error.getShortError());
 			}
 		}
     }
@@ -1003,7 +933,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
         was_error = false;
         original = example;
-        coreMain.prepare(example, type);
+        mCoreMain.prepare(example, type);
     }
 
     protected void check_dot(){
@@ -1418,25 +1348,16 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             int pos = Integer.valueOf(btn.getTag().toString());
             String text = btn.getText().toString();
             if (text.equals("+")) {
-                Intent in = new Intent(this, catchService.class);
+                Intent in = new Intent();
                 in.putExtra("action", "add_var").putExtra("tag", pos);
                 TextView t = findViewById(R.id.ExampleStr);
                 String ts = t.getText().toString();
                 if(!ts.equals("") && ts.length() < 1000){
-	                if(ts.contains(" ")){
-		                StringBuilder sb = new StringBuilder();
-		                for(int i = 0; i < ts.length(); i++){
-			                if(ts.charAt(i) != ' '){
-				                sb.append(ts.charAt(i));
-			                }
-		                }
-		                ts = sb.toString();
-	                }
+	                ts = Utils.deleteSpaces(ts);
                     if(Utils.isNumber(ts))
                         in.putExtra("value", ts).putExtra("name", "").putExtra("is_existing", true);
                 }
-                startActivity(in);
-                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+                goToActivity(CatchService.class, in);
             } else {
                 String var_arr = sp.getString("variables", null);
                 if (var_arr == null) {
@@ -1462,7 +1383,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     View.OnLongClickListener on_var_long_click = v -> {
         Button btn = (Button) v;
         int pos = Integer.valueOf(btn.getTag().toString());
-        Intent in = new Intent(MainActivity.this, catchService.class);
+        Intent in = new Intent(MainActivity.this, CatchService.class);
         in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
         ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(MainActivity.this);
         if(a != null) {

@@ -1,7 +1,7 @@
 package com.maxsavteam.newmcalc;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,19 +9,13 @@ import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.preference.PreferenceManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -30,28 +24,37 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.button.MaterialButton;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
+import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-public class history extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
+public class History extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
 
-    MyRecyclerViewAdapter adapter;
+    private MyRecyclerViewAdapter adapter;
 
-    SharedPreferences sp;
-    Intent history_action;
-    String his_des;
-    ArrayList< ArrayList<String> > str = new ArrayList<>();
+    private SharedPreferences sp;
+    private Intent history_action;
+    private ArrayList< ArrayList<String> > str = new ArrayList<>();
     private RecyclerView rv;
+    private boolean needToCreateMenu = false;
+    private Menu mMenu;
 
     protected void backPressed(){
         sendBroadcast(history_action);
@@ -60,15 +63,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
     private void restartActivity(){
-        Intent in = new Intent(this, history.class);
+        Intent in = new Intent(this, History.class);
         this.startActivity(in);
         this.finish();
     }
 
     @Override
     public void onBackPressed(){
-        sp.edit().remove("action").apply();
-        sp.edit().remove("history_action").apply();
         if (start_type.equals("app")) {
             backPressed();
         } else if (start_type.equals("shortcut")) {
@@ -76,16 +77,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             backPressed();
         }
         //super.onBackPressed();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        //Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
-        if(id == android.R.id.home){
-            backPressed();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -192,7 +183,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             public void onAnimationEnd(Animation animation) {
                 //setupTimer();
                 if(!sp.getBoolean("force_delete_guide_was_showed", false)) {
-                    new MaterialTapTargetPrompt.Builder(history.this)
+                    new MaterialTapTargetPrompt.Builder(History.this)
                             .setTarget(R.id.btnCancel)
                             .setPrimaryText(getResources().getString(R.string.force_delete))
                             .setSecondaryText(getResources().getString(R.string.force_delete_guide_text))
@@ -288,7 +279,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onDescriptionDelete(View view, int position) {
-        View par = view;
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -306,7 +296,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                         s = s.substring(0, j);
                         str.get(position).set(0, s);
                         //Toast.makeText(getApplicationContext(), par.getResources().getResourceName(par.getId()), Toast.LENGTH_LONG).show();
-                        LinearLayout lay = par.findViewById(R.id.with_desc);
+                        LinearLayout lay = view.findViewById(R.id.with_desc);
 	                    Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_scalefordesc_hide);
 	                    animation.setAnimationListener(new Animation.AnimationListener() {
 		                    @Override
@@ -337,12 +327,18 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                 .setTitle(R.string.confirm)
                 .setMessage(R.string.confirm_del_desc)
                 .create();
+        Window window = alertDialog.getWindow();
+        if(window != null){
+            window.setBackgroundDrawableResource(R.drawable.grey);
+        }
+        Utils.recolorAlertDialogButtons(alertDialog, this);
         alertDialog.show();
     }
 
     @Override
     public void onEdit_Add(View view, int position, String mode) {
         final EditText input = new EditText(this);
+        input.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         input.setLayoutParams(lp);
         AlertDialog al = new AlertDialog.Builder(this)
@@ -398,6 +394,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             String desc = ((TextView) view.findViewById(R.id.txtDesc2)).getText().toString();
             input.append(desc);
         }
+        Window window = al.getWindow();
+        if(DarkMode) {
+            if (window != null) {
+                window.setBackgroundDrawableResource(R.drawable.grey);
+            }
+        }
+        Utils.recolorAlertDialogButtons(al, this);
         al.show();
     }
 
@@ -411,7 +414,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     }
 
-    public void delete(){
+    private void delete(){
         cancelTimer();
         str.remove(POSITION_TO_DEL);
         //VIEW_ON_DELETE.setEnabled(true);
@@ -433,6 +436,11 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     private void setupRecyclerView(){
         if(str.size() == 0){
+            needToCreateMenu = false;
+            if(mMenu != null) {
+                mMenu.removeItem(R.id.clear_history);
+                invalidateOptionsMenu();
+            }
             if(DarkMode){
                 setTheme(android.R.style.Theme_Material_NoActionBar);
             }else{
@@ -521,7 +529,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
             } else {
                 cancelTimer();
                 IN_ORDER = false;
-                runOnUiThread(history.this::delete);
+                runOnUiThread(History.this::delete);
                 animate_hide();
             }
         }
@@ -529,9 +537,6 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     public void animate_hide(){
         Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_scale_hide);
-        //anim.setDuration(500);
-        //cancel.findViewById(R.id.btnCancel).setEnabled(false);
-        //LinearLayout lay = findViewById(R.id.cancel_delete);
         cancel.clearAnimation();
         cancel.setAnimation(anim);
         anim.setAnimationListener(new Animation.AnimationListener() {
@@ -557,6 +562,7 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
     String start_type;
 
     boolean DarkMode;
+    @SuppressLint("SourceLockedOrientationActivity")
     private void applyTheme(){
         ActionBar appActionBar = getSupportActionBar();
         try{
@@ -583,6 +589,45 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         btn.setOnLongClickListener(forceDelete);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_history, menu);
+        mMenu = menu;
+        if(!needToCreateMenu)
+            mMenu.removeItem(R.id.clear_history);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        //Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
+        if(id == android.R.id.home){
+            backPressed();
+        }else if(id == R.id.clear_history){
+            AlertDialog dl;
+            AlertDialog.Builder build = new AlertDialog.Builder(this);
+            build.setMessage(R.string.confirm_cls_history)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes, (dialog, which) -> {
+                        dialog.cancel();
+                        sp.edit().remove("history").apply();
+                        str = new ArrayList<>();
+                        setupRecyclerView();
+                    }).setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+            dl = build.create();
+            Window window = dl.getWindow();
+            if(window != null){
+                window.setBackgroundDrawableResource(R.drawable.grey);
+                window.requestFeature(Window.FEATURE_NO_TITLE);
+                window.requestFeature(Window.FEATURE_SWIPE_TO_DISMISS);
+            }
+            Utils.recolorAlertDialogButtons(dl, this);
+            dl.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -601,19 +646,13 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
         rv = findViewById(R.id.rv_view);
 
         start_type = getIntent().getStringExtra("start_type");
-        ArrayList<String> str2 = new ArrayList<>();
-        String his = sp.getString("history", "not");
-        his_des = sp.getString("history_description", "none");
-        if(Objects.equals(his, "not") || Objects.requireNonNull(his).equals("")){
-            setContentView(R.layout.history_notfound);
-            TextView t = findViewById(R.id.txtHistoryNotFound);
-            if(DarkMode){
-                t.setTextColor(getResources().getColor(R.color.white));
-	            getWindow().setBackgroundDrawableResource(R.drawable.black);
-            }
-            String[] strings = getResources().getStringArray(R.array.history_not_found);
-            t.setText(strings[0] + "\n" + strings[1] + "\n" + strings[2]);
-        }else{
+        String his = sp.getString("history", null);
+        if(his != null){
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            progressDialog.show();
+            needToCreateMenu = true;
+            this.invalidateOptionsMenu();
             int i = 0;
             String ex, ans;
             while(i < his.length() && his.charAt(i) != ';'){
@@ -623,9 +662,9 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                     if(his.charAt(i) == '&') {
                         i++;
                         if(!was_dot){
-                            ex += Character.toString(his.charAt(i));
+                            ex = String.format("%s%c", ex, his.charAt(i));
                         }else{
-                            ans += Character.toString(his.charAt(i));
+                            ans = String.format("%s%c", ans, his.charAt(i));
                         }
                         i++;
                         continue;
@@ -646,12 +685,26 @@ public class history extends AppCompatActivity implements MyRecyclerViewAdapter.
                     }
                     i++;
                 }
-                str2.add(ex);
-                str2.add(ans);
-                str.add((ArrayList<String>) str2.clone());
-                str2.clear();
+                String finalAns = ans;
+                String finalEx = ex;
+                str.add(new ArrayList<String>(){
+                    {
+                        add(finalEx);
+                        add(finalAns);
+                    }
+                });
             }
-            setupRecyclerView();
+            progressDialog.dismiss();
+        }
+        setupRecyclerView();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if(!needToCreateMenu && mMenu != null){
+            mMenu.removeItem(R.id.clear_history);
+            this.invalidateOptionsMenu();
         }
     }
 }

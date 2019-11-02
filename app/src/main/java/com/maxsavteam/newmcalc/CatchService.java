@@ -16,6 +16,7 @@ import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -33,7 +34,7 @@ import java.util.Objects;
 
 import static com.maxsavteam.newmcalc.R.color.white;
 
-public class catchService extends AppCompatActivity {
+public class CatchService extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed(){
@@ -50,7 +51,7 @@ public class catchService extends AppCompatActivity {
 		else if(v.getId() == R.id.instBtn)
 			in.setData(Uri.parse(dynamic_inst));
 		else if(v.getId() == R.id.siteBtn)
-			in.setData(Uri.parse("https://max2k18.github.io/m.maxsavteam.github.io/"));
+			in.setData(Uri.parse("https://m.maxsav.team"));
 		else if(v.getId() == R.id.playMarketBtn)
 			in.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
 		startActivity(in);
@@ -83,7 +84,8 @@ public class catchService extends AppCompatActivity {
 	private final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
 			BuildConfig.APPLICATION_ID + "\n" +
-			"Build number: " + BuildConfig.VERSION_CODE + "\n\n" +
+			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
+			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
 			"- Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
 			"- App type: " + BuildConfig.APPTYPE + "\n" +
 			"- Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
@@ -131,7 +133,7 @@ public class catchService extends AppCompatActivity {
 		}
 	}
 
-	@SuppressLint("SetTextI18n")
+	@SuppressLint({"SetTextI18n", "SourceLockedOrientationActivity"})
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -170,14 +172,20 @@ public class catchService extends AppCompatActivity {
 			}
 			img.setOnLongClickListener(v -> {
 				AlertDialog debug_info;
-				AlertDialog.Builder builder = new AlertDialog.Builder(catchService.this);
-				builder.setTitle("Build info")
-						.setMessage(debugInfoStr)
+				AlertDialog.Builder builder = new AlertDialog.Builder(CatchService.this);
+				builder.setMessage(debugInfoStr)
 						.setPositiveButton("OK", (dialog, which) -> dialog.cancel())
 						.setCancelable(false);
 				debug_info = builder.create();
-				if(DarkMode)
-					Objects.requireNonNull(debug_info.getWindow()).setBackgroundDrawableResource(R.drawable.grey);
+				Window window = debug_info.getWindow();
+				if (window != null) {
+					if(DarkMode)
+						window.setBackgroundDrawableResource(R.drawable.grey);
+
+					window.requestFeature(Window.FEATURE_NO_TITLE);
+				}
+
+				Utils.recolorAlertDialogButtons(debug_info, this);
 				debug_info.show();
 				return true;
 			});

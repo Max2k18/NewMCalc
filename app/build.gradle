@@ -1,24 +1,27 @@
 import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'io.fabric'
 //apply plugin: 'io.github.rockerhieu:versionberg'
 
 android {
     signingConfigs {
+        def keystorePropertiesFile = rootProject.file("keystore.properties")
+        Properties keystoreProperties = new Properties()
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
         release {
-            storeFile file('D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks')
-            storePassword '1234567890'
-            keyAlias = 'key0'
-            keyPassword '1234567890'
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
         }
         forFirebaseTestLab {
-            storeFile file('D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks')
-            storePassword '1234567890'
-            keyAlias = 'key0'
-            keyPassword '1234567890'
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
         }
     }
     compileSdkVersion 29
@@ -39,12 +42,11 @@ android {
         defaultConfig {
             applicationId "com.maxsavteam.newmcalc"
             minSdkVersion 22
-            //noinspection OldTargetApi,ExpiredTargetSdkVersion
-            targetSdkVersion 28
+            targetSdkVersion 29
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.11.4.1"
-            buildConfigField "Boolean", "WhatNewIsExisting", "false"
+            versionName "1.11.5"
+            buildConfigField "Boolean", "WhatNewIsExisting", "true"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
@@ -53,7 +55,7 @@ android {
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }
     }else
-        throw new GradleScriptException("Cannot read version.properties")
+        throw new Exception("Unable to read version.properties")
 
     buildTypes {
         release {
@@ -66,7 +68,6 @@ android {
                 cruncherEnabled = false
             }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            //putVersionCode()
         }
         debug {
             buildConfigField("Boolean", "ISDEBUG", "true")
@@ -110,8 +111,7 @@ static String getBuildTime(String tzone){
 
 dependencies {
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.0.0'
-
-    implementation 'com.google.firebase:firebase-core:17.2.0'
+    implementation 'com.google.firebase:firebase-core:17.2.1'
     implementation 'com.google.firebase:firebase-perf:19.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

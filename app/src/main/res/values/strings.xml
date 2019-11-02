@@ -8,16 +8,11 @@
     <string name="settings">Settings</string>
     <string name="pi" translatable="false">π</string>
     <string name="fi" translatable="false">φ</string>
-    <string name="therenothing">There is nothing to show...</string>
+    <string name="therenothing">There is nothing to show…</string>
     <string name="updateavail">An update is available</string>
-    <string name="installvia">Install the application through the Package Installer.</string>
-    <string name="downloaded">Downloaded!</string>
-    <string name="downloaderr">Download error!</string>
-    <string name="downloading">Downloading...</string>
     <string name="version">Version:</string>
     <string name="pleaseupdate">An update is available. Please update the application in the settings (click on the three points in the upper left corner of the screen -> Settings)</string>
     <string name="threedots" translatable="false">...</string>
-    <string name="chooseaction">Choose action</string>
     <string name="txtfrom">from</string>
     <string name="txtto">to</string>
     <string name="choosenum">Select the number</string>
@@ -27,22 +22,18 @@
     <string name="maxintexception">Values must be between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807.</string>
     <string name="btnCopy">Copy</string>
     <string name="copied">Copied to clipboard</string>
-    <string name="invalidstateforsin">Invalid statement</string>
-    <string name="invalidfor">for</string>
     <string name="build">Build:</string>
     <string name="hitory">History</string>
     <string name="checking_history">Checking history…</string>
-    <string name="history_not_found">Hm...\\nThere is no history here...\\nWhere is she?</string>
+    <string name="history_not_found">Hm…\\nThere is no history here…\\nWhere is she?</string>
     <string name="passgen">Password Generator</string>
     <string name="sqrt" translatable="false">√</string>
-    <string name="add_chars">Additional characters</string>
     <string name="succesful">Successfully!</string>
     <string name="savedto">Saved to</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="exit">Exit</string>
     <string name="areyousureexit">Would you like to go out?</string>
-    <string name="updateavailable">Would you like to download and install the update? If not, you can upgrade at a convenient time in the settings</string>
     <string name="donot_remind_for_this_ver">Do not remind for this version</string>
     <string name="about_text">This application is created entirely by one person. His name is Max Savitsky. All systems, all core, everything is done by this person. He also gave permission to the company SM-app for the publication of this application.</string>
     <string name="about">About app</string>
@@ -53,7 +44,7 @@
     <string name="dev_update">An update is available for testers. Would you like to download?</string>
     <string name="get_builds_text">Do not want to join the team of application testers? You will receive new versions in which only error information will be collected. You can cancel the receipt of assemblies at any time in the settings.</string>
     <string name="join">Join</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait…</string>
     <string name="stop_receive">Stop receiving test versions</string>
     <string name="stop_receive_mes">Are you sure you want to stop receiving test builds? The version will remain the same with the next release of the stable version. You will return to the stable update branch. To become a tester again, press and hold the button to go to the site in the settings and a notification appears that you can join the team again.</string>
     <string name="updateavail_tc">An update is available for testers</string>
@@ -123,7 +114,7 @@
     <string-array name="history_not_found">
         <item>Hm…</item>
         <item>There is no history here…</item>
-        <item>Where is she?</item>
+        <item>Where is it?</item>
     </string-array>
     <string-array name="additional_chars">
         <item>sin</item>
@@ -172,4 +163,7 @@
     <string name="now">Now</string>
     <string name="force_delete">Force delete</string>
     <string name="force_delete_guide_text">Long press this button and the selected record will be deleted immediately.</string>
+    <string name="to_continue_need_to_restart_app">To continue, we need to restart the application.</string>
+    <string name="want_to_continue_question">Want to continue?</string>
+    <string name="restart">Restart</string>
 </resources>

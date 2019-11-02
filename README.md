@@ -4,13 +4,20 @@ This is the repository of an application published on [Google Play](https://play
 I will try to add here a list of changes with each version. 
 But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
-I have some plans that can be added or changed in the application (see file Plans). You can help me :)
-
 I translate text through Google Translator, because I do not know English so well (I'm from Belarus)
 
 #### **I waiting for feedback**
 
-## Change history
+## Technical Change history
+### 1.11.5
+  * Clear History button moved to History activity
+  * All broadcast receivers will be unregister on app pause and stop and then re-register (optimization)
+  * The method of adding an expression from history has been simplified.
+  * Added initialization objects to Fragment1 (FragmentOneInitializationObject),
+                Fragment2( FragmentTwoInitializationObject)
+                and MyFragmentPagerAdapter (FragmentAdapterInitializationObject)
+  * All activities have been renamed
+
 ### 1.11.4
   * You can call value of entry, when last is in order
   * Force delete, when user long pressing the cancel button

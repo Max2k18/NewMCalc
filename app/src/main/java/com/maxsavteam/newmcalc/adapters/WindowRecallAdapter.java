@@ -15,7 +15,7 @@ import com.maxsavteam.newmcalc.R;
 
 import java.math.BigDecimal;
 
-public class window_recall_adapter extends RecyclerView.Adapter<window_recall_adapter.ViewHolder> {
+public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
 	private Context con;
 	private LayoutInflater inflater;
 	private BigDecimal[] data;
@@ -27,7 +27,7 @@ public class window_recall_adapter extends RecyclerView.Adapter<window_recall_ad
 		this.I = T;
 	}
 
-	public window_recall_adapter(Context c, BigDecimal[] bd_arr){
+	public WindowRecallAdapter(Context c, BigDecimal[] bd_arr){
 		this.con = c;
 		this.data = bd_arr;
 		this.inflater = LayoutInflater.from(c);
