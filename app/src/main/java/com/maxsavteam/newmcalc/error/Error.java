@@ -36,14 +36,14 @@ public class Error {
 		return this;
 	}
 
-	private String short_error = "";
+	private String shortError = "";
 
-	public String getShort_error() {
-		return short_error;
+	public String getShortError() {
+		return shortError;
 	}
 
-	public Error setShort_error(String short_error) {
-		this.short_error = short_error;
+	public Error setShortError(String shortError) {
+		this.shortError = shortError;
 		return this;
 	}
 

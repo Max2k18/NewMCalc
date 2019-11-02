@@ -19,17 +19,17 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o"
         android:fullBackupContent="@xml/backup_descriptor">
-        <activity android:name=".number_system" />
-        <activity android:name=".memory_actions_activity" />
-        <activity android:name=".catchService" />
+        <activity android:name=".NumberSystemConverterActivity" />
+        <activity android:name=".MemoryActionsActivity" />
+        <activity android:name=".CatchService" />
         <activity
-            android:name=".history"
+            android:name=".History"
             android:noHistory="true" />
         <activity
-            android:name=".numgen"
+            android:name=".NumberPasswordGeneratorActivity"
             android:noHistory="false" />
         <activity
-            android:name=".Updater"
+            android:name=".Settings"
             android:noHistory="true">
             <intent-filter>
                 <data android:scheme="file" />

@@ -1,9 +1,5 @@
 package com.maxsavteam.newmcalc;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,9 +24,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.math.BigDecimal;
 
-public class number_system extends AppCompatActivity {
+public class NumberSystemConverterActivity extends AppCompatActivity {
 	private String[] data = {"2", "8", "10", "16"};
 	private String[] translated_from, translated_to;
 	private int fromSys = 10, toSys = 2;

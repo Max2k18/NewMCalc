@@ -10,7 +10,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.maxsavteam.newmcalc"
-            android:targetClass="com.maxsavteam.newmcalc.numgen"/>
+            android:targetClass="com.maxsavteam.newmcalc.NumberPasswordGeneratorActivity"/>
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

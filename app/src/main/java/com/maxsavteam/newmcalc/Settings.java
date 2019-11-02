@@ -1,7 +1,7 @@
 package com.maxsavteam.newmcalc;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -10,21 +10,20 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
+import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -34,10 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Updater extends AppCompatActivity {
+public class Settings extends AppCompatActivity {
 
 	private SharedPreferences sp;
-	private AlertDialog dl;
 
 	private void backPressed() {
 		finish();
@@ -60,23 +58,24 @@ public class Updater extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void clear_history(View v) {
-		dl.show();
-	}
-
 	public void switchSave(View v) {
 		Switch sw = findViewById(v.getId());
 		if(v.getId() == R.id.switchSaveOnExit){
-			sp.edit().putBoolean("saveResult", sw.isChecked()).apply();
 			if (sw.isChecked()) {
 				sw.setText(R.string.switchSaveOn);
+				sp.edit().putBoolean("saveResult", true).apply();
 			} else {
 				sw.setText(R.string.switchSaveOff);
 				sp.edit().remove("saveResult").apply();
 			}
 		}else if(v.getId() == R.id.switchDarkMode){
 			sp.edit().putBoolean("dark_mode", sw.isChecked()).apply();
-			restart();
+			if(sw.isChecked()) {
+				sp.edit().putBoolean("force_enable_light", true).remove("force_enable_dark").apply();
+			}else{
+				sp.edit().putBoolean("force_enable_dark", true).remove("force_enable_light").apply();
+			}
+			restartApp();
 		}
 
 	}
@@ -96,119 +95,112 @@ public class Updater extends AppCompatActivity {
 		setContentView(R.layout.activity_updater_main);
 
 		getSupportActionBar().setTitle(getResources().getString(R.string.settings));
-		Trace tr = FirebasePerformance.getInstance().newTrace("UpdaterStart");
-		tr.start();
-
-		apply_theme();
+		applyTheme();
 
 		if(sp.getBoolean("storage_denied", false)){
 			findViewById(R.id.import_export).setVisibility(View.GONE);
 		}
-
-		AlertDialog.Builder build = new AlertDialog.Builder(this);
-		build.setTitle(R.string.confirm)
-				.setMessage(R.string.confirm_cls_history)
-				.setCancelable(false)
-				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-						sp.edit().remove("history").apply();
-						findViewById(R.id.btnClsHistory).setVisibility(View.INVISIBLE);
-					}
-				}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();
-			}
-		});
-		dl = build.create();
-		if(DarkMode)
-			dl.getWindow().setBackgroundDrawableResource(R.drawable.grey);
-		tr.stop();
 	}
 
 	@Override
 	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		if (!sp.getString("history", "not").equals("not")) {
-			findViewById(R.id.btnClsHistory).setVisibility(View.VISIBLE);
-		}else{
-			findViewById(R.id.btnClsHistory).setVisibility(View.GONE);
-		}
 		Switch sw = findViewById(R.id.switchSaveOnExit);
 		sw.setChecked(sp.getBoolean("saveResult", false));
 		if (sw.isChecked()) {
 			sw.setText(R.string.switchSaveOn);
-			sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		} else {
 			sw.setText(R.string.switchSaveOff);
 		}
-		/*sw = findViewById(R.id.show_all_errors);
-		sw.setChecked(sp.getBoolean("show_calc_errors", true));*/
-		Button b = findViewById(R.id.btnImport);
-		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		b = findViewById(R.id.btnExport);
-		b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		sw = findViewById(R.id.switchDarkMode);
-		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		sw.setChecked(sp.getBoolean("dark_mode", false));
 		findViewById(R.id.btnExport).setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {
 				sp.edit().clear().apply();
-				restart();
+				restartApp();
 				return true;
 			}
 		});
 	}
 
-	public void restart(){
+	private void restartApp(){
 		Intent intent = new Intent(this, MainActivity.class);
 		this.startActivity(intent);
 		this.finishAffinity();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
 
-	public void apply_theme(){
+	@SuppressLint("SourceLockedOrientationActivity")
+	private void applyTheme(){
 		ActionBar appActionBar = getSupportActionBar();
-		try {
+		if(appActionBar != null){
 			appActionBar.setDisplayHomeAsUpEnabled(true);
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-
+			appActionBar.setElevation(0);
 		}
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		Button btn;
 		if(DarkMode) {
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
 			getWindow().setNavigationBarColor(Color.BLACK);
 			TextView t = findViewById(R.id.txtxCopyRight);
 			t.setTextColor(getResources().getColor(R.color.white));
-			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
-			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+			if(appActionBar != null) {
+				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
+				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
+			}
 			t = findViewById(R.id.txtExIm);
 			t.setTextColor(getResources().getColor(R.color.white));
-
 			btn = findViewById(R.id.btnExport);
 			btn.setTextColor(getResources().getColor(R.color.white));
+			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 			btn = findViewById(R.id.btnImport);
 			btn.setTextColor(getResources().getColor(R.color.white));
+			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 		}else{
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
 			getWindow().setNavigationBarColor(Color.WHITE);
-			appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
-			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+			if(appActionBar != null){
+				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
+				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+			}
 		}
-		appActionBar.setElevation(0);
+		Switch sw = findViewById(R.id.switchSaveOnExit);
+		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+		sw = findViewById(R.id.switchDarkMode);
+		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 	}
 
-	public void import_(View v) {
+	public void initialize_import(View v){
 		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
 		if (!f.exists()) {
 			Toast.makeText(getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG).show();
 			return;
 		}
+		AlertDialog warning;
+		AlertDialog.Builder builder = new AlertDialog.Builder(this).setMessage(
+				getResources().getString(R.string.to_continue_need_to_restart_app)
+						+ "\n"
+						+ getResources().getString(R.string.want_to_continue_question)
+				)
+				.setCancelable(false).setPositiveButton(R.string.restart, (dialog, which) -> {
+					import_settings();
+					dialog.cancel();
+				})
+				.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
+		warning = builder.create();
+		Window alertDialogWindow = warning.getWindow();
+		if (alertDialogWindow != null) {
+			alertDialogWindow.requestFeature(Window.FEATURE_NO_TITLE);
+			if(DarkMode)
+				alertDialogWindow.setBackgroundDrawableResource(R.drawable.grey);
+		}
+		Utils.recolorAlertDialogButtons(warning, this);
+		warning.show();
+	}
+
+	private void import_settings() {
+		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
 		try {
 			FileReader fr = new FileReader(f);
 			//tring ans = "";
@@ -224,22 +216,21 @@ public class Updater extends AppCompatActivity {
 				String value = "";
 				read = (char) fr.read();
 				while (read != '©') {
-					value += read;
+					value = String.format("%s%c", value, read);
 					read = (char) fr.read();
 				}
 				//ans += t + " " + tag + " = " + value  + "\n";
 				if (t == 'S') {
 					sp.edit().putString(tag, value).apply();
 				} else if (t == 'I') {
-					sp.edit().putInt(tag, Integer.valueOf(value)).apply();
+					sp.edit().putInt(tag, Integer.parseInt(value)).apply();
 				} else if (t == 'B') {
 					sp.edit().putBoolean(tag, Boolean.parseBoolean(value)).apply();
 				}
 			}
-			Toast.makeText(getApplicationContext(), R.string.on_import, Toast.LENGTH_LONG).show();
 			fr.close();
 			//postcreate();
-			restart();
+			restartApp();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();

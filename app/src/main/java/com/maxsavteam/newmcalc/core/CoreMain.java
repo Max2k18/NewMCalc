@@ -2,12 +2,9 @@ package com.maxsavteam.newmcalc.core;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.util.Log;
 
-import com.google.protobuf.DescriptorProtos;
 import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.error.Error;
-import com.maxsavteam.newmcalc.error.MultException;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
@@ -21,18 +18,18 @@ public final class CoreMain {
 	private CoreLinkBridge coreLinkBridge;
 	private boolean was_error = false;
 	private Resources res;
-	private String invalid_argument, value_is_too_big, division_by_zero;
+	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
 
 	public CoreMain(Context context) {
 		this.res = context.getApplicationContext().getResources();
 		this.c = context;
-		invalid_argument = res.getString(R.string.invalid_argument);
-		value_is_too_big = res.getString(R.string.value_is_too_big);
-		division_by_zero = res.getString(R.string.division_by_zero);
+		invalidArgument = res.getString(R.string.invalid_argument);
+		valueIsTooBig = res.getString(R.string.value_is_too_big);
+		divisionByZero = res.getString(R.string.division_by_zero);
 	}
 
-	public void setInterface(CoreLinkBridge clb){
+	public final void setInterface(CoreLinkBridge clb){
 		this.coreLinkBridge = clb;
 	}
 	
@@ -41,13 +38,22 @@ public final class CoreMain {
 		void onError(Error error);
 	}
 
+	/**
+	 * Is used for actions
+	 * */
 	private final Stack<String> s0 = new Stack<>();
-	private final Stack<BigDecimal> s1 = new Stack<>();
 
-	private final int MAX_FACTORIAL_VALUE = 1000;
+	/**
+	 * Is used for numbers
+	 * */
+	private final Stack<BigDecimal> s1 = new Stack<>(); // for numbers
+
+	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal("1000");
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
 
-	public final void prepare(String example, String type){
+	public final void prepare(String example, String type) throws NullPointerException{
+		if(coreLinkBridge == null)
+			throw new NullPointerException("Calculation Core: Interface wasn't set");
 		int len = example.length();
 		char last;
 		if(len == 0)
@@ -82,13 +88,9 @@ public final class CoreMain {
 			}
 			example = sb.toString();
 		}
-		try{
-			BigDecimal b = null;
-			b = new BigDecimal(example);
+		if(Utils.isNumber(example)){
 			coreLinkBridge.onError(new Error().setStatus("Core").setError("/Core/String is number").setPossibleResult(new BigDecimal(example)));
 			return;
-		}catch (NumberFormatException e){
-			Log.e("All ok", e.toString());
 		}
 		if(example.contains(res.getString(R.string.multiply)) || example.contains(res.getString(R.string.div))
 				|| example.contains(res.getString(R.string.pi)) || example.contains(res.getString(R.string.fi))
@@ -119,15 +121,15 @@ public final class CoreMain {
 		s0.clear();
 		s1.clear();
 		was_error = false;
-		char[] str = new char[example.length()];
-		example.getChars(0, example.length(), str, 0);
+		/*char[] str = new char[example.length()];
+		example.getChars(0, example.length(), str, 0);*/
 		String x;
 		String s;
 		int len = example.length();
 
 		for(int i = 0; i < len; i++){
 			try {
-				s = Character.toString(str[i]);
+				s = Character.toString(example.charAt(i));
 				if (s.equals("s") || s.equals("t") || s.equals("l") || s.equals("c")) {
 					if (i != 0) {
 						if (example.charAt(i - 1) == ')') {
@@ -137,7 +139,7 @@ public final class CoreMain {
 					//if(i + 4 <= example.length()){
 					String let = "";
 					while (i < example.length() && Utils.islet(example.charAt(i))) {
-						let += Character.toString(example.charAt(i));
+						let = String.format("%s%c", let, example.charAt(i));
 						i++;
 					}
 					switch (let) {
@@ -184,22 +186,23 @@ public final class CoreMain {
 					if (i != 0 && Utils.isDigit(example.charAt(i - 1))) {
 						in_s0('*');
 					}
-					char next = '\0';
-					if (i != example.length() - 1)
-						next = example.charAt(i + 1);
-					if (i != example.length() - 1 && (Utils.isDigit(example.charAt(i + 1)) || next == 'F' || next == 'P' || next == 'e')) {
-						in_s0('*');
+					if (i != example.length() - 1) {
+						char next = example.charAt(i + 1);
+						if (Utils.isDigit(example.charAt(i + 1)) || next == 'F' || next == 'P' || next == 'e') {
+							in_s0('*');
+						}
 					}
 					continue;
 				} else if (s.equals("!")) {
 					try {
 						if (i != len - 1 && example.charAt(i + 1) == '!') {
 							BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
-							if (y.signum() < 0 || y.compareTo(BigDecimal.valueOf(MAX_FACTORIAL_VALUE)) > 0) {
+							boolean isNumberBigger = y.compareTo(MAX_FACTORIAL_VALUE) > 0;
+							if (y.signum() < 0 || isNumberBigger) {
 
 								was_error = true;
-								if (y.compareTo(BigDecimal.valueOf(MAX_FACTORIAL_VALUE)) > 0)
-									coreLinkBridge.onError(new Error().setError("Invalid argument: factorial value is too much").setShort_error(value_is_too_big)); // I do not know how to name this error
+								if (isNumberBigger)
+									coreLinkBridge.onError(new Error().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
 								break;
 							}
 							for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
@@ -211,24 +214,24 @@ public final class CoreMain {
 							continue;
 						} else {
 							BigDecimal y = s1.peek();
-							if (y.signum() == -1) {
+							if (y.signum() < 0) {
 								was_error = true;
-								coreLinkBridge.onError(new Error().setError("Error: Unable to find negative factorial.").setShort_error(invalid_argument));
+								coreLinkBridge.onError(new Error().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
 								break;
 							} else {
-								if (y.compareTo(new BigDecimal(MAX_FACTORIAL_VALUE)) > 0) {
+								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
 									was_error = true;
 									coreLinkBridge.onError(new Error().setError("For some reason, we cannot calculate the factorial of this number " +
-											"(because it is too large and may not have enough device resources when executed)").setShort_error(value_is_too_big));
+											"(because it is too large and may not have enough device resources when executed)").setShortError(valueIsTooBig));
 									break;
 								} else {
 									s1.pop();
-									String fa = y.toString();
+									/*String fa = y.toString();
 									if (fa.contains(".")) {
 										int index = fa.lastIndexOf(".");
 										fa = fa.substring(0, index);
 										y = new BigDecimal(fa);
-									}
+									}*/
 									s1.push(Utils.fact(y));
 								}
 							}
@@ -242,7 +245,7 @@ public final class CoreMain {
 					} catch (Exception e) {
 						e.printStackTrace();
 						was_error = true;
-						coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShort_error(value_is_too_big));
+						coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 						break;
 					}
 				} else if (s.equals("%")) {
@@ -304,7 +307,7 @@ public final class CoreMain {
 							i++;
 							String x1 = "";
 							while (i < example.length() && example.charAt(i) != '-' && example.charAt(i) != '+') {
-								x1 += example.charAt(i);
+								x1 = String.format("%s%c", x1, example.charAt(i));
 								i++;
 							}
 							x1 = s1.peek().toPlainString() + x1;
@@ -316,7 +319,7 @@ public final class CoreMain {
 								coreLinkBridge.onError(isolated.getError());
 								return;
 							} else {
-								BigDecimal top = s1.peek();
+								BigDecimal top;
 								top = isolated.getRes();
 								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
 								top = new BigDecimal(Utils.deleteZeros(top.toPlainString()));
@@ -354,7 +357,7 @@ public final class CoreMain {
 						} catch (Exception e) {
 							e.printStackTrace();
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShort_error(value_is_too_big));
+							coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 							break;
 						}
 					}
@@ -378,7 +381,7 @@ public final class CoreMain {
 							continue;
 						} else {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Invalid statement for square root").setShort_error(invalid_argument));
+							coreLinkBridge.onError(new Error().setError("Invalid statement for square root").setShortError(invalidArgument));
 							break;
 						}
 					}
@@ -392,7 +395,7 @@ public final class CoreMain {
 							s1.push(new BigDecimal(n));
 							n = "";
 						} else {
-							n += Character.toString(example.charAt(i));
+							n = String.format("%s%c", n, example.charAt(i));
 						}
 						i++;
 					}
@@ -416,7 +419,7 @@ public final class CoreMain {
 							s1.push(new BigDecimal(n));
 							n = "";
 						} else {
-							n += Character.toString(example.charAt(i));
+							n = String.format("%s%c", n, example.charAt(i));
 						}
 						i++;
 					}
@@ -431,11 +434,10 @@ public final class CoreMain {
 					s1.push(new BigDecimal(Utils.deleteZeros(answer)));
 					continue;
 				}
-				if (Utils.isDigit(str[i])) {
+				if (Utils.isDigit(example.charAt(i))) {
 					x = "";
-					while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(str[i]) || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
-						s = Character.toString(str[i]);
-						x += s;
+					while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(example.charAt(i)) || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
+						x = String.format("%s%c", x, example.charAt(i));
 						i++;
 					}
 					BigDecimal temp = new BigDecimal(x);
@@ -445,54 +447,37 @@ public final class CoreMain {
 						x = "1.618";
 					}
 					s1.push(new BigDecimal(x));
-					if (i < example.length() && str[i] == 'E') {
-						in_s0('^');
-						i++;
-						BigDecimal t = BigDecimal.ONE;
-						if (str[i] == '+') {
-							t = BigDecimal.ONE;
-						} else if (str[i] == '-') {
-							t = BigDecimal.valueOf(-1.0);
-						}
-						x = "";
-						while (i < example.length() && (example.charAt(i) == '.' || Utils.isDigit(example.charAt(i)))) {
-							x += Character.toString(example.charAt(i));
-							i++;
-						}
-						s1.push(new BigDecimal(x).multiply(t));
-					}
 					i--;
 				} else {
-					if (str[i] != ')') {
-						if (str[i] == '^') {
-							if (i != example.length() - 1 && str[i + 1] == '(') {
+					if (example.charAt(i) != ')') {
+						if (example.charAt(i) == '^') {
+							if (i != example.length() - 1 && example.charAt(i + 1) == '(') {
 								i++;
 								in_s0('^');
 								s0.push("(");
 								continue;
-							} else if (i != example.length() - 1 && str[i + 1] != '(') {
+							} else if (i != example.length() - 1 && example.charAt(i + 1) != '(') {
 								//i++;
 								in_s0('^');
 								continue;
 							}
 						}
-						if ((i == 0 && str[i] == '-') || (str[i] == '-' && example.charAt(i - 1) == '(')) {
+						if ((i == 0 && example.charAt(i) == '-') || (example.charAt(i) == '-' && example.charAt(i - 1) == '(')) {
 							x = "";
 							i++;
-							while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(str[i]) || example.charAt(i) == 'E' || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
-								s = Character.toString(str[i]);
-								x += s;
+							while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(example.charAt(i)) || example.charAt(i) == 'E' || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
+								x = String.format("%s%c", x, example.charAt(i));
 								i++;
 							}
 							i--;
 							s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
 							continue;
 						}
-						if (i != 0 && str[i] == '(' && (Utils.isDigit(str[i - 1]) || str[i - 1] == ')')) {
+						if (i != 0 && example.charAt(i) == '(' && (Utils.isDigit(example.charAt(i - 1)) || example.charAt(i - 1) == ')')) {
 							in_s0('*');
 						}
 
-						in_s0(str[i]);
+						in_s0(example.charAt(i));
 					} else {
 						while (!s0.empty() && !s0.peek().equals("(")) {
 							mult(s0.peek());
@@ -512,7 +497,7 @@ public final class CoreMain {
 				}
 			}catch (Exception e){
 				was_error = true;
-				coreLinkBridge.onError(new Error().setStatus("Core").setShort_error("Smth went wrong"));
+				coreLinkBridge.onError(new Error().setStatus("Core").setShortError("Smth went wrong"));
 				break;
 			}
 		}
@@ -550,7 +535,7 @@ public final class CoreMain {
 				if (x.equals("log") && d <= 0) {
 					//Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
 					was_error = true;
-					coreLinkBridge.onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShort_error(invalid_argument));
+					coreLinkBridge.onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
 					return;
 				}
 				s1.pop();
@@ -570,7 +555,7 @@ public final class CoreMain {
 					case "log": {
 						if (d <= 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShort_error(invalid_argument));
+							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.log10(d));
@@ -579,7 +564,7 @@ public final class CoreMain {
 					case "ln": {
 						if (d <= 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShort_error(invalid_argument));
+							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.log(d));
@@ -588,7 +573,7 @@ public final class CoreMain {
 					case "R":
 						if (d < 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShort_error(invalid_argument));
+							coreLinkBridge.onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.sqrt(d));
@@ -621,7 +606,7 @@ public final class CoreMain {
 					case "/":
 						if (b.signum() == 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Division by zero.").setShort_error(division_by_zero));
+							coreLinkBridge.onError(new Error().setError("Division by zero.").setShortError(divisionByZero));
 							return;
 						}
 						ans = a.divide(b);
@@ -629,7 +614,7 @@ public final class CoreMain {
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
 							was_error = true;
-							coreLinkBridge.onError(new Error().setShort_error(value_is_too_big));
+							coreLinkBridge.onError(new Error().setShortError(valueIsTooBig));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.pow(a1, b1));
@@ -685,17 +670,18 @@ public final class CoreMain {
 			return;
 		}
 
-		if(!s0.empty() && s0.peek().equals("(")){
+		if(s0.peek().equals("(")){
 			s0.push(Character.toString(x));
 			return;
 		}
-		if (!s0.empty() && (priorityOfX < priorityOfTopAction) || priorityOfX.equals(priority.get(s0.peek()))) {
+		if (priorityOfX < priorityOfTopAction || priorityOfX.equals(priority.get(s0.peek()))) {
 			mult(s0.peek());
 			s0.pop();
 			in_s0(x);
 			return;
 		}
-		if(!s0.empty() && priorityOfX > priorityOfTopAction) s0.push(Character.toString(x));
+		if(priorityOfX > priorityOfTopAction) {
+			s0.push(Character.toString(x));
+		}
 	}
-	
 }

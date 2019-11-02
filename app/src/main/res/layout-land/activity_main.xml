@@ -2,21 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraight"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1.0"
-    android:gravity="bottom|center"
-    android:orientation="vertical"
-    android:visibility="visible"
-    android:weightSum="1.0"
-    tools:context=".MainActivity">
+    android:orientation="horizontal"
+    android:weightSum="1.0">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/landMainLabels">
+        android:id="@+id/landMainLabels"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
         <HorizontalScrollView
             android:id="@+id/scrollViewAns"
@@ -109,16 +105,10 @@
         </HorizontalScrollView>
     </LinearLayout>
 
-    <Space
-        android:id="@+id/space_between_pager_and_str"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.12" />
-
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:id="@+id/viewpager2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

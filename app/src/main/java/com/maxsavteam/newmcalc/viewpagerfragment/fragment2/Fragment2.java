@@ -1,15 +1,12 @@
-package com.maxsavteam.newmcalc.viewpagerfragment;
+package com.maxsavteam.newmcalc.viewpagerfragment.fragment2;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.Layout;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
@@ -19,7 +16,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,9 +35,9 @@ public class Fragment2 extends Fragment {
 	 *  1 - variable buttons
 	 */
 	private View.OnLongClickListener[] longClickListeners;
-	public Fragment2(Context context, View.OnLongClickListener[] longClick){
-		c = context;
-		this.longClickListeners = longClick;
+	public Fragment2(FragmentTwoInitializationObject fragmentTwoInitializationObject){
+		c = fragmentTwoInitializationObject.getContext();
+		this.longClickListeners = fragmentTwoInitializationObject.getLongClickListeners();
 		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.fragment_2, null, false);
 	}

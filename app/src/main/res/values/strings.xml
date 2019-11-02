@@ -123,7 +123,7 @@
     <string-array name="history_not_found">
         <item>Hm…</item>
         <item>There is no history here…</item>
-        <item>Where is she?</item>
+        <item>Where is it?</item>
     </string-array>
     <string-array name="additional_chars">
         <item>sin</item>
@@ -172,4 +172,7 @@
     <string name="now">Now</string>
     <string name="force_delete">Force delete</string>
     <string name="force_delete_guide_text">Long press this button and the selected record will be deleted immediately.</string>
+    <string name="to_continue_need_to_restart_app">To continue, we need to restart the application.</string>
+    <string name="want_to_continue_question">Want to continue?</string>
+    <string name="restart">Restart</string>
 </resources>
