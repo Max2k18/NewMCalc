@@ -1,4 +1,9 @@
 <resources>
+    <string-array name="protocols_do_not_match">
+        <item>Unfortunately, this application cannot process the history repository protocol.</item>
+        <item>You may have imported settings from an application with a higher version, where this protocol is supported.</item>
+        <item>Please check if there is an application update.</item>
+    </string-array>
     <integer name="transition_animation_duration">350</integer>
     <integer name="social_btn_size">70</integer>
     <string name="app_name" translatable="false">New MCalc</string>
@@ -166,4 +171,5 @@
     <string name="to_continue_need_to_restart_app">To continue, we need to restart the application.</string>
     <string name="want_to_continue_question">Want to continue?</string>
     <string name="restart">Restart</string>
+    <string name="confirm_history_reformat">To continue working with this function, the application needs to update the history storage protocol. Click OK to execute.</string>
 </resources>

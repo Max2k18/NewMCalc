@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="protocols_do_not_match">
+        <item>К сожалению, приложение данной не может обработать протокол хранилища истории.</item>
+        <item>Возможно, Вы импортировали настройки из приложения более высокой версии, где данный протокол поддерживается.</item>
+        <item>Пожалуйста, проверьте, есть ли обновление приложения.</item>
+    </string-array>
     <string name="settings">Настройки</string>
     <string name="therenothing">Здесь нечего показывать...</string>
     <string name="updateavail">Доступно обновление</string>
@@ -134,4 +139,5 @@
     <string name="to_continue_need_to_restart_app">Для продолжения нам требуется перезапустить приложение.</string>
     <string name="want_to_continue_question">Хотите продолжить?</string>
     <string name="restart">Перезапустить</string>
+    <string name="confirm_history_reformat">Для продолжения работы данной функции, приложению необходимо обновить протокол хранения истории. Нажмите кнопку \"ОК\" чтобы выполнить.</string>
 </resources>

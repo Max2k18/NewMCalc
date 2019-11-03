@@ -1,18 +1,16 @@
 <resources>
+    <string-array name="protocols_do_not_match">
+        <item>Leider kann diese Anwendung das Protokoll des Verlaufsrepository nicht verarbeiten.</item>
+        <item>Möglicherweise haben Sie Einstellungen aus einer Anwendung mit einer höheren Version importiert, in der dieses Protokoll unterstützt wird.</item>
+        <item>Bitte überprüfen Sie, ob ein Anwendungsupdate vorliegt.</item>
+    </string-array>
     <integer name="transition_animation_duration">350</integer>
     <integer name="social_btn_size">70</integer>
-    <string name="app_name" translatable="false">New MCalc</string>
-    <string name="multiply" translatable="false">×</string>
-    <string name="div" translatable="false">÷</string>
-    <string name="delSymb" translatable="false">◄</string>
     <string name="settings">Einstellungen</string>
-    <string name="pi" translatable="false">π</string>
-    <string name="fi" translatable="false">φ</string>
     <string name="therenothing">Es gibt nichts zu zeigen …</string>
     <string name="updateavail">Ein Update ist verfügbar</string>
     <string name="version">Version:</string>
     <string name="pleaseupdate">Ein Update ist verfügbar. Bitte aktualisieren Sie die Anwendung in den Einstellungen (klicken Sie auf die drei Punkte in der oberen linken Ecke des Bildschirms -&gt; Einstellungen)</string>
-    <string name="threedots" translatable="false">...</string>
     <string name="txtfrom">von</string>
     <string name="txtto">zu</string>
     <string name="choosenum">Wählen Sie die Nummer</string>
@@ -27,7 +25,6 @@
     <string name="checking_history">Verlauf wird überprüft …</string>
     <string name="history_not_found">Hm…\n Es gibt hier keine Geschichte …\n Wo ist sie?</string>
     <string name="passgen">Passwortgenerator</string>
-    <string name="sqrt" translatable="false">√</string>
     <string name="succesful">Erfolgreich!</string>
     <string name="savedto">Gespeichert in</string>
     <string name="yes">Ja</string>
@@ -85,7 +82,6 @@
     <string name="delete_all_memories_quest">Alle Erinnerungen löschen?</string>
     <string name="delete">Löschen</string>
     <string name="wil_be_deleted">Wird nach gelöscht</string>
-    <string name="char_skobka1" translatable="false">(</string>
     <string name="add">hinzufügen</string>
     <string name="edit">Bearbeiten</string>
     <string name="confirm_del_desc">Möchten Sie die Beschreibung für diesen Eintrag wirklich löschen?</string>
@@ -145,7 +141,6 @@
     <string name="rate">Bewerten</string>
     <string name="no_thanks">Nein danke</string>
     <string name="later">Später</string>
-    <string name="link_app_in_google_play" translatable="false">https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc</string>
     <string name="show_all_errors">Zeige alle Berechnungsfehler</string>
     <string name="invalid_argument">Ungültiges Argument</string>
     <string name="value_is_too_big">Sehr großer Wert.</string>
@@ -166,4 +161,5 @@
     <string name="to_continue_need_to_restart_app">Um fortzufahren, müssen wir die Anwendung neu starten.</string>
     <string name="want_to_continue_question">Möchten Sie fortfahren?</string>
     <string name="restart">Neustart</string>
+    <string name="confirm_history_reformat">Um mit dieser Funktion weiterarbeiten zu können, muss die Anwendung das Verlaufsspeicherprotokoll aktualisieren. Klicken Sie zum Ausführen auf OK.</string>
 </resources>

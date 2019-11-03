@@ -74,17 +74,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.btnDel.setVisibility(View.GONE);
         holder.without_desc.setVisibility(View.GONE);
         holder.with_desc.setVisibility(View.GONE);
-        if(ex.contains("~")) {
+        if(ex.contains(Character.toString((char) 31))) {
             holder.with_description = true;
             holder.tvWithDesc.setText("true");
             int i;
             i = 0;
-            while (i < ex.length() && ex.charAt(i) != '~') {
+            while (i < ex.length() && ((int) ex.charAt(i)) != 31) {
                 i++;
             }
-            for(int j = i + 1; j < ex.length(); j++){
-                desc += ex.charAt(j);
-            }
+            desc = ex.substring(i + 1);
             ex = ex.substring(0, i);
             holder.txtDesc.setText(desc);
             holder.txtDesc.setVisibility(View.VISIBLE);
@@ -138,7 +136,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             add.setOnClickListener(new View.OnClickListener() {
 	            @Override
 	            public void onClick(View view) {
-		            mClickListener.onEdit_Add((View) view.getParent().getParent(), getAdapterPosition(), "add");
+		            mClickListener.onEditAdd((View) view.getParent().getParent(), getAdapterPosition(), "add");
 	            }
             });
             delete = itemView.findViewById(R.id.btn_desc_del);
@@ -154,7 +152,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             edit.setOnClickListener(new View.OnClickListener() {
 	            @Override
 	            public void onClick(View view) {
-		            mClickListener.onEdit_Add((View) view.getParent().getParent(), getAdapterPosition(), "edit");
+		            mClickListener.onEditAdd((View) view.getParent().getParent(), getAdapterPosition(), "edit");
 	            }
             });
             Button[] buttons = {add, edit};
@@ -193,9 +191,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public interface ItemClickListener {
         void onItemClick(View view, int position);
         void onDelete(int position, ViewHolder v);
-        void ShowInfoButtonPressed(ViewHolder view, int position);
+        void showInfoButtonPressed(ViewHolder view, int position);
         void onDescriptionDelete(View view, int position);
-        void onEdit_Add(View view, int position, String mode);
+        void onEditAdd(View view, int position, String mode);
         //void onTouch(View view, int position, MotionEvent event);
     }
 }

@@ -789,11 +789,25 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 show_str();
                 resizeText();
 
-                String his = sp.getString("history", "");
-                if (his.indexOf(original + "," + result.toPlainString() + ";") != 0) {
-                    his = original + "," + Format.format(result.toPlainString()) + ";" + his;
-                    sp.edit().putString("history", his).apply();
+                String his = sp.getString("history", null);
+                String formattedResult = Format.format(result.toPlainString());
+                if(his != null){
+                	if(!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))){
+		                his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
+		                sp.edit().putString("history", his).apply();
+	                }
+                }else{
+	                his = String.format("%s%c%s%c", original, ((char) 30), formattedResult, ((char) 29));
+	                sp.edit().putString("history", his).apply();
                 }
+
+	            /*if (his != null && his.indexOf(original + "," + Format.format(result.toPlainString()) + ";") != 0) {
+		            his = original + "," + Format.format(result.toPlainString()) + ";" + his;
+		            sp.edit().putString("history", his).apply();
+	            }else if(his == null){
+		            his = original + "," + Format.format(result.toPlainString()) + ";";
+		            sp.edit().putString("history", his).apply();
+	            }*/
                 if (sp.getBoolean("saveResult", false))
                     sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
 

@@ -37,6 +37,7 @@ import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
+import com.maxsavteam.newmcalc.utils.HistoryStorageProtocolsFormatter;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     private RecyclerView rv;
     private boolean needToCreateMenu = false;
     private Menu mMenu;
+    private final int HISTORY_STORAGE_PROTOCOL_VERSION = BuildConfig.HistoryStorageProtocolVersion;
+    private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 
     protected void backPressed(){
         sendBroadcast(history_action);
@@ -212,7 +215,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
 	@Override
-	public void ShowInfoButtonPressed(ViewHolder viewHolder, int position) {
+	public void showInfoButtonPressed(ViewHolder viewHolder, int position) {
         //view = (View) view.getParent().getParent();
         View view = viewHolder.itemView;
         TextView t = view.findViewById(R.id.tvWithDesc);
@@ -292,7 +295,10 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String s = str.get(position).get(0);
                         int j;
-                        for(j = 0; j < s.length() && s.charAt(j) != '~'; j++);
+	                    j = 0;
+	                    while (j < s.length() && s.charAt(j) != ((char) 31)) {
+		                    j++;
+	                    }
                         s = s.substring(0, j);
                         str.get(position).set(0, s);
                         //Toast.makeText(getApplicationContext(), par.getResources().getResourceName(par.getId()), Toast.LENGTH_LONG).show();
@@ -321,7 +327,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 	                    animation.start();
 	                    //par.findViewById(R.id.with_desc).setVisibility(View.GONE);
                         //par.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
-                        save_history();
+                        saveHistory();
                     }
                 })
                 .setTitle(R.string.confirm)
@@ -336,7 +342,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
     @Override
-    public void onEdit_Add(View view, int position, String mode) {
+    public void onEditAdd(View view, int position, String mode) {
         final EditText input = new EditText(this);
         input.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -353,21 +359,20 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                             String previous = str.get(position).get(0);
                             int j;
                             //noinspection StatementWithEmptyBody
-                            for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
+                            for (j = 0; j < previous.length() && previous.charAt(j) != ((char) 31); j++);
                             previous = previous.substring(0, j);
-                            new_desc = new_desc.replaceAll(",", "&,");
-                            previous += "~" + new_desc;
+                            previous += ((char) 31) + new_desc;
                             str.get(position).set(0, previous);
-                            save_history();
+                            saveHistory();
                             ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
                         }else{
                             String previous = str.get(position).get(0);
                             int j;
                             //noinspection StatementWithEmptyBody
-                            for (j = 0; j < previous.length() && previous.charAt(j) != '~'; j++);
+                            for (j = 0; j < previous.length() && previous.charAt(j) != ((char) 31); j++);
                             previous = previous.substring(0, j);
                             str.get(position).set(0, previous);
-                            save_history();
+                            saveHistory();
                             view.findViewById(R.id.with_desc).setVisibility(View.GONE);
                             view.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
                         }
@@ -376,14 +381,12 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                         if(new_desc.equals(""))
                             return;
                         String s = str.get(position).get(0);
-                        new_desc = new_desc.replaceAll(",", "&,");
-                        s += "~" + new_desc;
+                        s += ((char) 31) + new_desc;
                         str.get(position).set(0, s);
-                        new_desc = new_desc.replaceAll(Character.toString('&'), "");
                         view.findViewById(R.id.without_desc).setVisibility(View.GONE);
                         ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
                         view.findViewById(R.id.with_desc).setVisibility(View.GONE);
-                        save_history();
+                        saveHistory();
                     }
                     adapter.clearViews();adapter.notifyDataSetChanged();
                     dialogInterface.cancel();
@@ -404,11 +407,13 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         al.show();
     }
 
-    void save_history(){
+
+
+    private void saveHistory(){
         StringBuilder save = new StringBuilder();
         int len = str.size();
         for(int i = 0; i < len; i++){
-            save.append(str.get(i).get(0)).append(",").append(str.get(i).get(1)).append(";");
+            save.append(str.get(i).get(0)).append( ((char) 30) ).append(str.get(i).get(1)).append( ((char) 29) );
         }
         sp.edit().putString("history", save.toString()).apply();
 
@@ -430,7 +435,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                 t.setTextColor(getResources().getColor(R.color.black));
             }
         }
-        save_history();
+        saveHistory();
         setupRecyclerView();
     }
 
@@ -475,7 +480,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
                     @Override
                     public void onLeftClicked(int position) {
-                        ShowInfoButtonPressed(adapter.getViews().get(position), position);
+                        showInfoButtonPressed(adapter.getViews().get(position), position);
                     }
                 }, this);
                 ItemTouchHelper itemTouchHelper = new ItemTouchHelper(sc);
@@ -628,6 +633,60 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         return super.onOptionsItemSelected(item);
     }
 
+    private void prepareHistoryForRecyclerView(){
+        String his = sp.getString("history", null);
+        //reformatHistory();
+        if(his != null){
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            progressDialog.show();
+            needToCreateMenu = true;
+            this.invalidateOptionsMenu();
+            int i = 0;
+            String ex, ans;
+            while(i < his.length() && his.charAt(i) != ((char) 29) ){
+                boolean was_dot = false;
+                ex = ans = "";
+                while(i < his.length()){
+                    if(his.charAt(i) == ((char) 29)){
+                        i++;
+                        break;
+                    }
+                    if(his.charAt(i) == ((char) 30)){
+                        i++;
+                        was_dot = true;
+                        continue;
+                    }
+                    if(!was_dot){
+                        ex = String.format("%s%c", ex, his.charAt(i));
+                    }else{
+                        ans = String.format("%s%c", ans, his.charAt(i));
+                    }
+                    i++;
+                }
+                String finalAns = ans;
+                String finalEx = ex;
+                str.add(new ArrayList<String>(){
+                    {
+                        add(finalEx);
+                        add(finalAns);
+                    }
+                });
+            }
+            progressDialog.dismiss();
+        }
+        setupRecyclerView();
+    }
+
+    private void runReformat(){
+        ProgressDialog pd = new ProgressDialog(this);
+        pd.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        pd.setCancelable(false);
+        new HistoryStorageProtocolsFormatter(this).reformatHistory(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HISTORY_STORAGE_PROTOCOL_VERSION);
+        pd.dismiss();
+        prepareHistoryForRecyclerView();
+    }
+
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -646,57 +705,47 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         rv = findViewById(R.id.rv_view);
 
         start_type = getIntent().getStringExtra("start_type");
-        String his = sp.getString("history", null);
-        if(his != null){
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            progressDialog.show();
-            needToCreateMenu = true;
-            this.invalidateOptionsMenu();
-            int i = 0;
-            String ex, ans;
-            while(i < his.length() && his.charAt(i) != ';'){
-                boolean was_dot = false;
-                ex = ans = "";
-                while(i < his.length()){
-                    if(his.charAt(i) == '&') {
-                        i++;
-                        if(!was_dot){
-                            ex = String.format("%s%c", ex, his.charAt(i));
-                        }else{
-                            ans = String.format("%s%c", ans, his.charAt(i));
+        LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt("local_history_storage_protocol_version", 1);
+        if(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HISTORY_STORAGE_PROTOCOL_VERSION){
+            AlertDialog alert;
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                            runReformat();
                         }
-                        i++;
-                        continue;
-                    }
-                    if(his.charAt(i) == ';'){
-                        i++;
-                        break;
-                    }
-                    if(his.charAt(i) == ','){
-                        i++;
-                        was_dot = true;
-                        continue;
-                    }
-                    if(!was_dot){
-                        ex += Character.toString(his.charAt(i));
-                    }else{
-                        ans += Character.toString(his.charAt(i));
-                    }
-                    i++;
-                }
-                String finalAns = ans;
-                String finalEx = ex;
-                str.add(new ArrayList<String>(){
-                    {
-                        add(finalEx);
-                        add(finalAns);
-                    }
-                });
+                    })
+                    .setCancelable(false)
+                    .setMessage(R.string.confirm_history_reformat);
+            alert = builder.create();
+            Window alertWindow = alert.getWindow();
+            if (alertWindow != null) {
+                alertWindow.setBackgroundDrawableResource(R.drawable.grey);
+                //alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
             }
-            progressDialog.dismiss();
+            alert.show();
+        }else if(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HISTORY_STORAGE_PROTOCOL_VERSION){
+            setContentView(R.layout.activity_history_protocols_donot_match);
+            TextView note = findViewById(R.id.lblProtocolsDoNotMatch);
+            if(DarkMode){
+                getWindow().setBackgroundDrawableResource(R.drawable.black);
+                note.setTextColor(Color.WHITE);
+            }
+            String text = "";
+            String[] arr = getResources().getStringArray(R.array.protocols_do_not_match);
+            for(String s : arr){
+                text = String.format("%s\n%s", text, s);
+            }
+            note.setText(text);
+            needToCreateMenu = false;
+            if (mMenu != null) {
+                mMenu.removeItem(R.id.clear_history);
+                this.invalidateOptionsMenu();
+            }
+        }else{
+            prepareHistoryForRecyclerView();
         }
-        setupRecyclerView();
     }
 
     @Override

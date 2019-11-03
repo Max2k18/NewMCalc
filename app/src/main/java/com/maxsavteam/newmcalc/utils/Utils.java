@@ -1,7 +1,6 @@
 package com.maxsavteam.newmcalc.utils;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.preference.PreferenceManager;
 import android.util.Pair;
 import android.view.Window;
@@ -77,21 +76,18 @@ public final class Utils {
 		if (window != null) {
 			window.requestFeature(Window.FEATURE_SWIPE_TO_DISMISS);
 		}
-		alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-			@Override
-			public void onShow(DialogInterface dialog) {
-				Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-				Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-				Button neutral = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
-				if(negative != null) {
-					negative.setTextColor(context.getResources().getColor(R.color.colorAccent));
-				}
-				if(positive != null) {
-					positive.setTextColor(context.getResources().getColor(R.color.colorAccent));
-				}
-				if(neutral != null){
-					neutral.setTextColor(context.getResources().getColor(R.color.colorAccent));
-				}
+		alertDialog.setOnShowListener(dialog -> {
+			Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+			Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+			Button neutral = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEUTRAL);
+			if(negative != null) {
+				negative.setTextColor(context.getResources().getColor(R.color.colorAccent));
+			}
+			if(positive != null) {
+				positive.setTextColor(context.getResources().getColor(R.color.colorAccent));
+			}
+			if(neutral != null){
+				neutral.setTextColor(context.getResources().getColor(R.color.colorAccent));
 			}
 		});
 	}
