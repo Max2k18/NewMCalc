@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+/**
+ * @author Maks
+ * */
 public final class CoreMain {
 	private CoreLinkBridge coreLinkBridge;
 	private boolean was_error = false;
@@ -51,6 +54,16 @@ public final class CoreMain {
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal("1000");
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
 
+
+	/**
+	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
+	 *
+	 *
+	 *
+	 * @param example expression to be calculated
+	 * @param type type of calculation. Not necessary
+	 * @throws NullPointerException throws, when interface hasn't been set
+	 */
 	public final void prepare(String example, String type) throws NullPointerException{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");

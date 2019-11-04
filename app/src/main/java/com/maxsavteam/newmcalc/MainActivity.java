@@ -918,32 +918,21 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(len != 0) {
             show_str();
             scrollExampleToEnd();
-        }else
-        	return;
+        }else {
+	        return;
+        }
         char last = example.charAt(len - 1);
         if(!Utils.isDigit(last) && last != ')' && last != '!' && last != '%'
                 && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
             hide_ans();
             return;
         }
-        if(last == '(')
-            return;
+        if(last == '(') {
+        	hide_ans();
+	        return;
+        }
+
         resizeText();
-        brackets = 0;
-        for(int i = 0; i < example.length(); i++){
-            if(example.charAt(i) == '(')
-                brackets++;
-            else if(example.charAt(i) == ')')
-                brackets--;
-        }
-        if(brackets > 0){
-            StringBuilder exampleBuilder = new StringBuilder(example);
-            for(int i = 0; i < brackets; i++){
-                exampleBuilder.append(")");
-            }
-            example = exampleBuilder.toString();
-            brackets = 0;
-        }
 
         was_error = false;
         original = example;
