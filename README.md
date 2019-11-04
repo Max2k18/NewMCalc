@@ -4,7 +4,7 @@ This is the repository of an application published on [Google Play](https://play
 I will try to add here a list of changes with each version. 
 But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
-###**Description of updates for the average user are published [here](https://newmcalc.maxsav.team/what-new/) in a more understandable language.**
+### **Description of updates for the average user are published [here](https://newmcalc.maxsav.team/what-new/) in a more understandable language.**
 
 #### **I waiting for feedback**
 
