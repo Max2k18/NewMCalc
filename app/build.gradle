@@ -45,7 +45,7 @@ android {
             targetSdkVersion 29
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.11.5"
+            versionName "1.11.6"
             buildConfigField "Boolean", "WhatNewIsExisting", "true"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day

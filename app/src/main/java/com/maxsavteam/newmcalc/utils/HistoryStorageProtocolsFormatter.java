@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.util.Pair;
 
 import java.util.ArrayList;
-import java.util.prefs.PreferenceChangeEvent;
 
 public class HistoryStorageProtocolsFormatter {
 	private SharedPreferences sp;
@@ -37,7 +36,7 @@ public class HistoryStorageProtocolsFormatter {
 					break;
 
 				int j = expr.length() - 1;
-				String example = "", result = "", currentType = "ex";
+				String example = "", result = "";
 				while(j >= 0 && expr.charAt(j) != ','){
 					result = String.format("%c%s", expr.charAt(j), result);
 					j--;

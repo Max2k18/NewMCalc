@@ -706,45 +706,51 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
         start_type = getIntent().getStringExtra("start_type");
         LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt("local_history_storage_protocol_version", 1);
-        if(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HISTORY_STORAGE_PROTOCOL_VERSION){
-            AlertDialog alert;
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                            runReformat();
-                        }
-                    })
-                    .setCancelable(false)
-                    .setMessage(R.string.confirm_history_reformat);
-            alert = builder.create();
-            Window alertWindow = alert.getWindow();
-            if (alertWindow != null) {
-                alertWindow.setBackgroundDrawableResource(R.drawable.grey);
-                //alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
-            }
-            alert.show();
-        }else if(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HISTORY_STORAGE_PROTOCOL_VERSION){
-            setContentView(R.layout.activity_history_protocols_donot_match);
-            TextView note = findViewById(R.id.lblProtocolsDoNotMatch);
-            if(DarkMode){
-                getWindow().setBackgroundDrawableResource(R.drawable.black);
-                note.setTextColor(Color.WHITE);
-            }
-            String text = "";
-            String[] arr = getResources().getStringArray(R.array.protocols_do_not_match);
-            for(String s : arr){
-                text = String.format("%s\n%s", text, s);
-            }
-            note.setText(text);
-            needToCreateMenu = false;
-            if (mMenu != null) {
-                mMenu.removeItem(R.id.clear_history);
-                this.invalidateOptionsMenu();
-            }
+        String history = sp.getString("history", null);
+        if(history != null) {
+	        if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HISTORY_STORAGE_PROTOCOL_VERSION) {
+		        AlertDialog alert;
+		        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+				        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					        @Override
+					        public void onClick(DialogInterface dialog, int which) {
+						        dialog.cancel();
+						        runReformat();
+					        }
+				        })
+				        .setCancelable(false)
+				        .setMessage(R.string.confirm_history_reformat);
+		        alert = builder.create();
+		        Window alertWindow = alert.getWindow();
+		        if (alertWindow != null) {
+			        alertWindow.setBackgroundDrawableResource(R.drawable.grey);
+			        //alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
+		        }
+		        alert.show();
+	        } else if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HISTORY_STORAGE_PROTOCOL_VERSION) {
+		        setContentView(R.layout.activity_history_protocols_donot_match);
+		        TextView note = findViewById(R.id.lblProtocolsDoNotMatch);
+		        if (DarkMode) {
+			        getWindow().setBackgroundDrawableResource(R.drawable.black);
+			        note.setTextColor(Color.WHITE);
+		        }
+		        String text = "";
+		        String[] arr = getResources().getStringArray(R.array.protocols_do_not_match);
+		        for (String s : arr) {
+			        text = String.format("%s\n%s", text, s);
+		        }
+		        note.setText(text);
+		        needToCreateMenu = false;
+		        if (mMenu != null) {
+			        mMenu.removeItem(R.id.clear_history);
+			        this.invalidateOptionsMenu();
+		        }
+	        } else {
+		        prepareHistoryForRecyclerView();
+	        }
         }else{
-            prepareHistoryForRecyclerView();
+        	sp.edit().putInt("local_history_storage_protocol_version", HISTORY_STORAGE_PROTOCOL_VERSION).apply();
+        	prepareHistoryForRecyclerView();
         }
     }
 

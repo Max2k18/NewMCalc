@@ -4,11 +4,16 @@ This is the repository of an application published on [Google Play](https://play
 I will try to add here a list of changes with each version. 
 But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
-I translate text through Google Translator, because I do not know English so well (I'm from Belarus)
+** Description of updates for the average user are published [here](https://newmcalc.maxsav.team/what-new/) in a more understandable language. **
 
 #### **I waiting for feedback**
 
 ## Technical Change history
+### 1.11.6
+  * Added support for the German language
+  * New History Storage Protocol (HSP) v2
+  * Added converter, which converts history from HSP v1 to v2
+
 ### 1.11.5
   * Clear History button moved to History activity
   * All broadcast receivers will be unregister on app pause and stop and then re-register (optimization)
