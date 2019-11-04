@@ -207,10 +207,12 @@ public class Settings extends AppCompatActivity {
 			sp.edit().clear().apply();
 			while (fr.ready()) {
 				char t = (char) fr.read();
+				if(t == '#')
+					break;
 				String tag = "";
 				char read = (char) fr.read();
 				while (read != '=') {
-					tag += read;
+					tag = String.format("%s%s", tag, read);
 					read = (char) fr.read();
 				}
 				String value = "";
@@ -238,8 +240,6 @@ public class Settings extends AppCompatActivity {
 	}
 
 	public void create_import(View v) {
-		sp.edit().remove("simple_upd_exist").apply();
-		sp.edit().remove("dev_upd_exist").apply();
 		ProgressDialog pd;
 		pd = new ProgressDialog(this);
 		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -252,7 +252,6 @@ public class Settings extends AppCompatActivity {
 		pd.show();
 		try {
 			FileWriter fw = new FileWriter(f, false);
-			String s = sp.getAll().toString();
 			Map<String, ?> m = sp.getAll();
 			fw.write("");
 			//fw.append(s);
@@ -265,6 +264,7 @@ public class Settings extends AppCompatActivity {
 				fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append("©");
 			}
 			pd.dismiss();
+			fw.append("#Please do not change the values yourself.\n#This can lead to malfunctions or even to malfunction");
 			fw.flush();
 			Toast.makeText(getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
