@@ -54,6 +54,7 @@ import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
+import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.core.CoreMain;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
@@ -872,8 +873,12 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     }
 
     @Override
-    public void onSuccess(BigDecimal result, String type) {
-        writeCalculationResult(type, result);
+    public void onSuccess(CalculationResult calculationResult) {
+    	if(calculationResult.getResult() != null) {
+		    writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
+	    }else{
+    		hide_ans();
+	    }
     }
 
     @Override

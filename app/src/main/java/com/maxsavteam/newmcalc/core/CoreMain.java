@@ -37,7 +37,7 @@ public final class CoreMain {
 	}
 	
 	public interface CoreLinkBridge{
-		void onSuccess(BigDecimal result, String type);
+		void onSuccess(CalculationResult calculationResult);
 		void onError(Error error);
 	}
 
@@ -63,6 +63,8 @@ public final class CoreMain {
 	 * @param example expression to be calculated
 	 * @param type type of calculation. Not necessary
 	 * @throws NullPointerException throws, when interface hasn't been set
+	 *
+	 * @see CalculationResult
 	 */
 	public final void prepare(String example, String type) throws NullPointerException{
 		if(coreLinkBridge == null)
@@ -297,8 +299,8 @@ public final class CoreMain {
 								}
 
 								@Override
-								public void onSuccess(BigDecimal result, String type) {
-									res = result;
+								public void onSuccess(CalculationResult calculationResult) {
+									res = calculationResult.getResult();
 								}
 
 								@Override
@@ -536,7 +538,7 @@ public final class CoreMain {
 			coreLinkBridge.onError(new Error().setStatus("Core"));
 		}
 		if(!was_error){
-			coreLinkBridge.onSuccess(s1.peek(), type);
+			coreLinkBridge.onSuccess(new CalculationResult().setResult(s1.peek()).setType(type));
 		}
 	}
 
