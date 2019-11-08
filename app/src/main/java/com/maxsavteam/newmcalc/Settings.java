@@ -93,8 +93,11 @@ public class Settings extends AppCompatActivity {
 		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_updater_main);
-
-		getSupportActionBar().setTitle(getResources().getString(R.string.settings));
+		try {
+			getSupportActionBar().setTitle(getResources().getString(R.string.settings));
+		}catch (NullPointerException e){
+			e.printStackTrace();
+		}
 		applyTheme();
 
 		if(sp.getBoolean("storage_denied", false)){

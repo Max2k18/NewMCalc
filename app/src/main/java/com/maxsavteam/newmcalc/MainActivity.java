@@ -47,11 +47,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
 import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
@@ -139,9 +141,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	@SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-		if (savedInstanceState != null) {
-			savedInstanceState.clear();
-		}
 	    super.onCreate(savedInstanceState);
 	    sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 	    DarkMode = sp.getBoolean("dark_mode", false);
@@ -155,9 +154,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	    applyTheme();
 	    mCoreMain = new CoreMain(this);
 	    mCoreMain.setInterface(this);
-	    fr = FirebaseAnalytics.getInstance(getApplicationContext());
-	    Trace myTrace = FirebasePerformance.getInstance().newTrace("AppStart");
-	    myTrace.start();
 	    PI = getResources().getString(R.string.pi);
 	    FI = getResources().getString(R.string.fi);
 	    Intent startIntent = getIntent();
@@ -206,9 +202,8 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 			    shortcutManager.setDynamicShortcuts(Arrays.asList(shortcut3, shortCutNumSys, shortcut2, shortcut1));
 		    }
 	    }
-	    myTrace.stop();
 	    setViewPager(0);
-	    fr.logEvent("OnCreate", Bundle.EMPTY);
+//	    fr.logEvent("OnCreate", Bundle.EMPTY);
     }
 
 	private View.OnLongClickListener btnDeleteSymbolLongClick = (View v) -> {
@@ -339,6 +334,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     t.setTextColor(getResources().getColor(R.color.white));
                 }
                 bar.setBackgroundDrawable(getDrawable(R.drawable.black));
+                //bar.setTitleTextColor(Color.WHITE);
             } else {
                 TextView t;
                 getWindow().setBackgroundDrawableResource(R.drawable.white);
@@ -352,6 +348,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                     t.setTextColor(getResources().getColor(R.color.black));
                 }
                 bar.setBackgroundDrawable(getDrawable(R.drawable.white));
+                //bar.setTitleTextColor(Color.BLACK);
                 //barTitle.setTextColor(Color.BLACK);
             }
             bar.setElevation(0);
@@ -362,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         goToActivity(CatchService.class, new Intent().putExtra("action", "aboutAG"));
     }
 
-    View.OnLongClickListener additional_longclick = new View.OnLongClickListener() {
+    View.OnLongClickListener mForAdditionalBtnsLongClick = new View.OnLongClickListener() {
         @Override
         public boolean onLongClick(View view) {
             t = findViewById(R.id.ExampleStr);
@@ -624,7 +621,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 			    new FragmentOneInitializationObject()
 				    .setContext(this)
 				    .setLongClickListeners(new View.OnLongClickListener[]{
-						    additional_longclick,
+						    mForAdditionalBtnsLongClick,
 						    returnback,
 						    btnDeleteSymbolLongClick
 				    });
@@ -1244,7 +1241,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 
         if(!Utils.isDigit(btntxt) && !Utils.islet(btntxt.charAt(0))){
             if(len != 0){
-                if(txt.charAt(len-1) == 'π' || txt.charAt(len-1) == 'φ' || txt.charAt(len-1) == 'e'){
+                if(txt.charAt(len-1) == 'π' ||
+		                txt.charAt(len-1) == 'φ' ||
+		                txt.charAt(len-1) == 'e'){
                     t.setText(txt + btntxt);
                     equallu("not");
                     return;

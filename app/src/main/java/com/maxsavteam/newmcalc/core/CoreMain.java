@@ -548,7 +548,6 @@ public final class CoreMain {
 				double d = s1.peek().doubleValue();
 				 BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
-					//Toast.makeText(getApplicationContext(), "You cannot find the logarithm of a zero or a negative number.", Toast.LENGTH_SHORT).show();
 					was_error = true;
 					coreLinkBridge.onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
 					return;
@@ -630,6 +629,10 @@ public final class CoreMain {
 						if(b.compareTo(MAX_POW) > 0){
 							was_error = true;
 							coreLinkBridge.onError(new Error().setShortError(valueIsTooBig));
+							return;
+						}else if(b1 == 0){
+							was_error = true;
+							coreLinkBridge.onError(new Error().setShortError("Raising zero to zero degree."));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.pow(a1, b1));

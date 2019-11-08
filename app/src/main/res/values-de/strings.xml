@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="protocols_do_not_match">
         <item>Leider kann diese Anwendung das Protokoll des Verlaufsrepository nicht verarbeiten.</item>

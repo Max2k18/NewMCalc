@@ -11,4 +11,4 @@
 /build
 /captures
 .externalNativeBuild
-/keystore.properties
+/app/keystore.properties

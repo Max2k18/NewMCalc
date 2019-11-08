@@ -1,27 +1,22 @@
+ext {
+    var = 'D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks'
+}
 import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
+apply plugin: 'androidx.navigation.safeargs'
 //apply plugin: 'io.github.rockerhieu:versionberg'
 
 android {
     signingConfigs {
-        def keystorePropertiesFile = rootProject.file("keystore.properties")
-        Properties keystoreProperties = new Properties()
-        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
         release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-        }
-        forFirebaseTestLab {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+            storeFile file(var)
+            storePassword '1234567890'
+            keyAlias 'key0'
+            keyPassword '1234567890'
         }
     }
     compileSdkVersion 29
@@ -29,33 +24,35 @@ android {
 
     def versionPropsFile = file('version.properties')
     String time_zone = "UTC" //you can modify this
-    if(versionPropsFile.canRead()){
+    if (versionPropsFile.canRead()) {
         Properties versionProps = new Properties()
 
         versionProps.load(new FileInputStream(versionPropsFile))
 
         def code = versionProps['VERSION_CODE'].toInteger() + 1
 
-        versionProps['VERSION_CODE']=code.toString()
+        versionProps['VERSION_CODE'] = code.toString()
         versionProps.store(versionPropsFile.newWriter(), null)
 
         defaultConfig {
             applicationId "com.maxsavteam.newmcalc"
             minSdkVersion 22
-            targetSdkVersion 29
+            //noinspection OldTargetApi
+            targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
             versionName "1.11.6"
             buildConfigField "Boolean", "WhatNewIsExisting", "true"
             buildConfigField "Boolean", "UCModuleActivated", "false"
-            buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\"" // It consist of year, months, day
+            buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
+            // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
             buildConfigField "String", "CoreVersion", "\"v2.2.101921\""
             buildConfigField "Integer", "HistoryStorageProtocolVersion", "2"
             buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }
-    }else
+    } else
         throw new Exception("Unable to read version.properties")
 
     buildTypes {
@@ -65,12 +62,14 @@ android {
             buildConfigField "String", "APPTYPE", "\"${apptype}\""
             minifyEnabled true
             shrinkResources true
+            signingConfig signingConfigs.release
             aaptOptions {
                 cruncherEnabled = false
             }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            applicationIdSuffix ".beta"
             buildConfigField("Boolean", "ISDEBUG", "true")
             apptype = "dev"
             buildConfigField "String", "APPTYPE", "\"${apptype}\""
@@ -78,9 +77,9 @@ android {
             jniDebuggable true
             zipAlignEnabled true
             versionNameSuffix "-DEBUG"
-            applicationIdSuffix ".beta"
+            signingConfig signingConfigs.release
         }
-        forFirebaseTestLab{
+        forFirebaseTestLab {
             minifyEnabled true
             shrinkResources true
             apptype = "dev"
@@ -89,6 +88,7 @@ android {
                 cruncherEnabled = false
             }
             versionNameSuffix "-FIREBASETESTLAB"
+            signingConfig signingConfigs.release
         }
     }
     buildToolsVersion '29.0.2'
@@ -98,13 +98,17 @@ android {
     }
     productFlavors {
     }
+    defaultConfig {
+        signingConfig = signingConfigs.release
+    }
     android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
 }
-def static getBuildDate(String format){
+
+def static getBuildDate(String format) {
     return new Date().format(format)
 }
 
-static String getBuildTime(String tzone){
+static String getBuildTime(String tzone) {
     def df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
     df.setTimeZone(TimeZone.getTimeZone(tzone))
     return df.format(new Date())
@@ -123,6 +127,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.2.0'
     implementation 'com.google.firebase:firebase-inappmessaging-display:19.0.1'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.navigation:navigation-fragment:2.1.0'
+    implementation 'androidx.navigation:navigation-ui:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
