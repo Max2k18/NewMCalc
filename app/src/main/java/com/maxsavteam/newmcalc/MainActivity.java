@@ -47,10 +47,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -84,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     private FirebaseAnalytics fr;
     private BigDecimal[] memoryEntries;
 	private String FI, PI;
-    private MemorySaverReader memorySaverReader;
+    private MemorySaverReader mMemorySaverReader;
     private String MULTIPLY_SIGN;
     private CoreMain mCoreMain;
 	private int lastViewPagerOrientationDrawingState = -1;
@@ -288,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 		}
 	}
 
-	protected void goToAdditionalActivities(String where){
+	private void goToAdditionalActivities(String where){
 		switch (where) {
 			case "settings":
 				goToActivity(Settings.class, new Intent()
@@ -380,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
                 sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
     }
+
     String APPTYPE = BuildConfig.APPTYPE;
 
     private void showWhatNewWindow(){
@@ -425,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        memorySaverReader = new MemorySaverReader(this);
+        mMemorySaverReader = new MemorySaverReader(this);
 	    boolean read = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
 	    boolean write = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         if(!sp.getBoolean("never_request_permissions", false)
@@ -451,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(read && write){
             sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
         }
-        memoryEntries = memorySaverReader.read();
+        memoryEntries = mMemorySaverReader.read();
         MULTIPLY_SIGN = getResources().getString(R.string.multiply);
 
 	    showWhatNewWindow();
@@ -542,8 +539,10 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(countOfMemoryPlusMinusMethodCalls > 0)
             returnback.onLongClick(findViewById(R.id.btnCalc));
 	    memoryEntries[0] = temp;
-	    memorySaverReader.save(memoryEntries);
+	    mMemorySaverReader.save(memoryEntries);
     }
+
+	int countOfMemoryStoreMethodCalls = 0;
 
     public void onMemoryStoreButtonClick(View view){
         TextView t = findViewById(R.id.ExampleStr);
@@ -565,10 +564,9 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
             returnback.onLongClick(findViewById(R.id.btnCalc));
 	    countOfMemoryStoreMethodCalls = 0;
         memoryEntries[0] = temp;
-    	memorySaverReader.save(memoryEntries);
+    	mMemorySaverReader.save(memoryEntries);
     	
     }
-    int countOfMemoryStoreMethodCalls = 0;
 
     public void onMemoryRecallButtonClick(View view){
     	String value = memoryEntries[0].toString();
@@ -703,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                memoryEntries = memorySaverReader.read();
+                memoryEntries = mMemorySaverReader.read();
             }
         };
         registerReceiver(on_memory_edited,
@@ -764,66 +762,6 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
         if(txt.equals("") || txt.length() < 4)
             return;
         t.setText(Format.format(txt));
-    }
-    
-    private void writeCalculationResult(String type, BigDecimal result){
-        String ans = result.toPlainString();
-        if(ans.contains(".")) {
-            if (ans.length() - ans.indexOf(".") > 9){
-                BigDecimal d = result;
-                d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
-                ans = Utils.deleteZeros(d.toPlainString());
-            }
-        }
-        switch (type) {
-            case "all":
-                TextView tans = findViewById(R.id.ExampleStr);
-
-                tans.setText(ans);
-                format(R.id.ExampleStr);
-                tans = findViewById(R.id.AnswerStr);
-                tans.setText(original);
-                show_ans();
-                show_str();
-                resizeText();
-
-                String his = sp.getString("history", null);
-                String formattedResult = Format.format(result.toPlainString());
-                if(his != null){
-                	if(!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))){
-		                his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
-		                sp.edit().putString("history", his).apply();
-	                }
-                }else{
-	                his = String.format("%s%c%s%c", original, ((char) 30), formattedResult, ((char) 29));
-	                sp.edit().putString("history", his).apply();
-                }
-
-	            /*if (his != null && his.indexOf(original + "," + Format.format(result.toPlainString()) + ";") != 0) {
-		            his = original + "," + Format.format(result.toPlainString()) + ";" + his;
-		            sp.edit().putString("history", his).apply();
-	            }else if(his == null){
-		            his = original + "," + Format.format(result.toPlainString()) + ";";
-		            sp.edit().putString("history", his).apply();
-	            }*/
-                if (sp.getBoolean("saveResult", false))
-                    sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
-
-                scrollExampleToEnd(HorizontalScrollView.FOCUS_LEFT);
-                break;
-            case "not":
-                TextView preans = findViewById(R.id.AnswerStr);
-                preans.setText(ans);
-                show_str();
-                format(R.id.AnswerStr);
-                show_ans();
-                setTextViewsTextSizeToDefault();
-                resizeText();
-                scrollExampleToEnd();
-                break;
-            default:
-                throw new IllegalArgumentException("Arguments should be of two types: all, not");
-        }
     }
 
     public void resizeText(){
@@ -891,21 +829,81 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 		}
     }
 
+	private void writeCalculationError(String text){
+		TextView t = findViewById(R.id.AnswerStr);
+		hide_ans();
+		t.setText(text);
+		t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+		t.setTextColor(Color.parseColor("#FF4B32"));
+		show_ans();
+		was_error = true;
+	}
+
+	private void writeCalculationResult(String type, BigDecimal result){
+		String ans = result.toPlainString();
+		if(ans.contains(".")) {
+			if (ans.length() - ans.indexOf(".") > 9){
+				BigDecimal d = result;
+				d = d.divide(BigDecimal.ONE, 8, RoundingMode.HALF_EVEN);
+				ans = Utils.deleteZeros(d.toPlainString());
+			}
+		}
+		switch (type) {
+			case "all":
+				TextView tans = findViewById(R.id.ExampleStr);
+
+				tans.setText(ans);
+				format(R.id.ExampleStr);
+				tans = findViewById(R.id.AnswerStr);
+				tans.setText(original);
+				show_ans();
+				show_str();
+				resizeText();
+
+				String his = sp.getString("history", null);
+				String formattedResult = Format.format(result.toPlainString());
+				if(his != null){
+					if(!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))){
+						his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
+						sp.edit().putString("history", his).apply();
+					}
+				}else{
+					his = String.format("%s%c%s%c", original, ((char) 30), formattedResult, ((char) 29));
+					sp.edit().putString("history", his).apply();
+				}
+
+	            /*if (his != null && his.indexOf(original + "," + Format.format(result.toPlainString()) + ";") != 0) {
+		            his = original + "," + Format.format(result.toPlainString()) + ";" + his;
+		            sp.edit().putString("history", his).apply();
+	            }else if(his == null){
+		            his = original + "," + Format.format(result.toPlainString()) + ";";
+		            sp.edit().putString("history", his).apply();
+	            }*/
+				if (sp.getBoolean("saveResult", false))
+					sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
+
+				scrollExampleToEnd(HorizontalScrollView.FOCUS_LEFT);
+				break;
+			case "not":
+				TextView preans = findViewById(R.id.AnswerStr);
+				preans.setText(ans);
+				show_str();
+				format(R.id.AnswerStr);
+				show_ans();
+				setTextViewsTextSizeToDefault();
+				resizeText();
+				scrollExampleToEnd();
+				break;
+			default:
+				throw new IllegalArgumentException("Arguments should be of two types: all, not");
+		}
+	}
+
     private void setTextViewAnswerTextSizeToDefault(){
         TextView t = findViewById(R.id.AnswerStr);
         t.setText("");
         t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
         t.setTextColor(DarkMode ? Color.WHITE : Color.BLACK);
-    }
-
-    private void writeCalculationError(String text){
-        TextView t = findViewById(R.id.AnswerStr);
-        hide_ans();
-        t.setText(text);
-        t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
-        t.setTextColor(Color.parseColor("#FF4B32"));
-        show_ans();
-        was_error = true;
     }
 
     private void equallu(String type){

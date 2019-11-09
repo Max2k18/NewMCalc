@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/history_dark"
+            android:title="@string/hitory" />
+        <item
+            android:id="@+id/nav_numbersysconverter"
+            android:icon="@drawable/binary_dark"
+            android:title="@string/number_system_convrter" />
+        <item
+            android:id="@+id/nav_passgen"
+            android:icon="@drawable/passgen_dark"
+            android:title="@string/passgen" />
+        <item
+            android:id="@+id/nav_numgen"
+            android:icon="@drawable/dice_dark"
+            android:title="@string/randomgen" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/settings_dark"
+            android:title="@string/settings" />
+    </group>
+</menu>

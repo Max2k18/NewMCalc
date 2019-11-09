@@ -92,7 +92,7 @@ public class Settings extends AppCompatActivity {
 			setTheme(R.style.AppTheme);
 		}
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_updater_main);
+		setContentView(R.layout.activity_settings);
 		try {
 			getSupportActionBar().setTitle(getResources().getString(R.string.settings));
 		}catch (NullPointerException e){
@@ -128,7 +128,7 @@ public class Settings extends AppCompatActivity {
 	}
 
 	private void restartApp(){
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(this, Main2Activity.class);
 		this.startActivity(intent);
 		this.finishAffinity();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);

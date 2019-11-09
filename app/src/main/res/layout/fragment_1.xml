@@ -2,8 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:gravity="bottom"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".Main2Activity">
 
     <TableLayout
         android:id="@+id/tbl"
@@ -15,7 +17,6 @@
         android:gravity="bottom"
         android:orientation="horizontal"
         android:visibility="visible">
-
 
         <TableRow
             android:id="@+id/tblR5"
@@ -249,7 +250,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.25"
                 android:backgroundTint="@android:color/holo_orange_dark"
-                android:onClick="call_equally"
+                android:onClick="onClick"
                 android:text="="
                 android:textAllCaps="false"
                 android:textColor="@color/black"

@@ -7,6 +7,8 @@ import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.utils.Utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.EmptyStackException;
@@ -66,7 +68,7 @@ public final class CoreMain {
 	 *
 	 * @see CalculationResult
 	 */
-	public final void prepare(String example, String type) throws NullPointerException{
+	public final void prepare(@NotNull String example, String type) throws NullPointerException{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");
 		int len = example.length();

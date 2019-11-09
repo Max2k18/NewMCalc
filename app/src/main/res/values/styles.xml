@@ -1,12 +1,27 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#fff</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="windowActionBar">false</item>
+    </style>
+
+    <style name="AppThemeMainActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#fff</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle</item>
+    </style>
+
+    <style name="actionOverflowButtonStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/black</item>
+    </style>
+
+    <style name="NavigationView.Default" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
