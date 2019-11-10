@@ -9,6 +9,11 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
 #### **I waiting for feedback**
 
 ## Technical Change history
+### 1.12.0
+  * Added side menu on main screen
+  * New main activity: Main2Activity (MainActivity wil be deleted in after a while)
+  * Special theme for Main2Activity, because it has own toolbar
+
 ### 1.11.6
   * Added support for the German language
   * New History Storage Protocol (HSP) v2
