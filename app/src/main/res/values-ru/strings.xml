@@ -140,4 +140,6 @@
     <string name="want_to_continue_question">Хотите продолжить?</string>
     <string name="restart">Перезапустить</string>
     <string name="confirm_history_reformat">Для продолжения работы данной функции, приложению необходимо обновить протокол хранения истории. Нажмите кнопку \"ОК\" чтобы выполнить.</string>
+    <string name="important_information">Важная информация</string>
+    <string name="sidebar_guide_message">Мы переместили кнопку настроек, истории, генераторов и конвертера в новое боковое меню. Мы можете открыть его свайпом от левого края экрана или нажать на кнопку сверху слева.&lt;br&gt;&lt;br&gt; &lt;b&gt;Приятного использования!&lt;/b&gt;</string>
 </resources>

@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements CoreMain.CoreLink
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
-		if(!BuildConfig.WhatNewIsExisting){
+		if(!BuildConfig.WhatNewIsExisting || !APPTYPE.equals("stable")){
 			menu.removeItem(R.id.what_new);
 		}
 		return true;

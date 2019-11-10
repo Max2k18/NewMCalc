@@ -20,6 +20,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Html;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
@@ -134,7 +135,12 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		});
 
 		mAppBarConfiguration = new AppBarConfiguration.Builder(
-				R.id.nav_history, R.id.nav_numbersysconverter, R.id.nav_passgen, R.id.nav_numgen, R.id.nav_settings)
+					R.id.nav_history,
+					R.id.nav_numbersysconverter,
+					R.id.nav_passgen,
+					R.id.nav_numgen,
+					R.id.nav_settings
+				)
 				.setDrawerLayout(drawer)
 				.build();
 
@@ -343,6 +349,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		}
 
 		showWhatNewWindow();
+		showSidebarGuide();
 
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
 			ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
@@ -443,6 +450,35 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 
 		setViewPager(0);
 	}
+
+
+	private void showSidebarGuide(){
+		boolean guideShowed = sp.getBoolean("sidebar_guide_showed", false);
+		if(!guideShowed){
+			AlertDialog alertDialog;
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder
+					.setTitle(R.string.important_information)
+					.setMessage(Html.fromHtml(getResources().getString(R.string.sidebar_guide_message)))
+					.setCancelable(false)
+					.setPositiveButton("OK", (dialog, which) -> {
+						sp.edit().putBoolean("sidebar_guide_showed", true).apply();
+						dialog.cancel();
+					});
+			alertDialog = builder.create();
+			Window window = alertDialog.getWindow();
+			if(window != null){
+				if(DarkMode)
+					window.setBackgroundDrawableResource(R.drawable.grey);
+
+				Button btn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+				if(btn != null)
+					btn.setTextColor(getResources().getColor(R.color.colorAccent));
+			}
+			alertDialog.show();
+		}
+	}
+
 	String APPTYPE = BuildConfig.APPTYPE;
 
 	private void showWhatNewWindow(){
@@ -1123,6 +1159,16 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		if(len != 0)
 			last = txt.charAt(len-1);
 
+		int brackets = 0;
+		if(txt.contains("(") || txt.contains(")")) {
+			for (int i = 0; i < len; i++) {
+				if (txt.charAt(i) == '(')
+					brackets++;
+				else if (txt.charAt(i) == ')')
+					brackets--;
+			}
+		}
+
 		if(btntxt.equals("A")){
 			if(len == 0){
 				t.setText(btntxt + "(");
@@ -1230,14 +1276,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			return;
 		}
 
-		int brackets = 0;
-		for(int i = 0; i < len; i++){
-			if(txt.charAt(i) == '(')
-				brackets++;
-			else if(txt.charAt(i) == ')')
-				brackets--;
-		}
-
 		if(btntxt.equals("^")){
 			if(len == 0 || last == '(')
 				return;
@@ -1259,7 +1297,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		if(btntxt.equals("√")){
 			if(len == 0){
 				t.setText(btntxt + "(");
-				brackets++;
 				show_str();
 				scrollExampleToEnd();
 				return;
@@ -1297,7 +1334,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 					}else{
 						if(!Utils.isDigit(last)){
 							t.setText(txt + btntxt + "(");
-							brackets++;
 							equallu("not");
 							show_str();
 							scrollExampleToEnd();
@@ -1327,7 +1363,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			if(len == 0){
 				t = findViewById(R.id.ExampleStr);
 				t.setText(btntxt + "(");
-				brackets++;
 				equallu("not");
 			}else{
 				if(last == '.'){
@@ -1486,7 +1521,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_main, menu);
-		if(!BuildConfig.WhatNewIsExisting){
+		if(!BuildConfig.WhatNewIsExisting || !APPTYPE.equals("stable")){
 			menu.removeItem(R.id.what_new);
 		}
 		return true;

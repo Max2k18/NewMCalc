@@ -28,7 +28,7 @@ import com.maxsavteam.newmcalc.utils.Utils;
 import java.util.ArrayList;
 
 public class Fragment2 extends Fragment {
-	private Context c;
+	private Context mContext;
 
 	/*
 	 *  0 - memory
@@ -36,18 +36,19 @@ public class Fragment2 extends Fragment {
 	 */
 	private View.OnLongClickListener[] longClickListeners;
 	public Fragment2(FragmentTwoInitializationObject fragmentTwoInitializationObject){
-		c = fragmentTwoInitializationObject.getContext();
+		mContext = fragmentTwoInitializationObject.getContext();
 		this.longClickListeners = fragmentTwoInitializationObject.getLongClickListeners();
-		LayoutInflater inflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.fragment_2, null, false);
 	}
-	private Point display_size = new Point();
+	private Point mDisplaySize = new Point();
 
 	@Nullable
 	@Override
 	public View getView() {
 		return view;
 	}
+
 
 	private View view;
 
@@ -76,7 +77,7 @@ public class Fragment2 extends Fragment {
 
 	private void setVariableButtons(){
 		setDefaultButtons();
-		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(c);
+		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(mContext);
 		if(a == null)
 			return;
 		for(int i = 0; i < a.size(); i++){
@@ -91,23 +92,24 @@ public class Fragment2 extends Fragment {
 
 	private void setDefaultButtons(){
 		for(int i = 1; i <= 8; i++){
-			((Button) view.findViewById(findButtonByTag(i))).setText("+");
+			Button button = view.findViewById(findButtonByTag(i));
+			button.setText("+");
+			button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
 		}
 	}
 
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
 		boolean DarkMode = sp.getBoolean("dark_mode", false);
 		Button b = view.findViewById(R.id.btnMR);
 		b.setOnLongClickListener(longClickListeners[0]);
 		b = view.findViewById(R.id.btnMS);
 		b.setOnLongClickListener(longClickListeners[0]);
-		WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
+		WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
 		Display d = wm.getDefaultDisplay();
-		d.getSize(display_size);
+		d.getSize(mDisplaySize);
 		int[] ids = new int[]{
 				R.id.btnMR,
 				R.id.btnMS,
@@ -116,19 +118,19 @@ public class Fragment2 extends Fragment {
 		};
 		for(int id : ids) {
 			b = view.findViewById(id);
-			b.setTextColor(ColorStateList.valueOf(c.getResources().getColor(R.color.colorAccent)));
+			b.setTextColor(ColorStateList.valueOf(mContext.getResources().getColor(R.color.colorAccent)));
 		}
 		ImageButton btn = view.findViewById(R.id.imgBtnAboutAG);
 		TextView var = view.findViewById(R.id.variables);
 		if(DarkMode){
-			btn.setImageDrawable(c.getDrawable(R.drawable.help_dark));
+			btn.setImageDrawable(mContext.getDrawable(R.drawable.help_dark));
 			var.setTextColor(Color.WHITE);
 		}else {
 			btn.setImageResource(R.drawable.help);
 			var.setTextColor(Color.BLACK);
 		}
 		ViewGroup.LayoutParams par = btn.getLayoutParams();
-		int width = display_size.x;
+		int width = mDisplaySize.x;
 		par.width = width / 7;
 		par.height = width / 7;
 		btn.setLayoutParams(par);
