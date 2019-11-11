@@ -769,7 +769,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	};
 
 	boolean isSpecific(char last){
-		return last == ')' || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI);
+		return last == ')' || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI) || last == 'e';
 	}
 
 	View.OnLongClickListener mForAdditionalBtnsLongClick = new View.OnLongClickListener() {
@@ -1303,29 +1303,19 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			}else{
 				String x = "";
 				for(int i = 0; i < len; i++){
-					if(!Utils.isDigit(txt.charAt(i)) && txt.charAt(i) != '.'){
+					if(!Utils.isDigit(txt.charAt(i)) && txt.charAt(i) != '.' && txt.charAt(i) != ' '){
 						break;
 					}else{
-						if(Utils.isDigit(txt.charAt(i)) || txt.charAt(i) != '.')
+						if(Utils.isDigit(txt.charAt(i)) || txt.charAt(i) == '.' || txt.charAt(i) == ' ')
 							x = String.format("%s%c", x, txt.charAt(i));
 					}
 				}
 				if(x.length() == len){
+					x = Utils.deleteSpaces(x);
 					double sq = Double.parseDouble(x);
 					sq = Math.sqrt(sq);
 					String answer = Double.toString(sq);
-					int lend = answer.length();
-					if(answer.charAt(len-1) == '0'){
-						while (lend > 0 && answer.charAt(lend - 1) == '0') {
-							lend--;
-							answer = answer.substring(0, lend);
-						}
-						if(answer.charAt(lend-1) == '.'){
-							answer = answer.substring(0, lend-1);
-						}
-						sq = Double.parseDouble(answer);
-					}
-					t.setText(Double.toString(sq));
+					t.setText(Utils.deleteZeros(answer));
 					scrollExampleToEnd();
 					return;
 				}else{
@@ -1337,6 +1327,13 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 							equallu("not");
 							show_str();
 							scrollExampleToEnd();
+						}else{
+							if(Utils.isDigit(last) || isSpecific(last)){
+								t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
+								equallu("not");
+								show_str();
+								scrollExampleToEnd();
+							}
 						}
 					}
 				}
@@ -1408,7 +1405,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 					t.setText(txt + btntxt);
 					equallu("not");
 				}
-				brackets--;
 			}
 			return;
 		}
@@ -1460,6 +1456,10 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 								equallu("not");
 								return;
 							}
+						}else if(Utils.isDigit(last)){
+							t.setText(txt + btntxt);
+							equallu("not");
+							return;
 						}
 					}else{
 						if(last != '%'){

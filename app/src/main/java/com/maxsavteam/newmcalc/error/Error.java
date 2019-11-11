@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc.error;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class Error {
 
