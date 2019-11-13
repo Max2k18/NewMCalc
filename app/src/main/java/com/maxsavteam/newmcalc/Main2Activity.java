@@ -59,7 +59,7 @@ import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.core.CoreMain;
-import com.maxsavteam.newmcalc.error.Error;
+import com.maxsavteam.newmcalc.core.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.Utils;
@@ -1252,7 +1252,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				return;
 			}
 		}
-		if(btntxt.equals("φ") || btntxt.equals("π") || btntxt.equals("e")){
+		if(btntxt.equals(FI) || btntxt.equals(PI) || btntxt.equals("e")){
 			if(len == 0){
 				t.setText(btntxt);
 				equallu("not");
@@ -1340,10 +1340,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			}
 			return;
 		}
-
-		if(btntxt.equals(")") && len == 0){
-			return;
-		}
 		if(btntxt.equals("(")){
 			if(last == '.')
 				return;
@@ -1386,6 +1382,8 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		}
 
 		if(btntxt.equals(")")){
+			if(len == 0)
+				return;
 			if(brackets > 0){
 				if(last == ')'){
 					t.setText(txt + btntxt);

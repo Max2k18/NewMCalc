@@ -54,7 +54,7 @@ import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.core.CoreMain;
-import com.maxsavteam.newmcalc.error.Error;
+import com.maxsavteam.newmcalc.core.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.Utils;

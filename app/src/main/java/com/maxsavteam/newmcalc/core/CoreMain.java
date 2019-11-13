@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -282,7 +281,7 @@ public final class CoreMain {
 					} else if (!s0.empty() && Utils.isBasicAction(s0.peek())) {
 						try {
 
-							class Isolated implements CoreLinkBridge {
+							class IsolatedCoreProcess implements CoreLinkBridge {
 								private BigDecimal res;
 
 								private Error getError() {
@@ -323,21 +322,33 @@ public final class CoreMain {
 							}
 							i++;
 							String x1 = "";
-							while (i < example.length() && example.charAt(i) != '-' && example.charAt(i) != '+') {
+							int brackets = 0;
+							while (i < example.length()) {
+								if(brackets == 0 && (example.charAt(i) == '-' || example.charAt(i) == '+')){
+									break;
+								}
+								if(brackets == 0 && example.charAt(i) == ')')
+									break;
+
+								if(example.charAt(i) == '(')
+									brackets++;
+								else if(example.charAt(i) == ')')
+									brackets--;
+
 								x1 = String.format("%s%c", x1, example.charAt(i));
 								i++;
 							}
 							x1 = s1.peek().toPlainString() + x1;
 							s1.pop();
-							Isolated isolated = new Isolated();
-							isolated.run(x1);
-							if (isolated.isWas_error() && !isolated.getError().getError().contains("String is number")) {
+							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess();
+							isolatedCoreProcess.run(x1);
+							if (isolatedCoreProcess.isWas_error() && !isolatedCoreProcess.getError().getError().contains("String is number")) {
 								was_error = true;
-								coreLinkBridge.onError(isolated.getError());
+								coreLinkBridge.onError(isolatedCoreProcess.getError());
 								return;
 							} else {
 								BigDecimal top;
-								top = isolated.getRes();
+								top = isolatedCoreProcess.getRes();
 								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
 								top = new BigDecimal(Utils.deleteZeros(top.toPlainString()));
 								//s1.push(top);
@@ -370,6 +381,7 @@ public final class CoreMain {
 								}
 
 							}
+							i--;
 							continue;
 						} catch (Exception e) {
 							e.printStackTrace();

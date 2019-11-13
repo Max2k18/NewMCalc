@@ -41,14 +41,14 @@ android {
             targetSdkVersion 28
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.12.0"
+            versionName "1.12.1"
             multiDexEnabled true
-            buildConfigField "Boolean", "WhatNewIsExisting", "true"
+            buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
             // It consist of year, months, day
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-            buildConfigField "String", "CoreVersion", "\"v2.2.101921\""
+            buildConfigField "String", "CoreVersion", "\"v2.3.111913\""
             buildConfigField "Integer", "HistoryStorageProtocolVersion", "2"
             buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
