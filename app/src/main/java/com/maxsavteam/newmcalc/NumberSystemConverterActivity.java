@@ -1,5 +1,6 @@
 package com.maxsavteam.newmcalc;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,14 +50,14 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		if (start_type.equals("app")) {
 			backPressed();
 		} else if (start_type.equals("shortcut")) {
-			startActivity(new Intent(this, MainActivity.class));
+			startActivity(new Intent(this, Main2Activity.class));
 			backPressed();
 		}
 		//super.onBackPressed();
 	}
 	String start_type;
 
-	private int position_in_set(int sys){
+	private int positionInSet(int sys){
 		for(int i = 0; i < data.length; i++){
 			String s = data[i];
 			if(s.equals(Integer.toString(sys)))
@@ -74,6 +75,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@SuppressLint("SourceLockedOrientationActivity")
 	private void apply_theme(boolean dark_mode){
 		ImageButton btn = findViewById(R.id.btnImgCopyNum);
 		Display d = getWindowManager().getDefaultDisplay();
@@ -142,14 +144,14 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 				int choice = Integer.valueOf(data[position]);
 				if(choice == toSys){
 					toSys = fromSys;
-					to.setSelection(position_in_set(toSys));
+					to.setSelection(positionInSet(toSys));
 				}
 				fromSys = choice;
 				if (fromSys <= 10){
 					fromText.setInputType(InputType.TYPE_CLASS_NUMBER);
 				}else
 					fromText.setInputType(InputType.TYPE_CLASS_TEXT);
-				fromText.setText(translated_from[position_in_set(fromSys)]);
+				fromText.setText(translated_from[positionInSet(fromSys)]);
 			}
 
 			@Override
@@ -166,8 +168,8 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 				int choice = Integer.valueOf(data[position]);
 				if(choice == fromSys){
 					fromSys = toSys;
-					from.setSelection(position_in_set(fromSys));
-					fromText.setText(translated_from[position_in_set(fromSys)]);
+					from.setSelection(positionInSet(fromSys));
+					fromText.setText(translated_from[positionInSet(fromSys)]);
 				}
 				toSys = choice;
 				//toText.setText(translated_to[position_in_set(toSys)]);
@@ -216,7 +218,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		String to = toText.getText().toString();
 		if (!from.equals("")) {
 			String result;
-			translated_from[position_in_set(fromSys)] = from;
+			translated_from[positionInSet(fromSys)] = from;
 			if(fromSys == 10)
 				result = from;
 			else
@@ -224,7 +226,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 
 			result = from_dec(new BigDecimal(result), toSys);
 			toText.setText(result);
-			translated_to[position_in_set(toSys)] = result;
+			translated_to[positionInSet(toSys)] = result;
 			//findViewById(R.id.btnImgCopyNum).setVisibility(View.VISIBLE);
 		}else{
 			toText.setText("");

@@ -179,4 +179,6 @@
     <string name="copyright_maxsav_team" translatable="false">© MaxSav Team</string>
     <string name="important_information">Important information</string>
     <string name="sidebar_guide_message">We have moved the settings, history, generators and converter button to the new side menu. You can open it with a swipe from the left edge of the screen or click on the button from the top left. &lt;br&gt;&lt;br&gt; &lt;b&gt;Have a nice use!&lt;/b&gt;</string>
+    <string name="smth_went_wrong">Something went wrong</string>
+    <string name="restart_app">Restart application</string>
 </resources>

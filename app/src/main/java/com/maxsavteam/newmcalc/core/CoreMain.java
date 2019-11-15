@@ -137,8 +137,6 @@ public final class CoreMain {
 		s0.clear();
 		s1.clear();
 		was_error = false;
-		/*char[] str = new char[example.length()];
-		example.getChars(0, example.length(), str, 0);*/
 		String x;
 		String s;
 		int len = example.length();

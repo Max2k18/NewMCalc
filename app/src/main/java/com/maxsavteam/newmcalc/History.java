@@ -76,7 +76,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         if (start_type.equals("app")) {
             backPressed();
         } else if (start_type.equals("shortcut")) {
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, Main2Activity.class));
             backPressed();
         }
         //super.onBackPressed();

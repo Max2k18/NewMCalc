@@ -31,23 +31,9 @@
         <activity android:name=".NumberSystemConverterActivity" />
         <activity android:name=".MemoryActionsActivity" />
         <activity android:name=".CatchService" />
-        <activity
-            android:name=".History"
-            android:noHistory="true" />
-        <activity
-            android:name=".NumberPasswordGeneratorActivity"
-            android:noHistory="false" />
-        <activity
-            android:name=".Settings"
-            android:noHistory="true">
-        </activity>
-        <activity android:name=".MainActivity">
-            <!--intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter-->
-        </activity>
+        <activity android:name=".History" />
+        <activity android:name=".NumberPasswordGeneratorActivity" />
+        <activity android:name=".Settings" />
     </application>
 
 </manifest>

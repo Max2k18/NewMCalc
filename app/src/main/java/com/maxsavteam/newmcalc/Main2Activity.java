@@ -54,7 +54,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
-import com.maxsavteam.newmcalc.MainActivity.EnterModes;
 import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
@@ -96,68 +95,88 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		sp  = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		DarkMode = sp.getBoolean("dark_mode", false);
-		if(DarkMode)
-			setTheme(android.R.style.Theme_Material_NoActionBar);
-		else
-			setTheme(R.style.AppThemeMainActivity);
-		setContentView(R.layout.activity_main2);
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		toolbar.setTitleTextColor(Color.BLACK);
-		toolbar.setBackgroundColor(Color.WHITE);
-		setSupportActionBar(toolbar);
-		getSupportActionBar().setTitle("New MCalc");
-		DrawerLayout drawer = findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-		drawer.setDrawerListener(toggle);
-		toggle.syncState();
-		/*Drawable d = getDrawable(R.drawable.settings);
-		getSupportActionBar().setHomeAsUpIndicator(d);*/
-		mNavigationView = findViewById(R.id.nav_view);
-		mNavigationView.setBackgroundColor(Color.BLACK);
-		mNavigationView.setNavigationItemSelectedListener(menuItem -> {
-			if(menuItem.getItemId() == R.id.nav_settings) {
-				goToAdditionalActivities("settings");
-			}else if(menuItem.getItemId() == R.id.nav_history){
-				goToAdditionalActivities("history");
-			}else if(menuItem.getItemId() == R.id.nav_numbersysconverter){
-				goToAdditionalActivities("bin");
-			}else if(menuItem.getItemId() == R.id.nav_passgen){
-				goToAdditionalActivities("pass");
-			}else if(menuItem.getItemId() == R.id.nav_numgen){
-				goToAdditionalActivities("numgen");
-			}
-			menuItem.setChecked(false);
-			drawer.closeDrawer(GravityCompat.START);
-			return true;
-		});
+		try {
+			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			DarkMode = sp.getBoolean("dark_mode", false);
+			if (DarkMode)
+				setTheme(android.R.style.Theme_Material_NoActionBar);
+			else
+				setTheme(R.style.AppThemeMainActivity);
+			setContentView(R.layout.activity_main2);
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			setSupportActionBar(toolbar);
+			getSupportActionBar().setTitle("New MCalc");
+			DrawerLayout drawer = findViewById(R.id.drawer_layout);
+			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+					this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+			drawer.setDrawerListener(toggle);
+			toggle.syncState();
+			mNavigationView = findViewById(R.id.nav_view);
+			mNavigationView.setBackgroundColor(Color.BLACK);
+			mNavigationView.setNavigationItemSelectedListener(menuItem -> {
+				if (menuItem.getItemId() == R.id.nav_settings) {
+					goToAdditionalActivities("settings");
+				} else if (menuItem.getItemId() == R.id.nav_history) {
+					goToAdditionalActivities("history");
+				} else if (menuItem.getItemId() == R.id.nav_numbersysconverter) {
+					goToAdditionalActivities("bin");
+				} else if (menuItem.getItemId() == R.id.nav_passgen) {
+					goToAdditionalActivities("pass");
+				} else if (menuItem.getItemId() == R.id.nav_numgen) {
+					goToAdditionalActivities("numgen");
+				}
+				menuItem.setChecked(false);
+				drawer.closeDrawer(GravityCompat.START);
+				return true;
+			});
 
-		mAppBarConfiguration = new AppBarConfiguration.Builder(
+			mAppBarConfiguration = new AppBarConfiguration.Builder(
 					R.id.nav_history,
 					R.id.nav_numbersysconverter,
 					R.id.nav_passgen,
 					R.id.nav_numgen,
 					R.id.nav_settings
-				)
-				.setDrawerLayout(drawer)
-				.build();
+			)
+					.setDrawerLayout(drawer)
+					.build();
 
-		mCoreMain = new CoreMain(this);
-		mCoreMain.setInterface(this);
-		FI = getResources().getString(R.string.fi);
-		PI = getResources().getString(R.string.pi);
-		MULTIPLY_SIGN = getResources().getString(R.string.multiply);
+			mCoreMain = new CoreMain(this);
+			mCoreMain.setInterface(this);
+			FI = getResources().getString(R.string.fi);
+			PI = getResources().getString(R.string.pi);
+			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
 
-		applyTheme();
+			applyTheme();
 
-		Intent startIntent = getIntent();
-		if (startIntent.getBooleanExtra("shortcut_action", false)) {
-			String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
-			if(whereWeNeedToGoToAnotherActivity != null) {
-				goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+			Intent startIntent = getIntent();
+			if (startIntent.getBooleanExtra("shortcut_action", false)) {
+				String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
+				if (whereWeNeedToGoToAnotherActivity != null) {
+					goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+				}
 			}
+
+			setViewPager(0);
+		}catch(Exception e){
+			DarkMode = sp.getBoolean("dark_mode", false);
+			if (DarkMode)
+				setTheme(android.R.style.Theme_Material_NoActionBar);
+			else
+				setTheme(R.style.AppThemeMainActivity);
+			setContentView(R.layout.smth_went_wrong);
+			if(DarkMode){
+				TextView t = findViewById(R.id.lblSomethingWentWrong);
+				t.setTextColor(Color.WHITE);
+			}
+			Button btn = findViewById(R.id.btnRestartApp);
+			btn.setTextColor(Color.WHITE);
+			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+			btn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					restartActivity();
+				}
+			});
 		}
 	}
 
@@ -353,7 +372,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
 			ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-			Intent t = new Intent(Intent.ACTION_VIEW, null, this, MainActivity.class);
+			Intent t = new Intent(Intent.ACTION_VIEW, null, this, Main2Activity.class);
 			t.putExtra("shortcut_action", true);
 			t.putExtra("to_", "numgen");
 			ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
@@ -448,7 +467,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			sp.edit().putInt("offers_count", offers_count).apply();
 		}
 
-		setViewPager(0);
+		//setViewPager(0);
 	}
 
 
@@ -801,10 +820,16 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		return true;
 	};
 
-	MainActivity.EnterModes exampleEnterMode;
+	enum EnterModes{
+		SIMPLE,
+		AVERAGE,
+		GEOMETRIC
+	}
+
+	EnterModes exampleEnterMode;
 
 	public void deleteExample(View v){
-		exampleEnterMode = MainActivity.EnterModes.SIMPLE;
+		exampleEnterMode = EnterModes.SIMPLE;
 		TextView t = findViewById(R.id.ExampleStr);
 		hide_str();
 		t.setText("");
@@ -1173,7 +1198,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			if(len == 0){
 				t.setText(btntxt + "(");
 				equallu("not");
-				exampleEnterMode = MainActivity.EnterModes.AVERAGE;
+				exampleEnterMode = EnterModes.AVERAGE;
 				return;
 			}
 			if(exampleEnterMode != EnterModes.SIMPLE)

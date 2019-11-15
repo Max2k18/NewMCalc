@@ -165,4 +165,6 @@
     <string name="confirm_history_reformat">Um mit dieser Funktion weiterarbeiten zu können, muss die Anwendung das Verlaufsspeicherprotokoll aktualisieren. Klicken Sie zum Ausführen auf OK.</string>
     <string name="important_information">Wichtige Information</string>
     <string name="sidebar_guide_message">Wir haben die Schaltfläche Einstellungen, Verlauf, Generatoren und Konverter in das neue Seitenmenü verschoben. Sie können es mit einem Wisch vom linken Bildschirmrand aus öffnen oder auf die Schaltfläche oben links klicken.&lt;br&gt;&lt;br&gt; &lt;b&gt; Habt eine schöne Verwendung!&lt;/b&gt;</string>
+    <string name="smth_went_wrong">Irgendwas ist schief gelaufen</string>
+    <string name="restart_app">Anwendung neu starten</string>
 </resources>
