@@ -59,7 +59,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     private final int HISTORY_STORAGE_PROTOCOL_VERSION = BuildConfig.HistoryStorageProtocolVersion;
     private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 
-    protected void backPressed(){
+    private void backPressed(){
         sendBroadcast(history_action);
         finish();
         overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
@@ -679,12 +679,18 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     }
 
     private void runReformat(){
-        ProgressDialog pd = new ProgressDialog(this);
-        pd.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        pd.setCancelable(false);
-        new HistoryStorageProtocolsFormatter(this).reformatHistory(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HISTORY_STORAGE_PROTOCOL_VERSION);
-        pd.dismiss();
-        prepareHistoryForRecyclerView();
+        try {
+            ProgressDialog pd = new ProgressDialog(this);
+            pd.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            pd.setCancelable(false);
+            new HistoryStorageProtocolsFormatter(this).reformatHistory(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HISTORY_STORAGE_PROTOCOL_VERSION);
+            pd.dismiss();
+            prepareHistoryForRecyclerView();
+        }catch(StringIndexOutOfBoundsException e){
+            Toast.makeText(this, getResources().getString(R.string.smth_went_wrong), Toast.LENGTH_LONG).show();
+            history_action.putExtra("error", true);
+            backPressed();
+        }
     }
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})

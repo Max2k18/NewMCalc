@@ -672,14 +672,16 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				t = findViewById(R.id.ExampleStr);
-				String example = intent.getStringExtra("example");
-				if(example != null && !example.equals("")){
-					String result = intent.getStringExtra("result");
+				if(!intent.getBooleanExtra("error", false)) {
+					String example = intent.getStringExtra("example");
+					if (example != null && !example.equals("")) {
+						String result = intent.getStringExtra("result");
 
-					if(t.getText().toString().equals("")) t.setText(example);
-					else addStringExampleToTheExampleStr(result);
+						if (t.getText().toString().equals("")) t.setText(example);
+						else addStringExampleToTheExampleStr(result);
 
-					equallu("not");
+						equallu("not");
+					}
 				}
 			}
 		};
