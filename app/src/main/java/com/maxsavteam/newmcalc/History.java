@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.grpc.NameResolver;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class History extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
@@ -80,6 +81,12 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             backPressed();
         }
         //super.onBackPressed();
+    }
+
+    private void onSomethingWentWrong(){
+        Toast.makeText(this, getResources().getString(R.string.smth_went_wrong), Toast.LENGTH_LONG).show();
+        history_action.putExtra("error", true);
+        backPressed();
     }
 
     @Override
@@ -186,6 +193,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             public void onAnimationEnd(Animation animation) {
                 //setupTimer();
                 if(!sp.getBoolean("force_delete_guide_was_showed", false)) {
+                    findViewById(R.id.btnCancel).setEnabled(false);
                     new MaterialTapTargetPrompt.Builder(History.this)
                             .setTarget(R.id.btnCancel)
                             .setPrimaryText(getResources().getString(R.string.force_delete))
@@ -196,6 +204,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                                     if(state == MaterialTapTargetPrompt.STATE_DISMISSED || state == MaterialTapTargetPrompt.STATE_FINISHED) {
                                         sp.edit().putBoolean("force_delete_guide_was_showed", true).apply();
                                         setupTimer();
+                                        findViewById(R.id.btnCancel).setEnabled(true);
                                     }
                                 }
                             }).show();
@@ -542,26 +551,30 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     public void animate_hide(){
         Animation anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_scale_hide);
-        cancel.clearAnimation();
-        cancel.setAnimation(anim);
-        anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
+        try {
+            cancel.clearAnimation();
+            cancel.setAnimation(anim);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
 
-            }
+                }
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                cancel.setVisibility(View.GONE);
-            }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    cancel.setVisibility(View.GONE);
+                }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
+                @Override
+                public void onAnimationRepeat(Animation animation) {
 
-            }
-        });
-        cancel.animate();
-        anim.start();
+                }
+            });
+            cancel.animate();
+            anim.start();
+        }catch(Exception e){
+            onSomethingWentWrong();
+        }
     }
 
     String start_type;
@@ -687,9 +700,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             pd.dismiss();
             prepareHistoryForRecyclerView();
         }catch(StringIndexOutOfBoundsException e){
-            Toast.makeText(this, getResources().getString(R.string.smth_went_wrong), Toast.LENGTH_LONG).show();
-            history_action.putExtra("error", true);
-            backPressed();
+            onSomethingWentWrong();
         }
     }
 
@@ -729,7 +740,8 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 		        alert = builder.create();
 		        Window alertWindow = alert.getWindow();
 		        if (alertWindow != null) {
-			        alertWindow.setBackgroundDrawableResource(R.drawable.grey);
+		            if(DarkMode)
+			            alertWindow.setBackgroundDrawableResource(R.drawable.grey);
 			        //alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
 		        }
 		        alert.show();

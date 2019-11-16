@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -203,7 +204,8 @@ public class Settings extends AppCompatActivity {
 	}
 
 	private void import_settings() {
-		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
+		String fileName = "NewMCalc" + (APPTYPE.equals("dev") ? "Dev" : "")  + ".imc";
+		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/" + fileName);
 		try {
 			FileReader fr = new FileReader(f);
 			//tring ans = "";
@@ -241,6 +243,7 @@ public class Settings extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 		}
 	}
+	String APPTYPE = BuildConfig.APPTYPE;
 
 	public void create_import(View v) {
 		ProgressDialog pd;
@@ -251,7 +254,8 @@ public class Settings extends AppCompatActivity {
 		if (!f.isDirectory()) {
 			f.mkdir();
 		}
-		f = new File(Environment.getExternalStorageDirectory() + "/MST files/NewMCalc.imc");
+		String fileName = "NewMCalc" + (APPTYPE.equals("dev") ? "Dev" : "")  + ".imc";
+		f = new File(Environment.getExternalStorageDirectory() + "/MST files/" + fileName);
 		pd.show();
 		try {
 			FileWriter fw = new FileWriter(f, false);
@@ -267,7 +271,7 @@ public class Settings extends AppCompatActivity {
 				fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append("©");
 			}
 			pd.dismiss();
-			fw.append("#Please do not change the values yourself.\n#This can lead to malfunctions or even to malfunction");
+			fw.append("\n#Please do not change the values yourself.\n#This can lead to malfunctions or even to malfunction");
 			fw.flush();
 			Toast.makeText(getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
