@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.maxsavteam.newmcalc.R;
+import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.annotation.Nonnull;
+
 /**
  * @author Maks
  * */
@@ -24,6 +27,7 @@ public final class CoreMain {
 	private Resources res;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
+	private String mExample, mType;
 
 	public CoreMain(Context context) {
 		this.res = context.getApplicationContext().getResources();
@@ -41,6 +45,16 @@ public final class CoreMain {
 		void onSuccess(CalculationResult calculationResult);
 		void onError(Error error);
 	}
+	
+	private void onSuccess(CalculationResult calculationResult){
+		coreLinkBridge.onSuccess(calculationResult);
+		//currentThread().interrupt();
+	}
+
+	private void onError(Error error){
+		coreLinkBridge.onError(error);
+		//currentThread().interrupt();
+	}
 
 	/**
 	 * Is used for actions
@@ -50,16 +64,18 @@ public final class CoreMain {
 	/**
 	 * Is used for numbers
 	 * */
-	private final Stack<BigDecimal> s1 = new Stack<>(); // for numbers
+	private final Stack<BigDecimal> s1 = new Stack<>();
 
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal("1000");
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
 
-
+	public void prepareData(@Nonnull String example, String type){
+		this.mExample = example;
+		this.mType = type;
+	}
+	
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
-	 *
-	 *
 	 *
 	 * @param example expression to be calculated
 	 * @param type type of calculation. Not necessary
@@ -67,7 +83,7 @@ public final class CoreMain {
 	 *
 	 * @see CalculationResult
 	 */
-	public final void prepare(@NotNull String example, String type) throws NullPointerException{
+	public void prepareAndRun(@NotNull String example, String type) throws NullPointerException{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");
 		int len = example.length();
@@ -93,7 +109,7 @@ public final class CoreMain {
 			}
 		}else if(brackets < 0){
 			was_error = true;
-			coreLinkBridge.onError(new Error().setStatus("Core"));
+			onError(new Error().setStatus("Core"));
 			return;
 		}
 		if(example.contains(" ")){
@@ -105,7 +121,7 @@ public final class CoreMain {
 			example = sb.toString();
 		}
 		if(Utils.isNumber(example)){
-			coreLinkBridge.onError(new Error().setStatus("Core").setError("/Core/String is number").setPossibleResult(new BigDecimal(example)));
+			onError(new Error().setStatus("Core").setError("String is number").setPossibleResult(new BigDecimal(example)));
 			return;
 		}
 		if(example.contains(res.getString(R.string.multiply)) || example.contains(res.getString(R.string.div))
@@ -166,7 +182,7 @@ public final class CoreMain {
 							s0.push("(");
 							break;
 						case "tan":
-							s0.push("tag");
+							s0.push("tan");
 							s0.push("(");
 							break;
 						case "log":
@@ -216,7 +232,7 @@ public final class CoreMain {
 
 								was_error = true;
 								if (isNumberBigger)
-									coreLinkBridge.onError(new Error().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
+									onError(new Error().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
 								break;
 							}
 							for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
@@ -230,12 +246,12 @@ public final class CoreMain {
 							BigDecimal y = s1.peek();
 							if (y.signum() < 0) {
 								was_error = true;
-								coreLinkBridge.onError(new Error().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
+								onError(new Error().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
 								break;
 							} else {
 								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
 									was_error = true;
-									coreLinkBridge.onError(new Error().setError("For some reason, we cannot calculate the factorial of this number " +
+									onError(new Error().setError("For some reason, we cannot calculate the factorial of this number " +
 											"(because it is too large and may not have enough device resources when executed)").setShortError(valueIsTooBig));
 									break;
 								} else {
@@ -259,7 +275,7 @@ public final class CoreMain {
 					} catch (Exception e) {
 						e.printStackTrace();
 						was_error = true;
-						coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+						onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 						break;
 					}
 				} else if (s.equals("%")) {
@@ -306,8 +322,10 @@ public final class CoreMain {
 								public void onError(Error error) {
 									was_error = true;
 									this.error = error;
-									if (error.getError().contains("String is number")) {
-										res = error.getPossibleResult();
+									if(error.getStatus().equals("Core")) {
+										if (error.getError().contains("String is number")) {
+											res = error.getPossibleResult();
+										}
 									}
 								}
 
@@ -315,7 +333,7 @@ public final class CoreMain {
 									CoreMain core = new CoreMain(c);
 									core.setInterface(this);
 
-									core.prepare(ex, "");
+									core.prepareAndRun(ex, "");
 								}
 							}
 							i++;
@@ -342,7 +360,7 @@ public final class CoreMain {
 							isolatedCoreProcess.run(x1);
 							if (isolatedCoreProcess.isWas_error() && !isolatedCoreProcess.getError().getError().contains("String is number")) {
 								was_error = true;
-								coreLinkBridge.onError(isolatedCoreProcess.getError());
+								onError(isolatedCoreProcess.getError());
 								return;
 							} else {
 								BigDecimal top;
@@ -384,7 +402,7 @@ public final class CoreMain {
 						} catch (Exception e) {
 							e.printStackTrace();
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+							onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 							break;
 						}
 					}
@@ -408,7 +426,7 @@ public final class CoreMain {
 							continue;
 						} else {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Invalid statement for square root").setShortError(invalidArgument));
+							onError(new Error().setError("Invalid statement for square root").setShortError(invalidArgument));
 							break;
 						}
 					}
@@ -524,7 +542,7 @@ public final class CoreMain {
 				}
 			}catch (Exception e){
 				was_error = true;
-				coreLinkBridge.onError(new Error().setStatus("Core").setShortError("Smth went wrong"));
+				onError(new Error().setStatus("Core").setShortError("Smth went wrong"));
 				break;
 			}
 		}
@@ -547,10 +565,10 @@ public final class CoreMain {
 			}
 		}catch (Exception e) {
 			was_error = true;
-			coreLinkBridge.onError(new Error().setStatus("Core"));
+			onError(new Error().setStatus("Core"));
 		}
 		if(!was_error){
-			coreLinkBridge.onSuccess(new CalculationResult().setResult(s1.peek()).setType(type));
+			onSuccess(new CalculationResult().setResult(s1.peek()).setType(type));
 		}
 	}
 
@@ -561,27 +579,28 @@ public final class CoreMain {
 				 BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					was_error = true;
-					coreLinkBridge.onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
+					onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
 					return;
 				}
 				s1.pop();
+				//d = Math.toRadians(d);
 				switch (x) {
 					case "cos": {
-						ans = BigDecimal.valueOf(Math.cos(d));
+						ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
 						break;
 					}
 					case "sin": {
-						ans = BigDecimal.valueOf(Math.sin(d));
+						ans = BigDecimal.valueOf(Math.sin(Math.toRadians(d)));
 						break;
 					}
 					case "tan": {
-						ans = BigDecimal.valueOf(Math.tan(d));
+						ans = BigDecimal.valueOf(Math.tan(Math.toRadians(d)));
 						break;
 					}
 					case "log": {
 						if (d <= 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.log10(d));
@@ -590,7 +609,7 @@ public final class CoreMain {
 					case "ln": {
 						if (d <= 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.log(d));
@@ -599,7 +618,7 @@ public final class CoreMain {
 					case "R":
 						if (d < 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
+							onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.sqrt(d));
@@ -632,7 +651,7 @@ public final class CoreMain {
 					case "/":
 						if (b.signum() == 0) {
 							was_error = true;
-							coreLinkBridge.onError(new Error().setError("Division by zero.").setShortError(divisionByZero));
+							onError(new Error().setError("Division by zero.").setShortError(divisionByZero));
 							return;
 						}
 						ans = a.divide(b);
@@ -640,11 +659,11 @@ public final class CoreMain {
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
 							was_error = true;
-							coreLinkBridge.onError(new Error().setShortError(valueIsTooBig));
+							onError(new Error().setShortError(valueIsTooBig));
 							return;
 						}else if(b1 == 0){
 							was_error = true;
-							coreLinkBridge.onError(new Error().setShortError("Raising zero to zero degree."));
+							onError(new Error().setShortError("Raising zero to zero degree."));
 							return;
 						}
 						ans = BigDecimal.valueOf(Math.pow(a1, b1));
@@ -661,15 +680,15 @@ public final class CoreMain {
 					s1.push(ans);
 				} else {
 					was_error = true;
-					coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
+					onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
 				}
 			}
 		}catch(EmptyStackException e){
 			was_error = true;
-			coreLinkBridge.onError(new Error().setStatus("Core").setError(e.toString()));
+			onError(new Error().setStatus("Core").setError(e.toString()));
 		}catch (Exception e) {
 			was_error = true;
-			coreLinkBridge.onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
+			onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
 			throw new Exception(e.getMessage());
 		}
 	}

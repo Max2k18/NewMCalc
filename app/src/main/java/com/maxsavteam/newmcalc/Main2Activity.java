@@ -58,7 +58,7 @@ import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.core.CoreMain;
-import com.maxsavteam.newmcalc.core.Error;
+import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.Utils;
@@ -70,7 +70,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
 public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLinkBridge {
 
@@ -91,6 +90,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	private CoreMain mCoreMain;
 	private ViewPager mViewPager;
 	private  Point displaySize = new Point();
+	private Thread coreThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -927,7 +927,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 
 		was_error = false;
 		original = example;
-		mCoreMain.prepare(example, type);
+		mCoreMain.prepareAndRun(example, type);
 	}
 
 	@Override
@@ -994,13 +994,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 					sp.edit().putString("history", his).apply();
 				}
 
-	            /*if (his != null && his.indexOf(original + "," + Format.format(result.toPlainString()) + ";") != 0) {
-		            his = original + "," + Format.format(result.toPlainString()) + ";" + his;
-		            sp.edit().putString("history", his).apply();
-	            }else if(his == null){
-		            his = original + "," + Format.format(result.toPlainString()) + ";";
-		            sp.edit().putString("history", his).apply();
-	            }*/
 				if (sp.getBoolean("saveResult", false))
 					sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
 
@@ -1623,17 +1616,47 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		if(findViewById(R.id.ExampleStr).getVisibility() == View.INVISIBLE)
 			return;
 		HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-		scrollview.postDelayed(() -> scrollview.fullScroll(focus), 50L);
+
+		//scrollview.postDelayed(() -> scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
+		scrollview.post(new Runnable() {
+			@Override
+			public void run() {
+				scrollview.fullScroll(focus);
+			}
+		});
+		//scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
 		HorizontalScrollView scrollview1 = findViewById(R.id.scrollViewAns);
-		scrollview.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 50L);
+		//scrollview1.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
+		scrollview1.post(new Runnable() {
+			@Override
+			public void run() {
+				scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+			}
+		});
+		//scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
 	}
 
 	private void scrollExampleToEnd(){
 		if(findViewById(R.id.ExampleStr).getVisibility() == View.INVISIBLE)
 			return;
 		HorizontalScrollView scrollview = findViewById(R.id.scrollview);
-		scrollview.postDelayed(() -> scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 50L);
+
+		//scrollview.postDelayed(() -> scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
+		scrollview.post(new Runnable() {
+			@Override
+			public void run() {
+				scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+			}
+		});
+		//scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
 		HorizontalScrollView scrollview1 = findViewById(R.id.scrollViewAns);
-		scrollview.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 50L);
+		//scrollview1.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
+		scrollview1.post(new Runnable() {
+			@Override
+			public void run() {
+				scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+			}
+		});
+		//scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
 	}
 }
