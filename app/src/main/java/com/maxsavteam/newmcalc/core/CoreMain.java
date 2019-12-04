@@ -97,20 +97,22 @@ public final class CoreMain {
 			return;
 
 		int brackets = 0;
-		for(int i = 0; i < example.length(); i++){
-			if(example.charAt(i) == '(')
-				brackets++;
-			else if(example.charAt(i) == ')')
-				brackets--;
-		}
-		if(brackets > 0){
-			for(int i = 0; i < brackets; i++){
-				example = String.format("%s%s", example, ")");
+		if(example.contains("(") || example.contains(")")) {
+			for (int i = 0; i < example.length(); i++) {
+				if (example.charAt(i) == '(')
+					brackets++;
+				else if (example.charAt(i) == ')')
+					brackets--;
 			}
-		}else if(brackets < 0){
-			was_error = true;
-			onError(new Error().setStatus("Core"));
-			return;
+			if (brackets > 0) {
+				for (int i = 0; i < brackets; i++) {
+					example = String.format("%s%s", example, ")");
+				}
+			} else if (brackets < 0) {
+				was_error = true;
+				onError(new Error().setStatus("Core"));
+				return;
+			}
 		}
 		if(example.contains(" ")){
 			StringBuilder sb = new StringBuilder();

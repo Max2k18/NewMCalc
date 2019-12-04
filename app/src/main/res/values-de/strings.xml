@@ -167,4 +167,5 @@
     <string name="sidebar_guide_message">Wir haben die Schaltfläche Einstellungen, Verlauf, Generatoren und Konverter in das neue Seitenmenü verschoben. Sie können es mit einem Wisch vom linken Bildschirmrand aus öffnen oder auf die Schaltfläche oben links klicken.&lt;br&gt;&lt;br&gt; &lt;b&gt; Habt eine schöne Verwendung!&lt;/b&gt;</string>
     <string name="smth_went_wrong">Irgendwas ist schief gelaufen</string>
     <string name="restart_app">Anwendung neu starten</string>
+    <string name="on_err_in_backup_file">In der Sicherungsdatei wurden die Daten falsch geschrieben oder manuell geändert. Es wurden keine Einstellungen importiert.</string>
 </resources>

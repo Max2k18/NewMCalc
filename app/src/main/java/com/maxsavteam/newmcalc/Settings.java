@@ -7,10 +7,10 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+//import java.lang.;
 
 public class Settings extends AppCompatActivity {
 
@@ -203,17 +204,67 @@ public class Settings extends AppCompatActivity {
 		warning.show();
 	}
 
+	String history_dump;
+
 	private void import_settings() {
 		String fileName = "NewMCalc" + (APPTYPE.equals("dev") ? "Dev" : "")  + ".imc";
 		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/" + fileName);
 		try {
 			FileReader fr = new FileReader(f);
 			//tring ans = "";
+			if(sp.getString("history", null) != null){
+				history_dump = sp.getString("history", null);
+			}
+			int history_ver = sp.getInt("local_history_storage_protocol_version", 1);
+			Map<String, ?> m = sp.getAll();
+			Set<String> se = m.keySet();
+			List<String> l = new ArrayList<>(se);
+			ArrayList<Pair<String, Pair<String, String>>> a = new ArrayList<>();
+			for(int i = 0; i < l.size(); i++){
+				String type = m.get(l.get(i)).getClass().getName();
+				if(type.contains("java.lang.")){
+					type = type.replaceAll("java.lang.", "");
+					a.add( new Pair<>( type, new Pair<>( l.get(i), String.valueOf( m.get( l.get(i) ) ) ) ) );
+				}
+			}
 			sp.edit().clear().apply();
 			while (fr.ready()) {
 				char t = (char) fr.read();
 				if(t == '#')
 					break;
+
+				if(t != 'I' && t != 'B' && t != 'S'){
+					sp.edit().clear().apply();
+					for(Pair<String, Pair<String, String>> p : a){
+						String type = p.first;
+						String key = p.second.first;
+						String value = p.second.second;
+						switch (type) {
+							case "String":
+								sp.edit().putString(key, value).apply();
+								break;
+							case "Integer":
+								sp.edit().putInt(key, Integer.parseInt(value)).apply();
+								break;
+							case "Boolean":
+								sp.edit().putBoolean(key, Boolean.parseBoolean(value)).apply();
+								break;
+							case "Float":
+								sp.edit().putFloat(key, Float.parseFloat(value)).apply();
+								break;
+							case "Long":
+								sp.edit().putLong(key, Long.parseLong(value)).apply();
+								break;
+						}
+					}
+					fr.close();
+					Intent intent = new Intent(this, CatchService.class);
+					intent.putExtra("action", "somethingWentWrong");
+					intent.putExtra("mes", getResources().getString(R.string.on_err_in_backup_file));
+					startActivity(intent);
+					finish();
+					return;
+				}
 				String tag = "";
 				char read = (char) fr.read();
 				while (read != '=') {
@@ -222,7 +273,7 @@ public class Settings extends AppCompatActivity {
 				}
 				String value = "";
 				read = (char) fr.read();
-				while (read != '©') {
+				while (fr.ready() && read != ((char) 23)) {
 					value = String.format("%s%c", value, read);
 					read = (char) fr.read();
 				}
@@ -231,7 +282,7 @@ public class Settings extends AppCompatActivity {
 					sp.edit().putString(tag, value).apply();
 				} else if (t == 'I') {
 					sp.edit().putInt(tag, Integer.parseInt(value)).apply();
-				} else if (t == 'B') {
+				} else {
 					sp.edit().putBoolean(tag, Boolean.parseBoolean(value)).apply();
 				}
 			}
@@ -268,7 +319,7 @@ public class Settings extends AppCompatActivity {
 				String ty = m.get(l.get(i)).getClass().getName();
 				ty = ty.replace("java.lang.", "");
 				ty = Character.toString(ty.charAt(0));
-				fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append("©");
+				fw.append(ty).append(l.get(i)).append("=").append(String.valueOf(m.get(l.get(i)))).append((char) 23);
 			}
 			pd.dismiss();
 			fw.append("\n#Please do not change the values yourself.\n#This can lead to malfunctions or even to malfunction");

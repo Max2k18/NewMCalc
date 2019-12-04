@@ -71,11 +71,14 @@ public final class Utils {
 		return source;
 	}
 
-	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context){
+	private static void addSwipeFeature(AlertDialog alertDialog){
 		Window window = alertDialog.getWindow();
-		if (window != null) {
+		if(window != null){
 			window.requestFeature(Window.FEATURE_SWIPE_TO_DISMISS);
 		}
+	}
+
+	public static void recolorButtons(AlertDialog alertDialog, Context context){
 		alertDialog.setOnShowListener(dialog -> {
 			Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
 			Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -90,6 +93,11 @@ public final class Utils {
 				neutral.setTextColor(context.getResources().getColor(R.color.colorAccent));
 			}
 		});
+	}
+
+	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context){
+		addSwipeFeature(alertDialog);
+		recolorButtons(alertDialog, context);
 	}
 
 	/** Returns string without any spaces

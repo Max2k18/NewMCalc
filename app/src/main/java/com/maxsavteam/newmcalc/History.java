@@ -37,6 +37,7 @@ import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
+import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.HistoryStorageProtocolsFormatter;
 import com.maxsavteam.newmcalc.utils.Utils;
 
@@ -44,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.grpc.NameResolver;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class History extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener{
@@ -57,7 +57,6 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     private RecyclerView rv;
     private boolean needToCreateMenu = false;
     private Menu mMenu;
-    private final int HISTORY_STORAGE_PROTOCOL_VERSION = BuildConfig.HistoryStorageProtocolVersion;
     private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 
     private void backPressed(){
@@ -696,7 +695,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             ProgressDialog pd = new ProgressDialog(this);
             pd.requestWindowFeature(Window.FEATURE_NO_TITLE);
             pd.setCancelable(false);
-            new HistoryStorageProtocolsFormatter(this).reformatHistory(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HISTORY_STORAGE_PROTOCOL_VERSION);
+            new HistoryStorageProtocolsFormatter(this).reformatHistory(LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, Constants.HISTORY_STORAGE_PROTOCOL_VERSION);
             pd.dismiss();
             prepareHistoryForRecyclerView();
         }catch(StringIndexOutOfBoundsException e){
@@ -725,7 +724,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt("local_history_storage_protocol_version", 1);
         String history = sp.getString("history", null);
         if(history != null) {
-	        if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HISTORY_STORAGE_PROTOCOL_VERSION) {
+	        if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < Constants.HISTORY_STORAGE_PROTOCOL_VERSION) {
 		        AlertDialog alert;
 		        AlertDialog.Builder builder = new AlertDialog.Builder(this)
 				        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -742,10 +741,22 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 		        if (alertWindow != null) {
 		            if(DarkMode)
 			            alertWindow.setBackgroundDrawableResource(R.drawable.grey);
+
+		            Button btn = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+		            if(btn != null) {
+                        btn.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                sp.edit().clear().apply();
+                                finish();
+                                return true;
+                            }
+                        });
+                    }
 			        //alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
 		        }
 		        alert.show();
-	        } else if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HISTORY_STORAGE_PROTOCOL_VERSION) {
+	        } else if (LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > Constants.HISTORY_STORAGE_PROTOCOL_VERSION) {
 		        setContentView(R.layout.activity_history_protocols_donot_match);
 		        TextView note = findViewById(R.id.lblProtocolsDoNotMatch);
 		        if (DarkMode) {
@@ -767,7 +778,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 		        prepareHistoryForRecyclerView();
 	        }
         }else{
-        	sp.edit().putInt("local_history_storage_protocol_version", HISTORY_STORAGE_PROTOCOL_VERSION).apply();
+        	sp.edit().putInt("local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION).apply();
         	prepareHistoryForRecyclerView();
         }
     }

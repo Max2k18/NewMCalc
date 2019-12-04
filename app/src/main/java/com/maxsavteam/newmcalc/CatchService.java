@@ -36,10 +36,14 @@ import static com.maxsavteam.newmcalc.R.color.white;
 
 public class CatchService extends AppCompatActivity {
 
+	private boolean somethingWentWrong = false;
+
 	@Override
 	public void onBackPressed(){
-		finish();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		if(!somethingWentWrong) {
+			finish();
+			overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		}
 	}
 
 	public void social(View v){
@@ -83,7 +87,7 @@ public class CatchService extends AppCompatActivity {
 
 	private final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
-			BuildConfig.APPLICATION_ID + "\n" +
+			//BuildConfig.APPLICATION_ID + "\n" +
 			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
 			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
 			"- Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
@@ -284,6 +288,40 @@ public class CatchService extends AppCompatActivity {
 				EditText e = findViewById(id);
 				e.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 			}
+		}else if(action.equals("somethingWentWrong")){
+			DarkMode = sp.getBoolean("dark_mode", false);
+			if (DarkMode)
+				setTheme(android.R.style.Theme_Material_NoActionBar);
+			else
+				setTheme(R.style.AppThemeMainActivity);
+			setContentView(R.layout.smth_went_wrong);
+			somethingWentWrong = true;
+			Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
+			String mes = in.getStringExtra("mes");
+			if(DarkMode) {
+				TextView t = findViewById(R.id.lblSomethingWentWrong);
+				t.setTextColor(Color.WHITE);
+				t = findViewById(R.id.lblMes);
+				t.setTextColor(Color.WHITE);
+				getWindow().setBackgroundDrawableResource(R.drawable.black);
+			}else{
+				getWindow().setBackgroundDrawableResource(R.drawable.white);
+			}
+			if(mes != null){
+				TextView t = findViewById(R.id.lblMes);
+				t.setText(mes);
+			}
+			Button btn = findViewById(R.id.btnRestartApp);
+			btn.setTextColor(Color.WHITE);
+			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+			btn.setOnClickListener((view) -> restartApp());
 		}
+	}
+
+	private void restartApp(){
+		Intent intent = new Intent(this, Main2Activity.class);
+		this.startActivity(intent);
+		this.finishAffinity();
+		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}
 }

@@ -60,6 +60,7 @@ import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.core.CoreMain;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
+import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.Utils;
 import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
@@ -158,25 +159,8 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 
 			setViewPager(0);
 		}catch(Exception e){
-			DarkMode = sp.getBoolean("dark_mode", false);
-			if (DarkMode)
-				setTheme(android.R.style.Theme_Material_NoActionBar);
-			else
-				setTheme(R.style.AppThemeMainActivity);
-			setContentView(R.layout.smth_went_wrong);
-			if(DarkMode){
-				TextView t = findViewById(R.id.lblSomethingWentWrong);
-				t.setTextColor(Color.WHITE);
-			}
-			Button btn = findViewById(R.id.btnRestartApp);
-			btn.setTextColor(Color.WHITE);
-			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			btn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					restartActivity();
-				}
-			});
+			goToActivity(CatchService.class, new Intent().putExtra("action", "somethingWentWrong"));
+			finish();
 		}
 	}
 
@@ -922,6 +906,24 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			hide_ans();
 			return;
 		}
+		int brackets = 0;
+		if(example.contains("(") || example.contains(")")) {
+			for (int i = 0; i < example.length(); i++) {
+				if (example.charAt(i) == '(')
+					brackets++;
+				else if (example.charAt(i) == ')')
+					brackets--;
+			}
+			if (brackets > 0) {
+				for (int i = 0; i < brackets; i++) {
+					example = String.format("%s%s", example, ")");
+				}
+			} else if (brackets < 0) {
+				//was_error = true;
+				//onError(new Error().setStatus("Core"));
+				return;
+			}
+		}
 
 		resizeText();
 
@@ -985,13 +987,20 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				String his = sp.getString("history", null);
 				String formattedResult = Format.format(result.toPlainString());
 				if(his != null){
-					if(!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))){
-						his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
-						sp.edit().putString("history", his).apply();
+					if(sp.getInt("local_history_storage_protocol_version", 1) < Constants.HISTORY_STORAGE_PROTOCOL_VERSION){
+						Toast.makeText(this, "The record was not saved because the format of the history record does not match the new format." +
+								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
+								Toast.LENGTH_LONG).show();
+					}else {
+						if (!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))) {
+							his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
+							sp.edit().putString("history", his).apply();
+						}
 					}
 				}else{
 					his = String.format("%s%c%s%c", original, ((char) 30), formattedResult, ((char) 29));
 					sp.edit().putString("history", his).apply();
+					sp.edit().putInt("local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION).apply();
 				}
 
 				if (sp.getBoolean("saveResult", false))
