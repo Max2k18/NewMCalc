@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -27,6 +26,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
@@ -90,28 +90,34 @@ public class CatchService extends AppCompatActivity {
 			//BuildConfig.APPLICATION_ID + "\n" +
 			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
 			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
-			"- Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
-			"- App type: " + BuildConfig.APPTYPE + "\n" +
-			"- Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
-			"- Core version: " + BuildConfig.CoreVersion;
+			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
+			"App type: " + BuildConfig.APPTYPE + "\n" +
+			"Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
+			"Core version: " + BuildConfig.CoreVersion;
 
 	private EditText value, name;
 	private int tag;
 
-	public void apply_variable(View view){
+	public void applyVariable(View view) {
 		String name_s = name.getText().toString();
 		String value_s = value.getText().toString();
 		if(!name_s.equals("") && !value_s.equals("")) {
 			if(name_s.equals("+"))
 				return;
 
-			ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+			ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
 			if(a == null)
 				a = new ArrayList<>();
-			Intent in;
-			a.add(new Pair<>(tag, new Pair<>(name_s, value_s)));
+			//a.add(new Pair<>(tag, new Pair<>(name_s, value_s)));
+			for (int i = 0; i < a.size(); i++) {
+				if (a.get(i).first == tag) {
+					a.remove(i);
+					//break;
+				}
+			}
+			a.add(MyTuple.create(tag, name_s, value_s));
 			Utils.saveVariables(a, this);
-			in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
+			Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
 			sendBroadcast(in);
 			onBackPressed();
 		}else{
@@ -121,8 +127,8 @@ public class CatchService extends AppCompatActivity {
 		}
 	}
 
-	public void delete_variable(View v){
-		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+	public void deleteVariable(View v) {
+		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
 		if(a == null)
 			return;
 		for(int i = 0; i < a.size(); i++){

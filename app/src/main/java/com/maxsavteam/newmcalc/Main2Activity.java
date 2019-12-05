@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -62,6 +61,7 @@ import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.Format;
+import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
 import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
 import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.FragmentTwoInitializationObject;
@@ -766,11 +766,11 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 		int pos = Integer.parseInt(btn.getTag().toString());
 		Intent in = new Intent();
 		in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
-		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(Main2Activity.this);
+		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(Main2Activity.this);
 		if(a != null) {
 			for (int i = 0; i < a.size(); i++) {
 				if (a.get(i).first == pos) {
-					in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).second.second);
+					in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).third);
 					break;
 				}
 			}
@@ -1044,12 +1044,13 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				if (var_arr == null) {
 					btn.setText("+");
 				} else {
-					ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(this);
+					ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
 					if (a != null) {
 						for(int i = 0; i < a.size(); i++){
 							if(a.get(i).first == pos){
-								addStringExampleToTheExampleStr(a.get(i).second.second);
-								break;
+								addStringExampleToTheExampleStr(a.get(i).third);
+								//break;
+								return;
 							}
 						}
 					}

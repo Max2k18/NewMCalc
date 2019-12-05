@@ -16,7 +16,7 @@ public class MemorySaverReader {
 	public void save(BigDecimal[] barr){
 		String mem = "";
 		for(int i = 0; i < 10; i++){
-			mem += barr[i].toString() + "$";
+			mem = String.format("%s%s%c", mem, barr[i].toString(), '$');
 		}
 		sp.edit().putString("memory", mem).apply();
 	}

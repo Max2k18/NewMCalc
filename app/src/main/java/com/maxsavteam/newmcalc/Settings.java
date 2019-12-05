@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -24,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.io.File;
@@ -219,12 +219,15 @@ public class Settings extends AppCompatActivity {
 			Map<String, ?> m = sp.getAll();
 			Set<String> se = m.keySet();
 			List<String> l = new ArrayList<>(se);
-			ArrayList<Pair<String, Pair<String, String>>> a = new ArrayList<>();
+			//ArrayList<Pair<String, Pair<String, String>>> a = new ArrayList<>();
+			ArrayList<MyTuple<String, String, String>> a = new ArrayList<>();
 			for(int i = 0; i < l.size(); i++){
 				String type = m.get(l.get(i)).getClass().getName();
 				if(type.contains("java.lang.")){
 					type = type.replaceAll("java.lang.", "");
-					a.add( new Pair<>( type, new Pair<>( l.get(i), String.valueOf( m.get( l.get(i) ) ) ) ) );
+					//a.add( new Pair<>( type, new Pair<>( l.get(i), String.valueOf( m.get( l.get(i) ) ) ) ) );
+					a.add(MyTuple.create(type, l.get(i), String.valueOf(m.get(l.get(i)))));
+					//a.get(0).first = "";
 				}
 			}
 			sp.edit().clear().apply();
@@ -233,12 +236,16 @@ public class Settings extends AppCompatActivity {
 				if(t == '#')
 					break;
 
+				if (t == '\n') {
+					continue;
+				}
+
 				if(t != 'I' && t != 'B' && t != 'S'){
 					sp.edit().clear().apply();
-					for(Pair<String, Pair<String, String>> p : a){
+					for (MyTuple<String, String, String> p : a) {
 						String type = p.first;
-						String key = p.second.first;
-						String value = p.second.second;
+						String key = p.second;
+						String value = p.third;
 						switch (type) {
 							case "String":
 								sp.edit().putString(key, value).apply();
@@ -277,7 +284,6 @@ public class Settings extends AppCompatActivity {
 					value = String.format("%s%c", value, read);
 					read = (char) fr.read();
 				}
-				//ans += t + " " + tag + " = " + value  + "\n";
 				if (t == 'S') {
 					sp.edit().putString(tag, value).apply();
 				} else if (t == 'I') {

@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -23,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc.R;
+import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
@@ -77,14 +77,14 @@ public class Fragment2 extends Fragment {
 
 	private void setVariableButtons(){
 		setDefaultButtons();
-		ArrayList<Pair<Integer, Pair<String, String>>> a = Utils.readVariables(mContext);
+		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(mContext);
 		if(a == null)
 			return;
 		for(int i = 0; i < a.size(); i++){
 			Button b = view.findViewById(findButtonByTag(a.get(i).first));
-			b.setText(a.get(i).second.first);
+			b.setText(a.get(i).second);
 			b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-			b.setContentDescription(a.get(i).second.first);
+			b.setContentDescription(a.get(i).second);
 			b.setOnLongClickListener(longClickListeners[1]);
 			b.setTransformationMethod(null);
 		}

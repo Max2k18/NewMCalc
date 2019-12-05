@@ -361,18 +361,18 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                 .setMessage(R.string.enter_text)
                 .setTitle(R.string.desc)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    String new_desc = input.getText().toString();
+	                String newDesc = input.getText().toString();
                     if(mode.equals("edit")){
-                        if(!new_desc.equals("")) {
+	                    if (!newDesc.equals("")) {
                             String previous = str.get(position).get(0);
                             int j;
                             //noinspection StatementWithEmptyBody
                             for (j = 0; j < previous.length() && previous.charAt(j) != ((char) 31); j++);
                             previous = previous.substring(0, j);
-                            previous += ((char) 31) + new_desc;
+		                    previous += ((char) 31) + newDesc;
                             str.get(position).set(0, previous);
                             saveHistory();
-                            ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
+		                    ((TextView) view.findViewById(R.id.txtDesc2)).setText(newDesc);
                         }else{
                             String previous = str.get(position).get(0);
                             int j;
@@ -386,13 +386,14 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                         }
                         adapter.clearViews();adapter.notifyDataSetChanged();
                     }else if(mode.equals("add")){
-                        if(new_desc.equals(""))
+	                    newDesc = Utils.trim(newDesc);
+	                    if (newDesc.equals(""))
                             return;
                         String s = str.get(position).get(0);
-                        s += ((char) 31) + new_desc;
+	                    s += ((char) 31) + newDesc;
                         str.get(position).set(0, s);
                         view.findViewById(R.id.without_desc).setVisibility(View.GONE);
-                        ((TextView) view.findViewById(R.id.txtDesc2)).setText(new_desc);
+	                    ((TextView) view.findViewById(R.id.txtDesc2)).setText(newDesc);
                         view.findViewById(R.id.with_desc).setVisibility(View.GONE);
                         saveHistory();
                     }
