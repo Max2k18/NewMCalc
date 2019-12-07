@@ -5,7 +5,10 @@ public class MyTuple<F, S, T> {
 	public S second;
 	public T third;
 
-	MyTuple(F a, S b, T c) {
+	/**
+	 * Instead constructor use create()
+	 * */
+	private MyTuple(F a, S b, T c) {
 		this.first = a;
 		this.second = b;
 		this.third = c;

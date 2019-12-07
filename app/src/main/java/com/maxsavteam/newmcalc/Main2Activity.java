@@ -2,6 +2,7 @@ package com.maxsavteam.newmcalc;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +75,6 @@ import java.util.Map;
 
 public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLinkBridge {
 
-	private AppBarConfiguration mAppBarConfiguration;
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
 	private boolean was_error = false;
@@ -107,6 +107,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			Toolbar toolbar = findViewById(R.id.toolbar);
 			setSupportActionBar(toolbar);
 			getSupportActionBar().setTitle("New MCalc");
+
 			DrawerLayout drawer = findViewById(R.id.drawer_layout);
 			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
 					this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -130,16 +131,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				drawer.closeDrawer(GravityCompat.START);
 				return true;
 			});
-
-			mAppBarConfiguration = new AppBarConfiguration.Builder(
-					R.id.nav_history,
-					R.id.nav_numbersysconverter,
-					R.id.nav_passgen,
-					R.id.nav_numgen,
-					R.id.nav_settings
-			)
-					.setDrawerLayout(drawer)
-					.build();
 
 			mCoreMain = new CoreMain(this);
 			mCoreMain.setInterface(this);

@@ -117,24 +117,17 @@ public final class Utils {
 		return source;
 	}
 
-	public static String trim(String s) {
-		if (s == null || s.equals("")) {
-			return "";
+	public static String trim(String s){
+		if(s == null)
+			throw new NullPointerException("Utils.trim: String is null");
+		String res = s;
+		while(res.length() > 0 && (res.charAt(0) == ' ' || res.charAt(0) == '\n')){
+			res = res.substring(1);
 		}
-		int st = 0;
-		while (s.charAt(st) == ' ' || s.charAt(st) == '\n') {
-			st++;
+		while(res.length() > 0 && (res.charAt(res.length() - 1) == ' ' || res.charAt(res.length() - 1) == '\n')){
+			res = res.substring(0, res.length() - 1);
 		}
-		int end = 0;
-		while (s.charAt(s.length() - end - 1) == ' ' || s.charAt(s.length() - end - 1) == '\n') {
-			end++;
-		}
-		if (st == 0 && end == 0) {
-			return s;
-		}
-		s = s.substring(st);
-		s = s.substring(0, s.length() - end);
-		return s;
+		return res;
 	}
 
 	public static void saveVariables(ArrayList<MyTuple<Integer, String, String>> a, Context context) {

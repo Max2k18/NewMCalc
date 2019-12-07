@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,12 +17,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc.R;
+import com.maxsavteam.newmcalc.utils.HistoryEntry;
+import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>{
 
-    private ArrayList< ArrayList<String> > mData;
+    private ArrayList<HistoryEntry> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context con;
@@ -31,7 +32,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private ArrayList<ViewHolder> views = new ArrayList<>();
 
     // data is passed into the constructor
-    public MyRecyclerViewAdapter(Context context, ArrayList< ArrayList<String> > data) {
+    public MyRecyclerViewAdapter(Context context, ArrayList< HistoryEntry > data) {
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
         con = context;
@@ -52,8 +53,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        /*if(DarkMode)
-            con.setTheme(android.R.style.Theme_Material_NoActionBar);*/
         View view = mInflater.inflate(R.layout.recycle_row, parent, false);
         return new ViewHolder(view);
     }
@@ -63,15 +62,13 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         //viewBinderHelper.bind(holexamder.swipeReve);
-        String ex = mData.get(position).get(0);
-        String ans = mData.get(position).get(1);
+        String ex = mData.get(position).example;
+        String ans = mData.get(position).answer;
         String desc = "";
         views.add(holder);
         holder.tvWithDesc.setText("false");
         holder.with_description = false;
         holder.txtDesc.setVisibility(View.GONE);
-        holder.btnInfo.setVisibility(View.GONE);
-        holder.btnDel.setVisibility(View.GONE);
         holder.without_desc.setVisibility(View.GONE);
         holder.with_desc.setVisibility(View.GONE);
         if(ex.contains(Character.toString((char) 31))) {
@@ -84,8 +81,19 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             }
             desc = ex.substring(i + 1);
             ex = ex.substring(0, i);
-            holder.txtDesc.setText(desc);
-            holder.txtDesc.setVisibility(View.VISIBLE);
+            int oldLength = desc.length();
+            desc = Utils.trim(desc);
+            if(desc.length() == 0){
+                holder.tvWithDesc.setText("false");
+                holder.with_description = false;
+                mClickListener.onTrimmedDescription("", position);
+            }else {
+                if(oldLength != desc.length()){
+                    mClickListener.onTrimmedDescription(desc, position);
+                }
+                holder.txtDesc.setText(desc);
+                holder.txtDesc.setVisibility(View.VISIBLE);
+            }
         }
         holder.desc = desc;
         holder.example.setText(ex);
@@ -114,7 +122,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         TextView tvWithDesc;
         TextView txtDesc;
         String desc = "";
-        ImageButton btnDel, btnInfo;
         LinearLayout with_desc, without_desc;
         Button add, delete, edit;
         boolean with_description = false;
@@ -128,8 +135,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             txtDesc.setTextIsSelectable(true);
             tvWithDesc = itemView.findViewById(R.id.tvWithDesc);
             tvPos = itemView.findViewById(R.id.tvPosition);
-            btnDel = itemView.findViewById(R.id.btnDelInRow);
-            btnInfo = itemView.findViewById(R.id.btnInfoInRow);
             with_desc = itemView.findViewById(R.id.with_desc);
             without_desc = itemView.findViewById(R.id.without_desc);
             add = itemView.findViewById(R.id.btn_add);
@@ -175,7 +180,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     // convenience method for getting data at click position
-    public ArrayList <String> getItem(int id) {
+    public HistoryEntry getItem(int id) {
         return mData.get(id);
     }
 
@@ -183,17 +188,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
-    /*void setItemTouchListener(RecyclerView.OnItemTouchListener itemTouchListener){
-        this.itemTouchListener = itemTouchListener;
-    }*/
-
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
         void onDelete(int position, ViewHolder v);
         void showInfoButtonPressed(ViewHolder view, int position);
         void onDescriptionDelete(View view, int position);
         void onEditAdd(View view, int position, String mode);
-        //void onTouch(View view, int position, MotionEvent event);
+        void onTrimmedDescription(String newDescription, int position);
     }
 }

@@ -37,16 +37,6 @@
         android:layout_weight="0.7"
         android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/btnInfoInRow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.7"
-            android:backgroundTint="#0000FF"
-            android:scaleType="centerInside"
-            android:src="@drawable/info_button"
-            android:visibility="gone" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -135,16 +125,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/btnDelInRow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.7"
-            android:backgroundTint="@color/red"
-            android:scaleType="centerInside"
-            android:src="@drawable/trash"
-            android:visibility="gone" />
 
     </LinearLayout>
 
