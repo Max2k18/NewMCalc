@@ -167,14 +167,14 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 					finishAndRemoveTask();
 					overridePendingTransition(R.anim.abc_popup_enter,R.anim.alpha_hide);
 				});
-		AlertDialog al_1 = builder.create();
-		if(al_1.getWindow() != null) {
+		AlertDialog alertDialog = builder.create();
+		if(alertDialog.getWindow() != null) {
 			if (DarkMode)
-				al_1.getWindow().setBackgroundDrawableResource(R.drawable.grey);
+				alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.grey);
 
-			Utils.recolorAlertDialogButtons(al_1, this);
+			Utils.recolorAlertDialogButtons(alertDialog, this);
 		}
-		al_1.show();
+		alertDialog.show();
 		//super.onBackPressed();
 	}
 

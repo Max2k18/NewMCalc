@@ -8,7 +8,6 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 apply plugin: 'androidx.navigation.safeargs'
-//apply plugin: 'io.github.rockerhieu:versionberg'
 
 android {
     signingConfigs {
@@ -43,7 +42,7 @@ android {
             versionCode code
             versionName "1.12.2"
             multiDexEnabled true
-            buildConfigField "Boolean", "WhatNewIsExisting", "true"
+            buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
             // It consist of year, months, day
