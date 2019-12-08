@@ -2,7 +2,6 @@ package com.maxsavteam.newmcalc;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +49,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
@@ -89,7 +87,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	private String MULTIPLY_SIGN;
 	private String FI, PI, original;
 	private CoreMain mCoreMain;
-	private ViewPager mViewPager;
 	private  Point displaySize = new Point();
 	private Thread coreThread;
 
@@ -285,7 +282,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				toolbar.setBackgroundColor(Color.BLACK);
 				toolbar.setTitleTextColor(Color.WHITE);
 				toolbar.setNavigationIcon(R.drawable.ic_menu_white);
-
 			} else {
 				toolbar.setBackgroundColor(Color.WHITE);
 				toolbar.setTitleTextColor(Color.BLACK);
@@ -726,12 +722,12 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			MyFragmentPagerAdapter myFragmentPagerAdapter =
 					new MyFragmentPagerAdapter(initializationObject);
 			//}
-			mViewPager = findViewById(R.id.viewpager);
-			ViewGroup.LayoutParams lay = mViewPager.getLayoutParams();
+			ViewPager viewPager = findViewById(R.id.viewpager);
+			ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
 			lay.height = displaySize.y / 2;
-			mViewPager.setLayoutParams(lay);
-			mViewPager.setAdapter(myFragmentPagerAdapter);
-			mViewPager.setCurrentItem(which);
+			viewPager.setLayoutParams(lay);
+			viewPager.setAdapter(myFragmentPagerAdapter);
+			viewPager.setCurrentItem(which);
 			Space space = findViewById(R.id.space_between_pager_and_str);
 			ViewGroup.LayoutParams spaceLayoutParams = space.getLayoutParams();
 			spaceLayoutParams.height = displaySize.y / 11;
@@ -1434,7 +1430,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			return;
 		}
 
-		if(!Utils.isDigit(btntxt) && !Utils.islet(btntxt.charAt(0))){
+		if(!Utils.isDigit(btntxt) && !Utils.isLetter(btntxt.charAt(0))){
 			if(len != 0){
 				if(txt.charAt(len-1) == 'π' ||
 						txt.charAt(len-1) == 'φ' ||
@@ -1497,7 +1493,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 					}
 					if(len > 1) {
 						String s = Character.toString(txt.charAt(len - 2));
-						if (last != ')' && !Utils.isDigit(last) && (len > 1 && last != '(' && Utils.islet(txt.charAt(len - 2))
+						if (last != ')' && !Utils.isDigit(last) && (len > 1 && last != '(' && Utils.isLetter(txt.charAt(len - 2))
 								&& !s.equals(PI) && !s.equals(FI) && txt.charAt(len - 2) != 'e')) {
 							txt = txt.substring(0, len - 1);
 							t.setText(txt + btntxt);

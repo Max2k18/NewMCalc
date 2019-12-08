@@ -6,76 +6,39 @@
         <item>Bitte überprüfen Sie, ob ein Anwendungsupdate vorliegt.</item>
     </string-array>
     <integer name="transition_animation_duration">350</integer>
-    <integer name="social_btn_size">70</integer>
     <string name="settings">Einstellungen</string>
-    <string name="therenothing">Es gibt nichts zu zeigen …</string>
-    <string name="updateavail">Ein Update ist verfügbar</string>
     <string name="version">Version:</string>
-    <string name="pleaseupdate">Ein Update ist verfügbar. Bitte aktualisieren Sie die Anwendung in den Einstellungen (klicken Sie auf die drei Punkte in der oberen linken Ecke des Bildschirms -&gt; Einstellungen)</string>
     <string name="txtfrom">von</string>
     <string name="txtto">zu</string>
     <string name="choosenum">Wählen Sie die Nummer</string>
     <string name="generate">Generieren</string>
     <string name="randomgen">Zufallszahlengenerator</string>
-    <string name="minintexception">Der Mindestwert muss größer sein als der ganzzahlige Mindestwert (-2.147.483.648).</string>
     <string name="maxintexception">Die Werte müssen zwischen -9.223.372.036.854.775.808 und 9.223.372.036.854.775.807 liegen.</string>
-    <string name="btnCopy">Kopieren</string>
     <string name="copied">In die Zwischenablage kopiert</string>
     <string name="build">Build:</string>
     <string name="hitory">Geschichte</string>
-    <string name="checking_history">Verlauf wird überprüft …</string>
     <string name="history_not_found">Hm…\n Es gibt hier keine Geschichte …\n Wo ist sie?</string>
     <string name="passgen">Passwortgenerator</string>
-    <string name="succesful">Erfolgreich!</string>
-    <string name="savedto">Gespeichert in</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
     <string name="exit">Ausfahrt</string>
     <string name="areyousureexit">Möchtest du ausgehen?</string>
-    <string name="donot_remind_for_this_ver">Erinnern Sie nicht für diese Version</string>
     <string name="about_text">Diese Anwendung wird vollständig von einer Person erstellt. Er heißt Max Savitsky. Alle Systeme, alle Kerne, alles wird von dieser Person erledigt. Er erteilte auch der Firma SM-App die Erlaubnis zur Veröffentlichung dieser Applikation.</string>
     <string name="about">Über App</string>
     <string name="cls_history">Verlauf löschen</string>
     <string name="confirm_cls_history">Möchten Sie die Geschichte wirklich löschen?</string>
     <string name="confirm">Bestätige</string>
-    <string name="developer_in">Entwickler in</string>
-    <string name="dev_update">Für Tester steht ein Update zur Verfügung. Möchten Sie herunterladen?</string>
-    <string name="get_builds_text">Möchten Sie nicht dem Team von Anwendungstestern beitreten? Sie erhalten neue Versionen, in denen nur Fehlerinformationen gesammelt werden. Sie können den Empfang von Baugruppen jederzeit in den Einstellungen abbrechen.</string>
-    <string name="join">Mach mit</string>
-    <string name="please_wait">Bitte warten</string>
-    <string name="stop_receive">Stoppen Sie den Empfang von Testversionen</string>
-    <string name="stop_receive_mes">Möchten Sie wirklich keine Testbuilds mehr erhalten? Die Version bleibt bei der nächsten Veröffentlichung der stabilen Version unverändert. Sie kehren zum stabilen Update-Zweig zurück. Wenn Sie erneut Tester werden möchten, halten Sie die Taste gedrückt, um zu der Site in den Einstellungen zu gelangen, und es wird eine Benachrichtigung angezeigt, dass Sie dem Team erneut beitreten können.</string>
-    <string name="updateavail_tc">Für Tester steht ein Update zur Verfügung</string>
-    <string name="report_problem">Ein Problem melden</string>
-    <string name="donot_clear_info_email">Bitte löschen Sie nicht die aufgezeichneten Informationen in der Nachricht. Es ist für uns sehr wichtig zu verstehen, wo wir nach einem Fehler suchen (Sie können ihn genauer beschreiben).</string>
     <string name="switchSaveOn">Das letzte Ergebnis wird nach dem Schließen der Anwendung gespeichert.</string>
     <string name="switchSaveOff">Das letzte Ergebnis wird nach dem Schließen der Anwendung nicht gespeichert.</string>
-    <string name="about_dev">Über Entwickler</string>
-    <string name="update_avail_to_install">Das Update steht zur Installation zur Verfügung. Installieren?</string>
-    <string name="installation">Installation</string>
-    <string name="cannot_update">Entschuldigung, aber wir können nicht aktualisieren.</string>
-    <string name="update_in_bg">Wir werden das Update im Hintergrund herunterladen. Sie können die Anwendung weiterhin verwenden. Bitte nicht schließen.</string>
     <string name="left">Links</string>
     <string name="right">Richtig</string>
     <string name="loc_of_btnadd">Wählen Sie die Position der Schaltfläche aus, um die Einstellungen, den Verlauf usw. anzuzeigen.</string>
-    <string name="confirm_exit_on_up">Neuer MCalc wird aktualisiert. Möchten Sie es stoppen und schließen?</string>
-    <string name="stop">Halt an</string>
-    <string name="hide">Verstecken</string>
-    <string name="confirm_stop_update">Möchten Sie das Update beenden?</string>
-    <string name="install">Installieren</string>
-    <string name="ch_lang">Sprache wählen</string>
     <string name="import_se">Importieren</string>
     <string name="export">Exportieren</string>
     <string name="ex_im_label">App-Einstellungen importieren oder exportieren</string>
-    <string name="on_import">Importiert</string>
     <string name="other_set">Andere Einstellungen</string>
     <string name="export_file_not_found">Externe Konfigurationsdatei nicht gefunden</string>
     <string name="exported">Exportiert</string>
-    <string name="import_set_history">Aus Backup-Einstellungen importieren (falls vorhanden)</string>
-    <string name="on_mobil_ntwork_update">Wir haben festgestellt, dass Sie mobile Daten verwenden, um die Anwendung zu aktualisieren. Wissen Sie, dass dies separat berechnet werden kann? Alles auf eigene Gefahr. Möchten Sie die Anwendung wirklich aktualisieren?</string>
-    <string name="donot_remind_later">Nicht später erinnern</string>
-    <string name="build_tester"><p><b>This build is tester\'s build.</b></p></string>
-    <string name="build_developer"><p><b>This build ONLY for developer</b></p></string>
     <string name="text_dark_mode">Dunkler Modus</string>
     <string name="pass_sw_all_off">Bitte wählen Sie mindestens eine Option aus</string>
     <string name="clear">Klar</string>
@@ -94,10 +57,6 @@
     <string name="about_average">Durchschnitt Dies ist die Summe aller Zahlen geteilt durch ihre Anzahl. Sie können es in verschiedenen Kombinationen von Aktionen verwenden. Verwenden Sie beispielsweise einen Begriff, einen Faktor oder eine Fakultät. K o Wenn Sie die Taste dieses Modus gedrückt haben, wird das Symbol auf dem Bildschirm angezeigt und die Halterung wird geöffnet. Hier können Sie nur Zahlen und das Hinzufügungszeichen hinzufügen, und Sie können auch eine Zahl aus der Geschichte hinzufügen. Nach dem Schließen der Klammern wechselt der Kernel (der Algorithmus, nach dem wir Ihr Beispiel betrachten) in den normalen Modus.</string>
     <string name="about_geometric">Geometrisches Mittel. Dies ist die Quadratwurzel des Produkts aller Zahlen. Es funktioniert wie das arithmetische Mittel. Der einzige Unterschied besteht darin, dass anstelle von Additionszeichen nur Multiplikationszeichen verwendet werden können.</string>
     <string name="aboutAG_desc">Was bedeutet durchschnittlich und geometrisch und wie werden sie verwendet?</string>
-    <string-array name="langs">
-        <item>Englisch</item>
-        <item>Russisch</item>
-    </string-array>
     <string-array format="false" name="switches">
         <item>GROSSBUCHSTABEN</item>
         <item>kleinbuchstaben</item>
@@ -151,12 +110,10 @@
     <string name="apply">Übernehmen</string>
     <string name="variables">Variablen:</string>
     <string name="fill_empty_field">Füllen Sie die leeren Felder aus</string>
-    <string name="add_cur_val_to_var">Fügen Sie diesen Wert zu Variablen hinzu</string>
     <string name="what_new_window_text">Wir möchten Sie über die Änderungen in dieser Version informieren. Vielleicht werden dies koordinierende Änderungen sein, die zum Beispiel die Logik von Berechnungen ändern.</string>
     <string name="important">Wichtig</string>
     <string name="view">Ansehen</string>
     <string name="what_new_in_this_ver">Was ist neu in dieser Version?</string>
-    <string name="now">Jetzt</string>
     <string name="force_delete">Löschen erzwingen</string>
     <string name="force_delete_guide_text">Wenn Sie diese Taste lange drücken, wird der ausgewählte Datensatz sofort gelöscht.</string>
     <string name="to_continue_need_to_restart_app">Um fortzufahren, müssen wir die Anwendung neu starten.</string>

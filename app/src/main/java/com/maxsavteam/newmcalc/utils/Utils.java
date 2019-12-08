@@ -22,7 +22,7 @@ public final class Utils {
 		return c >= '0' && c <= '9';
 	}
 
-	public static boolean islet(char c){
+	public static boolean isLetter(char c){
 		return c >= 'a' && c <= 'z';
 	}
 

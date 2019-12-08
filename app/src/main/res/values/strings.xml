@@ -6,7 +6,6 @@
         <item>Please check if there is an application update.</item>
     </string-array>
     <integer name="transition_animation_duration">350</integer>
-    <integer name="social_btn_size">70</integer>
     <string name="app_name" translatable="false">New MCalc</string>
     <string name="multiply" translatable="false">×</string>
     <string name="div" translatable="false">÷</string>
@@ -14,76 +13,39 @@
     <string name="settings">Settings</string>
     <string name="pi" translatable="false">π</string>
     <string name="fi" translatable="false">φ</string>
-    <string name="therenothing">There is nothing to show…</string>
-    <string name="updateavail">An update is available</string>
     <string name="version">Version:</string>
-    <string name="pleaseupdate">An update is available. Please update the application in the settings (click on the three points in the upper left corner of the screen -> Settings)</string>
-    <string name="threedots" translatable="false">...</string>
     <string name="txtfrom">from</string>
     <string name="txtto">to</string>
     <string name="choosenum">Select the number</string>
     <string name="generate">Generate</string>
     <string name="randomgen">Random Number Generator</string>
-    <string name="minintexception">The minimum value must be greater than the minimum Integer value (-2,147,483,648).</string>
     <string name="maxintexception">Values must be between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807.</string>
-    <string name="btnCopy">Copy</string>
     <string name="copied">Copied to clipboard</string>
     <string name="build">Build:</string>
     <string name="hitory">History</string>
-    <string name="checking_history">Checking history…</string>
     <string name="history_not_found">Hm…\\nThere is no history here…\\nWhere is she?</string>
     <string name="passgen">Password Generator</string>
     <string name="sqrt" translatable="false">√</string>
-    <string name="succesful">Successfully!</string>
-    <string name="savedto">Saved to</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="exit">Exit</string>
     <string name="areyousureexit">Would you like to go out?</string>
-    <string name="donot_remind_for_this_ver">Do not remind for this version</string>
     <string name="about_text">This application is created entirely by one person. His name is Max Savitsky. All systems, all core, everything is done by this person. He also gave permission to the company SM-app for the publication of this application.</string>
     <string name="about">About app</string>
     <string name="cls_history">Clear history</string>
     <string name="confirm_cls_history">Do you really want to clear the history?</string>
     <string name="confirm">Confirm</string>
-    <string name="developer_in">Developer in</string>
-    <string name="dev_update">An update is available for testers. Would you like to download?</string>
-    <string name="get_builds_text">Do not want to join the team of application testers? You will receive new versions in which only error information will be collected. You can cancel the receipt of assemblies at any time in the settings.</string>
-    <string name="join">Join</string>
-    <string name="please_wait">Please wait…</string>
-    <string name="stop_receive">Stop receiving test versions</string>
-    <string name="stop_receive_mes">Are you sure you want to stop receiving test builds? The version will remain the same with the next release of the stable version. You will return to the stable update branch. To become a tester again, press and hold the button to go to the site in the settings and a notification appears that you can join the team again.</string>
-    <string name="updateavail_tc">An update is available for testers</string>
-    <string name="report_problem">Report a problem</string>
-    <string name="donot_clear_info_email">Please do not erase the recorded information in the message. It is very important for us to understand where we look for a mistake (you can describe it in more detail)</string>
     <string name="switchSaveOn">The last result will be saved after closing the application.</string>
     <string name="switchSaveOff">The last result will not be saved after closing the application.</string>
-    <string name="about_dev">About Developer</string>
-    <string name="update_avail_to_install">The update is available for installation. Install?</string>
-    <string name="installation">Installation</string>
-    <string name="cannot_update">Sorry, but we cannot update.</string>
-    <string name="update_in_bg">We will start downloading the update in the background. You can continue to use the application. Please do not close it.</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
     <string name="loc_of_btnadd">Select the location of the button to display the settings, history, etc.</string>
-    <string name="confirm_exit_on_up">New MCalc is updating. Do you want to stop it and close?</string>
-    <string name="stop">Stop</string>
-    <string name="hide">Hide</string>
-    <string name="confirm_stop_update">Would you like to stop the update?</string>
-    <string name="install">Install</string>
-    <string name="ch_lang">Choose language</string>
     <string name="import_se">Import</string>
     <string name="export">Export</string>
     <string name="ex_im_label">Import or export app\'s settings</string>
-    <string name="on_import">Imported</string>
     <string name="other_set">Other settings</string>
     <string name="export_file_not_found">External configuration file not found</string>
     <string name="exported">Exported</string>
-    <string name="import_set_history">Import from backup settings (if any)</string>
-    <string name="on_mobil_ntwork_update">We noticed that you are using mobile data to update the application. Do you know that this may be charged separately? All at your own risk. Really want to update the application?</string>
-    <string name="donot_remind_later">Don\'t remind later</string>
-    <string name="build_tester"><p><b>This build is tester\'s build.</b></p></string>
-    <string name="build_developer"><p><b>This build ONLY for developer</b></p></string>
     <string name="text_dark_mode">Dark Mode</string>
     <string name="pass_sw_all_off">Please select at least one option</string>
     <string name="clear">Clear</string>
@@ -91,7 +53,6 @@
     <string name="delete_all_memories_quest">Delete all memories?</string>
     <string name="delete">Delete</string>
     <string name="wil_be_deleted">Will be deleted after</string>
-    <string name="char_skobka1" translatable="false">(</string>
     <string name="add">add</string>
     <string name="edit">Edit</string>
     <string name="confirm_del_desc">Are you sure you want to delete the description for this entry?</string>
@@ -103,10 +64,6 @@
     <string name="about_average">Average. This is the sum of all numbers divided by their number. You can use it in various combinations of actions. For example, use as a term, a factor, or find a factorial. K o When you pressed the button of this mode, the symbol will appear on the screen and the bracket will open. Here you can add only numbers and the addition sign, and you can also add a number from the story. After closing the brackets, the kernel (the algorithm by which we consider your example) goes into normal mode.</string>
     <string name="about_geometric">Geometric mean. This is the square root of the product of all numbers. It works like the arithmetic mean. The only difference is that instead of addition signs, only multiplication signs can be used.</string>
     <string name="aboutAG_desc">What is average and geometric mean and how to use them</string>
-    <string-array name="langs">
-        <item>English</item>
-        <item>Russian</item>
-    </string-array>
     <string-array name="switches" format="false">
         <item>CAPITAL</item>
         <item>lowercase</item>
@@ -161,12 +118,10 @@
     <string name="apply">Apply</string>
     <string name="variables">Variables:</string>
     <string name="fill_empty_field">Fill in the blank fields</string>
-    <string name="add_cur_val_to_var">Add this value to variables</string>
     <string name="what_new_window_text">We would like to tell you about the changes in this version. Perhaps these will be coordinating changes that, for example, change the logic of calculations.</string>
     <string name="important">Important</string>
     <string name="view">View</string>
     <string name="what_new_in_this_ver">What\'s new in this version</string>
-    <string name="now">Now</string>
     <string name="force_delete">Force delete</string>
     <string name="force_delete_guide_text">Long press this button and the selected record will be deleted immediately.</string>
     <string name="to_continue_need_to_restart_app">To continue, we need to restart the application.</string>
@@ -176,7 +131,6 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <string name="copyright_maxsav_team" translatable="false">© MaxSav Team</string>
     <string name="important_information">Important information</string>
     <string name="sidebar_guide_message">We have moved the settings, history, generators and converter button to the new side menu. You can open it with a swipe from the left edge of the screen or click on the button from the top left. &lt;br&gt;&lt;br&gt; &lt;b&gt;Have a nice use!&lt;/b&gt;</string>
     <string name="smth_went_wrong">Something went wrong</string>

@@ -170,7 +170,7 @@ public final class CoreMain {
 					}
 					//if(i + 4 <= example.length()){
 					String let = "";
-					while (i < example.length() && Utils.islet(example.charAt(i))) {
+					while (i < example.length() && Utils.isLetter(example.charAt(i))) {
 						let = String.format("%s%c", let, example.charAt(i));
 						i++;
 					}
