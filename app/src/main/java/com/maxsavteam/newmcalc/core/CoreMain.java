@@ -5,18 +5,20 @@ import android.content.res.Resources;
 
 import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.error.Error;
+import com.maxsavteam.newmcalc.utils.Fraction;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.annotation.Nonnull;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * @author Maks
@@ -68,11 +70,6 @@ public final class CoreMain {
 
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal("1000");
 	private final BigDecimal MAX_POW = new BigDecimal("1000");
-
-	public void prepareData(@Nonnull String example, String type){
-		this.mExample = example;
-		this.mType = type;
-	}
 	
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
@@ -148,10 +145,10 @@ public final class CoreMain {
 			}
 			example = new String(mas);
 		}
-		calc(example, type);
+		calculate(example, type);
 	}
 
-	private void calc(String example, String type){
+	private void calculate(String example, String type){
 		s0.clear();
 		s1.clear();
 		was_error = false;
@@ -231,7 +228,6 @@ public final class CoreMain {
 							BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
 							boolean isNumberBigger = y.compareTo(MAX_FACTORIAL_VALUE) > 0;
 							if (y.signum() < 0 || isNumberBigger) {
-
 								was_error = true;
 								if (isNumberBigger)
 									onError(new Error().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
@@ -258,12 +254,6 @@ public final class CoreMain {
 									break;
 								} else {
 									s1.pop();
-									/*String fa = y.toString();
-									if (fa.contains(".")) {
-										int index = fa.lastIndexOf(".");
-										fa = fa.substring(0, index);
-										y = new BigDecimal(fa);
-									}*/
 									s1.push(Utils.fact(y));
 								}
 							}
@@ -281,7 +271,6 @@ public final class CoreMain {
 						break;
 					}
 				} else if (s.equals("%")) {
-
 					if (s0.empty() || (!s0.empty() && !Utils.isBasicAction(s0.peek()))) {
 						BigDecimal y = s1.peek();
 						s1.pop();
@@ -299,6 +288,7 @@ public final class CoreMain {
 
 							class IsolatedCoreProcess implements CoreLinkBridge {
 								private BigDecimal res;
+								private Context mContext;
 
 								private Error getError() {
 									return error;
@@ -332,10 +322,14 @@ public final class CoreMain {
 								}
 
 								private void run(String ex) {
-									CoreMain core = new CoreMain(c);
+									CoreMain core = new CoreMain(mContext);
 									core.setInterface(this);
 
 									core.prepareAndRun(ex, "");
+								}
+
+								private IsolatedCoreProcess(Context context){
+									this.mContext = context;
 								}
 							}
 							i++;
@@ -358,7 +352,7 @@ public final class CoreMain {
 							}
 							x1 = s1.peek().toPlainString() + x1;
 							s1.pop();
-							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess();
+							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess(c);
 							isolatedCoreProcess.run(x1);
 							if (isolatedCoreProcess.isWas_error() && !isolatedCoreProcess.getError().getError().contains("String is number")) {
 								was_error = true;
@@ -578,7 +572,7 @@ public final class CoreMain {
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
 				double d = s1.peek().doubleValue();
-				 BigDecimal ans = BigDecimal.ONE;
+				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					was_error = true;
 					onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
@@ -656,19 +650,33 @@ public final class CoreMain {
 							onError(new Error().setError("Division by zero.").setShortError(divisionByZero));
 							return;
 						}
-						ans = a.divide(b);
+						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
 						break;
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
 							was_error = true;
 							onError(new Error().setShortError(valueIsTooBig));
 							return;
-						}else if(b1 == 0){
+						}else if(b1 == 0 && a1 == 0){
 							was_error = true;
 							onError(new Error().setShortError("Raising zero to zero degree."));
 							return;
 						}
-						ans = BigDecimal.valueOf(Math.pow(a1, b1));
+						String power = b.toPlainString();
+						power = Utils.deleteZeros(power);
+						if(power.contains(".")){
+							Fraction fraction = new Fraction(power);
+							a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
+							ans = BigDecimalMath.exp(
+									BigDecimalMath.log(
+											a,
+											new MathContext(20)).divide(fraction.getDenominator(),
+											20, RoundingMode.HALF_EVEN),
+									new MathContext(8));
+						}else{
+							BigDecimal n = new BigDecimal(power);
+							ans = BigDecimalMath.pow(a, n, new MathContext(8));
+						}
 						break;
 				}
 				String answer = ans.toPlainString();
@@ -680,6 +688,9 @@ public final class CoreMain {
 					ans = a.divide(b, 4, RoundingMode.HALF_EVEN);
 					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
 					s1.push(ans);
+				}else if(str.contains("Infinity or Nan")){
+					was_error = true;
+					onError(new Error().setError(e.toString()).setShortError(valueIsTooBig));
 				} else {
 					was_error = true;
 					onError(new Error().setError(e.toString()).setMessage(e.getMessage()));

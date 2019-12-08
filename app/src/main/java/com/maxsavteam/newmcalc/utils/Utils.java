@@ -10,7 +10,10 @@ import androidx.appcompat.app.AlertDialog;
 import com.maxsavteam.newmcalc.R;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
+
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 public final class Utils {
 	public static boolean isDigit(char c){
@@ -37,23 +40,11 @@ public final class Utils {
 	}
 
 	public static BigDecimal fact(BigDecimal x){
-		if(x.toPlainString().contains(".")){
-			String numberString = x.toPlainString();
-			int positionOfDot = numberString.indexOf(".");
-			numberString = numberString.substring(0, positionOfDot);
-			x = new BigDecimal(numberString);
-		}
-
-		BigDecimal ans = BigDecimal.valueOf(1);
-		for(BigDecimal i = BigDecimal.valueOf(1); i.compareTo(x) <= 0;){
-			ans = ans.multiply(i);
-			i = i.add(new BigDecimal(1));
-		}
-		return ans;
+		return BigDecimalMath.factorial(x, new MathContext(10));
 	}
 	/**
-	 * @param source String in which need to delete back zeros after dot
-	 * @return String without back zeros
+	 * @param source String in which need to delete back zeros after dot and front zeros
+	 * @return String without back and front zeros
 	 */
 	public static String deleteZeros(String source){
 		int len = source.length();
@@ -66,6 +57,9 @@ public final class Utils {
 				if(source.charAt(len - 1) == '.')
 					source = source.substring(0, len - 1);
 			}
+		}
+		while(source.charAt(0) == '0' && source.length() > 1 && source.charAt(1) != '.'){
+			source = source.substring(1);
 		}
 		return source;
 	}

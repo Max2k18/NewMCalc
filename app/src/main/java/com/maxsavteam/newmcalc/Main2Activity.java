@@ -172,7 +172,6 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 			Utils.recolorAlertDialogButtons(alertDialog, this);
 		}
 		alertDialog.show();
-		//super.onBackPressed();
 	}
 
 	@Override
