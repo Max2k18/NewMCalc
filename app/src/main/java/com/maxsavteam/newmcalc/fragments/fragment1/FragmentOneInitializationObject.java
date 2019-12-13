@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc.viewpagerfragment.fragment1;
+package com.maxsavteam.newmcalc.fragments.fragment1;
 
 import android.content.Context;
 import android.view.View;

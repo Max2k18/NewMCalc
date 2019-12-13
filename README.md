@@ -56,7 +56,7 @@ From now on, all changes will be published on [this page](http://newmcalc.maxsav
   
 
 ### 1.10.4.198
-  * Now all error notifications during calculations are displayed in short form on the main screen. (For this class Error was added)
+  * Now all calculation error notifications during calculations are displayed in short form on the main screen. (For this class Error was added)
 
 ### 1.10.4.188
   * Errors during calculations are now displayed in the notification.

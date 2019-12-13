@@ -1,14 +1,14 @@
-package com.maxsavteam.newmcalc.error;
+package com.maxsavteam.newmcalc.core;
 
 import java.math.BigDecimal;
 
-public class Error {
+public class CalculationError {
 
 	private String message = "";
 
 	private String status = "";
 
-	public Error setStatus(String status){
+	public CalculationError setStatus(String status){
 		this.status = status;
 		return this;
 	}
@@ -21,7 +21,7 @@ public class Error {
 		return message;
 	}
 
-	public Error setMessage(String message) {
+	public CalculationError setMessage(String message) {
 		this.message = message;
 		return this;
 	}
@@ -32,7 +32,7 @@ public class Error {
 
 	private BigDecimal possibleResult;
 
-	public Error setPossibleResult(BigDecimal result){
+	public CalculationError setPossibleResult(BigDecimal result){
 		possibleResult = result;
 		return this;
 	}
@@ -43,7 +43,7 @@ public class Error {
 		return shortError;
 	}
 
-	public Error setShortError(String shortError) {
+	public CalculationError setShortError(String shortError) {
 		this.shortError = shortError;
 		return this;
 	}
@@ -54,7 +54,7 @@ public class Error {
 		return error;
 	}
 
-	public Error setError(String error) {
+	public CalculationError setError(String error) {
 		this.error = error;
 		return this;
 	}

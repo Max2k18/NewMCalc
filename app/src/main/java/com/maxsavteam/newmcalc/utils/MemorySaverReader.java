@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc.memory;
+package com.maxsavteam.newmcalc.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

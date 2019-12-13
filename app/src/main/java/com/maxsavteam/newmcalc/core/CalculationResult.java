@@ -4,26 +4,26 @@ import java.math.BigDecimal;
 
 import javax.annotation.Nullable;
 
-public class CalculationResult {
+public final class CalculationResult {
 	private String mType = null;
 	private BigDecimal mResult = null;
 
 	@Nullable
-	public String getType() {
+	public final String getType() {
 		return mType;
 	}
 
-	CalculationResult setType(String type) {
+	public final CalculationResult setType(String type) {
 		mType = type;
 		return this;
 	}
 
 	@Nullable
-	public BigDecimal getResult() {
+	public final BigDecimal getResult() {
 		return mResult;
 	}
 
-	CalculationResult setResult(BigDecimal result) {
+	public final CalculationResult setResult(BigDecimal result) {
 		mResult = result;
 		return this;
 	}

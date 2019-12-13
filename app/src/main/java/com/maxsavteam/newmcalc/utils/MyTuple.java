@@ -6,7 +6,7 @@ public class MyTuple<F, S, T> {
 	public T third;
 
 	/**
-	 * Instead constructor use create()
+	 * Use create() instead constructor
 	 * */
 	private MyTuple(F a, S b, T c) {
 		this.first = a;

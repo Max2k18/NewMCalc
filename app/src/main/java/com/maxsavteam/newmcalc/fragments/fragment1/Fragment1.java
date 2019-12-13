@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc.viewpagerfragment.fragment1;
+package com.maxsavteam.newmcalc.fragments.fragment1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,11 +27,9 @@ import com.maxsavteam.newmcalc.R;
 public class Fragment1 extends Fragment {
 	private Context c;
 	private View.OnLongClickListener[] longClickListeners;
-	private FragmentOneInitializationObject mInitializationObject;
 	public Fragment1(FragmentOneInitializationObject fragmentOneInitializationObject){
 		c = fragmentOneInitializationObject.getContext();
 		this.longClickListeners = fragmentOneInitializationObject.getLongClickListeners();
-		this.mInitializationObject = fragmentOneInitializationObject;
 	}
 
 	@Override

@@ -234,14 +234,12 @@ public class Settings extends AppCompatActivity {
 			sp.edit().clear().apply();
 			while (fr.ready()) {
 				char t = (char) fr.read();
-				if(t == '#')
-					break;
+				if(t == '#') break;
 
-				if (t == '\n') {
-					continue;
-				}
+				if (t == '\n') continue;
 
 				if(t != 'I' && t != 'B' && t != 'S'){
+					fr.close();
 					sp.edit().clear().apply();
 					for (MyTuple<String, String, String> p : a) {
 						String type = p.first;
@@ -265,7 +263,6 @@ public class Settings extends AppCompatActivity {
 								break;
 						}
 					}
-					fr.close();
 					Intent intent = new Intent(this, CatchService.class);
 					intent.putExtra("action", "somethingWentWrong");
 					intent.putExtra("mes", getResources().getString(R.string.on_err_in_backup_file));
@@ -319,7 +316,6 @@ public class Settings extends AppCompatActivity {
 			FileWriter fw = new FileWriter(f, false);
 			Map<String, ?> m = sp.getAll();
 			fw.write("");
-			//fw.append(s);
 			Set<String> se = m.keySet();
 			List<String> l = new ArrayList<>(se);
 			for (int i = 0; i < l.size(); i++) {
@@ -334,14 +330,6 @@ public class Settings extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
 			pd.dismiss();
-			pd.setMessage(e.toString());
-			pd.setCancelable(true);
-			pd.show();
-			try {
-				Thread.sleep(2000);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}

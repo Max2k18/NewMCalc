@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc.adapters.WindowRecallAdapter;
-import com.maxsavteam.newmcalc.memory.MemorySaverReader;
+import com.maxsavteam.newmcalc.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
@@ -33,7 +33,7 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 	private Intent activity_intent;
 	private MemorySaverReader memorySaverReader;
 
-	void backPressed(){
+	private void backPressed(){
 		finish();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
 	}

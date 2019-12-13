@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.utils.Fraction;
 import com.maxsavteam.newmcalc.utils.Utils;
 
@@ -23,7 +22,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 /**
  * @author Maks
  * */
-public final class Core {
+public final class CalculationCore {
 	private CoreLinkBridge coreLinkBridge;
 	private boolean was_error = false;
 	private Resources res;
@@ -31,7 +30,7 @@ public final class Core {
 	private Context c;
 	private String mExample, mType;
 
-	public Core(Context context) {
+	public CalculationCore(Context context) {
 		this.res = context.getApplicationContext().getResources();
 		this.c = context;
 		invalidArgument = res.getString(R.string.invalid_argument);
@@ -45,7 +44,7 @@ public final class Core {
 	
 	public interface CoreLinkBridge{
 		void onSuccess(CalculationResult calculationResult);
-		void onError(Error error);
+		void onError(CalculationError calculationError);
 	}
 	
 	private void onSuccess(CalculationResult calculationResult){
@@ -53,8 +52,8 @@ public final class Core {
 		//currentThread().interrupt();
 	}
 
-	private void onError(Error error){
-		coreLinkBridge.onError(error);
+	private void onError(CalculationError calculationError){
+		coreLinkBridge.onError(calculationError);
 		//currentThread().interrupt();
 	}
 
@@ -107,7 +106,7 @@ public final class Core {
 				}
 			} else if (brackets < 0) {
 				was_error = true;
-				onError(new Error().setStatus("Core"));
+				onError(new CalculationError().setStatus("Core"));
 				return;
 			}
 		}
@@ -120,7 +119,7 @@ public final class Core {
 			example = sb.toString();
 		}
 		if(Utils.isNumber(example)){
-			onError(new Error().setStatus("Core").setError("String is number").setPossibleResult(new BigDecimal(example)));
+			onError(new CalculationError().setStatus("Core").setError("String is number").setPossibleResult(new BigDecimal(example)));
 			return;
 		}
 		if(example.contains(res.getString(R.string.multiply)) || example.contains(res.getString(R.string.div))
@@ -230,7 +229,7 @@ public final class Core {
 							if (y.signum() < 0 || isNumberBigger) {
 								was_error = true;
 								if (isNumberBigger)
-									onError(new Error().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
+									onError(new CalculationError().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
 								break;
 							}
 							for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
@@ -244,12 +243,12 @@ public final class Core {
 							BigDecimal y = s1.peek();
 							if (y.signum() < 0) {
 								was_error = true;
-								onError(new Error().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
+								onError(new CalculationError().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
 								break;
 							} else {
 								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
 									was_error = true;
-									onError(new Error().setError("For some reason, we cannot calculate the factorial of this number " +
+									onError(new CalculationError().setError("For some reason, we cannot calculate the factorial of this number " +
 											"(because it is too large and may not have enough device resources when executed)").setShortError(valueIsTooBig));
 									break;
 								} else {
@@ -267,7 +266,7 @@ public final class Core {
 					} catch (Exception e) {
 						e.printStackTrace();
 						was_error = true;
-						onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+						onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 						break;
 					}
 				} else if (s.equals("%")) {
@@ -290,7 +289,7 @@ public final class Core {
 								private BigDecimal res;
 								private Context mContext;
 
-								private Error getError() {
+								private CalculationError getError() {
 									return error;
 								}
 
@@ -298,7 +297,7 @@ public final class Core {
 									return was_error;
 								}
 
-								private Error error;
+								private CalculationError error;
 								private boolean was_error = false;
 
 								public BigDecimal getRes() {
@@ -311,7 +310,7 @@ public final class Core {
 								}
 
 								@Override
-								public void onError(Error error) {
+								public void onError(CalculationError error) {
 									was_error = true;
 									this.error = error;
 									if(error.getStatus().equals("Core")) {
@@ -322,10 +321,10 @@ public final class Core {
 								}
 
 								private void run(String ex) {
-									Core core = new Core(mContext);
-									core.setInterface(this);
+									CalculationCore calculationCore = new CalculationCore(mContext);
+									calculationCore.setInterface(this);
 
-									core.prepareAndRun(ex, "");
+									calculationCore.prepareAndRun(ex, "");
 								}
 
 								private IsolatedCoreProcess(Context context){
@@ -398,7 +397,7 @@ public final class Core {
 						} catch (Exception e) {
 							e.printStackTrace();
 							was_error = true;
-							onError(new Error().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+							onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
 							break;
 						}
 					}
@@ -422,7 +421,7 @@ public final class Core {
 							continue;
 						} else {
 							was_error = true;
-							onError(new Error().setError("Invalid statement for square root").setShortError(invalidArgument));
+							onError(new CalculationError().setError("Invalid statement for square root").setShortError(invalidArgument));
 							break;
 						}
 					}
@@ -538,7 +537,7 @@ public final class Core {
 				}
 			}catch (Exception e){
 				was_error = true;
-				onError(new Error().setStatus("Core").setShortError("Smth went wrong"));
+				onError(new CalculationError().setStatus("Core").setShortError("Smth went wrong"));
 				break;
 			}
 		}
@@ -561,7 +560,7 @@ public final class Core {
 			}
 		}catch (Exception e) {
 			was_error = true;
-			onError(new Error().setStatus("Core"));
+			onError(new CalculationError().setStatus("Core"));
 		}
 		if(!was_error){
 			onSuccess(new CalculationResult().setResult(s1.peek()).setType(type));
@@ -576,7 +575,7 @@ public final class Core {
 				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					was_error = true;
-					onError(new Error().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
+					onError(new CalculationError().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
 					return;
 				}
 				s1.pop();
@@ -598,7 +597,7 @@ public final class Core {
 					case "log": {
 						if (bigDecimal.signum() <= 0) {
 							was_error = true;
-							onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							onError(new CalculationError().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
@@ -608,7 +607,7 @@ public final class Core {
 					case "ln": {
 						if (bigDecimal.signum() <= 0) {
 							was_error = true;
-							onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							onError(new CalculationError().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
@@ -618,7 +617,7 @@ public final class Core {
 					case "R":
 						if (bigDecimal.signum() < 0) {
 							was_error = true;
-							onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
+							onError(new CalculationError().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
 							return;
 						}
 						ans = BigDecimalMath.sqrt(bigDecimal, new MathContext(9));
@@ -634,9 +633,6 @@ public final class Core {
 			BigDecimal a = s1.peek();
 			BigDecimal ans = s1.peek();
 			s1.pop();
-			double a1, b1;
-			a1 = a.doubleValue();
-			b1 = b.doubleValue();
 			try {
 				switch (x) {
 					case "+":
@@ -651,7 +647,7 @@ public final class Core {
 					case "/":
 						if (b.signum() == 0) {
 							was_error = true;
-							onError(new Error().setError("Division by zero.").setShortError(divisionByZero));
+							onError(new CalculationError().setError("Division by zero.").setShortError(divisionByZero));
 							return;
 						}
 						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
@@ -659,11 +655,11 @@ public final class Core {
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
 							was_error = true;
-							onError(new Error().setShortError(valueIsTooBig));
+							onError(new CalculationError().setShortError(valueIsTooBig));
 							return;
 						}else if(b.signum() == 0 && a.signum() == 0){
 							was_error = true;
-							onError(new Error().setShortError("Raising zero to zero degree."));
+							onError(new CalculationError().setShortError("Raising zero to zero degree."));
 							return;
 						}
 						String power = b.toPlainString();
@@ -694,18 +690,18 @@ public final class Core {
 					s1.push(ans);
 				}else if(str.contains("Infinity or Nan")){
 					was_error = true;
-					onError(new Error().setError(e.toString()).setShortError(valueIsTooBig));
+					onError(new CalculationError().setError(e.toString()).setShortError(valueIsTooBig));
 				} else {
 					was_error = true;
-					onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
+					onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()));
 				}
 			}
 		}catch(EmptyStackException e){
 			was_error = true;
-			onError(new Error().setStatus("Core").setError(e.toString()));
+			onError(new CalculationError().setStatus("Core").setError(e.toString()));
 		}catch (Exception e) {
 			was_error = true;
-			onError(new Error().setError(e.toString()).setMessage(e.getMessage()));
+			onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()));
 			throw new Exception(e.getMessage());
 		}
 	}
@@ -751,3 +747,4 @@ public final class Core {
 		}
 	}
 }
+

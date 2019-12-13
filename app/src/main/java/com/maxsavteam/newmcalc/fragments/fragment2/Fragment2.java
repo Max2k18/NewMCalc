@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc.viewpagerfragment.fragment2;
+package com.maxsavteam.newmcalc.fragments.fragment2;
 
 import android.content.Context;
 import android.content.SharedPreferences;

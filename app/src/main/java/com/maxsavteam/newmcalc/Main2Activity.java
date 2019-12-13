@@ -54,16 +54,15 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
-import com.maxsavteam.newmcalc.core.CalculationResult;
-import com.maxsavteam.newmcalc.core.Core;
-import com.maxsavteam.newmcalc.error.Error;
-import com.maxsavteam.newmcalc.memory.MemorySaverReader;
+import com.maxsavteam.newmcalc.core.CalculationCore;
+import com.maxsavteam.newmcalc.core.CalculationError;
+import com.maxsavteam.newmcalc.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment1.FragmentOneInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment2.FragmentTwoInitializationObject;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -71,7 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBridge {
+public class Main2Activity extends AppCompatActivity implements CalculationCore.CoreLinkBridge {
 
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
@@ -86,14 +85,14 @@ public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBri
 	private BigDecimal[] memoryEntries;
 	private String MULTIPLY_SIGN;
 	private String FI, PI, original;
-	private Core mCore;
+	private CalculationCore mCalculationCore;
 	private  Point displaySize = new Point();
 	private Thread coreThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		try {
+			super.onCreate(savedInstanceState);
 			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			DarkMode = sp.getBoolean("dark_mode", false);
 			if (DarkMode)
@@ -129,8 +128,8 @@ public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBri
 				return true;
 			});
 
-			mCore = new Core(this);
-			mCore.setInterface(this);
+			mCalculationCore = new CalculationCore(this);
+			mCalculationCore.setInterface(this);
 			FI = getResources().getString(R.string.fi);
 			PI = getResources().getString(R.string.pi);
 			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
@@ -915,11 +914,11 @@ public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBri
 
 		was_error = false;
 		original = example;
-		mCore.prepareAndRun(example, type);
+		mCalculationCore.prepareAndRun(example, type);
 	}
 
 	@Override
-	public void onSuccess(CalculationResult calculationResult) {
+	public void onSuccess(CalculationCore.CalculationResult calculationResult) {
 		if(calculationResult.getResult() != null) {
 			writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
 		}else{
@@ -928,14 +927,14 @@ public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBri
 	}
 
 	@Override
-	public void onError(Error error) {
-		if(!error.getStatus().equals("Core")) {
-			if(error.getShortError().equals("")){
-				Toast t = Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG);
+	public void onError(CalculationError calculationError) {
+		if(!calculationError.getStatus().equals("Core")) {
+			if(calculationError.getShortError().equals("")){
+				Toast t = Toast.makeText(this, calculationError.getMessage(), Toast.LENGTH_LONG);
 				t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
 				t.show();
 			}else {
-				writeCalculationError(error.getShortError());
+				writeCalculationError(calculationError.getShortError());
 			}
 		}
 	}

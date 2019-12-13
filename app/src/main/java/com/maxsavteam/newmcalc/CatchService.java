@@ -265,24 +265,24 @@ public class CatchService extends AppCompatActivity {
 				findViewById(R.id.btnDelVar).setVisibility(View.VISIBLE);
 			}
 			Button b = findViewById(R.id.btnSaveVar);
-			int[] textview_ids = new int[]{
+			int[] textViewIds = new int[]{
 					R.id.lblNameOfVar,
 					R.id.lblValueOfVar
 			};
-			int[] edittext_ids = new int[]{
+			int[] editTextIds = new int[]{
 					R.id.name,
 					R.id.value
 			};
 			if(DarkMode) {
 				getWindow().setBackgroundDrawableResource(R.drawable.black);
-				for(int id : textview_ids){
+				for(int id : textViewIds){
 					TextView t = findViewById(id);
 					t.setTextColor(Color.WHITE);
 				}
 				((Button) findViewById(R.id.btnDelVar)).setTextColor(Color.WHITE);
 			}else{
 				getWindow().setBackgroundDrawableResource(R.drawable.white);
-				for(int id : textview_ids){
+				for(int id : textViewIds){
 					TextView t = findViewById(id);
 					t.setTextColor(Color.BLACK);
 				}
@@ -290,7 +290,7 @@ public class CatchService extends AppCompatActivity {
 			}
 			b.setTextColor(Color.WHITE);
 			b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			for(int id : edittext_ids){
+			for(int id : editTextIds){
 				EditText e = findViewById(id);
 				e.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 			}

@@ -4,8 +4,8 @@ import android.content.Context;
 
 import androidx.fragment.app.FragmentManager;
 
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment1.FragmentOneInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment2.FragmentTwoInitializationObject;
 
 public class FragmentAdapterInitializationObject {
 	private FragmentManager mFragmentManager;

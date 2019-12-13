@@ -4,10 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.Fragment1;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment1.FragmentOneInitializationObject;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.Fragment2;
-import com.maxsavteam.newmcalc.viewpagerfragment.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment1.Fragment1;
+import com.maxsavteam.newmcalc.fragments.fragment1.FragmentOneInitializationObject;
+import com.maxsavteam.newmcalc.fragments.fragment2.Fragment2;
+import com.maxsavteam.newmcalc.fragments.fragment2.FragmentTwoInitializationObject;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 	private FragmentOneInitializationObject mFragmentOneInitializationObject;
