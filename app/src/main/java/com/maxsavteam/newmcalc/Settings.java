@@ -205,30 +205,20 @@ public class Settings extends AppCompatActivity {
 		warning.show();
 	}
 
-	String history_dump;
-
 	private void import_settings() {
 		String fileName = "NewMCalc" + (APPTYPE.equals("dev") ? "Dev" : "")  + ".imc";
 		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/" + fileName);
 		try {
 			FileReader fr = new FileReader(f);
-			//tring ans = "";
-			if(sp.getString("history", null) != null){
-				history_dump = sp.getString("history", null);
-			}
-			int history_ver = sp.getInt("local_history_storage_protocol_version", 1);
 			Map<String, ?> m = sp.getAll();
 			Set<String> se = m.keySet();
 			List<String> l = new ArrayList<>(se);
-			//ArrayList<Pair<String, Pair<String, String>>> a = new ArrayList<>();
 			ArrayList<MyTuple<String, String, String>> a = new ArrayList<>();
 			for(int i = 0; i < l.size(); i++){
 				String type = m.get(l.get(i)).getClass().getName();
 				if(type.contains("java.lang.")){
 					type = type.replaceAll("java.lang.", "");
-					//a.add( new Pair<>( type, new Pair<>( l.get(i), String.valueOf( m.get( l.get(i) ) ) ) ) );
 					a.add(MyTuple.create(type, l.get(i), String.valueOf(m.get(l.get(i)))));
-					//a.get(0).first = "";
 				}
 			}
 			sp.edit().clear().apply();
@@ -236,7 +226,7 @@ public class Settings extends AppCompatActivity {
 				char t = (char) fr.read();
 				if(t == '#') break;
 
-				if (t == '\n') continue;
+				if(t == '\n') continue;
 
 				if(t != 'I' && t != 'B' && t != 'S'){
 					fr.close();

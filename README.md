@@ -9,6 +9,9 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
 #### **I waiting for feedback**
 
 ## Technical Change history
+### 1.12.3
+  * Trigonometric functions now work with big numbers
+
 ### 1.12.2
   * Fixed trigonometric functions. Needed to convert degrees to radians and put radians value at parameter
 
