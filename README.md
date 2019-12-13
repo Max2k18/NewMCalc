@@ -42,7 +42,7 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
   * We returned the percentage function. And now it works in a completely different way.
 
 ### 1.11.1 (430)
-From now on, all changes will be published on [this page](http://newmcalc.maxsavteam.tk/what-new/).
+From now on, all changes will be published on [this page](http://newmcalc.maxsav.team/what-new/).
   * Percent removed
   * Added the ability to delete variables.
   * After counting, you can immediately write the value to a variable.
