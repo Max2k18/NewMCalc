@@ -11,6 +11,7 @@ import com.maxsavteam.newmcalc.R;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
@@ -39,9 +40,14 @@ public final class Utils {
 		return Character.toString(c).equals(PI) || Character.toString(c).equals(FI) || c == 'e';
 	}
 
-	public static BigDecimal fact(BigDecimal x){
-		return BigDecimalMath.factorial(x, new MathContext(10));
+	public static BigDecimal fact(BigDecimal y){
+		return BigDecimalMath.factorial(y, new MathContext(10));
 	}
+
+	public static BigDecimal toRadians(BigDecimal decimal){
+		return decimal.multiply(BigDecimal.valueOf(Math.PI)).divide(BigDecimal.valueOf(180), 8, RoundingMode.HALF_EVEN);
+	}
+
 	/**
 	 * @param source String in which need to delete back zeros after dot and front zeros
 	 * @return String without back and front zeros

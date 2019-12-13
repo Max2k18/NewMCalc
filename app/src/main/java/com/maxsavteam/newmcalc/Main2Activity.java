@@ -55,7 +55,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationResult;
-import com.maxsavteam.newmcalc.core.CoreMain;
+import com.maxsavteam.newmcalc.core.Core;
 import com.maxsavteam.newmcalc.error.Error;
 import com.maxsavteam.newmcalc.memory.MemorySaverReader;
 import com.maxsavteam.newmcalc.utils.Constants;
@@ -71,7 +71,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
-public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLinkBridge {
+public class Main2Activity extends AppCompatActivity implements Core.CoreLinkBridge {
 
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
@@ -86,7 +86,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 	private BigDecimal[] memoryEntries;
 	private String MULTIPLY_SIGN;
 	private String FI, PI, original;
-	private CoreMain mCoreMain;
+	private Core mCore;
 	private  Point displaySize = new Point();
 	private Thread coreThread;
 
@@ -129,8 +129,8 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 				return true;
 			});
 
-			mCoreMain = new CoreMain(this);
-			mCoreMain.setInterface(this);
+			mCore = new Core(this);
+			mCore.setInterface(this);
 			FI = getResources().getString(R.string.fi);
 			PI = getResources().getString(R.string.pi);
 			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
@@ -915,7 +915,7 @@ public class Main2Activity extends AppCompatActivity implements CoreMain.CoreLin
 
 		was_error = false;
 		original = example;
-		mCoreMain.prepareAndRun(example, type);
+		mCore.prepareAndRun(example, type);
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 /**
  * @author Maks
  * */
-public final class CoreMain {
+public final class Core {
 	private CoreLinkBridge coreLinkBridge;
 	private boolean was_error = false;
 	private Resources res;
@@ -31,7 +31,7 @@ public final class CoreMain {
 	private Context c;
 	private String mExample, mType;
 
-	public CoreMain(Context context) {
+	public Core(Context context) {
 		this.res = context.getApplicationContext().getResources();
 		this.c = context;
 		invalidArgument = res.getString(R.string.invalid_argument);
@@ -322,7 +322,7 @@ public final class CoreMain {
 								}
 
 								private void run(String ex) {
-									CoreMain core = new CoreMain(mContext);
+									Core core = new Core(mContext);
 									core.setInterface(this);
 
 									core.prepareAndRun(ex, "");
@@ -572,6 +572,7 @@ public final class CoreMain {
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
 				double d = s1.peek().doubleValue();
+				BigDecimal bigDecimal = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					was_error = true;
@@ -582,42 +583,45 @@ public final class CoreMain {
 				//d = Math.toRadians(d);
 				switch (x) {
 					case "cos": {
-						ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
+						//ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
+						ans = BigDecimalMath.cos(Utils.toRadians(bigDecimal), new MathContext(9));
 						break;
 					}
 					case "sin": {
-						ans = BigDecimal.valueOf(Math.sin(Math.toRadians(d)));
+						ans = BigDecimalMath.sin(Utils.toRadians(bigDecimal), new MathContext(9));
 						break;
 					}
 					case "tan": {
-						ans = BigDecimal.valueOf(Math.tan(Math.toRadians(d)));
+						ans = BigDecimalMath.tan(Utils.toRadians(bigDecimal), new MathContext(9));
 						break;
 					}
 					case "log": {
-						if (d <= 0) {
+						if (bigDecimal.signum() <= 0) {
 							was_error = true;
 							onError(new Error().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
-						ans = BigDecimal.valueOf(Math.log10(d));
+						//ans = BigDecimal.valueOf(Math.log10(d));
+						ans = BigDecimalMath.log10(bigDecimal, new MathContext(9));
 						break;
 					}
 					case "ln": {
-						if (d <= 0) {
+						if (bigDecimal.signum() <= 0) {
 							was_error = true;
 							onError(new Error().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
 							return;
 						}
-						ans = BigDecimal.valueOf(Math.log(d));
+						//ans = BigDecimal.valueOf(Math.log(d));
+						ans = BigDecimalMath.log(bigDecimal, new MathContext(9));
 						break;
 					}
 					case "R":
-						if (d < 0) {
+						if (bigDecimal.signum() < 0) {
 							was_error = true;
 							onError(new Error().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
 							return;
 						}
-						ans = BigDecimal.valueOf(Math.sqrt(d));
+						ans = BigDecimalMath.sqrt(bigDecimal, new MathContext(9));
 						break;
 				}
 				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
@@ -657,7 +661,7 @@ public final class CoreMain {
 							was_error = true;
 							onError(new Error().setShortError(valueIsTooBig));
 							return;
-						}else if(b1 == 0 && a1 == 0){
+						}else if(b.signum() == 0 && a.signum() == 0){
 							was_error = true;
 							onError(new Error().setShortError("Raising zero to zero degree."));
 							return;
