@@ -61,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="btnonclick"
+            android:onClick="buttonOnClick"
             android:text="6"
             android:textSize="24sp" />
 
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="btnonclick"
+            android:onClick="buttonOnClick"
             android:text="8"
             android:textSize="24sp" />
 
@@ -81,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="btnonclick"
+            android:onClick="buttonOnClick"
             android:text="12"
             android:textSize="24sp" />
 
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="btnonclick"
+            android:onClick="buttonOnClick"
             android:text="16"
             android:textSize="24sp" />
     </LinearLayout>

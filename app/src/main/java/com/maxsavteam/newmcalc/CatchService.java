@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.maxsavteam.newmcalc.utils.MyTuple;
 import com.maxsavteam.newmcalc.utils.Utils;
+import com.maxsavteam.newmcalc.utils.VariableUtils;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -105,7 +106,7 @@ public class CatchService extends AppCompatActivity {
 			if(name_s.equals("+"))
 				return;
 
-			ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
+			ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
 			if(a == null)
 				a = new ArrayList<>();
 			//a.add(new Pair<>(tag, new Pair<>(name_s, value_s)));
@@ -116,7 +117,7 @@ public class CatchService extends AppCompatActivity {
 				}
 			}
 			a.add(MyTuple.create(tag, name_s, value_s));
-			Utils.saveVariables(a, this);
+			VariableUtils.saveVariables(a, this);
 			Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
 			sendBroadcast(in);
 			onBackPressed();
@@ -128,13 +129,13 @@ public class CatchService extends AppCompatActivity {
 	}
 
 	public void deleteVariable(View v) {
-		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
+		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
 		if(a == null)
 			return;
 		for(int i = 0; i < a.size(); i++){
 			if(a.get(i).first == tag){
 				a.remove(i);
-				Utils.saveVariables(a, this);
+				VariableUtils.saveVariables(a, this);
 				Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
 				sendBroadcast(in);
 				onBackPressed();

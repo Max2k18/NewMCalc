@@ -56,13 +56,16 @@ import com.maxsavteam.newmcalc.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc.core.CalculationCore;
 import com.maxsavteam.newmcalc.core.CalculationError;
-import com.maxsavteam.newmcalc.utils.MemorySaverReader;
-import com.maxsavteam.newmcalc.utils.Constants;
-import com.maxsavteam.newmcalc.utils.Format;
-import com.maxsavteam.newmcalc.utils.MyTuple;
-import com.maxsavteam.newmcalc.utils.Utils;
+import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.fragments.fragment1.FragmentOneInitializationObject;
 import com.maxsavteam.newmcalc.fragments.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc.utils.Constants;
+import com.maxsavteam.newmcalc.utils.CurrentAppLocale;
+import com.maxsavteam.newmcalc.utils.Format;
+import com.maxsavteam.newmcalc.utils.MemorySaverReader;
+import com.maxsavteam.newmcalc.utils.MyTuple;
+import com.maxsavteam.newmcalc.utils.Utils;
+import com.maxsavteam.newmcalc.utils.VariableUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -87,69 +90,24 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	private String FI, PI, original;
 	private CalculationCore mCalculationCore;
 	private  Point displaySize = new Point();
-	private Thread coreThread;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		try {
-			super.onCreate(savedInstanceState);
-			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-			DarkMode = sp.getBoolean("dark_mode", false);
-			if (DarkMode)
-				setTheme(android.R.style.Theme_Material_NoActionBar);
-			else
-				setTheme(R.style.AppThemeMainActivity);
-			setContentView(R.layout.activity_main2);
-			Toolbar toolbar = findViewById(R.id.toolbar);
-			setSupportActionBar(toolbar);
-			getSupportActionBar().setTitle("New MCalc");
-
-			DrawerLayout drawer = findViewById(R.id.drawer_layout);
-			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-					this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-			drawer.setDrawerListener(toggle);
-			toggle.syncState();
-			mNavigationView = findViewById(R.id.nav_view);
-			mNavigationView.setBackgroundColor(Color.BLACK);
-			mNavigationView.setNavigationItemSelectedListener(menuItem -> {
-				if (menuItem.getItemId() == R.id.nav_settings) {
-					goToAdditionalActivities("settings");
-				} else if (menuItem.getItemId() == R.id.nav_history) {
-					goToAdditionalActivities("history");
-				} else if (menuItem.getItemId() == R.id.nav_numbersysconverter) {
-					goToAdditionalActivities("bin");
-				} else if (menuItem.getItemId() == R.id.nav_passgen) {
-					goToAdditionalActivities("pass");
-				} else if (menuItem.getItemId() == R.id.nav_numgen) {
-					goToAdditionalActivities("numgen");
-				}
-				menuItem.setChecked(false);
-				drawer.closeDrawer(GravityCompat.START);
-				return true;
-			});
-
-			mCalculationCore = new CalculationCore(this);
-			mCalculationCore.setInterface(this);
-			FI = getResources().getString(R.string.fi);
-			PI = getResources().getString(R.string.pi);
-			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
-
-			applyTheme();
-
-			Intent startIntent = getIntent();
-			if (startIntent.getBooleanExtra("shortcut_action", false)) {
-				String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
-				if (whereWeNeedToGoToAnotherActivity != null) {
-					goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+	View.OnLongClickListener on_var_long_click = v -> {
+		Button btn = (Button) v;
+		int pos = Integer.parseInt(btn.getTag().toString());
+		Intent in = new Intent();
+		in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
+		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(Main2Activity.this);
+		if (a != null) {
+			for (int i = 0; i < a.size(); i++) {
+				if (a.get(i).first == pos) {
+					in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).third);
+					break;
 				}
 			}
-
-			setViewPager(0);
-		}catch(Exception e){
-			goToActivity(CatchService.class, new Intent().putExtra("action", "somethingWentWrong"));
-			finish();
+			goToActivity(CatchService.class, in);
 		}
-	}
+		return true;
+	};
 
 	@Override
 	public void onBackPressed() {
@@ -665,30 +623,67 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		isBroadcastsRegistered = true;
 	}
 
-	private void addStringExampleToTheExampleStr(String value){
-		TextView t = findViewById(R.id.ExampleStr);
-		String txt = t.getText().toString();
-		if(txt.equals("")) {
-			t.setText(value);
-			show_str();
-			hide_ans();
-			format(R.id.ExampleStr);
-			resizeText();
-		}else{
-			char last = txt.charAt(txt.length() - 1);
-			if(new BigDecimal(value).signum() < 0)
-				value = "(" + value + ")";
-			if(Utils.isDigit(last) || last == '%' || last == '!'
-					|| Character.toString(last).equals(FI)
-					|| Character.toString(last).equals(PI) || last == 'e' || last == ')'){
-				t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
-				equallu("not");
-			}else{
-				t.setText(String.format("%s%s", txt, value));
-				equallu("not");
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		try {
+			super.onCreate(savedInstanceState);
+			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			DarkMode = sp.getBoolean("dark_mode", false);
+			CurrentAppLocale.setLocale(getResources().getConfiguration().locale);
+			if (DarkMode) {
+				setTheme(android.R.style.Theme_Material_NoActionBar);
+			} else {
+				setTheme(R.style.AppThemeMainActivity);
 			}
-			format(R.id.ExampleStr);
-			resizeText();
+			setContentView(R.layout.activity_main2);
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			setSupportActionBar(toolbar);
+			getSupportActionBar().setTitle("New MCalc");
+
+			DrawerLayout drawer = findViewById(R.id.drawer_layout);
+			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+					this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+			drawer.setDrawerListener(toggle);
+			toggle.syncState();
+			mNavigationView = findViewById(R.id.nav_view);
+			mNavigationView.setBackgroundColor(Color.BLACK);
+			mNavigationView.setNavigationItemSelectedListener(menuItem -> {
+				if (menuItem.getItemId() == R.id.nav_settings) {
+					goToAdditionalActivities("settings");
+				} else if (menuItem.getItemId() == R.id.nav_history) {
+					goToAdditionalActivities("history");
+				} else if (menuItem.getItemId() == R.id.nav_numbersysconverter) {
+					goToAdditionalActivities("bin");
+				} else if (menuItem.getItemId() == R.id.nav_passgen) {
+					goToAdditionalActivities("pass");
+				} else if (menuItem.getItemId() == R.id.nav_numgen) {
+					goToAdditionalActivities("numgen");
+				}
+				menuItem.setChecked(false);
+				drawer.closeDrawer(GravityCompat.START);
+				return true;
+			});
+
+			mCalculationCore = new CalculationCore(this);
+			mCalculationCore.setInterface(this);
+			FI = getResources().getString(R.string.fi);
+			PI = getResources().getString(R.string.pi);
+			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
+
+			applyTheme();
+
+			Intent startIntent = getIntent();
+			if (startIntent.getBooleanExtra("shortcut_action", false)) {
+				String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
+				if (whereWeNeedToGoToAnotherActivity != null) {
+					goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+				}
+			}
+
+			setViewPager(0);
+		} catch (Exception e) {
+			goToActivity(CatchService.class, new Intent().putExtra("action", "somethingWentWrong"));
+			finish();
 		}
 	}
 
@@ -746,23 +741,33 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 	}
 
-	View.OnLongClickListener on_var_long_click = v -> {
-		Button btn = (Button) v;
-		int pos = Integer.parseInt(btn.getTag().toString());
-		Intent in = new Intent();
-		in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
-		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(Main2Activity.this);
-		if(a != null) {
-			for (int i = 0; i < a.size(); i++) {
-				if (a.get(i).first == pos) {
-					in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).third);
-					break;
-				}
+	private void addStringExampleToTheExampleStr(String value) {
+		TextView t = findViewById(R.id.ExampleStr);
+		String txt = t.getText().toString();
+		if (txt.equals("")) {
+			t.setText(value);
+			show_str();
+			hideAns();
+			format(R.id.ExampleStr);
+			resizeText();
+		} else {
+			char last = txt.charAt(txt.length() - 1);
+			if (new BigDecimal(value).signum() < 0) {
+				value = "(" + value + ")";
 			}
-			goToActivity(CatchService.class, in);
+			if (Utils.isDigit(last) || last == '%' || last == '!'
+					|| Character.toString(last).equals(FI)
+					|| Character.toString(last).equals(PI) || last == 'e' || last == ')') {
+				t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
+				equallu("not");
+			} else {
+				t.setText(String.format("%s%s", txt, value));
+				equallu("not");
+			}
+			format(R.id.ExampleStr);
+			resizeText();
 		}
-		return true;
-	};
+	}
 
 	boolean isSpecific(char last){
 		return last == ')' || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI) || last == 'e';
@@ -811,7 +816,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		hide_str();
 		t.setText("");
 		setTextViewAnswerTextSizeToDefault();
-		hide_ans();
+		hideAns();
 		was_error = false;
 		sp.edit().remove("saveResultText").apply();
 		setTextViewsTextSizeToDefault();
@@ -869,7 +874,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	private void equallu(String type){
 		if(was_error){
 			setTextViewAnswerTextSizeToDefault();
-			hide_ans();
+			hideAns();
 		}
 		TextView txt = findViewById(R.id.ExampleStr);
 		String example = txt.getText().toString();
@@ -884,11 +889,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		char last = example.charAt(len - 1);
 		if(!Utils.isDigit(last) && last != ')' && last != '!' && last != '%'
 				&& !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
-			hide_ans();
+			hideAns();
 			return;
 		}
 		if(last == '(' || Utils.isNumber(example)) {
-			hide_ans();
+			hideAns();
 			return;
 		}
 		int brackets = 0;
@@ -918,11 +923,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	}
 
 	@Override
-	public void onSuccess(CalculationCore.CalculationResult calculationResult) {
+	public void onSuccess(CalculationResult calculationResult) {
 		if(calculationResult.getResult() != null) {
 			writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
 		}else{
-			hide_ans();
+			hideAns();
 		}
 	}
 
@@ -941,7 +946,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 	private void writeCalculationError(String text){
 		TextView t = findViewById(R.id.AnswerStr);
-		hide_ans();
+		hideAns();
 		t.setText(text);
 		t.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
 		t.setTextColor(Color.parseColor("#FF4B32"));
@@ -1029,7 +1034,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				if (var_arr == null) {
 					btn.setText("+");
 				} else {
-					ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(this);
+					ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
 					if (a != null) {
 						for(int i = 0; i < a.size(); i++){
 							if(a.get(i).first == pos){
@@ -1144,7 +1149,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		TextView t = findViewById(R.id.AnswerStr);
 		t.setVisibility(View.VISIBLE);
 	}
-	private void hide_ans(){
+
+	private void hideAns() {
 		TextView t = findViewById(R.id.AnswerStr);
 		t.setVisibility(View.INVISIBLE);
 	}

@@ -674,8 +674,12 @@ public final class CalculationCore {
 											20, RoundingMode.HALF_EVEN),
 									new MathContext(8));
 						}else{
-							BigDecimal n = new BigDecimal(power);
-							ans = BigDecimalMath.pow(a, n, new MathContext(8));
+							//BigDecimal n = new BigDecimal(power);
+							ans = BigDecimal.ONE;
+							int pow = Integer.parseInt(power);
+							for (int i = 0; i < pow; i++) {
+								ans = ans.multiply(a);
+							}
 						}
 						break;
 				}

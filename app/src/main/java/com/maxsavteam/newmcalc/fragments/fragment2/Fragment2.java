@@ -23,7 +23,7 @@ import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc.R;
 import com.maxsavteam.newmcalc.utils.MyTuple;
-import com.maxsavteam.newmcalc.utils.Utils;
+import com.maxsavteam.newmcalc.utils.VariableUtils;
 
 import java.util.ArrayList;
 
@@ -77,7 +77,7 @@ public class Fragment2 extends Fragment {
 
 	private void setVariableButtons(){
 		setDefaultButtons();
-		ArrayList<MyTuple<Integer, String, String>> a = Utils.readVariables(mContext);
+		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(mContext);
 		if(a == null)
 			return;
 		for(int i = 0; i < a.size(); i++){
