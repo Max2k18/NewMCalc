@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/item_group_drawer"
+        android:checkableBehavior="none">
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/history_dark"

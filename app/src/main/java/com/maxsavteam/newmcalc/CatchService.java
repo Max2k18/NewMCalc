@@ -26,7 +26,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.maxsavteam.newmcalc.utils.MyTuple;
+import com.maxsavteam.newmcalc.types.Tuple;
+import com.maxsavteam.newmcalc.utils.ResultCodes;
 import com.maxsavteam.newmcalc.utils.Utils;
 import com.maxsavteam.newmcalc.utils.VariableUtils;
 
@@ -51,38 +52,45 @@ public class CatchService extends AppCompatActivity {
 		Intent in = new Intent(Intent.ACTION_VIEW);
 		String dynamic_vk = "https://maxsavteam.page.link/VK";
 		String dynamic_inst = "https://maxsavteam.page.link/Instagram";
-		if(v.getId() == R.id.vkBtn)
-			in.setData(Uri.parse(dynamic_vk));
-		else if(v.getId() == R.id.instBtn)
-			in.setData(Uri.parse(dynamic_inst));
-		else if(v.getId() == R.id.siteBtn)
-			in.setData(Uri.parse("http://m.maxsav.team"));
-		else if(v.getId() == R.id.playMarketBtn)
-			in.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
-		startActivity(in);
+		if ( v.getId() == R.id.vkBtn ) {
+			in.setData( Uri.parse( dynamic_vk ) );
+		} else if ( v.getId() == R.id.instBtn ) {
+			in.setData( Uri.parse( dynamic_inst ) );
+		} else if ( v.getId() == R.id.siteBtn ) {
+			in.setData( Uri.parse( "http://m.maxsav.team" ) );
+		} else if ( v.getId() == R.id.playMarketBtn ) {
+			in.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
+		}
+		startActivity( in );
+	}
+
+	private void finishAct() {
+		finish();
+		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
-		if(id == android.R.id.home){
+		if ( id == android.R.id.home ) {
 			onBackPressed();
 		}
-		return super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected( item );
 	}
 
 	private boolean DarkMode;
-	private void apply_actionbar(){
+
+	private void applyActionbar() {
 		ActionBar appActionBar = getSupportActionBar();
-		if(DarkMode){
-			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
-			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
-			getWindow().setNavigationBarColor(Color.BLACK);
-		}else{
-			getWindow().setNavigationBarColor(Color.WHITE);
-			Objects.requireNonNull(appActionBar).setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
-			appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
+		if ( DarkMode ) {
+			Objects.requireNonNull( appActionBar ).setHomeAsUpIndicator( R.drawable.ic_arrow_back_white_32dp );
+			appActionBar.setBackgroundDrawable( getDrawable( R.drawable.black ) );
+			getWindow().setNavigationBarColor( Color.BLACK );
+		} else {
+			getWindow().setNavigationBarColor( Color.WHITE );
+			Objects.requireNonNull( appActionBar ).setHomeAsUpIndicator( R.drawable.ic_arrow_back_black_32dp );
+			appActionBar.setBackgroundDrawable( getDrawable( R.drawable.white ) );
 		}
 	}
 
@@ -103,24 +111,26 @@ public class CatchService extends AppCompatActivity {
 		String name_s = name.getText().toString();
 		String value_s = value.getText().toString();
 		if(!name_s.equals("") && !value_s.equals("")) {
-			if(name_s.equals("+"))
+			if ( name_s.equals( "+" ) ) {
 				return;
+			}
 
-			ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
-			if(a == null)
+			ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( this );
+			if ( a == null ) {
 				a = new ArrayList<>();
+			}
 			//a.add(new Pair<>(tag, new Pair<>(name_s, value_s)));
 			for (int i = 0; i < a.size(); i++) {
-				if (a.get(i).first == tag) {
-					a.remove(i);
+				if ( a.get( i ).first == tag ) {
+					a.remove( i );
 					//break;
 				}
 			}
-			a.add(MyTuple.create(tag, name_s, value_s));
-			VariableUtils.saveVariables(a, this);
-			Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
-			sendBroadcast(in);
-			onBackPressed();
+			a.add( Tuple.create( tag, name_s, value_s ) );
+			VariableUtils.saveVariables( a, this );
+			Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
+			sendBroadcast( in );
+			setResult( ResultCodes.RESULT_APPLY );
 		}else{
 			TextView warn = findViewById(R.id.lblWarn);
 			warn.setText(R.string.fill_empty_field);
@@ -129,15 +139,16 @@ public class CatchService extends AppCompatActivity {
 	}
 
 	public void deleteVariable(View v) {
-		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
-		if(a == null)
+		ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( this );
+		if ( a == null ) {
 			return;
-		for(int i = 0; i < a.size(); i++){
-			if(a.get(i).first == tag){
-				a.remove(i);
-				VariableUtils.saveVariables(a, this);
-				Intent in = new Intent(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED");
-				sendBroadcast(in);
+		}
+		for (int i = 0; i < a.size(); i++) {
+			if ( a.get( i ).first == tag ) {
+				a.remove( i );
+				VariableUtils.saveVariables( a, this );
+				Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
+				sendBroadcast( in );
 				onBackPressed();
 				break;
 			}
@@ -156,26 +167,26 @@ public class CatchService extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		//sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Intent in = getIntent();
-		String action = in.getStringExtra("action");
-		try{
-			Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setTitle("");
-			getSupportActionBar().setElevation(0);
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}catch(Exception e){
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+		String action = in.getStringExtra( "action" );
+		try {
+			Objects.requireNonNull( getSupportActionBar() ).setDisplayHomeAsUpEnabled( true );
+			getSupportActionBar().setTitle( "" );
+			getSupportActionBar().setElevation( 0 );
+			setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
+		} catch (Exception e) {
+			Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
 
 		}
-		apply_actionbar();
-		if (action == null) {
+		applyActionbar();
+		if ( action == null ) {
 			finish();
 			return;
 		}
-		if (action.equals("about_app")) {
-			setContentView(R.layout.about_activity);
-			((TextView) findViewById(R.id.version)).setText(BuildConfig.VERSION_NAME);
-			((TextView) findViewById(R.id.compiledate)).setText(BuildConfig.COMPILE_DATE);
-			((TextView) findViewById(R.id.build)).setText(Integer.toString(BuildConfig.VERSION_CODE));
+		if ( action.equals( "about_app" ) ) {
+			setContentView( R.layout.about_activity );
+			( (TextView) findViewById( R.id.version ) ).setText( BuildConfig.VERSION_NAME );
+			( (TextView) findViewById( R.id.compiledate ) ).setText( BuildConfig.COMPILE_DATE );
+			( (TextView) findViewById( R.id.build ) ).setText( Integer.toString( BuildConfig.VERSION_CODE ) );
 
 			ImageView img = findViewById(R.id.appIcon);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -276,24 +287,23 @@ public class CatchService extends AppCompatActivity {
 			};
 			if(DarkMode) {
 				getWindow().setBackgroundDrawableResource(R.drawable.black);
-				for(int id : textViewIds){
-					TextView t = findViewById(id);
-					t.setTextColor(Color.WHITE);
+				for (int id : textViewIds) {
+					TextView t = findViewById( id );
+					t.setTextColor( Color.WHITE );
 				}
-				((Button) findViewById(R.id.btnDelVar)).setTextColor(Color.WHITE);
-			}else{
-				getWindow().setBackgroundDrawableResource(R.drawable.white);
-				for(int id : textViewIds){
-					TextView t = findViewById(id);
-					t.setTextColor(Color.BLACK);
+			} else {
+				getWindow().setBackgroundDrawableResource( R.drawable.white );
+				for (int id : textViewIds) {
+					TextView t = findViewById( id );
+					t.setTextColor( Color.BLACK );
 				}
-				((Button) findViewById(R.id.btnDelVar)).setTextColor(Color.WHITE);
 			}
-			b.setTextColor(Color.WHITE);
-			b.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			for(int id : editTextIds){
-				EditText e = findViewById(id);
-				e.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+			( (Button) findViewById( R.id.btnDelVar ) ).setTextColor( Color.WHITE );
+			b.setTextColor( Color.WHITE );
+			b.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
+			for (int id : editTextIds) {
+				EditText e = findViewById( id );
+				e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
 			}
 		}else if(action.equals("somethingWentWrong")){
 			DarkMode = sp.getBoolean("dark_mode", false);
@@ -321,14 +331,19 @@ public class CatchService extends AppCompatActivity {
 			Button btn = findViewById(R.id.btnRestartApp);
 			btn.setTextColor(Color.WHITE);
 			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			btn.setOnClickListener((view) -> restartApp());
+			btn.setOnClickListener( (view) -> restartApp() );
 		}
 	}
 
-	private void restartApp(){
-		Intent intent = new Intent(this, Main2Activity.class);
-		this.startActivity(intent);
+	private void restartApp() {
+		Intent intent = new Intent( this, Main2Activity.class );
+		this.startActivity( intent );
 		this.finishAffinity();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
+	}
+
+	public void viewReport() {
+		Intent intent;
+
 	}
 }

@@ -136,4 +136,5 @@
     <string name="smth_went_wrong">Something went wrong</string>
     <string name="restart_app">Restart application</string>
     <string name="on_err_in_backup_file">In the backup file, the data was incorrectly written or manually changed. No settings have been imported.</string>
+    <string name="view_report">View report</string>
 </resources>

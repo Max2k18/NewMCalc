@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.utils.HistoryEntry;
+import com.maxsavteam.newmcalc.types.HistoryEntry;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
@@ -62,34 +62,31 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         //viewBinderHelper.bind(holexamder.swipeReve);
-        String ex = mData.get(position).example;
-        String ans = mData.get(position).answer;
+        HistoryEntry entry = mData.get( position );
+        String ex = entry.getExample();
+        String ans = entry.getAnswer();
         String desc = "";
-        views.add(holder);
-        holder.tvWithDesc.setText("false");
+        views.add( holder );
+        holder.tvWithDesc.setText( "false" );
         holder.with_description = false;
-        holder.txtDesc.setVisibility(View.GONE);
-        holder.without_desc.setVisibility(View.GONE);
-        holder.with_desc.setVisibility(View.GONE);
-        if(ex.contains(Character.toString((char) 31))) {
+        holder.txtDesc.setVisibility( View.GONE );
+        holder.without_desc.setVisibility( View.GONE );
+        holder.with_desc.setVisibility( View.GONE );
+        if ( entry.getDescription() != null ) {
             holder.with_description = true;
-            holder.tvWithDesc.setText("true");
-            int i;
-            i = 0;
-            while (i < ex.length() && ((int) ex.charAt(i)) != 31) {
-                i++;
-            }
-            desc = ex.substring(i + 1);
-            ex = ex.substring(0, i);
+            holder.tvWithDesc.setText( "true" );
+
+            desc = entry.getDescription();
+
             int oldLength = desc.length();
-            desc = Utils.trim(desc);
-            if(desc.length() == 0){
-                holder.tvWithDesc.setText("false");
+            desc = Utils.trim( desc );
+            if ( desc.length() == 0 ) {
+                holder.tvWithDesc.setText( "false" );
                 holder.with_description = false;
-                mClickListener.onTrimmedDescription("", position);
-            }else {
-                if(oldLength != desc.length()){
-                    mClickListener.onTrimmedDescription(desc, position);
+                mClickListener.onTrimmedDescription( "", position );
+            } else {
+                if ( oldLength != desc.length() ) {
+                    mClickListener.onTrimmedDescription( desc, position );
                 }
                 holder.txtDesc.setText(desc);
                 holder.txtDesc.setVisibility(View.VISIBLE);

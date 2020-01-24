@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.utils.Fraction;
+import com.maxsavteam.newmcalc.types.Fraction;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,24 +21,32 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * @author Maks
- * */
+ */
 public final class CalculationCore {
 	private CoreLinkBridge coreLinkBridge;
-	private boolean was_error = false;
+	/**
+	 * used for actions
+	 * */
+	private final Stack<String> s0 = new Stack<>();
 	private Resources res;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
 	private String mExample, mType;
+	/**
+	 * used for numbers
+	 * */
+	private final Stack<BigDecimal> s1 = new Stack<>();
+	private boolean mWasError = false;
 
 	public CalculationCore(Context context) {
 		this.res = context.getApplicationContext().getResources();
 		this.c = context;
-		invalidArgument = res.getString(R.string.invalid_argument);
-		valueIsTooBig = res.getString(R.string.value_is_too_big);
-		divisionByZero = res.getString(R.string.division_by_zero);
+		invalidArgument = res.getString( R.string.invalid_argument );
+		valueIsTooBig = res.getString( R.string.value_is_too_big );
+		divisionByZero = res.getString( R.string.division_by_zero );
 	}
 
-	public final void setInterface(CoreLinkBridge clb){
+	public final void setInterface(CoreLinkBridge clb) {
 		this.coreLinkBridge = clb;
 	}
 	
@@ -46,30 +54,23 @@ public final class CalculationCore {
 		void onSuccess(CalculationResult calculationResult);
 		void onError(CalculationError calculationError);
 	}
-	
-	private void onSuccess(CalculationResult calculationResult){
-		coreLinkBridge.onSuccess(calculationResult);
+
+	private void onSuccess(CalculationResult calculationResult) {
+		coreLinkBridge.onSuccess( calculationResult );
 		//currentThread().interrupt();
 	}
 
-	private void onError(CalculationError calculationError){
-		coreLinkBridge.onError(calculationError);
+	private void onError(CalculationError calculationError) {
+		coreLinkBridge.onError( calculationError );
 		//currentThread().interrupt();
 	}
 
-	/**
-	 * Is used for actions
-	 * */
-	private final Stack<String> s0 = new Stack<>();
+	private String originalExample = "";
+	private Map<String, String> calculatedResults = new HashMap<>();
 
-	/**
-	 * Is used for numbers
-	 * */
-	private final Stack<BigDecimal> s1 = new Stack<>();
+	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
+	private final BigDecimal MAX_POW = new BigDecimal( "1000" );
 
-	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal("1000");
-	private final BigDecimal MAX_POW = new BigDecimal("1000");
-	
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
 	 *
@@ -105,8 +106,8 @@ public final class CalculationCore {
 					example = String.format("%s%s", example, ")");
 				}
 			} else if (brackets < 0) {
-				was_error = true;
-				onError(new CalculationError().setStatus("Core"));
+				mWasError = true;
+				onError( new CalculationError().setStatus( "Core" ) );
 				return;
 			}
 		}
@@ -138,29 +139,45 @@ public final class CalculationCore {
 					mas[i] = 'P';
 				}else if(p.equals(res.getString(R.string.fi))){
 					mas[i] = 'F';
-				}else if(p.equals(res.getString(R.string.sqrt))){
-					mas[i] = 'R';
+				} else if ( p.equals( res.getString( R.string.sqrt ) ) ) {
+					mas[ i ] = 'R';
 				}
 			}
-			example = new String(mas);
+			example = new String( mas );
 		}
-		calculate(example, type);
+
+		calculate( example, type );
 	}
 
-	private void calculate(String example, String type){
+	/*private void optimizeInput(String example){
+		originalExample = example;
+		Set<String> keySet = calculatedResults.keySet();
+		for(String s : keySet){
+			int pos = -1;
+			while (example.contains( s )){
+				pos = example.indexOf( s, pos + 1 );
+				char nextChar = example.charAt( pos + s.length() );
+				if(!Utils.isDigit( nextChar ) && nextChar != '.' ){
+
+				}
+			}
+		}
+	}*/
+
+	private void calculate(String example, String type) {
 		s0.clear();
 		s1.clear();
-		was_error = false;
+		mWasError = false;
 		String x;
 		String s;
 		int len = example.length();
 
-		for(int i = 0; i < len; i++){
+		for (int i = 0; i < len; i++) {
 			try {
-				s = Character.toString(example.charAt(i));
-				if (s.equals("s") || s.equals("t") || s.equals("l") || s.equals("c")) {
-					if (i != 0) {
-						if (example.charAt(i - 1) == ')') {
+				s = Character.toString( example.charAt( i ) );
+				if ( s.equals( "s" ) || s.equals( "t" ) || s.equals( "l" ) || s.equals( "c" ) ) {
+					if ( i != 0 ) {
+						if ( example.charAt( i - 1 ) == ')' ) {
 							s0.push("*");
 						}
 					}
@@ -227,9 +244,10 @@ public final class CalculationCore {
 							BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
 							boolean isNumberBigger = y.compareTo(MAX_FACTORIAL_VALUE) > 0;
 							if (y.signum() < 0 || isNumberBigger) {
-								was_error = true;
-								if (isNumberBigger)
-									onError(new CalculationError().setError("Invalid argument: factorial value is too much").setShortError(valueIsTooBig)); // I do not know how to name this error
+								mWasError = true;
+								if ( isNumberBigger ) {
+									onError( new CalculationError().setError( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
+								}
 								break;
 							}
 							for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
@@ -242,14 +260,14 @@ public final class CalculationCore {
 						} else {
 							BigDecimal y = s1.peek();
 							if (y.signum() < 0) {
-								was_error = true;
-								onError(new CalculationError().setError("Error: Unable to find negative factorial.").setShortError(invalidArgument));
+								mWasError = true;
+								onError( new CalculationError().setError( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
 								break;
 							} else {
 								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
-									was_error = true;
-									onError(new CalculationError().setError("For some reason, we cannot calculate the factorial of this number " +
-											"(because it is too large and may not have enough device resources when executed)").setShortError(valueIsTooBig));
+									mWasError = true;
+									onError( new CalculationError().setError( "For some reason, we cannot calculate the factorial of this number " +
+											"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
 									break;
 								} else {
 									s1.pop();
@@ -265,8 +283,8 @@ public final class CalculationCore {
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						was_error = true;
-						onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+						mWasError = true;
+						onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 						break;
 					}
 				} else if (s.equals("%")) {
@@ -354,8 +372,8 @@ public final class CalculationCore {
 							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess(c);
 							isolatedCoreProcess.run(x1);
 							if (isolatedCoreProcess.isWas_error() && !isolatedCoreProcess.getError().getError().contains("String is number")) {
-								was_error = true;
-								onError(isolatedCoreProcess.getError());
+								mWasError = true;
+								onError( isolatedCoreProcess.getError() );
 								return;
 							} else {
 								BigDecimal top;
@@ -396,8 +414,8 @@ public final class CalculationCore {
 							continue;
 						} catch (Exception e) {
 							e.printStackTrace();
-							was_error = true;
-							onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()).setShortError(valueIsTooBig));
+							mWasError = true;
+							onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 							break;
 						}
 					}
@@ -413,15 +431,15 @@ public final class CalculationCore {
 					continue;
 				} else if (s.equals("R")) {
 					if (i == len - 1) {
-						was_error = true;
+						mWasError = true;
 						break;
 					} else {
 						if (example.charAt(i + 1) == '(') {
 							in_s0('R');
 							continue;
 						} else {
-							was_error = true;
-							onError(new CalculationError().setError("Invalid statement for square root").setShortError(invalidArgument));
+							mWasError = true;
+							onError( new CalculationError().setError( "Invalid statement for square root" ).setShortError( invalidArgument ) );
 							break;
 						}
 					}
@@ -435,19 +453,19 @@ public final class CalculationCore {
 							s1.push(new BigDecimal(n));
 							n = "";
 						} else {
-							n = String.format("%s%c", n, example.charAt(i));
+							n = String.format( "%s%c", n, example.charAt( i ) );
 						}
 						i++;
 					}
-					s1.push(new BigDecimal(n));
+					s1.push( new BigDecimal( n ) );
 					BigDecimal sum = BigDecimal.ZERO;
 					for (int j = 0; j <= actions; j++) {
-						sum = sum.add(s1.peek());
+						sum = sum.add( s1.peek() );
 						s1.pop();
 					}
-					sum = sum.divide(BigDecimal.valueOf(actions + 1), 2, RoundingMode.HALF_EVEN);
+					sum = sum.divide( BigDecimal.valueOf( actions + 1 ), 4, RoundingMode.HALF_EVEN );
 					String answer = sum.toPlainString();
-					s1.push(new BigDecimal(Utils.deleteZeros(answer)));
+					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
 					continue;
 				} else if (s.equals("G")) {
 					i += 2;
@@ -459,19 +477,20 @@ public final class CalculationCore {
 							s1.push(new BigDecimal(n));
 							n = "";
 						} else {
-							n = String.format("%s%c", n, example.charAt(i));
+							n = String.format( "%s%c", n, example.charAt( i ) );
 						}
 						i++;
 					}
-					s1.push(new BigDecimal(n));
+					s1.push( new BigDecimal( n ) );
 					BigDecimal sum = BigDecimal.ONE;
 					for (int j = 0; j <= actions; j++) {
-						sum = sum.multiply(s1.peek());
+						sum = sum.multiply( s1.peek() );
 						s1.pop();
 					}
-					sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
+					//sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
+					sum = BigDecimalMath.sqrt( sum, new MathContext( 10 ) );
 					String answer = sum.toPlainString();
-					s1.push(new BigDecimal(Utils.deleteZeros(answer)));
+					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
 					continue;
 				}
 				if (Utils.isDigit(example.charAt(i))) {
@@ -520,9 +539,10 @@ public final class CalculationCore {
 						in_s0(example.charAt(i));
 					} else {
 						while (!s0.empty() && !s0.peek().equals("(")) {
-							mult(s0.peek());
-							if (was_error)
+							mult( s0.peek() );
+							if ( mWasError ) {
 								break;
+							}
 							s0.pop();
 						}
 						if (!s0.empty() && s0.peek().equals("(")) {
@@ -536,34 +556,35 @@ public final class CalculationCore {
 					}
 				}
 			}catch (Exception e){
-				was_error = true;
-				onError(new CalculationError().setStatus("Core").setShortError("Smth went wrong"));
+				mWasError = true;
+				onError( new CalculationError().setStatus( "Core" ).setShortError( "Smth went wrong" ) );
 				break;
 			}
 		}
 		try {
-			while (!was_error && !s0.isEmpty() && s1.size() >= 2) {
-				mult(s0.peek());
-				if (was_error)
+			while ( !mWasError && !s0.isEmpty() && s1.size() >= 2 ) {
+				mult( s0.peek() );
+				if ( mWasError ) {
 					break;
+				}
 				s0.pop();
 			}
-			if (!was_error && !s0.isEmpty() && s1.size() == 1) {
-				if (s0.peek().equals("R")) {
-					mult(s0.peek());
+			if ( !mWasError && !s0.isEmpty() && s1.size() == 1 ) {
+				if ( s0.peek().equals( "R" ) ) {
+					mult( s0.peek() );
 					s0.pop();
 				}
-				if (!s0.isEmpty() && (s0.peek().equals("cos") || s0.peek().equals("sin") || s0.peek().equals("log") || s0.peek().equals("ln") || s0.peek().equals("tan"))) {
-					mult(s0.peek());
+				if ( !s0.isEmpty() && ( s0.peek().equals( "cos" ) || s0.peek().equals( "sin" ) || s0.peek().equals( "log" ) || s0.peek().equals( "ln" ) || s0.peek().equals( "tan" ) ) ) {
+					mult( s0.peek() );
 					s0.pop();
 				}
 			}
-		}catch (Exception e) {
-			was_error = true;
-			onError(new CalculationError().setStatus("Core"));
+		} catch (Exception e) {
+			mWasError = true;
+			onError( new CalculationError().setStatus( "Core" ) );
 		}
-		if(!was_error){
-			onSuccess(new CalculationResult().setResult(s1.peek()).setType(type));
+		if ( !mWasError ) {
+			onSuccess( new CalculationResult().setResult( s1.peek() ).setType( type ) );
 		}
 	}
 
@@ -574,8 +595,8 @@ public final class CalculationCore {
 				BigDecimal bigDecimal = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
-					was_error = true;
-					onError(new CalculationError().setError("You cannot find the logarithm of a zero or a negative number.").setShortError(invalidArgument));
+					mWasError = true;
+					onError( new CalculationError().setError( "You cannot find the logarithm of a zero or a negative number." ).setShortError( invalidArgument ) );
 					return;
 				}
 				s1.pop();
@@ -596,8 +617,8 @@ public final class CalculationCore {
 					}
 					case "log": {
 						if (bigDecimal.signum() <= 0) {
-							was_error = true;
-							onError(new CalculationError().setError("Illegal argument: unable to find log of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							mWasError = true;
+							onError( new CalculationError().setError( "Illegal argument: unable to find log of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
@@ -606,8 +627,8 @@ public final class CalculationCore {
 					}
 					case "ln": {
 						if (bigDecimal.signum() <= 0) {
-							was_error = true;
-							onError(new CalculationError().setError("Illegal argument: unable to find ln of " + (d == 0 ? "zero." : "negative number.")).setShortError(invalidArgument));
+							mWasError = true;
+							onError( new CalculationError().setError( "Illegal argument: unable to find ln of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
@@ -616,8 +637,8 @@ public final class CalculationCore {
 					}
 					case "R":
 						if (bigDecimal.signum() < 0) {
-							was_error = true;
-							onError(new CalculationError().setError("Invalid argument: the root expression cannot be negative.").setShortError(invalidArgument));
+							mWasError = true;
+							onError( new CalculationError().setError( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
 							return;
 						}
 						ans = BigDecimalMath.sqrt(bigDecimal, new MathContext(9));
@@ -646,20 +667,20 @@ public final class CalculationCore {
 						break;
 					case "/":
 						if (b.signum() == 0) {
-							was_error = true;
-							onError(new CalculationError().setError("Division by zero.").setShortError(divisionByZero));
+							mWasError = true;
+							onError( new CalculationError().setError( "Division by zero." ).setShortError( divisionByZero ) );
 							return;
 						}
 						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
 						break;
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
-							was_error = true;
-							onError(new CalculationError().setShortError(valueIsTooBig));
+							mWasError = true;
+							onError( new CalculationError().setShortError( valueIsTooBig ) );
 							return;
-						}else if(b.signum() == 0 && a.signum() == 0){
-							was_error = true;
-							onError(new CalculationError().setShortError("Raising zero to zero degree."));
+						} else if(b.signum() == 0 && a.signum() == 0){
+							mWasError = true;
+							onError( new CalculationError().setShortError( "Raising zero to zero degree." ) );
 							return;
 						}
 						String power = b.toPlainString();
@@ -693,20 +714,20 @@ public final class CalculationCore {
 					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
 					s1.push(ans);
 				}else if(str.contains("Infinity or Nan")){
-					was_error = true;
-					onError(new CalculationError().setError(e.toString()).setShortError(valueIsTooBig));
+					mWasError = true;
+					onError( new CalculationError().setError( e.toString() ).setShortError( valueIsTooBig ) );
 				} else {
-					was_error = true;
-					onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()));
+					mWasError = true;
+					onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ) );
 				}
 			}
 		}catch(EmptyStackException e){
-			was_error = true;
-			onError(new CalculationError().setStatus("Core").setError(e.toString()));
-		}catch (Exception e) {
-			was_error = true;
-			onError(new CalculationError().setError(e.toString()).setMessage(e.getMessage()));
-			throw new Exception(e.getMessage());
+			mWasError = true;
+			onError( new CalculationError().setStatus( "Core" ).setError( e.toString() ) );
+		} catch (Exception e) {
+			mWasError = true;
+			onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ) );
+			throw new Exception( e.getMessage() );
 		}
 	}
 

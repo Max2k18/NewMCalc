@@ -23,7 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.maxsavteam.newmcalc.utils.MyTuple;
+import com.maxsavteam.newmcalc.types.Tuple;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.io.File;
@@ -209,38 +209,38 @@ public class Settings extends AppCompatActivity {
 		String fileName = "NewMCalc" + (APPTYPE.equals("dev") ? "Dev" : "")  + ".imc";
 		File f = new File(Environment.getExternalStorageDirectory() + "/MST files/" + fileName);
 		try {
-			FileReader fr = new FileReader(f);
+			FileReader fr = new FileReader( f );
 			Map<String, ?> m = sp.getAll();
 			Set<String> se = m.keySet();
-			List<String> l = new ArrayList<>(se);
-			ArrayList<MyTuple<String, String, String>> a = new ArrayList<>();
-			for(int i = 0; i < l.size(); i++){
-				String type = m.get(l.get(i)).getClass().getName();
-				if(type.contains("java.lang.")){
-					type = type.replaceAll("java.lang.", "");
-					a.add(MyTuple.create(type, l.get(i), String.valueOf(m.get(l.get(i)))));
+			List<String> l = new ArrayList<>( se );
+			ArrayList<Tuple<String, String, String>> a = new ArrayList<>();
+			for (int i = 0; i < l.size(); i++) {
+				String type = m.get( l.get( i ) ).getClass().getName();
+				if ( type.contains( "java.lang." ) ) {
+					type = type.replaceAll( "java.lang.", "" );
+					a.add( Tuple.create( type, l.get( i ), String.valueOf( m.get( l.get( i ) ) ) ) );
 				}
 			}
 			sp.edit().clear().apply();
-			while (fr.ready()) {
+			while ( fr.ready() ) {
 				char t = (char) fr.read();
 				if(t == '#') break;
 
 				if(t == '\n') continue;
 
-				if(t != 'I' && t != 'B' && t != 'S'){
+				if(t != 'I' && t != 'B' && t != 'S') {
 					fr.close();
 					sp.edit().clear().apply();
-					for (MyTuple<String, String, String> p : a) {
+					for (Tuple<String, String, String> p : a) {
 						String type = p.first;
 						String key = p.second;
 						String value = p.third;
-						switch (type) {
+						switch ( type ) {
 							case "String":
-								sp.edit().putString(key, value).apply();
+								sp.edit().putString( key, value ).apply();
 								break;
 							case "Integer":
-								sp.edit().putInt(key, Integer.parseInt(value)).apply();
+								sp.edit().putInt( key, Integer.parseInt( value ) ).apply();
 								break;
 							case "Boolean":
 								sp.edit().putBoolean(key, Boolean.parseBoolean(value)).apply();

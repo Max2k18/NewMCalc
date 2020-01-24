@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc.R;
-import com.maxsavteam.newmcalc.utils.MyTuple;
+import com.maxsavteam.newmcalc.types.Tuple;
 import com.maxsavteam.newmcalc.utils.VariableUtils;
 
 import java.util.ArrayList;
@@ -75,18 +75,19 @@ public class Fragment2 extends Fragment {
 		}
 	}
 
-	private void setVariableButtons(){
+	private void setVariableButtons() {
 		setDefaultButtons();
-		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(mContext);
-		if(a == null)
+		ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( mContext );
+		if ( a == null ) {
 			return;
-		for(int i = 0; i < a.size(); i++){
-			Button b = view.findViewById(findButtonByTag(a.get(i).first));
-			b.setText(a.get(i).second);
-			b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-			b.setContentDescription(a.get(i).second);
-			b.setOnLongClickListener(longClickListeners[1]);
-			b.setTransformationMethod(null);
+		}
+		for (int i = 0; i < a.size(); i++) {
+			Button b = view.findViewById( findButtonByTag( a.get( i ).first ) );
+			b.setText( a.get( i ).second );
+			b.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
+			b.setContentDescription( a.get( i ).second );
+			b.setOnLongClickListener( longClickListeners[ 1 ] );
+			b.setTransformationMethod( null );
 		}
 	}
 

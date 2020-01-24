@@ -1,8 +1,10 @@
-package com.maxsavteam.newmcalc.utils;
+package com.maxsavteam.newmcalc.types;
+
+import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.math.BigDecimal;
 
-public class Fraction{
+public class Fraction {
 	private BigDecimal numerator;
 	private BigDecimal denominator;
 

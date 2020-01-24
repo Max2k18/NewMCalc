@@ -33,13 +33,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.newmcalc.utils.HistoryEntry;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc.swipes.SwipeController;
 import com.maxsavteam.newmcalc.swipes.SwipeControllerActions;
+import com.maxsavteam.newmcalc.types.HistoryEntry;
 import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.HistoryStorageProtocolsFormatter;
+import com.maxsavteam.newmcalc.utils.ResultCodes;
 import com.maxsavteam.newmcalc.utils.Utils;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 
     private void backPressed(){
-        sendBroadcast(history_action);
+        //sendBroadcast(history_action);
         finish();
         overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
     }
@@ -74,6 +75,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onBackPressed(){
+        setResult( ResultCodes.RESULT_NORMAL, history_action );
         if (start_type.equals("app")) {
             backPressed();
         } else if (start_type.equals("shortcut")) {
@@ -85,27 +87,20 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     private void onSomethingWentWrong(){
         Toast.makeText(this, getResources().getString(R.string.smth_went_wrong), Toast.LENGTH_LONG).show();
-        history_action.putExtra("error", true);
+        history_action.putExtra( "error", true );
+        setResult( ResultCodes.RESULT_ERROR, history_action );
         backPressed();
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        if(position == POSITION_TO_DEL){
+        if ( position == POSITION_TO_DEL ) {
             cancelTimer();
             animate_hide();
         }
-        history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
-        String ex = adapter.getItem(position).example;
-        if(ex.contains("~")) {
-            int j;
-	        j = 0;
-	        while (j < ex.length() && ex.charAt(j) != '~') {
-		        j++;
-	        }
-	        ex = ex.substring(0, j);
-        }
-        history_action.putExtra("example", ex).putExtra("result", adapter.getItem(position).answer);
+        //history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
+        history_action.putExtra( "example", str.get( position ).getExample() ).putExtra( "result", adapter.getItem( position ).getAnswer() );
+        setResult( ResultCodes.RESULT_NORMAL, history_action );
         backPressed();
         //Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
     }
@@ -303,24 +298,17 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String s = str.get(position).example;
-                        int j;
-	                    j = 0;
-	                    while (j < s.length() && s.charAt(j) != ((char) 31)) {
-		                    j++;
-	                    }
-                        s = s.substring(0, j);
-	                    str.set(position, new HistoryEntry(s, str.get(position).answer));
-                        //Toast.makeText(getApplicationContext(), par.getResources().getResourceName(par.getId()), Toast.LENGTH_LONG).show();
-                        LinearLayout lay = view.findViewById(R.id.with_desc);
-	                    Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.anim_scalefordesc_hide);
-	                    animation.setAnimationListener(new Animation.AnimationListener() {
-		                    @Override
-		                    public void onAnimationStart(Animation animation) {
+                        str.get( position ).setDescription( null );
 
-		                    }
+                        LinearLayout lay = view.findViewById( R.id.with_desc );
+                        Animation animation = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.anim_scalefordesc_hide );
+                        animation.setAnimationListener( new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
 
-		                    @Override
+                            }
+
+                            @Override
 		                    public void onAnimationEnd(Animation animation) {
 			                    lay.setVisibility(View.GONE);
 			                    adapter.clearViews();adapter.notifyDataSetChanged();
@@ -367,38 +355,27 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
                     if(mode.equals("edit")){
                         newDesc = Utils.trim(newDesc);
 	                    if (!newDesc.equals("")) {
-                            String previous = str.get(position).example;
-                            int j;
-                            //noinspection StatementWithEmptyBody
-                            for (j = 0; j < previous.length() && previous.charAt(j) != ((char) 31); j++);
-                            previous = previous.substring(0, j);
-		                    previous += ((char) 31) + newDesc;
-		                    str.set(position, new HistoryEntry(previous, str.get(position).answer));
+                            str.get( position ).setDescription( newDesc );
                             saveHistory();
 		                    ((TextView) view.findViewById(R.id.txtDesc2)).setText(newDesc);
                         }else{
-                            String previous = str.get(position).example;
-                            int j;
-                            //noinspection StatementWithEmptyBody
-                            for (j = 0; j < previous.length() && previous.charAt(j) != ((char) 31); j++);
-                            previous = previous.substring(0, j);
-		                    str.set(position, new HistoryEntry(previous, str.get(position).answer));
+                            str.get( position ).setDescription( null );
                             saveHistory();
                             view.findViewById(R.id.with_desc).setVisibility(View.GONE);
                             view.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
                         }
                         adapter.clearViews();adapter.notifyDataSetChanged();
-                    }else if(mode.equals("add")){
-	                    newDesc = Utils.trim(newDesc);
-	                    if (newDesc.equals(""))
+                    }else if(mode.equals("add")) {
+                        newDesc = Utils.trim( newDesc );
+                        if ( newDesc.equals( "" ) ) {
                             return;
-                        String s = str.get(position).example;
-	                    s += ((char) 31) + newDesc;
-                        //str.get(position).set(0, s);
-                        str.set(position, new HistoryEntry(s, str.get(position).answer));
-                        view.findViewById(R.id.without_desc).setVisibility(View.GONE);
-	                    ((TextView) view.findViewById(R.id.txtDesc2)).setText(newDesc);
-                        view.findViewById(R.id.with_desc).setVisibility(View.GONE);
+                        }
+
+                        str.get( position ).setDescription( newDesc );
+
+                        view.findViewById( R.id.without_desc ).setVisibility( View.GONE );
+                        ( (TextView) view.findViewById( R.id.txtDesc2 ) ).setText( newDesc );
+                        view.findViewById( R.id.with_desc ).setVisibility( View.GONE );
                         saveHistory();
                     }
                     adapter.clearViews();adapter.notifyDataSetChanged();
@@ -422,27 +399,18 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
 
     @Override
     public void onTrimmedDescription(String newDescription, int position) {
-		String s = str.get(position).example;
-		int i = 0;
-		while(s.charAt(i) != ((char) 31)){
-			i++;
-		}
-		if(newDescription.length() != 0) {
-            s = s.substring(0, i + 1);
-            s = String.format("%s%s", s, newDescription);
-        }else{
-		    s = s.substring(0, i);
-        }
-		//str.get(position).set(1, s);
-		str.set(position, new HistoryEntry(s, str.get(position).answer));
-		saveHistory();
+        str.get( position ).setDescription( newDescription );
     }
 
     private void saveHistory(){
         StringBuilder save = new StringBuilder();
         int len = str.size();
-        for(int i = 0; i < len; i++){
-            save.append(str.get(i).example).append( ((char) 30) ).append(str.get(i).answer).append( ((char) 29) );
+        for(int i = 0; i < len; i++) {
+            save.append( str.get( i ).getExample() );
+            if ( str.get( i ).getDescription() != null ) {
+                save.append( Constants.HISTORY_DESC_SEPARATOR ).append( str.get( i ).getDescription() );
+            }
+            save.append( ( (char) 30 ) ).append( str.get( i ).getAnswer() ).append( ( (char) 29 ) );
         }
         sp.edit().putString("history", save.toString()).apply();
 
@@ -677,27 +645,36 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             this.invalidateOptionsMenu();
             int i = 0;
             String ex, ans;
-            while(i < his.length() && his.charAt(i) != ((char) 29) ){
+            while ( i < his.length() ) {// && his.charAt(i) != Constants.HISTORY_ENTRIES_SEPARATOR){
                 boolean was_dot = false;
                 ex = ans = "";
-                while(i < his.length()){
-                    if(his.charAt(i) == ((char) 29)){
+                while ( i < his.length() ) {
+                    if ( his.charAt( i ) == Constants.HISTORY_ENTRIES_SEPARATOR ) {
                         i++;
                         break;
                     }
-                    if(his.charAt(i) == ((char) 30)){
+                    if ( his.charAt( i ) == Constants.HISTORY_IN_ENTRY_SEPARATOR ) {
                         i++;
                         was_dot = true;
                         continue;
                     }
-                    if(!was_dot){
-                        ex = String.format("%s%c", ex, his.charAt(i));
-                    }else{
-                        ans = String.format("%s%c", ans, his.charAt(i));
+                    if ( !was_dot ) {
+                        ex = String.format( "%s%c", ex, his.charAt( i ) );
+                    } else {
+                        ans = String.format( "%s%c", ans, his.charAt( i ) );
                     }
                     i++;
                 }
-                str.add(new HistoryEntry(ex, ans));
+                String description = null;
+                if ( ex.contains( Character.toString( Constants.HISTORY_DESC_SEPARATOR ) ) ) {
+                    int j = 0;
+                    while ( j < ex.length() && ex.charAt( j ) != Constants.HISTORY_DESC_SEPARATOR ) {
+                        j++;
+                    }
+                    description = ex.substring( j + 1 );
+                    ex = ex.substring( 0, j );
+                }
+                str.add( new HistoryEntry( ex, ans, description ) );
             }
             progressDialog.dismiss();
         }

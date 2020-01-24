@@ -125,4 +125,5 @@
     <string name="smth_went_wrong">Irgendwas ist schief gelaufen</string>
     <string name="restart_app">Anwendung neu starten</string>
     <string name="on_err_in_backup_file">In der Sicherungsdatei wurden die Daten falsch geschrieben oder manuell geändert. Es wurden keine Einstellungen importiert.</string>
+    <string name="view_report">Bericht anzeigen</string>
 </resources>

@@ -107,4 +107,5 @@
     <string name="smth_went_wrong">Что-то пошло не так</string>
     <string name="restart_app">Перезапустить приложение</string>
     <string name="on_err_in_backup_file">В резервном файле данные были некорректно записаны или вручную изменены. Никакие настройки не были импортированы.</string>
+    <string name="view_report">Просмотреть отчёт</string>
 </resources>

@@ -59,11 +59,13 @@ import com.maxsavteam.newmcalc.core.CalculationError;
 import com.maxsavteam.newmcalc.core.CalculationResult;
 import com.maxsavteam.newmcalc.fragments.fragment1.FragmentOneInitializationObject;
 import com.maxsavteam.newmcalc.fragments.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc.types.Tuple;
 import com.maxsavteam.newmcalc.utils.Constants;
 import com.maxsavteam.newmcalc.utils.CurrentAppLocale;
 import com.maxsavteam.newmcalc.utils.Format;
 import com.maxsavteam.newmcalc.utils.MemorySaverReader;
-import com.maxsavteam.newmcalc.utils.MyTuple;
+import com.maxsavteam.newmcalc.utils.RequestCodes;
+import com.maxsavteam.newmcalc.utils.ResultCodes;
 import com.maxsavteam.newmcalc.utils.Utils;
 import com.maxsavteam.newmcalc.utils.VariableUtils;
 
@@ -93,18 +95,18 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 	View.OnLongClickListener on_var_long_click = v -> {
 		Button btn = (Button) v;
-		int pos = Integer.parseInt(btn.getTag().toString());
+		int pos = Integer.parseInt( btn.getTag().toString() );
 		Intent in = new Intent();
-		in.putExtra("action", "add_var").putExtra("tag", pos).putExtra("is_existing", true);
-		ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(Main2Activity.this);
-		if (a != null) {
+		in.putExtra( "action", "add_var" ).putExtra( "tag", pos ).putExtra( "is_existing", true );
+		ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( Main2Activity.this );
+		if ( a != null ) {
 			for (int i = 0; i < a.size(); i++) {
-				if (a.get(i).first == pos) {
-					in.putExtra("name", btn.getText().toString()).putExtra("value", a.get(i).third);
+				if ( a.get( i ).first == pos ) {
+					in.putExtra( "name", btn.getText().toString() ).putExtra( "value", a.get( i ).third );
 					break;
 				}
 			}
-			goToActivity(CatchService.class, in);
+			goToActivity( CatchService.class, in );
 		}
 		return true;
 	};
@@ -676,23 +678,46 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			if (startIntent.getBooleanExtra("shortcut_action", false)) {
 				String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra("to_");
 				if (whereWeNeedToGoToAnotherActivity != null) {
-					goToAdditionalActivities(whereWeNeedToGoToAnotherActivity);
+					goToAdditionalActivities( whereWeNeedToGoToAnotherActivity );
 				}
 			}
 
-			setViewPager(0);
+			setViewPager( 0 );
 		} catch (Exception e) {
-			goToActivity(CatchService.class, new Intent().putExtra("action", "somethingWentWrong"));
+			goToActivity( CatchService.class, new Intent().putExtra( "action", "somethingWentWrong" ) );
 			finish();
 		}
 	}
 
-	private void setViewPager(int which){
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+		if ( requestCode == RequestCodes.START_HISTORY ) {
+			t = findViewById( R.id.ExampleStr );
+			if ( resultCode != ResultCodes.RESULT_ERROR && data != null ) {
+				String example = data.getStringExtra( "example" );
+				if ( example != null && !example.equals( "" ) ) {
+					String result = data.getStringExtra( "result" );
+
+					if ( t.getText().toString().equals( "" ) ) {
+						t.setText( example );
+						show_str();
+					} else {
+						addStringExampleToTheExampleStr( result );
+					}
+
+					equallu( "not" );
+				}
+			}
+		}
+		super.onActivityResult( requestCode, resultCode, data );
+	}
+
+	private void setViewPager(int which) {
 		try {
 			FragmentOneInitializationObject fragmentOneInitializationObject =
 					new FragmentOneInitializationObject()
-							.setContext(this)
-							.setLongClickListeners(new View.OnLongClickListener[]{
+							.setContext( this )
+							.setLongClickListeners( new View.OnLongClickListener[]{
 									mForAdditionalBtnsLongClick,
 									returnback,
 									btnDeleteSymbolLongClick
@@ -1034,11 +1059,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				if (var_arr == null) {
 					btn.setText("+");
 				} else {
-					ArrayList<MyTuple<Integer, String, String>> a = VariableUtils.readVariables(this);
-					if (a != null) {
-						for(int i = 0; i < a.size(); i++){
-							if(a.get(i).first == pos){
-								addStringExampleToTheExampleStr(a.get(i).third);
+					ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( this );
+					if ( a != null ) {
+						for (int i = 0; i < a.size(); i++) {
+							if ( a.get( i ).first == pos ) {
+								addStringExampleToTheExampleStr( a.get( i ).third );
 								//break;
 								return;
 							}
@@ -1125,14 +1150,18 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		addStringExampleToTheExampleStr(value);
 	}
 
-	private void goToActivity(Class <?> cls, Intent possibleExtras){
-		Intent intent = new Intent(this, cls);
-		if (possibleExtras != null && possibleExtras.getExtras() != null) {
-			intent.putExtras(possibleExtras.getExtras());
+	private void goToActivity(Class <?> cls, Intent possibleExtras) {
+		Intent intent = new Intent( this, cls );
+		if ( possibleExtras != null && possibleExtras.getExtras() != null ) {
+			intent.putExtras( possibleExtras.getExtras() );
 		}
+		int requestCode = -1;
 		isOtherActivityOpened = true;
-		startActivity(intent);
-		overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+		if ( cls.equals( History.class ) ) {
+			requestCode = RequestCodes.START_HISTORY;
+		}
+		startActivityForResult( intent, requestCode );
+		overridePendingTransition( R.anim.activity_in, R.anim.activity_out );
 	}
 
 	private void show_str(){
@@ -1145,26 +1174,26 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		t.setVisibility(View.INVISIBLE);
 	}
 
-	private void show_ans(){
-		TextView t = findViewById(R.id.AnswerStr);
-		t.setVisibility(View.VISIBLE);
+	private void show_ans() {
+		TextView t = findViewById( R.id.AnswerStr );
+		t.setVisibility( View.VISIBLE );
 	}
 
 	private void hideAns() {
-		TextView t = findViewById(R.id.AnswerStr);
-		t.setVisibility(View.INVISIBLE);
+		TextView t = findViewById( R.id.AnswerStr );
+		t.setVisibility( View.INVISIBLE );
 	}
 
-	private void check_dot(){
-		TextView t = findViewById(R.id.ExampleStr);
+	private void checkDot() {
+		TextView t = findViewById( R.id.ExampleStr );
 		String txt = t.getText().toString();
-		int i = txt.length()-1;
-		if(!Utils.isDigit(txt.charAt(i))){
+		int i = txt.length() - 1;
+		if ( !Utils.isDigit( txt.charAt( i ) ) ) {
 			return;
 		}
 		boolean dot = false;
-		while(i >= 0 && (Utils.isDigit(txt.charAt(i)) || txt.charAt(i) == '.')){
-			if(txt.charAt(i) == '.'){
+		while ( i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || txt.charAt( i ) == '.' ) ) {
+			if ( txt.charAt( i ) == '.' ) {
 				dot = true;
 				break;
 			}else{
@@ -1466,11 +1495,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		if(btntxt.equals(".")){
 			if(txt.equals(""))
 				t.setText("0.");
-			else
-			if(!Utils.isDigit(txt.charAt(len-1)) && txt.charAt(len-1) != '.' && last != '!')
-				t.setText(txt + "0.");
-			else
-				check_dot();
+			else if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && txt.charAt( len - 1 ) != '.' && last != '!' ) {
+				t.setText( txt + "0." );
+			} else {
+				checkDot();
+			}
 		}else{
 			if(btntxt.equals("!") || btntxt.equals("%")){
 				if(!txt.equals("")){
