@@ -76,6 +76,43 @@
       },
       "oauth_client": [
         {
+          "client_id": "669428254565-2rrsfpcuebdlsp1mpdo2fli6p3cfcu2a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maxsavteam.newmcalc.beta",
+            "certificate_hash": "573f5c15bbe352f202e8f9c01deb3bceccd8c1d1"
+          }
+        },
+        {
+          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669428254565:android:8ea2fc641bd6b6c128838c",
+        "android_client_info": {
+          "package_name": "com.maxsavteam.newmcalc2"
+        }
+      },
+      "oauth_client": [
+        {
           "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
           "client_type": 3
         }

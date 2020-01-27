@@ -10,12 +10,17 @@ apply plugin: 'io.fabric'
 apply plugin: 'androidx.navigation.safeargs'
 
 android {
+
+    def keystoreFile = file('keystore.properties')
+    Properties props = new Properties()
+    props.load(new FileInputStream(keystoreFile))
+
     signingConfigs {
         release {
-            storeFile file(var)
-            storePassword '1234567890'
-            keyAlias 'key0'
-            keyPassword '1234567890'
+            storeFile file("${props['storeFile']}")
+            storePassword "${props['storePassword']}"
+            keyAlias "${props['keyAlias']}"
+            keyPassword "${props['keyPassword']}"
         }
     }
     compileSdkVersion 29
@@ -34,7 +39,7 @@ android {
         versionProps.store(versionPropsFile.newWriter(), null)
 
         defaultConfig {
-            applicationId "com.maxsavteam.newmcalc"
+            applicationId "com.maxsavteam.newmcalc2"
             minSdkVersion 22
             //noinspection OldTargetApi
             targetSdkVersion 29

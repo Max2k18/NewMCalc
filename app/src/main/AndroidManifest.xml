@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.maxsavteam.newmcalc"
+    package="com.maxsavteam.newmcalc2"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -20,7 +20,7 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">
         <activity
-            android:name=".Main2Activity"
+            android:name="com.maxsavteam.newmcalc2.Main2Activity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,12 +28,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NumberSystemConverterActivity" />
-        <activity android:name=".MemoryActionsActivity" />
-        <activity android:name=".CatchService" />
-        <activity android:name=".History" />
-        <activity android:name=".NumberPasswordGeneratorActivity" />
-        <activity android:name=".Settings" />
+        <activity android:name="com.maxsavteam.newmcalc2.NumberSystemConverterActivity" />
+        <activity android:name="com.maxsavteam.newmcalc2.MemoryActionsActivity" />
+        <activity android:name="com.maxsavteam.newmcalc2.CatchService" />
+        <activity android:name="com.maxsavteam.newmcalc2.History" />
+        <activity android:name="com.maxsavteam.newmcalc2.NumberPasswordGeneratorActivity" />
+        <activity android:name="com.maxsavteam.newmcalc2.Settings" />
     </application>
 
 </manifest>
