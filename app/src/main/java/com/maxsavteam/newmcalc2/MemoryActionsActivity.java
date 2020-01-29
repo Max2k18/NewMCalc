@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
+import com.maxsavteam.newmcalc2.utils.ResultCodes;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.math.BigDecimal;
@@ -74,8 +75,7 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 					memorySaverReader.save(barr);
 					adapter.notifyDataSetChanged();
 					dialogInterface1.cancel();
-					Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED");
-					sendBroadcast(intent);
+					setResult( ResultCodes.RESULT_REFRESH );
 					backPressed();
 				})
 				.setNegativeButton(R.string.no, (dialogInterface1, i) -> dialogInterface1.cancel()).create();
@@ -146,13 +146,12 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 			String value = activity_intent.getStringExtra("value");
 			barr[position] = new BigDecimal(value);
 			memorySaverReader.save(barr);
-			Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED");
-			sendBroadcast(intent);
+			setResult( ResultCodes.RESULT_REFRESH );
 			backPressed();
 		}else if(type.equals("rc")){
-			Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".RECALL_MEM");
+			Intent intent = new Intent();
 			intent.putExtra("value", barr[position].toString());
-			sendBroadcast(intent);
+			setResult( ResultCodes.RESULT_APPEND, intent );
 			backPressed();
 		}
 	}

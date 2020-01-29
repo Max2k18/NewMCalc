@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.utils;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
 
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.maxsavteam.newmcalc2.R;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
@@ -44,6 +46,34 @@ public final class Utils {
 
 	public static BigDecimal toRadians(BigDecimal decimal){
 		return decimal.multiply(BigDecimal.valueOf(Math.PI)).divide(BigDecimal.valueOf(180), 8, RoundingMode.HALF_EVEN);
+	}
+
+	public static BigDecimal getRemainder(BigDecimal a, BigDecimal b){
+		return a.remainder( b );
+	}
+
+	public static BigDecimal pow(BigDecimal a, BigDecimal n){
+		if(n.compareTo( BigDecimal.ZERO ) < 0){
+			BigDecimal result = sysPow( a, n.multiply( BigDecimal.valueOf( -1 ) ) );
+			String strRes = BigDecimal.ONE.divide( result, 8, RoundingMode.HALF_EVEN ).toPlainString();
+			return new BigDecimal( deleteZeros( strRes ) );
+		}else{
+			return sysPow( a, n );
+		}
+	}
+
+	private static BigDecimal sysPow(BigDecimal a, BigDecimal n){
+		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " ans n=" + n.toPlainString());
+		if(n.compareTo( BigDecimal.ZERO ) == 0){
+			return BigDecimal.ONE;
+		}
+		Log.v("Utils", "remainder=" + getRemainder( a, BigDecimal.valueOf( 2 ) ).toPlainString());
+		if(getRemainder( n, BigDecimal.valueOf( 2 ) ).compareTo( BigDecimal.ONE ) == 0){
+			return sysPow( a, n.subtract( BigDecimal.ONE ) ).multiply( a );
+		}else{
+			BigDecimal b = sysPow(a, n.divide( BigDecimal.valueOf( 2 ), 0, RoundingMode.HALF_EVEN ));
+			return b.multiply( b );
+		}
 	}
 
 	/**

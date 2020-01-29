@@ -17,7 +17,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("${props['storeFile']}")
+            storeFile file(props['storeFile'])
             storePassword "${props['storePassword']}"
             keyAlias "${props['keyAlias']}"
             keyPassword "${props['keyPassword']}"
@@ -80,7 +80,7 @@ android {
             jniDebuggable true
             zipAlignEnabled true
             versionNameSuffix "-DEBUG"
-            signingConfig signingConfigs.release
+            //signingConfig signingConfigs.release
         }
         forFirebaseTestLab {
             minifyEnabled true

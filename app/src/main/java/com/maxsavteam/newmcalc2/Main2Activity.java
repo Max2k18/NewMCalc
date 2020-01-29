@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import android.text.Html;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,7 +75,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 public class Main2Activity extends AppCompatActivity implements CalculationCore.CoreLinkBridge {
 
@@ -92,6 +96,29 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	private String FI, PI, original;
 	private CalculationCore mCalculationCore;
 	private  Point displaySize = new Point();
+	private Queue<AlertDialog> mAlertDialogQueue = new LinkedList<>(  );
+	private boolean isDialogShowed = false;
+
+	private void putAndShowNextAlertDialog(AlertDialog alertDialog){
+		mAlertDialogQueue.add( alertDialog );
+		alertDialog.setOnKeyListener( new DialogInterface.OnKeyListener() {
+			@Override
+			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+				isDialogShowed = false;
+				return true;
+			}
+		} );
+		if(!isDialogShowed)
+			showNextAlertDialog();
+	}
+
+	private void showNextAlertDialog(){
+		if(mAlertDialogQueue.size() > 0){
+			mAlertDialogQueue.peek().show();
+			isDialogShowed = true;
+			mAlertDialogQueue.poll();
+		}
+	}
 
 	View.OnLongClickListener on_var_long_click = v -> {
 		Button btn = (Button) v;
@@ -117,7 +144,10 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		builder.setTitle(R.string.exit)
 				.setMessage(R.string.areyousureexit)
 				.setCancelable(false)
-				.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel())
+				.setNegativeButton(R.string.no, (dialog, which) -> {
+					dialog.cancel();
+					showNextAlertDialog();
+				} )
 				.setPositiveButton(R.string.yes, (dialog, which) -> {
 					dialog.cancel();
 					finishAndRemoveTask();
@@ -130,7 +160,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 			Utils.recolorAlertDialogButtons(alertDialog, this);
 		}
-		alertDialog.show();
+		putAndShowNextAlertDialog( alertDialog );
 	}
 
 	@Override
@@ -258,6 +288,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			if(grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED)
 				sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
+			showNextAlertDialog();
 		}
 	}
 
@@ -292,7 +323,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 										10);
 					})
 					.create();
-			request.show();
+			putAndShowNextAlertDialog( request );
 		}
 		if(read && write){
 			sp.edit().remove("storage_denied").remove("never_request_permissions").apply();
@@ -378,15 +409,18 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 							go_to.setData(Uri.parse(getResources().getString(R.string.link_app_in_google_play)));
 							startActivity(go_to);
 							dialog.cancel();
+							showNextAlertDialog();
 						})
 						.setNegativeButton(R.string.no_thanks, ((dialog, which) -> {
 							Toast.makeText(this, ":(", Toast.LENGTH_SHORT).show();
 							sp.edit().putBoolean("offer_was_showed", true).apply();
 							dialog.cancel();
+							showNextAlertDialog();
 						}))
 						.setNeutralButton(R.string.later, ((dialog, which) -> {
 							Toast.makeText(this, R.string.we_will_wait, Toast.LENGTH_SHORT).show();
 							dialog.cancel();
+							showNextAlertDialog();
 						}));
 
 				rate = builder.create();
@@ -395,7 +429,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					if (DarkMode)
 						rateWindow.setBackgroundDrawableResource(R.drawable.grey);
 				}
-				rate.show();
+				putAndShowNextAlertDialog( rate );
 			}else{
 				offers_count++;
 			}
@@ -418,6 +452,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					.setPositiveButton("OK", (dialog, which) -> {
 						sp.edit().putBoolean("sidebar_guide_showed", true).apply();
 						dialog.cancel();
+						showNextAlertDialog();
 					});
 			alertDialog = builder.create();
 			Window window = alertDialog.getWindow();
@@ -429,7 +464,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				if(btn != null)
 					btn.setTextColor(getResources().getColor(R.color.colorAccent));
 			}
-			alertDialog.show();
+			putAndShowNextAlertDialog( alertDialog );
 		}
 	}
 
@@ -446,11 +481,15 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				builder.setCancelable(false)
 						.setMessage(R.string.what_new_window_text)
 						.setTitle(R.string.important)
-						.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel()).setPositiveButton(R.string.view, ((dialog, which) -> {
-					Intent in = new Intent(Intent.ACTION_VIEW);
-					in.setData(Uri.parse("https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME));
-					startActivity(in);
-				}));
+						.setNegativeButton(R.string.no, (dialog, which) -> {
+							dialog.cancel();
+							showNextAlertDialog();
+						}).setPositiveButton(R.string.view, ((dialog, which) -> {
+							Intent in = new Intent(Intent.ACTION_VIEW);
+							in.setData(Uri.parse("https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME));
+							startActivity(in);
+							showNextAlertDialog();
+						}));
 				window = builder.create();
 				Window alertWindow = window.getWindow();
 				if(alertWindow != null) {
@@ -468,7 +507,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					}
 				}
 				sp.edit().putBoolean(BuildConfig.VERSION_NAME + ".VER.SHOWED", true).apply();
-				window.show();
+				putAndShowNextAlertDialog( window );
 			}
 		}catch (Exception e){
 			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
@@ -573,7 +612,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	}
 
 	private void registerBroadcastReceivers(){
-		BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
+		/*BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				memoryEntries = mMemorySaverReader.read();
@@ -581,7 +620,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		};
 		registerReceiver(on_memory_edited,
 				new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
-		registeredBroadcasts.add(on_memory_edited);
+		registeredBroadcasts.add(on_memory_edited);*/
 
 		BroadcastReceiver on_var_edited = new BroadcastReceiver() {
 			@Override
@@ -593,7 +632,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				new IntentFilter(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED"));
 		registeredBroadcasts.add(on_var_edited);
 
-		BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
+		/*BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				addStringExampleToTheExampleStr(intent.getStringExtra("value"));
@@ -601,7 +640,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		};
 		registerReceiver(on_recall_mem,
 				new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
-		registeredBroadcasts.add(on_recall_mem);
+		registeredBroadcasts.add(on_recall_mem);*/
 
 		isBroadcastsRegistered = true;
 	}
@@ -689,6 +728,16 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					equallu( "not" );
 				}
 			}
+		}
+		if(requestCode == RequestCodes.START_MEMORY_RECALL){
+			if(resultCode == ResultCodes.RESULT_APPEND){
+				addStringExampleToTheExampleStr(data.getStringExtra("value"));
+			}else if(resultCode == ResultCodes.RESULT_REFRESH){
+				memoryEntries = mMemorySaverReader.read();
+			}
+		}
+		if(requestCode == RequestCodes.START_ADD_VAR){
+			setViewPager( 1 );
 		}
 		super.onActivityResult( requestCode, resultCode, data );
 	}
@@ -1140,6 +1189,16 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		isOtherActivityOpened = true;
 		if ( cls.equals( History.class ) ) {
 			requestCode = RequestCodes.START_HISTORY;
+		}else if(cls.equals( MemoryActionsActivity.class )){
+			if(possibleExtras.getStringExtra( "type" ).equals( "rc" )){
+				requestCode = RequestCodes.START_MEMORY_RECALL;
+			}else{
+				requestCode = RequestCodes.START_MEMORY_STORE;
+			}
+		}else if(cls.equals( CatchService.class )){
+			if(possibleExtras.getStringExtra( "action" ).equals( "add_var" )){
+				requestCode = RequestCodes.START_ADD_VAR;
+			}
 		}
 		startActivityForResult( intent, requestCode );
 		overridePendingTransition( R.anim.activity_in, R.anim.activity_out );

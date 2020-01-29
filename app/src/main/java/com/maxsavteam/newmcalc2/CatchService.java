@@ -96,7 +96,7 @@ public class CatchService extends AppCompatActivity {
 
 	private final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
 			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
-			//BuildConfig.APPLICATION_ID + "\n" +
+			BuildConfig.APPLICATION_ID + "\n" +
 			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
 			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
 			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +

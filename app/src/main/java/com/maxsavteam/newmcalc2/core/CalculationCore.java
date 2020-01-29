@@ -8,6 +8,7 @@ import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -20,18 +21,21 @@ import java.util.Stack;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
- * @author Maks
+ * @author Max Savitsky
  */
 public final class CalculationCore {
 	private CoreLinkBridge coreLinkBridge;
-	/**
-	 * used for actions
-	 * */
-	private final Stack<String> s0 = new Stack<>();
+
 	private Resources res;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
 	private String mExample, mType;
+
+	/**
+	 * used for actions
+	 * */
+	private final Stack<String> s0 = new Stack<>();
+
 	/**
 	 * used for numbers
 	 * */
@@ -65,22 +69,19 @@ public final class CalculationCore {
 		//currentThread().interrupt();
 	}
 
-	private String originalExample = "";
-	private Map<String, String> calculatedResults = new HashMap<>();
-
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
-	private final BigDecimal MAX_POW = new BigDecimal( "1000" );
+	private final BigDecimal MAX_POW = new BigDecimal( "100000000000000" );
 
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
 	 *
 	 * @param example expression to be calculated
-	 * @param type type of calculation. Not necessary
+	 * @param type type of calculation. Can be null
 	 * @throws NullPointerException throws, when interface hasn't been set
 	 *
 	 * @see CalculationResult
 	 */
-	public void prepareAndRun(@NotNull String example, String type) throws NullPointerException{
+	public void prepareAndRun(@NotNull String example, @Nullable String type) throws NullPointerException{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");
 		int len = example.length();
@@ -687,7 +688,8 @@ public final class CalculationCore {
 						power = Utils.deleteZeros(power);
 						if(power.contains(".")){
 							Fraction fraction = new Fraction(power);
-							a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
+							//a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
+							a = Utils.pow( a, fraction.getNumerator() );
 							ans = BigDecimalMath.exp(
 									BigDecimalMath.log(
 											a,
@@ -696,11 +698,12 @@ public final class CalculationCore {
 									new MathContext(8));
 						}else{
 							//BigDecimal n = new BigDecimal(power);
-							ans = BigDecimal.ONE;
+							/*ans = BigDecimal.ONE;
 							int pow = Integer.parseInt(power);
 							for (int i = 0; i < pow; i++) {
 								ans = ans.multiply(a);
-							}
+							}*/
+							ans = Utils.pow( a, b );
 						}
 						break;
 				}
