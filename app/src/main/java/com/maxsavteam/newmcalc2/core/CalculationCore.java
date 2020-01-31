@@ -2,6 +2,7 @@ package com.maxsavteam.newmcalc2.core;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
@@ -29,7 +30,8 @@ public final class CalculationCore {
 	private Resources res;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
-	private String mExample, mType;
+	private final String TAG = "Core";
+	//private String mExample, mType;
 
 	/**
 	 * used for actions
@@ -70,7 +72,7 @@ public final class CalculationCore {
 	}
 
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
-	private final BigDecimal MAX_POW = new BigDecimal( "100000000000000" );
+	private final BigDecimal MAX_POW = new BigDecimal( "1000" );
 
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
@@ -176,7 +178,7 @@ public final class CalculationCore {
 		for (int i = 0; i < len; i++) {
 			try {
 				s = Character.toString( example.charAt( i ) );
-				if ( s.equals( "s" ) || s.equals( "t" ) || s.equals( "l" ) || s.equals( "c" ) ) {
+				if ( s.equals( "s" ) || s.equals( "t" ) || s.equals( "l" ) || s.equals( "c" ) || s.equals( "a" ) ) {
 					if ( i != 0 ) {
 						if ( example.charAt( i - 1 ) == ')' ) {
 							s0.push("*");
@@ -188,7 +190,7 @@ public final class CalculationCore {
 						let = String.format("%s%c", let, example.charAt(i));
 						i++;
 					}
-					switch (let) {
+					/*switch (let) {
 						case "sin":
 							s0.push("sin");
 							s0.push("(");
@@ -209,7 +211,9 @@ public final class CalculationCore {
 							s0.push("ln");
 							s0.push("(");
 							break;
-					}
+					}*/
+					s0.push( let );
+					s0.push( "(" );
 					continue;
 				}
 				if (s.equals("P")) {
@@ -575,7 +579,7 @@ public final class CalculationCore {
 					mult( s0.peek() );
 					s0.pop();
 				}
-				if ( !s0.isEmpty() && ( s0.peek().equals( "cos" ) || s0.peek().equals( "sin" ) || s0.peek().equals( "log" ) || s0.peek().equals( "ln" ) || s0.peek().equals( "tan" ) ) ) {
+				if ( !s0.isEmpty() && ( s0.peek().length() == 3 || s0.peek().equals( "ln" )  ) ) {
 					mult( s0.peek() );
 					s0.pop();
 				}
@@ -593,7 +597,7 @@ public final class CalculationCore {
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
 				double d = s1.peek().doubleValue();
-				BigDecimal bigDecimal = s1.peek();
+				BigDecimal operand = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					mWasError = true;
@@ -605,44 +609,51 @@ public final class CalculationCore {
 				switch (x) {
 					case "cos": {
 						//ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
-						ans = BigDecimalMath.cos(Utils.toRadians(bigDecimal), new MathContext(9));
+						ans = BigDecimalMath.cos(Utils.toRadians(operand), new MathContext(9));
 						break;
 					}
 					case "sin": {
-						ans = BigDecimalMath.sin(Utils.toRadians(bigDecimal), new MathContext(9));
+						ans = BigDecimalMath.sin(Utils.toRadians(operand), new MathContext(9));
 						break;
 					}
 					case "tan": {
-						ans = BigDecimalMath.tan(Utils.toRadians(bigDecimal), new MathContext(9));
+						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(9));
 						break;
 					}
 					case "log": {
-						if (bigDecimal.signum() <= 0) {
+						if (operand.signum() <= 0) {
 							mWasError = true;
 							onError( new CalculationError().setError( "Illegal argument: unable to find log of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
-						ans = BigDecimalMath.log10(bigDecimal, new MathContext(9));
+						ans = BigDecimalMath.log10(operand, new MathContext(9));
 						break;
 					}
+					case "abs":
+						if(operand.signum() < 0){
+							ans = operand.multiply( BigDecimal.valueOf( -1 ) );
+						}else{
+							ans = operand;
+						}
+						break;
 					case "ln": {
-						if (bigDecimal.signum() <= 0) {
+						if (operand.signum() <= 0) {
 							mWasError = true;
 							onError( new CalculationError().setError( "Illegal argument: unable to find ln of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
-						ans = BigDecimalMath.log(bigDecimal, new MathContext(9));
+						ans = BigDecimalMath.log(operand, new MathContext(9));
 						break;
 					}
 					case "R":
-						if (bigDecimal.signum() < 0) {
+						if (operand.signum() < 0) {
 							mWasError = true;
 							onError( new CalculationError().setError( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
 							return;
 						}
-						ans = BigDecimalMath.sqrt(bigDecimal, new MathContext(9));
+						ans = BigDecimalMath.sqrt(operand, new MathContext(9));
 						break;
 				}
 				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
@@ -674,6 +685,7 @@ public final class CalculationCore {
 						}
 						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
 						break;
+
 					case "^":
 						if(b.compareTo(MAX_POW) > 0){
 							mWasError = true;
@@ -744,6 +756,14 @@ public final class CalculationCore {
 		priority.put("^", 3);
 		priority.put("R", 3);
 
+		priority.put("cos", 3);
+		priority.put("tan", 3);
+		priority.put("sin", 3);
+		priority.put("ln", 3);
+		priority.put("log", 3);
+
+		priority.put("abs", 3);
+
 		if(s0.empty()) {
 			s0.push(Character.toString(x));
 			return;
@@ -752,8 +772,13 @@ public final class CalculationCore {
 		Integer priorityOfX = priority.get(Character.toString(x));
 		Integer priorityOfTopAction = priority.get(s0.peek());
 
-		if(priorityOfX == null || priorityOfTopAction == null)
-			throw new NullPointerException("Method: in_s0; priorityOfX equals null or priorityOfTopAction equals null");
+		if(priorityOfX == null || priorityOfTopAction == null) {
+			Log.v(TAG, "in_s0: priority.get returned null on " + s0.peek());
+
+			NullPointerException nullPointerException = new NullPointerException( "Method: in_s0; priorityOfX equals null or priorityOfTopAction equals null" );
+			nullPointerException.printStackTrace();
+			throw nullPointerException;
+		}
 
 		if(x == '(') {
 			s0.push(Character.toString(x));
