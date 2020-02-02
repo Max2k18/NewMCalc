@@ -24,7 +24,7 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 /**
  * @author Max Savitsky
  */
-public final class CalculationCore {
+public final class CalculationCore{
 	private CoreLinkBridge coreLinkBridge;
 
 	private Resources mResources;
@@ -33,7 +33,7 @@ public final class CalculationCore {
 	private final String TAG = "Core";
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
-	//private String mExample, mType;
+	private String mExample, mType;
 
 	/**
 	 * used for actions
@@ -47,6 +47,10 @@ public final class CalculationCore {
 	private boolean mWasError = false;
 
 	public CalculationCore(Context context) {
+		initialize( context );
+	}
+
+	private void initialize(Context context){
 		this.mResources = context.getApplicationContext().getResources();
 		this.c = context;
 		invalidArgument = mResources.getString( R.string.invalid_argument );
@@ -57,6 +61,11 @@ public final class CalculationCore {
 		bracketFloorClose = mResources.getString( R.string.bracket_floor_close );
 		bracketCeilOpen = mResources.getString( R.string.bracket_ceil_open );
 		bracketCeilClose = mResources.getString( R.string.bracket_ceil_close );
+	}
+
+	public void prepare(String example, @Nullable String type){
+		this.mExample = example;
+		this.mType = type;
 	}
 
 	private boolean isOpenBracket(String str){
@@ -114,20 +123,21 @@ public final class CalculationCore {
 	}
 
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
-	private final BigDecimal MAX_POW = new BigDecimal( "1000" );
+	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
 
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
 	 *
-	 * @param example expression to be calculated
+	 * @param exampleArg expression to be calculated
 	 * @param type type of calculation. Can be null
 	 * @throws NullPointerException throws, when interface hasn't been set
 	 *
 	 * @see CalculationResult
 	 */
-	public void prepareAndRun(@NotNull String example, @Nullable String type) throws NullPointerException{
+	public void prepareAndRun(@NotNull final String exampleArg, @Nullable String type) throws NullPointerException{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");
+		String example = String.copyValueOf( exampleArg.toCharArray() );
 		int len = example.length();
 		char last;
 		if(len == 0)
@@ -158,7 +168,8 @@ public final class CalculationCore {
 			if (!bracketsStack.isEmpty()) {
 				while(!bracketsStack.isEmpty()){
 					String br = "";
-					switch ( getTypeOfBracket( bracketsStack.peek() ) ) {
+					String typeOf = getTypeOfBracket( bracketsStack.peek() );
+					switch ( typeOf ) {
 						case "simple":
 							br = ")";
 							break;
@@ -169,10 +180,11 @@ public final class CalculationCore {
 							br = bracketCeilClose;
 							break;
 					}
-
+					Log.v( TAG, "appending brackets; bracketsStack size=" + bracketsStack.size() + "; bracket type=" + typeOf + " bracket=" + br );
 					example = String.format( "%s%s", example, br );
 					bracketsStack.pop();
 				}
+				Log.v( TAG, "example after appending ex=" + example );
 			}
 		}
 		if(example.contains(" ")){
@@ -213,9 +225,11 @@ public final class CalculationCore {
 		calculate( example, type );
 	}
 
-	class IsolatedCoreProcess implements CoreLinkBridge {
+	private static class IsolatedCoreProcess implements CoreLinkBridge {
 		private BigDecimal res;
 		private Context mContext;
+
+		private String TAG = "IsolatedCoreProcess";
 
 		private CalculationError getError() {
 			return error;
@@ -252,11 +266,13 @@ public final class CalculationCore {
 			CalculationCore calculationCore = new CalculationCore(mContext);
 			calculationCore.setInterface(this);
 
+			Log.v( TAG, "run with ex=" + ex );
 			calculationCore.prepareAndRun(ex, "isolated");
 		}
 
 		IsolatedCoreProcess(Context context){
 			this.mContext = context;
+			Log.v( TAG, "constructor" );
 		}
 	}
 
@@ -296,6 +312,12 @@ public final class CalculationCore {
 		int len = example.length();
 
 		for (int i = 0; i < len; i++) {
+
+			if(mWasError || Thread.currentThread().isInterrupted()) {
+				Log.v( TAG, "Main loop destroyer was called; mWasError=" + mWasError + "; Thread.currentThread().isInterrupted()=" + Thread.currentThread().isInterrupted() );
+				return;
+			}
+
 			try {
 				s = Character.toString( example.charAt( i ) );
 
@@ -800,14 +822,9 @@ public final class CalculationCore {
 											20, RoundingMode.HALF_EVEN),
 									new MathContext(8));
 						}else{
-							//BigDecimal n = new BigDecimal(power);
-							/*ans = BigDecimal.ONE;
-							int pow = Integer.parseInt(power);
-							for (int i = 0; i < pow; i++) {
-								ans = ans.multiply(a);
-							}*/
 							ans = Utils.pow( a, b );
 						}
+						Log.v( TAG, "pow answer returned ans=" + ans );
 						break;
 				}
 				String answer = ans.toPlainString();
@@ -890,6 +907,31 @@ public final class CalculationCore {
 		}
 		if(priorityOfX > priorityOfTopAction) {
 			s0.push(Character.toString(x));
+		}
+	}
+
+	public static final class CalculationResult {
+		private String mType = null;
+		private BigDecimal mResult = null;
+
+		@javax.annotation.Nullable
+		public final String getType() {
+			return mType;
+		}
+
+		public final CalculationResult setType(String type) {
+			mType = type;
+			return this;
+		}
+
+		@javax.annotation.Nullable
+		public final BigDecimal getResult() {
+			return mResult;
+		}
+
+		public final CalculationResult setResult(BigDecimal result) {
+			mResult = result;
+			return this;
 		}
 	}
 }

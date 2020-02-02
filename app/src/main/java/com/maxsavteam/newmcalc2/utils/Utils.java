@@ -63,11 +63,11 @@ public final class Utils {
 	}
 
 	private static BigDecimal sysPow(BigDecimal a, BigDecimal n){
-		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " ans n=" + n.toPlainString());
+		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " and n=" + n.toPlainString());
 		if(n.compareTo( BigDecimal.ZERO ) == 0){
 			return BigDecimal.ONE;
 		}
-		Log.v("Utils", "remainder=" + getRemainder( a, BigDecimal.valueOf( 2 ) ).toPlainString());
+		Log.v("Utils", "remainder=" + getRemainder( n, BigDecimal.valueOf( 2 ) ).toPlainString());
 		if(getRemainder( n, BigDecimal.valueOf( 2 ) ).compareTo( BigDecimal.ONE ) == 0){
 			return sysPow( a, n.subtract( BigDecimal.ONE ) ).multiply( a );
 		}else{

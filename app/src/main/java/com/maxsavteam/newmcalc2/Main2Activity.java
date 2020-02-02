@@ -2,6 +2,7 @@ package com.maxsavteam.newmcalc2;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,6 +23,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -61,7 +63,6 @@ import com.maxsavteam.newmcalc2.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
-import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.fragments.fragment1.FragmentOneInitializationObject;
 import com.maxsavteam.newmcalc2.fragments.fragment2.FragmentTwoInitializationObject;
 import com.maxsavteam.newmcalc2.types.Tuple;
@@ -83,6 +84,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class Main2Activity extends AppCompatActivity implements CalculationCore.CoreLinkBridge {
 
@@ -124,6 +129,17 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			mAlertDialogQueue.peek().show();
 			isDialogShowed = true;
 			mAlertDialogQueue.poll();
+		}else{
+			boolean showed = sp.getBoolean( "bottom_sheet_guide", false );
+			if(!showed){
+				new MaterialTapTargetPrompt.Builder( this )
+						.setTarget( R.id.bottom_sheet_triangle )
+						.setPrimaryText( "New" )
+						.setSecondaryText( R.string.bottom_sheet_guide )
+						.show();
+
+				sp.edit().putBoolean( "bottom_sheet_guide", true ).apply();
+			}
 		}
 	}
 
@@ -338,7 +354,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		if(!isFirstStart)
 			showWhatNewWindow();
 
-		showSidebarGuide();
+		//showSidebarGuide();
 
 		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1) {
 			ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
@@ -442,7 +458,9 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 			sp.edit().putInt("offers_count", offers_count).apply();
 		}
-
+		if(mAlertDialogQueue.size() == 0){
+			showNextAlertDialog(); //для показа гайда
+		}
 		//setViewPager(0);
 	}
 
@@ -688,7 +706,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_black ) );
 		}
 
-		findViewById( R.id.btnAbs ).setOnLongClickListener( onAdditionalActionsHelp );
+		//findViewById( R.id.btnAbs ).setOnLongClickListener( onAdditionalActionsHelp );
 	}
 
 	private void showToastAboveButton(View v, String message){
@@ -739,16 +757,6 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 	}
 
-	View.OnLongClickListener onAdditionalActionsHelp = new View.OnLongClickListener() {
-		@Override
-		public boolean onLongClick(View v) {
-			if(R.id.btnAbs == v.getId()){
-
-			}
-			return true;
-		}
-	};
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		try {
@@ -791,7 +799,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			});
 
 			mCalculationCore = new CalculationCore(this);
-			mCalculationCore.setInterface(this);
+			mCalculationCore.setInterface(mCoreLinkBridge);
+
 			FI = getResources().getString(R.string.fi);
 			PI = getResources().getString(R.string.pi);
 			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
@@ -1040,6 +1049,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		return true;
 	};
 
+	private Thread mCoreThread = null;
+	private int timerCountDown = 0;
+	private boolean progressDialogShown = false;
+	private ProgressDialog mProgressDialog;
+
 	private void equallu(String type){
 		if(was_error){
 			setTextViewAnswerTextSizeToDefault();
@@ -1056,12 +1070,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			return;
 		}
 		char last = example.charAt(len - 1);
-		if(!Utils.isDigit(last) && last != ')' && last != '!' && last != '%'
-				&& !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e') {
-			hideAns();
-			return;
-		}
-		if(last == '(' || Utils.isNumber(example)) {
+		if(isBasicAction( last ) || isOpenBracket( last ) || Utils.isNumber( example )) {
 			hideAns();
 			return;
 		}
@@ -1108,11 +1117,120 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 		was_error = false;
 		original = example;
-		mCalculationCore.prepareAndRun(example, type);
+
+		TextView answerTv = findViewById( R.id.AnswerStr );
+		if(type.equals( "all" ) && answerTv.getVisibility() == View.VISIBLE && !answerTv.getText().toString().isEmpty()){
+			Log.v("Main2Activity", "inverting example and answer");
+			txt.setText( original );
+			String answer = answerTv.getText().toString();
+			returnback.onLongClick( findViewById( R.id.btnCalc ) );
+			resizeText();
+
+			putToHistory( original, answer );
+
+			if (sp.getBoolean("saveResult", false))
+				sp.edit().putString("saveResultText", original + ";" + answer).apply();
+			return;
+		}
+
+		String finalExample = example;
+		mCoreThread = new Thread( new Runnable() {
+			@Override
+			public void run() {
+				mCalculationCore.prepareAndRun( finalExample, type );
+			}
+		} );
+		mProgressDialog = new ProgressDialog( this );
+		mProgressDialog.setCancelable( false );
+		mProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
+		mProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				mCoreThread.destroy();
+				Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
+				dialog.cancel();
+			}
+		} );
+		timerCountDown = 0;
+
+		if(mCoreTimer != null){
+			mCoreTimer.cancel();;
+			mCoreTimer.purge();
+		}
+		mCoreTimer = new Timer();
+		try {
+			mCoreThread.start();
+			mCoreTimer.schedule( new CoreController(), 0, 500 );
+		}catch (Exception e){
+			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
+		}
+		//mCalculationCore.prepareAndRun( example, type );
+	}
+	Timer mCoreTimer;
+	private  void killCoreTimer(){
+		if(mCoreTimer != null){
+			mCoreTimer.cancel();
+			mCoreTimer.purge();
+			mCoreTimer = null;
+		}
+		if(progressDialogShown){
+			mProgressDialog.cancel();
+		}
+	}
+
+	class CoreController extends TimerTask{
+		@Override
+		public void run() {
+			++timerCountDown;
+			Log.v( "Main2Activity", "Timer running; countdown=" + timerCountDown );
+			if(timerCountDown == 4){
+				if(!mCoreThread.isAlive()){
+					Log.v( "Timer", "Something gone wrong. Thread is not alive. Killing timer" );
+					killCoreTimer();
+				}
+				else if(!progressDialogShown){
+					progressDialogShown = true;
+					Log.v( "Timer", "showing dialog" );
+					runOnUiThread( new Runnable() {
+						@Override
+						public void run() {
+							mProgressDialog.show();
+						}
+					} );
+				}
+			}else if(timerCountDown > 4){
+				if(timerCountDown < 20){
+					if(!mCoreThread.isAlive()){
+						Log.v("Timer", "cancel progress dialog");
+						runOnUiThread( new Runnable() {
+							@Override
+							public void run() {
+								mProgressDialog.cancel();
+							}
+						} );
+					}
+				}else{
+					if(mCoreThread.isAlive()){
+						Log.v("Timer", "Time to kill process");
+						runOnUiThread( new Runnable() {
+							@Override
+							public void run() {
+								mProgressDialog.cancel();
+								progressDialogShown = false;
+								mCoreThread.destroy();
+								Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
+								killCoreTimer();
+							}
+						} );
+					}
+				}
+			}
+		}
 	}
 
 	@Override
-	public void onSuccess(CalculationResult calculationResult) {
+	public void onSuccess(CalculationCore.CalculationResult calculationResult) {
+		Toast.makeText( Main2Activity.this, Thread.currentThread().getName(), Toast.LENGTH_SHORT ).show();
 		if(calculationResult.getResult() != null) {
 			writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
 		}else{
@@ -1124,7 +1242,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	public void onError(CalculationError calculationError) {
 		if(!calculationError.getStatus().equals("Core")) {
 			if(calculationError.getShortError().equals("")){
-				Toast t = Toast.makeText(this, calculationError.getMessage(), Toast.LENGTH_LONG);
+				Toast t = Toast.makeText(Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG);
 				t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
 				t.show();
 			}else {
@@ -1132,6 +1250,45 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 		}
 	}
+
+	CalculationCore.CoreLinkBridge mCoreLinkBridge = new CalculationCore.CoreLinkBridge() {
+		@Override
+		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
+			runOnUiThread( new Runnable() {
+				@Override
+				public void run() {
+					Log.v( "Main2Activity", "Killing timer from onSuccess" );
+					killCoreTimer();
+					if(calculationResult.getResult() != null) {
+						writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
+					}else{
+						hideAns();
+					}
+				}
+			} );
+		}
+
+		@Override
+		public void onError(CalculationError calculationError) {
+			runOnUiThread( new Runnable() {
+				@Override
+				public void run() {
+					Log.v( "Main2Activity", "Killing core timer from onError" );
+					killCoreTimer();
+					if(!calculationError.getStatus().equals("Core")) {
+						if(calculationError.getShortError().equals("")){
+							Toast t = Toast.makeText(Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG);
+							t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+							t.show();
+						}else {
+							writeCalculationError(calculationError.getShortError());
+						}
+					}
+				}
+			} );
+
+		}
+	};
 
 	private void writeCalculationError(String text){
 		TextView t = findViewById(R.id.AnswerStr);
@@ -1163,24 +1320,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				show_str();
 				resizeText();
 
-				String his = sp.getString("history", null);
-				String formattedResult = Format.format(result.toPlainString());
-				if(his != null){
-					if(sp.getInt("local_history_storage_protocol_version", 1) < Constants.HISTORY_STORAGE_PROTOCOL_VERSION){
-						Toast.makeText(this, "The record was not saved because the format of the history record does not match the new format." +
-								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
-								Toast.LENGTH_LONG).show();
-					}else {
-						if (!his.startsWith(String.format("%s%c%s", original, ((char) 30), formattedResult))) {
-							his = String.format("%s%c%s%c%s", original, ((char) 30), formattedResult, ((char) 29), his);
-							sp.edit().putString("history", his).apply();
-						}
-					}
-				}else{
-					his = String.format("%s%c%s%c", original, ((char) 30), formattedResult, ((char) 29));
-					sp.edit().putString("history", his).apply();
-					sp.edit().putInt("local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION).apply();
-				}
+				putToHistory( original, result.toPlainString() );
 
 				if (sp.getBoolean("saveResult", false))
 					sp.edit().putString("saveResultText", original + ";" + result.toPlainString()).apply();
@@ -1199,6 +1339,27 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				break;
 			default:
 				throw new IllegalArgumentException("Arguments should be of two types: all, not");
+		}
+	}
+
+	private void putToHistory(String example, String result){
+		String his = sp.getString("history", null);
+		String formattedResult = Format.format(result);
+		if(his != null){
+			if(sp.getInt("local_history_storage_protocol_version", 1) < Constants.HISTORY_STORAGE_PROTOCOL_VERSION){
+				Toast.makeText(this, "The record was not saved because the format of the history record does not match the new format." +
+								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
+						Toast.LENGTH_LONG).show();
+			}else {
+				if (!his.startsWith(String.format("%s%c%s", example, ((char) 30), formattedResult))) {
+					his = String.format("%s%c%s%c%s", example, ((char) 30), formattedResult, ((char) 29), his);
+					sp.edit().putString("history", his).apply();
+				}
+			}
+		}else{
+			his = String.format("%s%c%s%c", example, ((char) 30), formattedResult, ((char) 29));
+			sp.edit().putString("history", his).apply();
+			sp.edit().putInt("local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION).apply();
 		}
 	}
 
@@ -1534,30 +1695,6 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				return;
 			}
 		}
-
-		/*if(btntxt.equals(")")){
-			if(brackets > 0){
-				if(last == ')'){
-					t.setText(txt + btntxt);
-					equallu("not");
-					return;
-				}
-				if(last == '(')
-					return;
-				if(!Utils.isDigit(last) && !Character.toString(last).equals(getResources().getString(R.string.pi))
-						&& !Character.toString(last).equals(getResources().getString(R.string.fi)) && last != 'e' && last != '!' && last != '%'){
-					if(len != 1){
-						txt = txt.substring(0, len-1);
-						t.setText(txt + btntxt);
-						equallu("not");
-					}
-				}else{
-					t.setText(txt + btntxt);
-					equallu("not");
-				}
-			}
-			return;
-		}*/
 
 		if(isCloseBracket( btntxt )){
 			if(!bracketsStack.isEmpty() && !isOpenBracket( last )){
