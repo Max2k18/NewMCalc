@@ -1,6 +1,6 @@
 # New MCalc
 ## A little about this repository
-This is the repository of an application published on [Google Play](https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc).
+This is the repository of an application published on [Google Play](https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc2).
 I will try to add here a list of changes with each version. 
 But I decided to conduct only from version 1.9.0, because I do not remember the changes of the previous ones. Sorry :)
 
