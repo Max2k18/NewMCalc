@@ -9,6 +9,12 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
 #### **I waiting for feedback**
 
 ## Technical Change history
+### 1.13.0
+  * Added ceil and floor function
+  * Added abs function
+  * Core now run in a separate thread so that the main thread does not hang.
+  * CoreConroller was added to control calculation time
+
 ### 1.12.3
   * Trigonometric functions now work with big numbers
 
