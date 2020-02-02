@@ -45,7 +45,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.3"
                 android:onClick="delSymbol"
-                android:text="@string/delSymb"
+                android:text="@string/delSymbol"
                 android:textSize="25sp" />
 
         </TableRow>

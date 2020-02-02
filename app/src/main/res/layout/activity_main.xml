@@ -1,128 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraight"
+    android:id="@+id/activity_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1.0"
-    android:gravity="bottom|center"
     android:orientation="vertical"
     android:visibility="visible"
-    android:weightSum="1.0"
     tools:context=".Main2Activity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/landMainLabels">
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="@dimen/additional_tools_peek_height"
+        android:orientation="vertical">
 
-        <HorizontalScrollView
-            android:id="@+id/scrollViewAns"
+        <LinearLayout
+            android:id="@+id/landMainLabels"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="28dp"
-            android:layout_marginBottom="8dp"
-            android:fillViewport="true"
-            android:foregroundGravity="right"
-            android:scrollbars="none"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.100000024">
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/llStr"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:id="@+id/scrollViewAns"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:orientation="vertical">
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="28dp"
+                android:layout_marginBottom="8dp"
+                android:fillViewport="true"
+                android:foregroundGravity="right"
+                android:scrollbars="none"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.100000024">
 
-                <TextView
-                    android:id="@+id/AnswerStr"
+                <LinearLayout
+                    android:id="@+id/llStr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAlignment="textEnd"
-                    android:textColor="@color/fortextans"
-                    android:textSize="34sp"
-                    android:textStyle="bold"
-                    android:visibility="invisible"
-                    tools:targetApi="o" />
-            </LinearLayout>
-        </HorizontalScrollView>
+                    android:gravity="end"
+                    android:orientation="vertical">
 
-        <HorizontalScrollView
-            android:id="@+id/scrollview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="45dp"
-            android:layout_marginBottom="8dp"
-            android:animateLayoutChanges="true"
-            android:animationCache="true"
-            android:clickable="true"
-            android:fillViewport="true"
-            android:scrollbarAlwaysDrawHorizontalTrack="false"
-            android:scrollbarAlwaysDrawVerticalTrack="false"
-            android:scrollbars="none"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.19">
+                    <TextView
+                        android:id="@+id/AnswerStr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/fortextans"
+                        android:textSize="34sp"
+                        android:textStyle="bold"
+                        android:visibility="invisible"
+                        tools:targetApi="o" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="right|center_vertical"
-                android:orientation="horizontal"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="55dp">
+            <HorizontalScrollView
+                android:id="@+id/scrollview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="45dp"
+                android:layout_marginBottom="8dp"
+                android:animateLayoutChanges="true"
+                android:animationCache="true"
+                android:clickable="true"
+                android:fillViewport="true"
+                android:scrollbarAlwaysDrawHorizontalTrack="false"
+                android:scrollbarAlwaysDrawVerticalTrack="false"
+                android:scrollbars="none"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.19">
 
-                <TextView
-                    android:id="@+id/ExampleStr"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:scrollbarSize="0dp"
-                    android:scrollbars="none"
-                    android:selectAllOnFocus="false"
-                    android:textAlignment="textEnd"
-                    android:textColor="@color/black"
-                    android:textIsSelectable="true"
-                    android:textSize="46sp"
-                    android:textStyle="bold"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.114"
-                    tools:targetApi="o" />
-            </LinearLayout>
-        </HorizontalScrollView>
+                    android:gravity="right|center_vertical"
+                    android:orientation="horizontal"
+                    tools:layout_editor_absoluteX="0dp"
+                    tools:layout_editor_absoluteY="55dp">
+
+                    <TextView
+                        android:id="@+id/ExampleStr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:scrollbarSize="0dp"
+                        android:scrollbars="none"
+                        android:selectAllOnFocus="false"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/black"
+                        android:textIsSelectable="true"
+                        android:textSize="46sp"
+                        android:textStyle="bold"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.114"
+                        tools:targetApi="o" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <Space
+            android:id="@+id/space_between_pager_and_str"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
     </LinearLayout>
 
-    <Space
-        android:id="@+id/space_between_pager_and_str"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.12" />
+    <include layout="@layout/bottom_sheet" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

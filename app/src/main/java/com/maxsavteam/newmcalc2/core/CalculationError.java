@@ -48,14 +48,14 @@ public class CalculationError {
 		return this;
 	}
 
-	private String error = "";
+	private String errorMessage = "";
 
-	public String getError() {
-		return error;
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 
-	public CalculationError setError(String error) {
-		this.error = error;
+	public CalculationError setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 		return this;
 	}
 }

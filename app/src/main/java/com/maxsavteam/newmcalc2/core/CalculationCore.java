@@ -27,10 +27,12 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 public final class CalculationCore {
 	private CoreLinkBridge coreLinkBridge;
 
-	private Resources res;
+	private Resources mResources;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
 	private Context c;
 	private final String TAG = "Core";
+	private String bracketFloorOpen, bracketFloorClose,
+			bracketCeilOpen, bracketCeilClose;
 	//private String mExample, mType;
 
 	/**
@@ -45,11 +47,51 @@ public final class CalculationCore {
 	private boolean mWasError = false;
 
 	public CalculationCore(Context context) {
-		this.res = context.getApplicationContext().getResources();
+		this.mResources = context.getApplicationContext().getResources();
 		this.c = context;
-		invalidArgument = res.getString( R.string.invalid_argument );
-		valueIsTooBig = res.getString( R.string.value_is_too_big );
-		divisionByZero = res.getString( R.string.division_by_zero );
+		invalidArgument = mResources.getString( R.string.invalid_argument );
+		valueIsTooBig = mResources.getString( R.string.value_is_too_big );
+		divisionByZero = mResources.getString( R.string.division_by_zero );
+
+		bracketFloorOpen = mResources.getString( R.string.bracket_floor_open );
+		bracketFloorClose = mResources.getString( R.string.bracket_floor_close );
+		bracketCeilOpen = mResources.getString( R.string.bracket_ceil_open );
+		bracketCeilClose = mResources.getString( R.string.bracket_ceil_close );
+	}
+
+	private boolean isOpenBracket(String str){
+		return str.equals( "(" ) ||
+				str.equals( bracketCeilOpen ) ||
+				str.equals( bracketFloorOpen );
+	}
+
+	private boolean isOpenBracket(char c){
+		String str = Character.toString( c );
+		return isOpenBracket( str );
+	}
+
+	private boolean isCloseBracket(String str){
+		return str.equals( ")" ) ||
+				str.equals( bracketFloorClose ) ||
+				str.equals( bracketCeilClose );
+	}
+
+	private boolean isCloseBracket(char c){
+		return isCloseBracket( String.valueOf( c ) );
+	}
+
+	private String getTypeOfBracket(String bracket){
+		if(bracket.equals( "(" ) || bracket.equals( ")" ))
+			return "simple";
+		if(bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ))
+			return "floor";
+		if(bracket.equals( bracketCeilOpen ) || bracket.equals( bracketCeilClose ))
+			return "ceil";
+		return "undefined";
+	}
+
+	private String getTypeOfBracket(char c){
+		return getTypeOfBracket( Character.toString( c ) );
 	}
 
 	public final void setInterface(CoreLinkBridge clb) {
@@ -96,22 +138,41 @@ public final class CalculationCore {
 		if(last == '(')
 			return;
 
-		int brackets = 0;
-		if(example.contains("(") || example.contains(")")) {
+		if(example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" )) {
+			Stack<Character> bracketsStack = new Stack<>();
 			for (int i = 0; i < example.length(); i++) {
-				if (example.charAt(i) == '(')
-					brackets++;
-				else if (example.charAt(i) == ')')
-					brackets--;
-			}
-			if (brackets > 0) {
-				for (int i = 0; i < brackets; i++) {
-					example = String.format("%s%s", example, ")");
+				char cur = example.charAt(i);
+				if (isOpenBracket( cur ) )
+					bracketsStack.push( cur );
+				else if (isCloseBracket( cur )) {
+					try {
+						bracketsStack.pop();
+					}catch (EmptyStackException e){
+						e.printStackTrace();
+						mWasError = true;
+						onError(new CalculationError().setStatus("Core"));
+						return;
+					}
 				}
-			} else if (brackets < 0) {
-				mWasError = true;
-				onError( new CalculationError().setStatus( "Core" ) );
-				return;
+			}
+			if (!bracketsStack.isEmpty()) {
+				while(!bracketsStack.isEmpty()){
+					String br = "";
+					switch ( getTypeOfBracket( bracketsStack.peek() ) ) {
+						case "simple":
+							br = ")";
+							break;
+						case "floor":
+							br = bracketFloorClose;
+							break;
+						case "ceil":
+							br = bracketCeilClose;
+							break;
+					}
+
+					example = String.format( "%s%s", example, br );
+					bracketsStack.pop();
+				}
 			}
 		}
 		if(example.contains(" ")){
@@ -123,26 +184,26 @@ public final class CalculationCore {
 			example = sb.toString();
 		}
 		if(Utils.isNumber(example)){
-			onError(new CalculationError().setStatus("Core").setError("String is number").setPossibleResult(new BigDecimal(example)));
+			onError(new CalculationError().setStatus("Core").setErrorMessage("String is number").setPossibleResult(new BigDecimal(example)));
 			return;
 		}
-		if(example.contains(res.getString(R.string.multiply)) || example.contains(res.getString(R.string.div))
-				|| example.contains(res.getString(R.string.pi)) || example.contains(res.getString(R.string.fi))
-				|| example.contains(res.getString(R.string.sqrt))){
+		if(example.contains( mResources.getString(R.string.multiply)) || example.contains( mResources.getString(R.string.div))
+				|| example.contains( mResources.getString(R.string.pi)) || example.contains( mResources.getString(R.string.fi))
+				|| example.contains( mResources.getString(R.string.sqrt))){
 			char[] mas = example.toCharArray();
 			String p;
 
 			for(int i = 0; i < example.length(); i++){
 				p = Character.toString(mas[i]);
-				if(p.equals(res.getString(R.string.div))){
+				if(p.equals( mResources.getString(R.string.div))){
 					mas[i] = '/';
-				}else if(p.equals(res.getString(R.string.multiply))){
+				}else if(p.equals( mResources.getString(R.string.multiply))){
 					mas[i] = '*';
-				}else if(p.equals(res.getString(R.string.pi))){
+				}else if(p.equals( mResources.getString(R.string.pi))){
 					mas[i] = 'P';
-				}else if(p.equals(res.getString(R.string.fi))){
+				}else if(p.equals( mResources.getString(R.string.fi))){
 					mas[i] = 'F';
-				} else if ( p.equals( res.getString( R.string.sqrt ) ) ) {
+				} else if ( p.equals( mResources.getString( R.string.sqrt ) ) ) {
 					mas[ i ] = 'R';
 				}
 			}
@@ -152,20 +213,79 @@ public final class CalculationCore {
 		calculate( example, type );
 	}
 
-	/*private void optimizeInput(String example){
-		originalExample = example;
-		Set<String> keySet = calculatedResults.keySet();
-		for(String s : keySet){
-			int pos = -1;
-			while (example.contains( s )){
-				pos = example.indexOf( s, pos + 1 );
-				char nextChar = example.charAt( pos + s.length() );
-				if(!Utils.isDigit( nextChar ) && nextChar != '.' ){
+	class IsolatedCoreProcess implements CoreLinkBridge {
+		private BigDecimal res;
+		private Context mContext;
 
+		private CalculationError getError() {
+			return error;
+		}
+
+		private boolean isWasError() {
+			return mWasError;
+		}
+
+		private CalculationError error;
+		private boolean mWasError = false;
+
+		public BigDecimal getRes() {
+			return res;
+		}
+
+		@Override
+		public void onSuccess(CalculationResult calculationResult) {
+			res = calculationResult.getResult();
+		}
+
+		@Override
+		public void onError(CalculationError error) {
+			mWasError = true;
+			this.error = error;
+			if(error.getStatus().equals("Core")) {
+				if (error.getErrorMessage().contains("String is number")) {
+					res = error.getPossibleResult();
 				}
 			}
 		}
-	}*/
+
+		private void run(String ex) {
+			CalculationCore calculationCore = new CalculationCore(mContext);
+			calculationCore.setInterface(this);
+
+			calculationCore.prepareAndRun(ex, "isolated");
+		}
+
+		IsolatedCoreProcess(Context context){
+			this.mContext = context;
+		}
+	}
+
+	private static class MovedExample{
+		String subExample;
+		int newPos;
+
+		MovedExample(String subExample, int newPos){
+			this.subExample = subExample;
+			this.newPos = newPos;
+		}
+	}
+
+	private MovedExample getSubExampleFromBrackets(String example, int pos){
+		int i = pos + 1;
+		String subExample = "";
+		int bracketsLvl = 0;
+		while ( bracketsLvl != 0 || !isCloseBracket( example.charAt( i ) ) ) {
+			char now = example.charAt( i );
+			if ( isOpenBracket( now ) )
+				bracketsLvl++;
+			else if ( isCloseBracket( now ) )
+				bracketsLvl--;
+
+			subExample = String.format( "%s%c", subExample, now );
+			i++;
+		}
+		return new MovedExample( subExample, i );
+	}
 
 	private void calculate(String example, String type) {
 		s0.clear();
@@ -178,45 +298,62 @@ public final class CalculationCore {
 		for (int i = 0; i < len; i++) {
 			try {
 				s = Character.toString( example.charAt( i ) );
+
+				if(isOpenBracket( s )){
+					MovedExample movedExample = getSubExampleFromBrackets( example, i );
+					String subExample = movedExample.subExample;
+					i = movedExample.newPos;
+					IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess( c );
+					isolatedCoreProcess.run( subExample );
+					BigDecimal result;
+					if(isolatedCoreProcess.isWasError()){
+						if(isolatedCoreProcess.getError().getErrorMessage().contains( "String is number" )){
+							result = isolatedCoreProcess.getRes();
+						}else{
+							mWasError = true;
+							onError( isolatedCoreProcess.getError() );
+							return;
+						}
+					}else{
+						result = isolatedCoreProcess.getRes();
+					}
+
+					String bracketType = getTypeOfBracket( s );
+					switch ( bracketType ){
+						case "simple":
+							s1.push( result );
+							break;
+						case "ceil":
+							s1.push( result.setScale( 0, RoundingMode.CEILING ) );
+							break;
+						case "floor":
+							s1.push( result.setScale( 0, RoundingMode.FLOOR ) );
+							break;
+						default:
+							mWasError = true;
+							onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "type of bracket is undefined" ) );
+							return;
+					}
+
+					continue;
+				}
+
 				if ( s.equals( "s" ) || s.equals( "t" ) || s.equals( "l" ) || s.equals( "c" ) || s.equals( "a" ) ) {
 					if ( i != 0 ) {
-						if ( example.charAt( i - 1 ) == ')' ) {
+						if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
 							s0.push("*");
 						}
 					}
 					//if(i + 4 <= example.length()){
 					String let = "";
-					while (i < example.length() && Utils.isLetter(example.charAt(i))) {
+					while (i < example.length() && !isOpenBracket( example.charAt( i ) )) {
 						let = String.format("%s%c", let, example.charAt(i));
 						i++;
 					}
-					/*switch (let) {
-						case "sin":
-							s0.push("sin");
-							s0.push("(");
-							break;
-						case "cos":
-							s0.push("cos");
-							s0.push("(");
-							break;
-						case "tan":
-							s0.push("tan");
-							s0.push("(");
-							break;
-						case "log":
-							s0.push("log");
-							s0.push("(");
-							break;
-						case "ln":
-							s0.push("ln");
-							s0.push("(");
-							break;
-					}*/
+					i--;
 					s0.push( let );
-					s0.push( "(" );
 					continue;
-				}
-				if (s.equals("P")) {
+				} else if (s.equals("P")) {
 					BigDecimal f = new BigDecimal(Math.PI);
 					s1.push(f);
 					if (i != 0 && Utils.isDigit(example.charAt(i - 1))) {
@@ -251,7 +388,7 @@ public final class CalculationCore {
 							if (y.signum() < 0 || isNumberBigger) {
 								mWasError = true;
 								if ( isNumberBigger ) {
-									onError( new CalculationError().setError( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
+									onError( new CalculationError().setErrorMessage( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
 								}
 								break;
 							}
@@ -266,12 +403,12 @@ public final class CalculationCore {
 							BigDecimal y = s1.peek();
 							if (y.signum() < 0) {
 								mWasError = true;
-								onError( new CalculationError().setError( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
+								onError( new CalculationError().setErrorMessage( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
 								break;
 							} else {
 								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
 									mWasError = true;
-									onError( new CalculationError().setError( "For some reason, we cannot calculate the factorial of this number " +
+									onError( new CalculationError().setErrorMessage( "For some reason, we cannot calculate the factorial of this number " +
 											"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
 									break;
 								} else {
@@ -289,7 +426,7 @@ public final class CalculationCore {
 					} catch (Exception e) {
 						e.printStackTrace();
 						mWasError = true;
-						onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
+						onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 						break;
 					}
 				} else if (s.equals("%")) {
@@ -308,52 +445,6 @@ public final class CalculationCore {
 					} else if (!s0.empty() && Utils.isBasicAction(s0.peek())) {
 						try {
 
-							class IsolatedCoreProcess implements CoreLinkBridge {
-								private BigDecimal res;
-								private Context mContext;
-
-								private CalculationError getError() {
-									return error;
-								}
-
-								private boolean isWas_error() {
-									return was_error;
-								}
-
-								private CalculationError error;
-								private boolean was_error = false;
-
-								public BigDecimal getRes() {
-									return res;
-								}
-
-								@Override
-								public void onSuccess(CalculationResult calculationResult) {
-									res = calculationResult.getResult();
-								}
-
-								@Override
-								public void onError(CalculationError error) {
-									was_error = true;
-									this.error = error;
-									if(error.getStatus().equals("Core")) {
-										if (error.getError().contains("String is number")) {
-											res = error.getPossibleResult();
-										}
-									}
-								}
-
-								private void run(String ex) {
-									CalculationCore calculationCore = new CalculationCore(mContext);
-									calculationCore.setInterface(this);
-
-									calculationCore.prepareAndRun(ex, "");
-								}
-
-								private IsolatedCoreProcess(Context context){
-									this.mContext = context;
-								}
-							}
 							i++;
 							String x1 = "";
 							int brackets = 0;
@@ -361,12 +452,12 @@ public final class CalculationCore {
 								if(brackets == 0 && (example.charAt(i) == '-' || example.charAt(i) == '+')){
 									break;
 								}
-								if(brackets == 0 && example.charAt(i) == ')')
+								if(brackets == 0 && isCloseBracket( example.charAt( i ) ))
 									break;
 
-								if(example.charAt(i) == '(')
+								if(isOpenBracket( example.charAt(i)) )
 									brackets++;
-								else if(example.charAt(i) == ')')
+								else if(isCloseBracket( example.charAt(i) ))
 									brackets--;
 
 								x1 = String.format("%s%c", x1, example.charAt(i));
@@ -376,7 +467,7 @@ public final class CalculationCore {
 							s1.pop();
 							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess(c);
 							isolatedCoreProcess.run(x1);
-							if (isolatedCoreProcess.isWas_error() && !isolatedCoreProcess.getError().getError().contains("String is number")) {
+							if (isolatedCoreProcess.isWasError() && !isolatedCoreProcess.getError().getErrorMessage().contains("String is number")) {
 								mWasError = true;
 								onError( isolatedCoreProcess.getError() );
 								return;
@@ -420,7 +511,7 @@ public final class CalculationCore {
 						} catch (Exception e) {
 							e.printStackTrace();
 							mWasError = true;
-							onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
+							onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 							break;
 						}
 					}
@@ -444,7 +535,7 @@ public final class CalculationCore {
 							continue;
 						} else {
 							mWasError = true;
-							onError( new CalculationError().setError( "Invalid statement for square root" ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Invalid statement for square root" ).setShortError( invalidArgument ) );
 							break;
 						}
 					}
@@ -601,7 +692,7 @@ public final class CalculationCore {
 				BigDecimal ans = BigDecimal.ONE;
 				if (x.equals("log") && d <= 0) {
 					mWasError = true;
-					onError( new CalculationError().setError( "You cannot find the logarithm of a zero or a negative number." ).setShortError( invalidArgument ) );
+					onError( new CalculationError().setErrorMessage( "You cannot find the logarithm of a zero or a negative number." ).setShortError( invalidArgument ) );
 					return;
 				}
 				s1.pop();
@@ -623,7 +714,7 @@ public final class CalculationCore {
 					case "log": {
 						if (operand.signum() <= 0) {
 							mWasError = true;
-							onError( new CalculationError().setError( "Illegal argument: unable to find log of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
@@ -640,7 +731,7 @@ public final class CalculationCore {
 					case "ln": {
 						if (operand.signum() <= 0) {
 							mWasError = true;
-							onError( new CalculationError().setError( "Illegal argument: unable to find ln of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find ln of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
@@ -650,7 +741,7 @@ public final class CalculationCore {
 					case "R":
 						if (operand.signum() < 0) {
 							mWasError = true;
-							onError( new CalculationError().setError( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
 							return;
 						}
 						ans = BigDecimalMath.sqrt(operand, new MathContext(9));
@@ -680,7 +771,7 @@ public final class CalculationCore {
 					case "/":
 						if (b.signum() == 0) {
 							mWasError = true;
-							onError( new CalculationError().setError( "Division by zero." ).setShortError( divisionByZero ) );
+							onError( new CalculationError().setErrorMessage( "Division by zero." ).setShortError( divisionByZero ) );
 							return;
 						}
 						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
@@ -730,18 +821,18 @@ public final class CalculationCore {
 					s1.push(ans);
 				}else if(str.contains("Infinity or Nan")){
 					mWasError = true;
-					onError( new CalculationError().setError( e.toString() ).setShortError( valueIsTooBig ) );
+					onError( new CalculationError().setErrorMessage( e.toString() ).setShortError( valueIsTooBig ) );
 				} else {
 					mWasError = true;
-					onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ) );
+					onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ) );
 				}
 			}
 		}catch(EmptyStackException e){
 			mWasError = true;
-			onError( new CalculationError().setStatus( "Core" ).setError( e.toString() ) );
+			onError( new CalculationError().setStatus( "Core" ).setErrorMessage( e.toString() ) );
 		} catch (Exception e) {
 			mWasError = true;
-			onError( new CalculationError().setError( e.toString() ).setMessage( e.getMessage() ) );
+			onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ) );
 			throw new Exception( e.getMessage() );
 		}
 	}
@@ -763,6 +854,8 @@ public final class CalculationCore {
 		priority.put("log", 3);
 
 		priority.put("abs", 3);
+
+		Log.v( TAG, "in_s0 called with x=" + x + "; s0.size()=" + s0.size() );
 
 		if(s0.empty()) {
 			s0.push(Character.toString(x));

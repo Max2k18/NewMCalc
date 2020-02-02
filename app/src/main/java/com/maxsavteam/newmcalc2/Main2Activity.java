@@ -36,6 +36,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +55,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc2.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
@@ -75,9 +78,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Stack;
 
 public class Main2Activity extends AppCompatActivity implements CalculationCore.CoreLinkBridge {
 
@@ -98,6 +103,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	private  Point displaySize = new Point();
 	private Queue<AlertDialog> mAlertDialogQueue = new LinkedList<>(  );
 	private boolean isDialogShowed = false;
+	private String bracketFloorOpen, bracketFloorClose,
+		bracketCeilOpen, bracketCeilClose;
 
 	private void putAndShowNextAlertDialog(AlertDialog alertDialog){
 		mAlertDialogQueue.add( alertDialog );
@@ -339,23 +346,23 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			t.putExtra("shortcut_action", true);
 			t.putExtra("to_", "numgen");
 			ShortcutInfo shortcut1 = new ShortcutInfo.Builder(getApplicationContext(), "id1")
-					.setLongLabel(getResources().getString(R.string.randomgen))
-					.setShortLabel(getResources().getString(R.string.randomgen))
+					.setLongLabel(getResources().getString(R.string.random_number_generator ))
+					.setShortLabel(getResources().getString(R.string.random_number_generator ))
 					.setIcon(Icon.createWithResource(this, R.drawable.dice))
 					.setIntent(t)
 					.build();
 			t.putExtra("to_", "pass");
 			ShortcutInfo shortcut2 = new ShortcutInfo.Builder(getApplicationContext(), "id2")
-					.setLongLabel(getResources().getString(R.string.passgen))
-					.setShortLabel(getResources().getString(R.string.passgen))
+					.setLongLabel(getResources().getString(R.string.password_generator ))
+					.setShortLabel(getResources().getString(R.string.password_generator ))
 					.setIcon(Icon.createWithResource(this, R.drawable.passgen))
 					.setIntent(t)
 					.build();
 
 			t.putExtra("to_", "history");
 			ShortcutInfo shortcut3 = new ShortcutInfo.Builder(getApplicationContext(), "id3")
-					.setLongLabel(getResources().getString(R.string.hitory))
-					.setShortLabel(getResources().getString(R.string.hitory))
+					.setLongLabel(getResources().getString(R.string.history ))
+					.setShortLabel(getResources().getString(R.string.history ))
 					.setIcon(Icon.createWithResource(this, R.drawable.history))
 					.setIntent(t)
 					.build();
@@ -645,6 +652,103 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		isBroadcastsRegistered = true;
 	}
 
+	private void setupBottomSheet(){
+		LinearLayout layout = findViewById( R.id.bottom_sheet_main );
+		BottomSheetBehavior<LinearLayout> bottomSheetBehavior = BottomSheetBehavior.from( layout );
+		ImageView imageView = findViewById( R.id.bottom_sheet_triangle );
+		bottomSheetBehavior.setBottomSheetCallback( new BottomSheetBehavior.BottomSheetCallback() {
+			@Override
+			public void onStateChanged(@NonNull View view, int i) {
+				
+			}
+
+			@Override
+			public void onSlide(@NonNull View view, float v) {
+				imageView.animate().rotation( 180f * v ).setDuration( 0 ).start();
+			}
+		} );
+
+		findViewById( R.id.bottom_sheet_header ).setOnClickListener( new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED){
+					bottomSheetBehavior.setState( BottomSheetBehavior.STATE_EXPANDED );
+				}else{
+					bottomSheetBehavior.setState( BottomSheetBehavior.STATE_COLLAPSED );
+				}
+			}
+		} );
+
+		// theme setup
+		if(DarkMode){
+			layout.setBackground( getDrawable( R.drawable.rounded_header_black_theme ) );
+			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_white ) );
+		}else{
+			layout.setBackground( getDrawable( R.drawable.rounded_header_white_theme ) );
+			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_black ) );
+		}
+
+		findViewById( R.id.btnAbs ).setOnLongClickListener( onAdditionalActionsHelp );
+	}
+
+	private void showToastAboveButton(View v, String message){
+		int xOffset = 0;
+		int yOffset = 0;
+		Rect gvr = new Rect();
+
+		View parent = (View) v.getParent();
+		int parentHeight = parent.getHeight();
+
+		if (v.getGlobalVisibleRect(gvr))
+		{
+			View root = v.getRootView();
+
+			int halfWidth = root.getRight() / 2;
+			int halfHeight = root.getBottom() / 2;
+
+			int parentCenterX = ((gvr.right - gvr.left) / 2) + gvr.left;
+
+			int parentCenterY = ((gvr.bottom - gvr.top) / 2) + gvr.top;
+
+			if (parentCenterY <= halfHeight)
+			{
+				yOffset = -(halfHeight - parentCenterY) - parentHeight;
+			}
+			else
+			{
+				yOffset = (parentCenterY - halfHeight) - parentHeight;
+			}
+
+			if (parentCenterX < halfWidth)
+			{
+				xOffset = -(halfWidth - parentCenterX);
+			}
+
+			if (parentCenterX >= halfWidth)
+			{
+				xOffset = parentCenterX - halfWidth;
+			}
+		}
+		try {
+			Toast toast = Toast.makeText( Main2Activity.this, message, Toast.LENGTH_LONG );
+			toast.setGravity( Gravity.CENTER, xOffset, yOffset );
+			toast.show();
+		}catch (Exception e){
+			e.printStackTrace();
+			Toast.makeText( Main2Activity.this, e.toString(), Toast.LENGTH_LONG ).show();
+		}
+	}
+
+	View.OnLongClickListener onAdditionalActionsHelp = new View.OnLongClickListener() {
+		@Override
+		public boolean onLongClick(View v) {
+			if(R.id.btnAbs == v.getId()){
+
+			}
+			return true;
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		try {
@@ -692,6 +796,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			PI = getResources().getString(R.string.pi);
 			MULTIPLY_SIGN = getResources().getString(R.string.multiply);
 
+			bracketFloorOpen = getResources().getString( R.string.bracket_floor_open );
+			bracketFloorClose = getResources().getString( R.string.bracket_floor_close );
+			bracketCeilOpen = getResources().getString( R.string.bracket_ceil_open );
+			bracketCeilClose = getResources().getString( R.string.bracket_ceil_close );
+
 			applyTheme();
 
 			Intent startIntent = getIntent();
@@ -703,6 +812,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 
 			setViewPager( 0 );
+
+			setupBottomSheet();
 		} catch (Exception e) {
 			goToActivity( CatchService.class, new Intent().putExtra( "action", "somethingWentWrong" ) );
 			finish();
@@ -796,6 +907,10 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 	}
 
+	public void onAdditionalClick(View v){
+		appendToExampleString( ((Button) v).getText().toString() );
+	}
+
 	private void addStringExampleToTheExampleStr(String value) {
 		TextView t = findViewById(R.id.ExampleStr);
 		String txt = t.getText().toString();
@@ -831,7 +946,6 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 	View.OnLongClickListener mForAdditionalBtnsLongClick = new View.OnLongClickListener() {
 		@Override
 		public boolean onLongClick(View view) {
-			TextView t = findViewById(R.id.ExampleStr);
 			appendToExampleString(((Button) view).getText().toString().substring(1));
 			return true;
 		}
@@ -951,22 +1065,42 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			hideAns();
 			return;
 		}
-		int brackets = 0;
-		if(example.contains("(") || example.contains(")")) {
+
+		if(example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" )) {
+			Stack<Character> bracketsStack = new Stack<>();
 			for (int i = 0; i < example.length(); i++) {
-				if (example.charAt(i) == '(')
-					brackets++;
-				else if (example.charAt(i) == ')')
-					brackets--;
-			}
-			if (brackets > 0) {
-				for (int i = 0; i < brackets; i++) {
-					example = String.format("%s%s", example, ")");
+				char cur = example.charAt(i);
+				if (isOpenBracket( cur ) )
+					bracketsStack.push( cur );
+				else if (isCloseBracket( cur )) {
+					try {
+						bracketsStack.pop();
+					}catch (EmptyStackException e){
+						e.printStackTrace();
+						//mWasError = true;
+						//onError(new Error().setStatus("Core"));
+						return;
+					}
 				}
-			} else if (brackets < 0) {
-				//was_error = true;
-				//onError(new Error().setStatus("Core"));
-				return;
+			}
+			if (!bracketsStack.isEmpty()) {
+				while(!bracketsStack.isEmpty()){
+					String br = "";
+					switch ( getTypeOfBracket( bracketsStack.peek() ) ) {
+						case "simple":
+							br = ")";
+							break;
+						case "floor":
+							br = bracketFloorClose;
+							break;
+						case "ceil":
+							br = bracketCeilClose;
+							break;
+					}
+
+					example = String.format( "%s%s", example, br );
+					bracketsStack.pop();
+				}
 			}
 		}
 
@@ -1245,6 +1379,49 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 	}
 
+	private boolean isOpenBracket(String str){
+		return str.equals( "(" ) ||
+				str.equals( bracketCeilOpen ) ||
+				str.equals( bracketFloorOpen );
+	}
+
+	private boolean isOpenBracket(char c){
+		String str = Character.toString( c );
+		return isOpenBracket( str );
+	}
+
+	private boolean isCloseBracket(String str){
+		return str.equals( ")" ) ||
+				str.equals( bracketFloorClose ) ||
+				str.equals( bracketCeilClose );
+	}
+
+	private boolean isCloseBracket(char c){
+		return isCloseBracket( String.valueOf( c ) );
+	}
+
+	private String getTypeOfBracket(String bracket){
+		if(bracket.equals( "(" ) || bracket.equals( ")" ))
+			return "simple";
+		if(bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ))
+			return "floor";
+		if(bracket.equals( bracketCeilOpen ) || bracket.equals( bracketCeilClose ))
+			return "ceil";
+		return "undefined";
+	}
+
+	private String getTypeOfBracket(char c){
+		return getTypeOfBracket( Character.toString( c ) );
+	}
+
+	private boolean isBasicAction(char c){
+		String s = String.valueOf( c );
+		return c == '+' ||
+				c == '-' ||
+				s.equals( getResources().getString( R.string.multiply ) ) ||
+				s.equals( getResources().getString( R.string.div ) );
+	}
+
 	@SuppressLint("SetTextI18n")
 	public void appendToExampleString(String btntxt){
 		t = findViewById(R.id.ExampleStr);
@@ -1255,7 +1432,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		if(len != 0)
 			last = txt.charAt(len-1);
 
-		int brackets = 0;
+		/*int brackets = 0;
 		if(txt.contains("(") || txt.contains(")")) {
 			for (int i = 0; i < len; i++) {
 				if (txt.charAt(i) == '(')
@@ -1263,10 +1440,16 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				else if (txt.charAt(i) == ')')
 					brackets--;
 			}
-		}
+		}*/
 
-		if(len == 0 && btntxt.equals(")"))
-			return;
+		Stack<String> bracketsStack = new Stack<>();
+		for(int i = 0; i < len; i++){
+			if(isOpenBracket( txt.charAt( i ) )){
+				bracketsStack.push( String.valueOf( txt.charAt( i ) ) );
+			}else if(isCloseBracket( txt.charAt( i ) )){
+				bracketsStack.pop();
+			}
+		}
 
 		if(btntxt.equals("A")){
 			if(len == 0){
@@ -1329,7 +1512,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 
 		if(Utils.isDigit(btntxt)){
-			if(len > 1 && last == '%'){
+			if(len > 1 && (last == '%' || isCloseBracket( last ))){
 				t.setText(txt + MULTIPLY_SIGN + btntxt);
 				equallu("not");
 				return;
@@ -1352,7 +1535,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 		}
 
-		if(btntxt.equals(")")){
+		/*if(btntxt.equals(")")){
 			if(brackets > 0){
 				if(last == ')'){
 					t.setText(txt + btntxt);
@@ -1374,6 +1557,32 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				}
 			}
 			return;
+		}*/
+
+		if(isCloseBracket( btntxt )){
+			if(!bracketsStack.isEmpty() && !isOpenBracket( last )){
+				String typeOfBtnTxt = getTypeOfBracket( btntxt );
+				if( typeOfBtnTxt.equals( getTypeOfBracket( bracketsStack.peek() ) )){
+					if( typeOfBtnTxt.equals( getTypeOfBracket( last ) )) {
+						t.setText( txt + btntxt );
+						equallu( "not" );
+						return;
+					}
+
+					if(isBasicAction( last )){
+						if(len != 1){
+							txt = txt.substring(0, len-1);
+							t.setText(txt + btntxt);
+							equallu("not");
+						}
+					}else{
+						t.setText(txt + btntxt);
+						equallu("not");
+					}
+				}
+			}
+
+			return;
 		}
 
 		if(btntxt.equals(FI) || btntxt.equals(PI) || btntxt.equals("e")){
@@ -1382,7 +1591,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				equallu("not");
 				return;
 			}else{
-				if(last == ')'){
+				if(isCloseBracket( last )){
 					t.setText(txt + MULTIPLY_SIGN + btntxt);
 				}else {
 					if (!Utils.isDigit(txt.charAt(len - 1))) {
@@ -1394,6 +1603,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					} else {
 						t.setText(txt + btntxt);
 						scrollExampleToEnd();
+						equallu( "not" );
 					}
 				}
 			}
@@ -1462,19 +1672,20 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 			return;
 		}
-		if(btntxt.equals("(")){
+		if(isOpenBracket( btntxt )){
 			if(last == '.')
 				return;
-			if((Utils.isDigit(last) || last == '!' || last == '%' || Utils.isConstNum(last, this) || last == ')') && !txt.equals("")){
+			if((Utils.isDigit(last) || last == '!' || last == '%' || Utils.isConstNum(last, this) || isCloseBracket( last )) && !txt.equals("")){
 				t.setText(txt + MULTIPLY_SIGN + btntxt);
 				equallu("not");
 			}else{
 				t.setText(txt + btntxt);
 				equallu("not");
 			}
+			bracketsStack.push( btntxt );
 			return;
 		}
-		if(btntxt.equals("sin") || btntxt.equals("log") || btntxt.equals("tan") || btntxt.equals("cos") || btntxt.equals("ln")){
+		if(btntxt.equals("sin") || btntxt.equals("log") || btntxt.equals("tan") || btntxt.equals("cos") || btntxt.equals("ln") || btntxt.equals( "abs" )){
 			if(len == 0){
 				t = findViewById(R.id.ExampleStr);
 				t.setText(btntxt + "(");
@@ -1483,11 +1694,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				if(last == '.'){
 					return;
 				}else{
-					if(!Utils.isDigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e' && last != ')'){
+					if(!Utils.isDigit(last) && last != '!' && !Character.toString(last).equals(FI) && !Character.toString(last).equals(PI) && last != 'e' && !isCloseBracket( last )){
 						t.setText(txt + btntxt + "(");
 						equallu("not");
 					}else {
-						if (last != '(' && last != '^') {
+						if (!isOpenBracket( last ) && last != '^') {
 							t.setText(txt + MULTIPLY_SIGN + btntxt + "(");
 							equallu("not");
 						}
@@ -1523,9 +1734,9 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		if(btntxt.equals("+") || btntxt.equals("-")
 				|| btntxt.equals(getResources().getString(R.string.multiply))
 				|| btntxt.equals(getResources().getString(R.string.div))){
-			if(last == '(' && !btntxt.equals("-")) {
+			if(isOpenBracket( last ) && !btntxt.equals("-")) {
 				return;
-			}else if(last == '('){
+			}else if(isOpenBracket( last )){
 				t.setText(txt + btntxt);
 				equallu("not");
 				return;
@@ -1543,7 +1754,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}else{
 			if(btntxt.equals("!") || btntxt.equals("%")){
 				if(!txt.equals("")){
-					if(last == '(')
+					if(isOpenBracket( last ))
 						return;
 					if(btntxt.equals("!")){
 						if(last == '!'){
@@ -1558,7 +1769,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 							return;
 						}
 					}else{
-						if(last != '%' && (Utils.isDigit(last) || last == ')')){
+						if(last != '%' && (Utils.isDigit(last) || isCloseBracket( last ))){
 							t.setText(txt + btntxt);
 							equallu("not");
 							return;
@@ -1566,13 +1777,13 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					}
 					if(len > 1) {
 						String s = Character.toString(txt.charAt(len - 2));
-						if (last != ')' && !Utils.isDigit(last) && (len > 1 && last != '(' && Utils.isLetter(txt.charAt(len - 2))
+						if (!isCloseBracket( last ) && !Utils.isDigit(last) && (!isOpenBracket( last ) && Utils.isLetter(txt.charAt(len - 2))
 								&& !s.equals(PI) && !s.equals(FI) && txt.charAt(len - 2) != 'e')) {
 							txt = txt.substring(0, len - 1);
 							t.setText(txt + btntxt);
 							equallu("not");
 						} else {
-							if (Utils.isDigit(last) || last == ')') {
+							if (Utils.isDigit(last) || isCloseBracket( last )) {
 								t.setText(txt + btntxt);
 								equallu("not");
 							}
@@ -1581,7 +1792,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 				}
 				return;
 			}
-			if(len >= 1 && (last == ')' && !Utils.isDigit(btntxt.charAt(0)))) {
+			if(len >= 1 && (isCloseBracket( last ) && !Utils.isDigit(btntxt.charAt(0)))) {
 				t.setText(txt + btntxt);
 				equallu("not");
 			}else{

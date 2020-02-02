@@ -9,7 +9,7 @@
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/history_dark"
-            android:title="@string/hitory" />
+            android:title="@string/history" />
         <item
             android:id="@+id/nav_numbersysconverter"
             android:icon="@drawable/binary_dark"
@@ -17,11 +17,11 @@
         <item
             android:id="@+id/nav_passgen"
             android:icon="@drawable/passgen_dark"
-            android:title="@string/passgen" />
+            android:title="@string/password_generator" />
         <item
             android:id="@+id/nav_numgen"
             android:icon="@drawable/dice_dark"
-            android:title="@string/randomgen" />
+            android:title="@string/random_number_generator" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings_dark"

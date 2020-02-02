@@ -7,17 +7,17 @@
     </string-array>
     <string name="settings">Настройки</string>
     <string name="version">"Версия: "</string>
-    <string name="txtfrom">от</string>
-    <string name="txtto">до</string>
-    <string name="choosenum">Выберите число</string>
+    <string name="from">от</string>
+    <string name="to">до</string>
+    <string name="select_number">Выберите число</string>
     <string name="generate">Сгенерировать</string>
-    <string name="randomgen">Генератор целых чисел</string>
+    <string name="random_number_generator">Генератор целых чисел</string>
     <string name="maxintexception">Значения должны быть в пределах от -9,223,372,036,854,775,808 до 9,223,372,036,854,775,807.</string>
     <string name="copied">Скопировано в буфер обмена</string>
     <string name="build">"Сборка: "</string>
-    <string name="hitory">История</string>
+    <string name="history">История</string>
     <string name="history_not_found">Хм...\\nИстории тут нет...\\nГде же она?</string>
-    <string name="passgen">Генератор паролей</string>
+    <string name="password_generator">Генератор паролей</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
     <string name="exit">Выход</string>

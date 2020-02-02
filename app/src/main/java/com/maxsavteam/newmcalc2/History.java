@@ -573,7 +573,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
         ActionBar appActionBar = getSupportActionBar();
         try{
             appActionBar.setDisplayHomeAsUpEnabled(true);
-            appActionBar.setTitle(R.string.hitory);
+            appActionBar.setTitle(R.string.history );
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }catch(Exception e){
             Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();

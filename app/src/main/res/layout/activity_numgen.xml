@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/choosenum"
+            android:text="@string/select_number"
             android:textAlignment="center"
             android:textColor="@android:color/black"
             android:textSize="21sp"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/txtfrom"
+                android:text="@string/from"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/txtto"
+                android:text="@string/to"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />

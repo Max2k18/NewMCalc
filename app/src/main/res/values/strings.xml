@@ -6,25 +6,32 @@
         <item>Please check if there is an application update.</item>
     </string-array>
     <integer name="transition_animation_duration">350</integer>
+
+    <string name="abs" translatable="false">abs</string>
+    <string name="bracket_floor_open" translatable="false">&#8970;</string>
+    <string name="bracket_floor_close" translatable="false">&#8971;</string>
+    <string name="bracket_ceil_open" translatable="false">&#8968;</string>
+    <string name="bracket_ceil_close" translatable="false">&#8969;</string>
+
     <string name="app_name" translatable="false">New MCalc</string>
     <string name="multiply" translatable="false">×</string>
     <string name="div" translatable="false">÷</string>
-    <string name="delSymb" translatable="false">◄</string>
+    <string name="delSymbol" translatable="false">◄</string>
     <string name="settings">Settings</string>
     <string name="pi" translatable="false">π</string>
     <string name="fi" translatable="false">φ</string>
     <string name="version">Version:</string>
-    <string name="txtfrom">from</string>
-    <string name="txtto">to</string>
-    <string name="choosenum">Select the number</string>
+    <string name="from">from</string>
+    <string name="to">to</string>
+    <string name="select_number">Select the number</string>
     <string name="generate">Generate</string>
-    <string name="randomgen">Random Number Generator</string>
+    <string name="random_number_generator">Random Number Generator</string>
     <string name="maxintexception">Values must be between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807.</string>
     <string name="copied">Copied to clipboard</string>
     <string name="build">Build:</string>
-    <string name="hitory">History</string>
+    <string name="history">History</string>
     <string name="history_not_found">Hm…\\nThere is no history here…\\nWhere is she?</string>
-    <string name="passgen">Password Generator</string>
+    <string name="password_generator">Password Generator</string>
     <string name="sqrt" translatable="false">√</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
