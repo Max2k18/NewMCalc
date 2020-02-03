@@ -225,7 +225,7 @@ public final class CalculationCore{
 		calculate( example, type );
 	}
 
-	private static class IsolatedCoreProcess implements CoreLinkBridge {
+	private static class CoreSubProcess implements CoreLinkBridge {
 		private BigDecimal res;
 		private Context mContext;
 
@@ -270,7 +270,7 @@ public final class CalculationCore{
 			calculationCore.prepareAndRun(ex, "isolated");
 		}
 
-		IsolatedCoreProcess(Context context){
+		CoreSubProcess(Context context){
 			this.mContext = context;
 			Log.v( TAG, "constructor" );
 		}
@@ -325,19 +325,19 @@ public final class CalculationCore{
 					MovedExample movedExample = getSubExampleFromBrackets( example, i );
 					String subExample = movedExample.subExample;
 					i = movedExample.newPos;
-					IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess( c );
-					isolatedCoreProcess.run( subExample );
+					CoreSubProcess coreSubProcess = new CoreSubProcess( c );
+					coreSubProcess.run( subExample );
 					BigDecimal result;
-					if(isolatedCoreProcess.isWasError()){
-						if(isolatedCoreProcess.getError().getErrorMessage().contains( "String is number" )){
-							result = isolatedCoreProcess.getRes();
+					if( coreSubProcess.isWasError()){
+						if( coreSubProcess.getError().getErrorMessage().contains( "String is number" )){
+							result = coreSubProcess.getRes();
 						}else{
 							mWasError = true;
-							onError( isolatedCoreProcess.getError() );
+							onError( coreSubProcess.getError() );
 							return;
 						}
 					}else{
-						result = isolatedCoreProcess.getRes();
+						result = coreSubProcess.getRes();
 					}
 
 					String bracketType = getTypeOfBracket( s );
@@ -487,15 +487,15 @@ public final class CalculationCore{
 							}
 							x1 = s1.peek().toPlainString() + x1;
 							s1.pop();
-							IsolatedCoreProcess isolatedCoreProcess = new IsolatedCoreProcess(c);
-							isolatedCoreProcess.run(x1);
-							if (isolatedCoreProcess.isWasError() && !isolatedCoreProcess.getError().getErrorMessage().contains("String is number")) {
+							CoreSubProcess coreSubProcess = new CoreSubProcess(c);
+							coreSubProcess.run(x1);
+							if ( coreSubProcess.isWasError() && !coreSubProcess.getError().getErrorMessage().contains("String is number")) {
 								mWasError = true;
-								onError( isolatedCoreProcess.getError() );
+								onError( coreSubProcess.getError() );
 								return;
 							} else {
 								BigDecimal top;
-								top = isolatedCoreProcess.getRes();
+								top = coreSubProcess.getRes();
 								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
 								top = new BigDecimal(Utils.deleteZeros(top.toPlainString()));
 								//s1.push(top);
