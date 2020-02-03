@@ -1119,7 +1119,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		original = example;
 
 		TextView answerTv = findViewById( R.id.AnswerStr );
-		if(type.equals( "all" ) && answerTv.getVisibility() == View.VISIBLE && !answerTv.getText().toString().isEmpty()){
+		/*if(type.equals( "all" ) && answerTv.getVisibility() == View.VISIBLE && !answerTv.getText().toString().isEmpty()){
 			Log.v("Main2Activity", "inverting example and answer");
 			txt.setText( original );
 			String answer = answerTv.getText().toString();
@@ -1131,7 +1131,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			if (sp.getBoolean("saveResult", false))
 				sp.edit().putString("saveResultText", original + ";" + answer).apply();
 			return;
-		}
+		}*/
 
 		String finalExample = example;
 		mCoreThread = new Thread( new Runnable() {
@@ -1160,6 +1160,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		mCoreTimer = new Timer();
 		try {
 			mCoreThread.start();
+
+			// comment for debug
 			mCoreTimer.schedule( new CoreController(), 0, 500 );
 		}catch (Exception e){
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
@@ -1351,6 +1353,10 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
 						Toast.LENGTH_LONG).show();
 			}else {
+				if(formattedResult.length() > 2000){
+					Toast.makeText( this, "The record was not saved due to too long", Toast.LENGTH_LONG ).show();
+					return;
+				}
 				if (!his.startsWith(String.format("%s%c%s", example, ((char) 30), formattedResult))) {
 					his = String.format("%s%c%s%c%s", example, ((char) 30), formattedResult, ((char) 29), his);
 					sp.edit().putString("history", his).apply();
@@ -1588,20 +1594,11 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		t = findViewById(R.id.ExampleStr);
 		String txt = t.getText().toString();
 		int len = txt.length();
-		if(len >= 30000)
+		if(len + btntxt.length() >= 1000)
 			return;
+
 		if(len != 0)
 			last = txt.charAt(len-1);
-
-		/*int brackets = 0;
-		if(txt.contains("(") || txt.contains(")")) {
-			for (int i = 0; i < len; i++) {
-				if (txt.charAt(i) == '(')
-					brackets++;
-				else if (txt.charAt(i) == ')')
-					brackets--;
-			}
-		}*/
 
 		Stack<String> bracketsStack = new Stack<>();
 		for(int i = 0; i < len; i++){

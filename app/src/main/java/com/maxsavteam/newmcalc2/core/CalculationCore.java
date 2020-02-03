@@ -122,6 +122,14 @@ public final class CalculationCore{
 		//currentThread().interrupt();
 	}
 
+	private BigDecimal rootWithBase(BigDecimal a, BigDecimal n){
+		Log.v( TAG, "rootBase called with a=" + a.toPlainString() + " n=" + n.toPlainString() );
+
+		BigDecimal log = BigDecimalMath.log(a, new MathContext(20));
+		BigDecimal dLog = log.divide(n, 20, RoundingMode.HALF_EVEN);
+		return BigDecimalMath.exp(dLog, new MathContext(8));
+	}
+
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
 	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
 
@@ -229,7 +237,7 @@ public final class CalculationCore{
 		private BigDecimal res;
 		private Context mContext;
 
-		private String TAG = "IsolatedCoreProcess";
+		private String TAG = "CoreSubProcess";
 
 		private CalculationError getError() {
 			return error;
@@ -600,14 +608,15 @@ public final class CalculationCore{
 						i++;
 					}
 					s1.push( new BigDecimal( n ) );
-					BigDecimal sum = BigDecimal.ONE;
+					BigDecimal pr = BigDecimal.ONE;
 					for (int j = 0; j <= actions; j++) {
-						sum = sum.multiply( s1.peek() );
+						pr = pr.multiply( s1.peek() );
 						s1.pop();
 					}
 					//sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
-					sum = BigDecimalMath.sqrt( sum, new MathContext( 10 ) );
-					String answer = sum.toPlainString();
+					//pr = BigDecimalMath.sqrt( pr, new MathContext( 10 ) );
+					pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
+					String answer = pr.toPlainString();
 					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
 					continue;
 				}
@@ -617,25 +626,15 @@ public final class CalculationCore{
 						x = String.format("%s%c", x, example.charAt(i));
 						i++;
 					}
-					BigDecimal temp = new BigDecimal(x);
-					if (temp.divide(BigDecimal.ONE, 2, RoundingMode.HALF_DOWN).equals(BigDecimal.valueOf(3.14))) {
-						x = Double.toString(Math.PI);
-					} else if (temp.divide(BigDecimal.ONE, 3, RoundingMode.FLOOR).equals(BigDecimal.valueOf(1.618))) {
-						x = "1.618";
-					}
 					s1.push(new BigDecimal(x));
 					i--;
 				} else {
 					if (example.charAt(i) != ')') {
 						if (example.charAt(i) == '^') {
 							if (i != example.length() - 1 && example.charAt(i + 1) == '(') {
-								i++;
 								in_s0('^');
-								s0.push("(");
-								continue;
-							} else if (i != example.length() - 1 && example.charAt(i + 1) != '(') {
 								//i++;
-								in_s0('^');
+								//s0.push("(");
 								continue;
 							}
 						}
@@ -655,7 +654,7 @@ public final class CalculationCore{
 						}
 
 						in_s0(example.charAt(i));
-					} else {
+					} /*else {
 						while (!s0.empty() && !s0.peek().equals("(")) {
 							mult( s0.peek() );
 							if ( mWasError ) {
@@ -671,7 +670,7 @@ public final class CalculationCore{
 								in_s0('*');
 							}
 						}
-					}
+					}*/
 				}
 			}catch (Exception e){
 				mWasError = true;
@@ -815,12 +814,7 @@ public final class CalculationCore{
 							Fraction fraction = new Fraction(power);
 							//a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
 							a = Utils.pow( a, fraction.getNumerator() );
-							ans = BigDecimalMath.exp(
-									BigDecimalMath.log(
-											a,
-											new MathContext(20)).divide(fraction.getDenominator(),
-											20, RoundingMode.HALF_EVEN),
-									new MathContext(8));
+							ans = rootWithBase( a, fraction.getDenominator() );
 						}else{
 							ans = Utils.pow( a, b );
 						}
