@@ -627,58 +627,32 @@ public final class CalculationCore{
 						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
 						continue;
 					}
+					case "^":
+						in_s0( '^' );
+						continue ;
 				}
 				if (Utils.isDigit(example.charAt(i))) {
 					x = "";
-					while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(example.charAt(i)) || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
+					while (i < example.length() && (example.charAt( i ) == '.' || Utils.isDigit( example.charAt( i ) ))) {
 						x = String.format("%s%c", x, example.charAt(i));
 						i++;
 					}
 					s1.push(new BigDecimal(x));
 					i--;
 				} else {
-					if (example.charAt(i) != ')') {
-						if (example.charAt(i) == '^') {
-							if (i != example.length() - 1 && example.charAt(i + 1) == '(') {
-								in_s0('^');
-								//i++;
-								//s0.push("(");
-								continue;
-							}
-						}
-						if ((i == 0 && example.charAt(i) == '-') || (example.charAt(i) == '-' && example.charAt(i - 1) == '(')) {
-							x = "";
+					if ((i == 0 && example.charAt(i) == '-') || (example.charAt(i) == '-' && example.charAt(i - 1) == '(')) {
+						x = "";
+						i++;
+						while (i < example.length() && (example.charAt(i) == '.' || Utils.isDigit(example.charAt(i)) ) ) {
+							x = String.format("%s%c", x, example.charAt(i));
 							i++;
-							while ((i < example.length()) && ((example.charAt(i) == '.') || Utils.isDigit(example.charAt(i)) || example.charAt(i) == 'E' || (example.charAt(i) == '-' && example.charAt(i - 1) == 'E'))) {
-								x = String.format("%s%c", x, example.charAt(i));
-								i++;
-							}
-							i--;
-							s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
-							continue;
 						}
-						if (i != 0 && example.charAt(i) == '(' && (Utils.isDigit(example.charAt(i - 1)) || example.charAt(i - 1) == ')')) {
-							in_s0('*');
-						}
+						i--;
+						s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
+						continue;
+					}
 
-						in_s0(example.charAt(i));
-					} /*else {
-						while (!s0.empty() && !s0.peek().equals("(")) {
-							mult( s0.peek() );
-							if ( mWasError ) {
-								break;
-							}
-							s0.pop();
-						}
-						if (!s0.empty() && s0.peek().equals("(")) {
-							s0.pop();
-						}
-						if (i != example.length() - 1) {
-							if (Utils.isDigit(example.charAt(i + 1))) {
-								in_s0('*');
-							}
-						}
-					}*/
+					in_s0(example.charAt(i));
 				}
 			}catch (Exception e){
 				mWasError = true;
