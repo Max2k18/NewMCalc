@@ -36,7 +36,6 @@ public final class CalculationCore{
 	private final String TAG = "Core";
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
-	private String mExample, mType;
 	private int mRoundScale;
 
 	/**
