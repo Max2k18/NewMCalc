@@ -935,7 +935,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			}
 			if (Utils.isDigit(last) || last == '%' || last == '!'
 					|| Character.toString(last).equals(FI)
-					|| Character.toString(last).equals(PI) || last == 'e' || last == ')') {
+					|| Character.toString(last).equals(PI) || last == 'e' || isCloseBracket( last )) {
 				t.setText(String.format("%s%s%s", txt, MULTIPLY_SIGN, value));
 				equallu("not");
 			} else {
@@ -947,8 +947,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 	}
 
-	boolean isSpecific(char last){
-		return last == ')' || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI) || last == 'e';
+	private boolean isSpecific(char last){
+		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString(last).equals(PI) || Character.toString(last).equals(FI) || last == 'e';
 	}
 
 	View.OnLongClickListener mForAdditionalBtnsLongClick = new View.OnLongClickListener() {

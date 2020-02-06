@@ -9,6 +9,11 @@ But I decided to conduct only from version 1.9.0, because I do not remember the 
 #### **I waiting for feedback**
 
 ## Technical Change history
+### 1.13.1
+  * Geometric average now works as should
+  * Refactored some parts of CalculaionCore and deleted Fragment3
+  * User can control accuracy of calculations
+
 ### 1.13.0
   * Added ceil and floor function
   * Added abs function

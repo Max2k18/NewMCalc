@@ -121,20 +121,12 @@ public class Fragment2 extends Fragment {
 			b = view.findViewById(id);
 			b.setTextColor(ColorStateList.valueOf(mContext.getResources().getColor(R.color.colorAccent)));
 		}
-		ImageButton btn = view.findViewById(R.id.imgBtnAboutAG);
 		TextView var = view.findViewById(R.id.variables);
 		if(DarkMode){
-			btn.setImageDrawable(mContext.getDrawable(R.drawable.help_dark));
 			var.setTextColor(Color.WHITE);
 		}else {
-			btn.setImageResource(R.drawable.help);
 			var.setTextColor(Color.BLACK);
 		}
-		ViewGroup.LayoutParams par = btn.getLayoutParams();
-		int width = mDisplaySize.x;
-		par.width = width / 7;
-		par.height = width / 7;
-		btn.setLayoutParams(par);
 		setVariableButtons();
 		return view;
 	}
