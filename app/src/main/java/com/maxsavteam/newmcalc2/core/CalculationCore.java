@@ -2,7 +2,9 @@ package com.maxsavteam.newmcalc2.core;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
@@ -18,6 +20,7 @@ import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.prefs.PreferenceChangeEvent;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
@@ -34,6 +37,7 @@ public final class CalculationCore{
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
 	private String mExample, mType;
+	private int mRoundScale;
 
 	/**
 	 * used for actions
@@ -53,6 +57,7 @@ public final class CalculationCore{
 	private void initialize(Context context){
 		this.mResources = context.getApplicationContext().getResources();
 		this.c = context;
+		mRoundScale = PreferenceManager.getDefaultSharedPreferences( context.getApplicationContext() ).getInt( "rounding_scale", 8 );
 		invalidArgument = mResources.getString( R.string.invalid_argument );
 		valueIsTooBig = mResources.getString( R.string.value_is_too_big );
 		divisionByZero = mResources.getString( R.string.division_by_zero );
@@ -319,6 +324,7 @@ public final class CalculationCore{
 		String s;
 		int len = example.length();
 
+		label:
 		for (int i = 0; i < len; i++) {
 
 			if(mWasError || Thread.currentThread().isInterrupted()) {
@@ -368,257 +374,259 @@ public final class CalculationCore{
 					continue;
 				}
 
-				if ( s.equals( "s" ) || s.equals( "t" ) || s.equals( "l" ) || s.equals( "c" ) || s.equals( "a" ) ) {
-					if ( i != 0 ) {
-						if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
-							s0.push("*");
-						}
-					}
-					//if(i + 4 <= example.length()){
-					String let = "";
-					while (i < example.length() && !isOpenBracket( example.charAt( i ) )) {
-						let = String.format("%s%c", let, example.charAt(i));
-						i++;
-					}
-					i--;
-					s0.push( let );
-					continue;
-				} else if (s.equals("P")) {
-					BigDecimal f = new BigDecimal(Math.PI);
-					s1.push(f);
-					if (i != 0 && Utils.isDigit(example.charAt(i - 1))) {
-						in_s0('*');
-					}
-					char next = '\0';
-					if (i != example.length() - 1)
-						next = example.charAt(i + 1);
-					if (i != example.length() - 1 && (Utils.isDigit(example.charAt(i + 1)) || next == 'F' || next == 'P' || next == 'e')) {
-						in_s0('*');
-					}
-					//s1.push(f);
-					continue;
-				} else if (s.equals("F")) {
-					BigDecimal f = new BigDecimal(1.618);
-					s1.push(f);
-					if (i != 0 && Utils.isDigit(example.charAt(i - 1))) {
-						in_s0('*');
-					}
-					if (i != example.length() - 1) {
-						char next = example.charAt(i + 1);
-						if (Utils.isDigit(example.charAt(i + 1)) || next == 'F' || next == 'P' || next == 'e') {
-							in_s0('*');
-						}
-					}
-					continue;
-				} else if (s.equals("!")) {
-					try {
-						if (i != len - 1 && example.charAt(i + 1) == '!') {
-							BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
-							boolean isNumberBigger = y.compareTo(MAX_FACTORIAL_VALUE) > 0;
-							if (y.signum() < 0 || isNumberBigger) {
-								mWasError = true;
-								if ( isNumberBigger ) {
-									onError( new CalculationError().setErrorMessage( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
-								}
-								break;
+				switch ( s ) {
+					case "s":
+					case "t":
+					case "l":
+					case "c":
+					case "a":
+						if ( i != 0 ) {
+							if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
+								s0.push( "*" );
 							}
-							for (; y.compareTo(BigDecimal.valueOf(0)) > 0; y = y.subtract(BigDecimal.valueOf(2))) {
-								ans = ans.multiply(y);
-							}
+						}
+						//if(i + 4 <= example.length()){
+						String let = "";
+						while ( i < example.length() && !isOpenBracket( example.charAt( i ) ) ) {
+							let = String.format( "%s%c", let, example.charAt( i ) );
 							i++;
-							s1.pop();
-							s1.push(ans);
-							continue;
-						} else {
-							BigDecimal y = s1.peek();
-							if (y.signum() < 0) {
-								mWasError = true;
-								onError( new CalculationError().setErrorMessage( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
-								break;
-							} else {
-								if (y.compareTo(MAX_FACTORIAL_VALUE) > 0) {
+						}
+						i--;
+						s0.push( let );
+						continue;
+					case "P":
+					case "F": {
+						BigDecimal f;
+						if ( s.equals( "P" ) )
+							f = new BigDecimal( Math.PI );
+						else
+							f = new BigDecimal( "1.618" );
+						s1.push( f );
+						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
+							in_s0( '*' );
+						}
+						if ( i != example.length() - 1 ) {
+							char next = example.charAt( i + 1 );
+							if ( Utils.isDigit( example.charAt( i + 1 ) ) || next == 'F' || next == 'P' || next == 'e' ) {
+								in_s0( '*' );
+							}
+						}
+						//s1.push(f);
+						continue;
+					}
+					case "!":
+						try {
+							if ( i != len - 1 && example.charAt( i + 1 ) == '!' ) {
+								BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
+								boolean isNumberBigger = y.compareTo( MAX_FACTORIAL_VALUE ) > 0;
+								if ( y.signum() < 0 || isNumberBigger ) {
 									mWasError = true;
-									onError( new CalculationError().setErrorMessage( "For some reason, we cannot calculate the factorial of this number " +
-											"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
+									if ( isNumberBigger ) {
+										onError( new CalculationError().setErrorMessage( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
+									}
+									break;
+								}
+								for (; y.compareTo( BigDecimal.valueOf( 0 ) ) > 0; y = y.subtract( BigDecimal.valueOf( 2 ) )) {
+									ans = ans.multiply( y );
+								}
+								i++;
+								s1.pop();
+								s1.push( ans );
+								continue;
+							} else {
+								BigDecimal y = s1.peek();
+								if ( y.signum() < 0 ) {
+									mWasError = true;
+									onError( new CalculationError().setErrorMessage( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
 									break;
 								} else {
-									s1.pop();
-									s1.push(Utils.fact(y));
-								}
-							}
-							if (i != len - 1) {
-								char next = example.charAt(i + 1);
-								if (Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
-									in_s0('*');
-							}
-							continue;
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						mWasError = true;
-						onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
-						break;
-					}
-				} else if (s.equals("%")) {
-					if (s0.empty() || (!s0.empty() && !Utils.isBasicAction(s0.peek()))) {
-						BigDecimal y = s1.peek();
-						s1.pop();
-						y = y.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
-						y = new BigDecimal(Utils.deleteZeros(y.toPlainString()));
-						s1.push(y);
-						if (i != len - 1) {
-							char next = example.charAt(i + 1);
-							if (Utils.isDigit(next) || next == 'P' || next == 'F' || next == 'e')
-								in_s0('*');
-						}
-						continue;
-					} else if (!s0.empty() && Utils.isBasicAction(s0.peek())) {
-						try {
-
-							i++;
-							String x1 = "";
-							int brackets = 0;
-							while (i < example.length()) {
-								if(brackets == 0 && (example.charAt(i) == '-' || example.charAt(i) == '+')){
-									break;
-								}
-								if(brackets == 0 && isCloseBracket( example.charAt( i ) ))
-									break;
-
-								if(isOpenBracket( example.charAt(i)) )
-									brackets++;
-								else if(isCloseBracket( example.charAt(i) ))
-									brackets--;
-
-								x1 = String.format("%s%c", x1, example.charAt(i));
-								i++;
-							}
-							x1 = s1.peek().toPlainString() + x1;
-							s1.pop();
-							CoreSubProcess coreSubProcess = new CoreSubProcess(c);
-							coreSubProcess.run(x1);
-							if ( coreSubProcess.isWasError() && !coreSubProcess.getError().getErrorMessage().contains("String is number")) {
-								mWasError = true;
-								onError( coreSubProcess.getError() );
-								return;
-							} else {
-								BigDecimal top;
-								top = coreSubProcess.getRes();
-								top = top.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_EVEN);
-								top = new BigDecimal(Utils.deleteZeros(top.toPlainString()));
-								//s1.push(top);
-								BigDecimal finalResult = s1.peek(), percent;
-								s1.pop();
-								percent = finalResult.multiply(top);
-								if (!s0.empty()) {
-									String action = s0.peek();
-									s0.pop();
-
-									if (Utils.isBasicAction(action)) {
-										switch (action) {
-											case "+":
-												finalResult = finalResult.add(percent);
-												break;
-											case "-":
-												finalResult = finalResult.subtract(percent);
-												break;
-											case "*":
-												finalResult = finalResult.multiply(percent);
-												break;
-											case "/":
-												finalResult = finalResult.divide(percent, 10, RoundingMode.HALF_EVEN);
-												finalResult = new BigDecimal(Utils.deleteZeros(finalResult.toPlainString()));
-												break;
-										}
-										finalResult = new BigDecimal(Utils.deleteZeros(finalResult.toPlainString()));
-										s1.push(finalResult);
+									if ( y.compareTo( MAX_FACTORIAL_VALUE ) > 0 ) {
+										mWasError = true;
+										onError( new CalculationError().setErrorMessage( "For some reason, we cannot calculate the factorial of this number " +
+												"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
+										break;
+									} else {
+										s1.pop();
+										s1.push( Utils.fact( y ) );
 									}
 								}
-
+								if ( i != len - 1 ) {
+									char next = example.charAt( i + 1 );
+									if ( Utils.isDigit( next ) || next == 'P' || next == 'F' || next == 'e' )
+										in_s0( '*' );
+								}
+								continue;
 							}
-							i--;
-							continue;
 						} catch (Exception e) {
 							e.printStackTrace();
 							mWasError = true;
 							onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 							break;
 						}
-					}
-				} else if (s.equals("e")) {
-					BigDecimal f = new BigDecimal(Math.E);
-					s1.push(f);
-					if (i != 0 && Utils.isDigit(example.charAt(i - 1))) {
-						in_s0('*');
-					}
-					if (i != example.length() - 1 && Utils.isDigit(example.charAt(i + 1))) {
-						in_s0('*');
-					}
-					continue;
-				} else if (s.equals("R")) {
-					if (i == len - 1) {
-						mWasError = true;
-						break;
-					} else {
-						if (example.charAt(i + 1) == '(') {
-							in_s0('R');
+					case "%":
+						if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
+							BigDecimal y = s1.peek();
+							s1.pop();
+							y = y.divide( BigDecimal.valueOf( 100 ), 10, RoundingMode.HALF_EVEN );
+							y = new BigDecimal( Utils.deleteZeros( y.toPlainString() ) );
+							s1.push( y );
+							if ( i != len - 1 ) {
+								char next = example.charAt( i + 1 );
+								if ( Utils.isDigit( next ) || next == 'P' || next == 'F' || next == 'e' )
+									in_s0( '*' );
+							}
 							continue;
-						} else {
+						} else if ( !s0.empty() && Utils.isBasicAction( s0.peek() ) ) {
+							try {
+
+								i++;
+								String x1 = "";
+								int brackets = 0;
+								while ( i < example.length() ) {
+									if ( brackets == 0 && ( example.charAt( i ) == '-' || example.charAt( i ) == '+' ) ) {
+										break;
+									}
+									if ( brackets == 0 && isCloseBracket( example.charAt( i ) ) )
+										break;
+
+									if ( isOpenBracket( example.charAt( i ) ) )
+										brackets++;
+									else if ( isCloseBracket( example.charAt( i ) ) )
+										brackets--;
+
+									x1 = String.format( "%s%c", x1, example.charAt( i ) );
+									i++;
+								}
+								x1 = s1.peek().toPlainString() + x1;
+								s1.pop();
+								CoreSubProcess coreSubProcess = new CoreSubProcess( c );
+								coreSubProcess.run( x1 );
+								if ( coreSubProcess.isWasError() && !coreSubProcess.getError().getErrorMessage().contains( "String is number" ) ) {
+									mWasError = true;
+									onError( coreSubProcess.getError() );
+									return;
+								} else {
+									BigDecimal top;
+									top = coreSubProcess.getRes();
+									top = top.divide( BigDecimal.valueOf( 100 ), 10, RoundingMode.HALF_EVEN );
+									top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
+									//s1.push(top);
+									BigDecimal finalResult = s1.peek(), percent;
+									s1.pop();
+									percent = finalResult.multiply( top );
+									if ( !s0.empty() ) {
+										String action = s0.peek();
+										s0.pop();
+
+										if ( Utils.isBasicAction( action ) ) {
+											switch ( action ) {
+												case "+":
+													finalResult = finalResult.add( percent );
+													break;
+												case "-":
+													finalResult = finalResult.subtract( percent );
+													break;
+												case "*":
+													finalResult = finalResult.multiply( percent );
+													break;
+												case "/":
+													finalResult = finalResult.divide( percent, 10, RoundingMode.HALF_EVEN );
+													finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+													break;
+											}
+											finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+											s1.push( finalResult );
+										}
+									}
+
+								}
+								i--;
+								continue;
+							} catch (Exception e) {
+								e.printStackTrace();
+								mWasError = true;
+								onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
+								break;
+							}
+						}
+						break;
+					case "e": {
+						BigDecimal f = new BigDecimal( Math.E );
+						s1.push( f );
+						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
+							in_s0( '*' );
+						}
+						if ( i != example.length() - 1 && Utils.isDigit( example.charAt( i + 1 ) ) ) {
+							in_s0( '*' );
+						}
+						continue;
+					}
+					case "R":
+						if ( i == len - 1 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Invalid statement for square root" ).setShortError( invalidArgument ) );
-							break;
-						}
-					}
-				} else if (s.equals("A")) {
-					i += 2;
-					String n = "";
-					int actions = 0;
-					while (example.charAt(i) != ')') {
-						if (example.charAt(i) == '+') {
-							actions++;
-							s1.push(new BigDecimal(n));
-							n = "";
+							break label;
 						} else {
-							n = String.format( "%s%c", n, example.charAt( i ) );
+							if ( example.charAt( i + 1 ) == '(' ) {
+								in_s0( 'R' );
+								continue;
+							} else {
+								mWasError = true;
+								onError( new CalculationError().setErrorMessage( "Invalid statement for square root" ).setShortError( invalidArgument ) );
+								break label;
+							}
 						}
-						i++;
-					}
-					s1.push( new BigDecimal( n ) );
-					BigDecimal sum = BigDecimal.ZERO;
-					for (int j = 0; j <= actions; j++) {
-						sum = sum.add( s1.peek() );
-						s1.pop();
-					}
-					sum = sum.divide( BigDecimal.valueOf( actions + 1 ), 4, RoundingMode.HALF_EVEN );
-					String answer = sum.toPlainString();
-					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
-					continue;
-				} else if (s.equals("G")) {
-					i += 2;
-					String n = "";
-					int actions = 0;
-					while (example.charAt(i) != ')') {
-						if (example.charAt(i) == '*') {
-							actions++;
-							s1.push(new BigDecimal(n));
-							n = "";
-						} else {
-							n = String.format( "%s%c", n, example.charAt( i ) );
+					case "A": {
+						i += 2;
+						String n = "";
+						int actions = 0;
+						while ( example.charAt( i ) != ')' ) {
+							if ( example.charAt( i ) == '+' ) {
+								actions++;
+								s1.push( new BigDecimal( n ) );
+								n = "";
+							} else {
+								n = String.format( "%s%c", n, example.charAt( i ) );
+							}
+							i++;
 						}
-						i++;
+						s1.push( new BigDecimal( n ) );
+						BigDecimal sum = BigDecimal.ZERO;
+						for (int j = 0; j <= actions; j++) {
+							sum = sum.add( s1.peek() );
+							s1.pop();
+						}
+						sum = sum.divide( BigDecimal.valueOf( actions + 1 ), mRoundScale, RoundingMode.HALF_EVEN );
+						String answer = sum.toPlainString();
+						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+						continue;
 					}
-					s1.push( new BigDecimal( n ) );
-					BigDecimal pr = BigDecimal.ONE;
-					for (int j = 0; j <= actions; j++) {
-						pr = pr.multiply( s1.peek() );
-						s1.pop();
+					case "G": {
+						i += 2;
+						String n = "";
+						int actions = 0;
+						while ( example.charAt( i ) != ')' ) {
+							if ( example.charAt( i ) == '*' ) {
+								actions++;
+								s1.push( new BigDecimal( n ) );
+								n = "";
+							} else {
+								n = String.format( "%s%c", n, example.charAt( i ) );
+							}
+							i++;
+						}
+						s1.push( new BigDecimal( n ) );
+						BigDecimal pr = BigDecimal.ONE;
+						for (int j = 0; j <= actions; j++) {
+							pr = pr.multiply( s1.peek() );
+							s1.pop();
+						}
+						//sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
+						//pr = BigDecimalMath.sqrt( pr, new MathContext( 10 ) );
+						pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
+						String answer = pr.toPlainString();
+						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+						continue;
 					}
-					//sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
-					//pr = BigDecimalMath.sqrt( pr, new MathContext( 10 ) );
-					pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
-					String answer = pr.toPlainString();
-					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
-					continue;
 				}
 				if (Utils.isDigit(example.charAt(i))) {
 					x = "";
@@ -718,18 +726,23 @@ public final class CalculationCore{
 				}
 				s1.pop();
 				//d = Math.toRadians(d);
+				int roundScale = mRoundScale;
 				switch (x) {
 					case "cos": {
 						//ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
-						ans = BigDecimalMath.cos(Utils.toRadians(operand), new MathContext(9));
+						ans = BigDecimalMath.cos(Utils.toRadians(operand), new MathContext(6));
+						roundScale = 7;
+						Log.v( TAG, "cos of " + operand.toPlainString() + " = " + ans.toPlainString() );
 						break;
 					}
 					case "sin": {
-						ans = BigDecimalMath.sin(Utils.toRadians(operand), new MathContext(9));
+						ans = BigDecimalMath.sin(Utils.toRadians(operand), new MathContext(6));
+						roundScale = 7;
 						break;
 					}
 					case "tan": {
-						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(9));
+						roundScale = 7;
+						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(6));
 						break;
 					}
 					case "log": {
@@ -765,10 +778,11 @@ public final class CalculationCore{
 							onError( new CalculationError().setErrorMessage( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
 							return;
 						}
-						ans = BigDecimalMath.sqrt(operand, new MathContext(9));
+						//ans = BigDecimalMath.sqrt(operand, new MathContext(9));
+						ans = rootWithBase( operand, BigDecimal.valueOf( 2 ) );
 						break;
 				}
-				ans = ans.divide(BigDecimal.valueOf(1.0), 9, RoundingMode.HALF_EVEN);
+				ans = ans.setScale( roundScale, RoundingMode.HALF_EVEN );
 				String answer = ans.toPlainString();
 				s1.push(new BigDecimal(Utils.deleteZeros(answer)));
 				return;
@@ -827,7 +841,7 @@ public final class CalculationCore{
 			} catch (ArithmeticException e) {
 				String str = e.toString();
 				if (str.contains("Non-terminating decimal expansion; no exact representable decimal result")) {
-					ans = a.divide(b, 4, RoundingMode.HALF_EVEN);
+					ans = a.divide(b, mRoundScale, RoundingMode.HALF_EVEN);
 					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
 					s1.push(ans);
 				}else if(str.contains("Infinity or Nan")){

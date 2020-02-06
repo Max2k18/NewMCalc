@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -94,7 +95,26 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         }
         holder.desc = desc;
         holder.example.setText(ex);
-        holder.answer.setText(ans);
+        final TextView answer = holder.answer;
+        answer.setText(ans);
+        answer.invalidate();
+        answer.requestLayout();
+        answer.forceLayout();
+        Toast.makeText( con, Integer.toString( answer.getLineCount() ) + " " + answer.getText().length(), Toast.LENGTH_SHORT ).show();
+        int maxAnsLines = 4;
+        if(answer.getLineCount() < maxAnsLines){
+            final int cnt = answer.getLineCount();
+            answer.setLines( maxAnsLines );
+            Button btn = holder.btnShowInFull;
+            btn.setVisibility( View.VISIBLE );
+            btn.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.setVisibility( View.GONE );
+                    answer.setLines( cnt );
+                }
+            } );
+        }
         holder.tvPos.setText(Integer.toString(position));
         holder.txtDesc.setTextColor(con.getResources().getColor(R.color.gray_history));
         if(DarkMode){
@@ -121,6 +141,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         String desc = "";
         LinearLayout with_desc, without_desc;
         Button add, delete, edit;
+        Button btnShowInFull;
         boolean with_description = false;
 
         ViewHolder(View itemView) {
@@ -134,6 +155,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             tvPos = itemView.findViewById(R.id.tvPosition);
             with_desc = itemView.findViewById(R.id.with_desc);
             without_desc = itemView.findViewById(R.id.without_desc);
+            btnShowInFull = itemView.findViewById( R.id.btnShowFullEntry );
             add = itemView.findViewById(R.id.btn_add);
             add.setOnClickListener(new View.OnClickListener() {
 	            @Override
@@ -157,7 +179,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 		            mClickListener.onEditAdd((View) view.getParent().getParent(), getAdapterPosition(), "edit");
 	            }
             });
-            Button[] buttons = {add, edit};
+            Button[] buttons = {add, edit, btnShowInFull};
             for(Button b : buttons){
                 b.setTextColor(con.getResources().getColor(R.color.colorAccent));
             }
