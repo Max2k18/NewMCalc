@@ -95,26 +95,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         }
         holder.desc = desc;
         holder.example.setText(ex);
-        final TextView answer = holder.answer;
-        answer.setText(ans);
-        answer.invalidate();
-        answer.requestLayout();
-        answer.forceLayout();
-        Toast.makeText( con, Integer.toString( answer.getLineCount() ) + " " + answer.getText().length(), Toast.LENGTH_SHORT ).show();
-        int maxAnsLines = 4;
-        if(answer.getLineCount() < maxAnsLines){
-            final int cnt = answer.getLineCount();
-            answer.setLines( maxAnsLines );
-            Button btn = holder.btnShowInFull;
-            btn.setVisibility( View.VISIBLE );
-            btn.setOnClickListener( new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.setVisibility( View.GONE );
-                    answer.setLines( cnt );
-                }
-            } );
-        }
+        holder.answer.setText( ans );
         holder.tvPos.setText(Integer.toString(position));
         holder.txtDesc.setTextColor(con.getResources().getColor(R.color.gray_history));
         if(DarkMode){
