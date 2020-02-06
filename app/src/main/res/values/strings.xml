@@ -149,4 +149,5 @@
     <string name="in_calc_process_message"><![CDATA[In the process…<br>If you see this message, then you are trying to count too large a number. We do not advise you to continue, as this may affect the consumption of resources. If the process continues for 10 seconds, the calculation will be interrupted.]]></string>
     <string name="bottom_sheet_guide">If you click on this field or swipe it, additional actions will appear.</string>
     <string name="show_in_full">Show in full</string>
+    <string name="calc_accuracy">Calculation accuracy (number of decimal places)</string>
 </resources>

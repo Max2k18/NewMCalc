@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 //import java.lang.;
@@ -127,6 +128,9 @@ public class Settings extends AppCompatActivity {
 				return true;
 			}
 		});
+
+		TextView scale = findViewById( R.id.textViewScale );
+		scale.setText( String.format( Locale.ROOT, "%d", sp.getInt( "rounding_scale", 8 ) ) );
 	}
 
 	private void restartApp(){
@@ -134,6 +138,20 @@ public class Settings extends AppCompatActivity {
 		this.startActivity(intent);
 		this.finishAffinity();
 		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+	}
+
+	public void changeScaleClickListener(View v){
+		TextView scalet = findViewById( R.id.textViewScale );
+		int scale = Integer.parseInt( scalet.getText().toString() );
+		if(v.getId() == R.id.btnMinusScale){
+			if(scale > 2)
+				scale--;
+		}else if(v.getId() == R.id.btnPlusScale){
+			if(scale < 15)
+				scale++;
+		}
+		scalet.setText( String.format( Locale.ROOT, "%d", scale ) );
+		sp.edit().putInt( "rounding_scale", scale ).apply();
 	}
 
 	@SuppressLint("SourceLockedOrientationActivity")
@@ -144,7 +162,6 @@ public class Settings extends AppCompatActivity {
 			appActionBar.setElevation(0);
 		}
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		Button btn;
 		if(DarkMode) {
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
 			getWindow().setNavigationBarColor(Color.BLACK);
@@ -152,14 +169,19 @@ public class Settings extends AppCompatActivity {
 				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 			}
-			TextView t = findViewById(R.id.txtExIm);
-			t.setTextColor(getResources().getColor(R.color.white));
-			btn = findViewById(R.id.btnExport);
-			btn.setTextColor(getResources().getColor(R.color.white));
-			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			btn = findViewById(R.id.btnImport);
-			btn.setTextColor(getResources().getColor(R.color.white));
-			btn.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+
+			int[] textViewIds = new int[]{R.id.txtExIm, R.id.txtAccurancyOfCalculations, R.id.textViewScale};
+			for(int id : textViewIds){
+				TextView t = findViewById( id );
+				t.setTextColor(getResources().getColor(R.color.white));
+			}
+
+			int[] buttonsIds = new int[]{R.id.btnImport, R.id.btnExport};
+			for(int id : buttonsIds){
+				Button button = findViewById( id );
+				button.setTextColor(getResources().getColor(R.color.white));
+				button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
+			}
 		}else{
 			getWindow().setBackgroundDrawableResource(R.drawable.white);
 			getWindow().setNavigationBarColor(Color.WHITE);
