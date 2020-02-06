@@ -148,13 +148,11 @@ public class Settings extends AppCompatActivity {
 		if(DarkMode) {
 			getWindow().setBackgroundDrawableResource(R.drawable.black);
 			getWindow().setNavigationBarColor(Color.BLACK);
-			TextView t = findViewById(R.id.txtxCopyRight);
-			t.setTextColor(getResources().getColor(R.color.white));
 			if(appActionBar != null) {
 				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
 				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
 			}
-			t = findViewById(R.id.txtExIm);
+			TextView t = findViewById(R.id.txtExIm);
 			t.setTextColor(getResources().getColor(R.color.white));
 			btn = findViewById(R.id.btnExport);
 			btn.setTextColor(getResources().getColor(R.color.white));

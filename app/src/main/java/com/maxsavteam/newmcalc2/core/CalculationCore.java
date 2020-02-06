@@ -467,7 +467,7 @@ public final class CalculationCore{
 						if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
 							BigDecimal y = s1.peek();
 							s1.pop();
-							y = y.divide( BigDecimal.valueOf( 100 ), 10, RoundingMode.HALF_EVEN );
+							y = y.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
 							y = new BigDecimal( Utils.deleteZeros( y.toPlainString() ) );
 							s1.push( y );
 							if ( i != len - 1 ) {
@@ -508,7 +508,7 @@ public final class CalculationCore{
 								} else {
 									BigDecimal top;
 									top = coreSubProcess.getRes();
-									top = top.divide( BigDecimal.valueOf( 100 ), 10, RoundingMode.HALF_EVEN );
+									top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
 									top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
 									//s1.push(top);
 									BigDecimal finalResult = s1.peek(), percent;
@@ -530,7 +530,7 @@ public final class CalculationCore{
 													finalResult = finalResult.multiply( percent );
 													break;
 												case "/":
-													finalResult = finalResult.divide( percent, 10, RoundingMode.HALF_EVEN );
+													finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
 													finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
 													break;
 											}
@@ -783,7 +783,7 @@ public final class CalculationCore{
 							onError( new CalculationError().setErrorMessage( "Division by zero." ).setShortError( divisionByZero ) );
 							return;
 						}
-						ans = a.divide(b, 9, RoundingMode.HALF_EVEN);
+						ans = a.divide(b, mRoundScale, RoundingMode.HALF_EVEN);
 						break;
 
 					case "^":
