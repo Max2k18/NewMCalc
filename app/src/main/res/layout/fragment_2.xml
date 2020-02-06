@@ -67,45 +67,6 @@
         </TableRow>
 
         <TableRow
-            android:id="@+id/F2tblR3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:visibility="gone"
-            android:weightSum="1.0">
-
-            <Button
-                android:id="@+id/average"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:width="0dp"
-                android:onClick="onClick"
-                android:text="A"
-                android:textSize="25sp" />
-
-
-            <Button
-                android:id="@+id/geometric"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:width="0dp"
-                android:onClick="onClick"
-                android:text="G"
-                android:textSize="25sp" />
-
-            <ImageButton
-                android:id="@+id/imgBtnAboutAG"
-                android:background="@color/white"
-                android:backgroundTint="@android:color/transparent"
-                android:onClick="aboutAG"
-                android:scaleType="centerInside"
-                android:src="@drawable/help" />
-
-        </TableRow>
-
-        <TableRow
             android:id="@+id/F2RVar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -135,7 +96,7 @@
                 android:layout_weight="0.25"
                 android:onClick="variableClick"
                 android:tag="1"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp" />
 
             <Button
@@ -144,7 +105,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:onClick="variableClick"
                 android:textSize="24sp"
                 android:tag="2"/>
@@ -156,7 +117,7 @@
                 android:onClick="variableClick"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp"
                 android:tag="3"/>
 
@@ -167,7 +128,7 @@
                 android:onClick="variableClick"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp"
                 android:tag="4"/>
         </TableRow>
@@ -184,7 +145,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:onClick="variableClick"
                 android:textSize="24sp"
                 android:tag="5"/>
@@ -196,7 +157,7 @@
                 android:onClick="variableClick"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp"
                 android:tag="6"/>
 
@@ -207,7 +168,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
                 android:onClick="variableClick"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp"
                 android:tag="7"/>
 
@@ -217,7 +178,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.25"
-                android:text="+"
+                android:text="@string/plus"
                 android:textSize="24sp"
                 android:onClick="variableClick"
                 android:tag="8"/>

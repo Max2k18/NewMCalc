@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
@@ -20,7 +19,6 @@ import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-import java.util.prefs.PreferenceChangeEvent;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
@@ -65,11 +63,6 @@ public final class CalculationCore{
 		bracketFloorClose = mResources.getString( R.string.bracket_floor_close );
 		bracketCeilOpen = mResources.getString( R.string.bracket_ceil_open );
 		bracketCeilClose = mResources.getString( R.string.bracket_ceil_close );
-	}
-
-	public void prepare(String example, @Nullable String type){
-		this.mExample = example;
-		this.mType = type;
 	}
 
 	private boolean isOpenBracket(String str){
