@@ -35,9 +35,9 @@ public class Fragment2 extends Fragment {
 	 *  1 - variable buttons
 	 */
 	private View.OnLongClickListener[] longClickListeners;
-	public Fragment2(FragmentTwoInitializationObject fragmentTwoInitializationObject){
-		mContext = fragmentTwoInitializationObject.getContext();
-		this.longClickListeners = fragmentTwoInitializationObject.getLongClickListeners();
+	public Fragment2(InitializationObject initializationObject){
+		mContext = initializationObject.getContext();
+		this.longClickListeners = initializationObject.getLongClickListeners();
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.fragment_2, null, false);
 	}
@@ -137,5 +137,28 @@ public class Fragment2 extends Fragment {
 		btn.setLayoutParams(par);
 		setVariableButtons();
 		return view;
+	}
+
+	public static class InitializationObject {
+		private Context mContext;
+		private View.OnLongClickListener[] mLongClickListeners;
+
+		public Context getContext() {
+			return mContext;
+		}
+
+		public InitializationObject setContext(Context context) {
+			mContext = context;
+			return this;
+		}
+
+		public View.OnLongClickListener[] getLongClickListeners() {
+			return mLongClickListeners;
+		}
+
+		public InitializationObject setLongClickListeners(View.OnLongClickListener[] longClickListeners) {
+			mLongClickListeners = longClickListeners;
+			return this;
+		}
 	}
 }

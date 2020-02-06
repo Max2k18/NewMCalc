@@ -27,9 +27,9 @@ import com.maxsavteam.newmcalc2.R;
 public class Fragment1 extends Fragment {
 	private Context c;
 	private View.OnLongClickListener[] longClickListeners;
-	public Fragment1(FragmentOneInitializationObject fragmentOneInitializationObject){
-		c = fragmentOneInitializationObject.getContext();
-		this.longClickListeners = fragmentOneInitializationObject.getLongClickListeners();
+	public Fragment1(InitializationObject initializationObject){
+		c = initializationObject.getContext();
+		this.longClickListeners = initializationObject.getLongClickListeners();
 	}
 
 	@Override
@@ -110,4 +110,36 @@ public class Fragment1 extends Fragment {
 		return view;
 	}
 
+	public static class InitializationObject {
+		private Context mContext;
+		private View.OnLongClickListener[] mLongClickListeners;
+		private int mActionBarHeight;
+
+		/*int getActionBarHeight() {
+			return mActionBarHeight;
+		}
+
+		public FragmentOneInitializationObject setActionBarHeight(int actionBarHeight) {
+			mActionBarHeight = actionBarHeight;
+			return this;
+		}*/
+
+		public Context getContext() {
+			return mContext;
+		}
+
+		public InitializationObject setContext(Context context) {
+			mContext = context;
+			return this;
+		}
+
+		View.OnLongClickListener[] getLongClickListeners() {
+			return mLongClickListeners;
+		}
+
+		public InitializationObject setLongClickListeners(View.OnLongClickListener[] longClickListeners) {
+			mLongClickListeners = longClickListeners;
+			return this;
+		}
+	}
 }

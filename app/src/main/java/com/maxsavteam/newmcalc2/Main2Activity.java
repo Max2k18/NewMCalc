@@ -59,12 +59,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
-import com.maxsavteam.newmcalc2.adapters.FragmentAdapterInitializationObject;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
-import com.maxsavteam.newmcalc2.fragments.fragment1.FragmentOneInitializationObject;
-import com.maxsavteam.newmcalc2.fragments.fragment2.FragmentTwoInitializationObject;
+import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
+import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Constants;
 import com.maxsavteam.newmcalc2.utils.CurrentAppLocale;
@@ -864,16 +863,16 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 	private void setViewPager(int which) {
 		try {
-			FragmentOneInitializationObject fragmentOneInitializationObject =
-					new FragmentOneInitializationObject()
+			Fragment1.InitializationObject fragmentOneInitializationObject =
+					new Fragment1.InitializationObject()
 							.setContext( this )
 							.setLongClickListeners( new View.OnLongClickListener[]{
 									mForAdditionalBtnsLongClick,
 									returnback,
 									btnDeleteSymbolLongClick
 							});
-			FragmentTwoInitializationObject fragmentTwoInitializationObject =
-					new FragmentTwoInitializationObject()
+			Fragment2.InitializationObject fragmentTwoInitializationObject =
+					new Fragment2.InitializationObject()
 							.setContext(this)
 							.setLongClickListeners(
 									new View.OnLongClickListener[]{
@@ -881,12 +880,12 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 											on_var_long_click
 									}
 							);
-			FragmentAdapterInitializationObject initializationObject =
-					new FragmentAdapterInitializationObject()
+			MyFragmentPagerAdapter.InitializationObject initializationObject =
+					new MyFragmentPagerAdapter.InitializationObject()
 							.setFragmentManager(getSupportFragmentManager())
 							.setContext(this)
-							.setFragmentTwoInitializationObject(fragmentTwoInitializationObject)
-							.setFragmentOneInitializationObject(fragmentOneInitializationObject);
+							.setInitializationObject(fragmentTwoInitializationObject)
+							.setInitializationObject(fragmentOneInitializationObject);
 			MyFragmentPagerAdapter myFragmentPagerAdapter =
 					new MyFragmentPagerAdapter(initializationObject);
 			//}
