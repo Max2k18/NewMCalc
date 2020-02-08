@@ -708,6 +708,11 @@ public final class CalculationCore{
 					}
 					case "tan": {
 						roundScale = 7;
+						if(operand.equals( BigDecimal.valueOf( 90 ) )){
+							mWasError = true;
+							onError( new CalculationError().setStatus( "Core" ) );
+							return;
+						}
 						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(6));
 						break;
 					}

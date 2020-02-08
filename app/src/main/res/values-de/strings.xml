@@ -130,4 +130,5 @@
     <string name="bottom_sheet_guide">Wenn Sie auf dieses Feld klicken oder darüber streichen, werden zusätzliche Aktionen angezeigt.</string>
     <string name="show_in_full">Vollständig anzeigen.</string>
     <string name="calc_accuracy">Berechnungsgenauigkeit (Anzahl der Nachkommastellen)</string>
+    <string name="thread_destroy_reason">Die Zählung wurde aufgrund eines fehlenden RAM-Geräts abgebrochen.</string>
 </resources>

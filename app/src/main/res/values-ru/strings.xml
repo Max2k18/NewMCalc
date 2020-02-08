@@ -112,4 +112,5 @@
     <string name="bottom_sheet_guide">Если Вы нажмёте на это поле или смахнёте по нему, то появятся дополнительные действия.</string>
     <string name="show_in_full">Показать полностью.</string>
     <string name="calc_accuracy">Точность вычислений(количество знаков после запятой)</string>
+    <string name="thread_destroy_reason">Подсчёт был прекращён из-за нехватки оперативной памяти устройства.</string>
 </resources>

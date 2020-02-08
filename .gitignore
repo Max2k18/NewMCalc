@@ -12,3 +12,4 @@
 /captures
 .externalNativeBuild
 /app/keystore.properties
+/app/src/main/java/com/maxsavteam/newmcalc2/utils/FTPInfo.java

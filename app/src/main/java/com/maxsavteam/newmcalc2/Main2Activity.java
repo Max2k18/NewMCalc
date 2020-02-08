@@ -57,6 +57,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
@@ -86,9 +87,10 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.fabric.sdk.android.services.common.Crash;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-public class Main2Activity extends AppCompatActivity implements CalculationCore.CoreLinkBridge {
+public class Main2Activity extends AppCompatActivity {
 
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
@@ -758,6 +760,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		//Thread.setDefaultUncaughtExceptionHandler( new UncaughtExceptionHandler( this ) );
 		try {
 			super.onCreate(savedInstanceState);
 			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -782,7 +785,9 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			mNavigationView.setBackgroundColor(Color.BLACK);
 			mNavigationView.setNavigationItemSelectedListener(menuItem -> {
 				if (menuItem.getItemId() == R.id.nav_settings) {
-					goToAdditionalActivities("settings");
+					//goToAdditionalActivities("settings");
+					// TODO: 06.02.2020 fix
+					char c = "char".charAt( -1 );
 				} else if (menuItem.getItemId() == R.id.nav_history) {
 					goToAdditionalActivities("history");
 				} else if (menuItem.getItemId() == R.id.nav_numbersysconverter) {
@@ -793,6 +798,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 					goToAdditionalActivities("numgen");
 				}
 				menuItem.setChecked(false);
+
 				drawer.closeDrawer(GravityCompat.START);
 				return true;
 			});
@@ -1161,7 +1167,7 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 			mCoreThread.start();
 
 			// comment for debug
-			mCoreTimer.schedule( new CoreController(), 0, 500 );
+			mCoreTimer.schedule( new CoreController(), 0, 100 );
 		}catch (Exception e){
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
 		}
@@ -1176,7 +1182,17 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		}
 		if(progressDialogShown){
 			mProgressDialog.cancel();
+			progressDialogShown = false;
 		}
+	}
+
+	private void destroyThread(){
+		if(progressDialogShown) {
+			mProgressDialog.cancel();
+			progressDialogShown = false;
+		}
+		mCoreThread.destroy();
+		killCoreTimer();
 	}
 
 	class CoreController extends TimerTask{
@@ -1184,7 +1200,13 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 		public void run() {
 			++timerCountDown;
 			Log.v( "Main2Activity", "Timer running; countdown=" + timerCountDown );
-			if(timerCountDown == 4){
+			long freeMemory = Runtime.getRuntime().freeMemory();
+			if(freeMemory < 1024 * 1024){
+				Log.v( "Timer", "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes" );
+				Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show();
+				destroyThread();
+			}
+			if(timerCountDown == 20){
 				if(!mCoreThread.isAlive()){
 					Log.v( "Timer", "Something gone wrong. Thread is not alive. Killing timer" );
 					killCoreTimer();
@@ -1199,8 +1221,8 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 						}
 					} );
 				}
-			}else if(timerCountDown > 4){
-				if(timerCountDown < 20){
+			}else if(timerCountDown > 20){
+				if(timerCountDown < 100){
 					if(!mCoreThread.isAlive()){
 						Log.v("Timer", "cancel progress dialog");
 						runOnUiThread( new Runnable() {
@@ -1216,38 +1238,12 @@ public class Main2Activity extends AppCompatActivity implements CalculationCore.
 						runOnUiThread( new Runnable() {
 							@Override
 							public void run() {
-								mProgressDialog.cancel();
-								progressDialogShown = false;
-								mCoreThread.destroy();
+								destroyThread();
 								Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
-								killCoreTimer();
 							}
 						} );
 					}
 				}
-			}
-		}
-	}
-
-	@Override
-	public void onSuccess(CalculationCore.CalculationResult calculationResult) {
-		Toast.makeText( Main2Activity.this, Thread.currentThread().getName(), Toast.LENGTH_SHORT ).show();
-		if(calculationResult.getResult() != null) {
-			writeCalculationResult(calculationResult.getType(), calculationResult.getResult());
-		}else{
-			hideAns();
-		}
-	}
-
-	@Override
-	public void onError(CalculationError calculationError) {
-		if(!calculationError.getStatus().equals("Core")) {
-			if(calculationError.getShortError().equals("")){
-				Toast t = Toast.makeText(Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG);
-				t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-				t.show();
-			}else {
-				writeCalculationError(calculationError.getShortError());
 			}
 		}
 	}
