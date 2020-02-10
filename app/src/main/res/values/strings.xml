@@ -146,7 +146,7 @@
     <string name="restart_app">Restart application</string>
     <string name="on_err_in_backup_file">In the backup file, the data was incorrectly written or manually changed. No settings have been imported.</string>
     <string name="view_report">View report</string>
-    <string name="in_calc_process_message"><![CDATA[In the process…<br>If you see this message, then you are trying to count too large a number. We do not advise you to continue, as this may affect the consumption of resources. If the process continues for 10 seconds, the calculation will be interrupted.]]></string>
+    <string name="in_calc_process_message"><![CDATA[In the process…<br>If you see this message, then you are trying to count too large a number. We do not advise you to continue, as this may affect the consumption of resources. If the process continues for 7 seconds, the calculation will be interrupted.]]></string>
     <string name="bottom_sheet_guide">If you click on this field or swipe it, additional actions will appear.</string>
     <string name="show_in_full">Show in full</string>
     <string name="calc_accuracy">Calculation accuracy (number of decimal places)</string>

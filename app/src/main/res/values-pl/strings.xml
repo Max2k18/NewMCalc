@@ -108,7 +108,7 @@
     <string name="restart_app">Uruchom ponownie aplikację</string>
     <string name="on_err_in_backup_file">W pliku kopii zapasowej dane zostały niepoprawnie zapisane lub zmienione ręcznie. Żadne ustawienia nie zostały zaimportowane.</string>
     <string name="view_report">Wyświetl raport</string>
-    <string name="in_calc_process_message"><![CDATA[W trakcie …<br>Jeśli zobaczysz ten komunikat, oznacza to, że próbujesz policzyć zbyt dużą liczbę. Nie zalecamy kontynuowania, ponieważ może to wpłynąć na zużycie zasobów. Jeśli proces będzie kontynuowany przez 10 sekund, obliczenia zostaną przerwane.]]></string>
+    <string name="in_calc_process_message"><![CDATA[W trakcie …<br>Jeśli zobaczysz ten komunikat, oznacza to, że próbujesz policzyć zbyt dużą liczbę. Nie zalecamy kontynuowania, ponieważ może to wpłynąć na zużycie zasobów. Jeśli proces będzie kontynuowany przez 7 sekund, obliczenia zostaną przerwane.]]></string>
     <string name="bottom_sheet_guide">Kliknięcie tego pola lub przesunięcie go spowoduje wyświetlenie dodatkowych działań.</string>
     <string name="show_in_full">Pokaż w całości.</string>
     <string name="calc_accuracy">Dokładność obliczeń (liczba miejsc dziesiętnych)</string>

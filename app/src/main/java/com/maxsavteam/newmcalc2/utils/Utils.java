@@ -52,29 +52,6 @@ public final class Utils {
 		return a.remainder( b );
 	}
 
-	public static BigDecimal pow(BigDecimal a, BigDecimal n){
-		if(n.compareTo( BigDecimal.ZERO ) < 0){
-			BigDecimal result = sysPow( a, n.multiply( BigDecimal.valueOf( -1 ) ) );
-			String strRes = BigDecimal.ONE.divide( result, 8, RoundingMode.HALF_EVEN ).toPlainString();
-			return new BigDecimal( deleteZeros( strRes ) );
-		}else{
-			return sysPow( a, n );
-		}
-	}
-
-	private static BigDecimal sysPow(BigDecimal a, BigDecimal n){
-		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " and n=" + n.toPlainString());
-		if(n.compareTo( BigDecimal.ZERO ) == 0){
-			return BigDecimal.ONE;
-		}
-		Log.v("Utils", "remainder=" + getRemainder( n, BigDecimal.valueOf( 2 ) ).toPlainString());
-		if(getRemainder( n, BigDecimal.valueOf( 2 ) ).compareTo( BigDecimal.ONE ) == 0){
-			return sysPow( a, n.subtract( BigDecimal.ONE ) ).multiply( a );
-		}else{
-			BigDecimal b = sysPow(a, n.divide( BigDecimal.valueOf( 2 ), 0, RoundingMode.HALF_EVEN ));
-			return b.multiply( b );
-		}
-	}
 
 	/**
 	 * @param source String in which need to delete back zeros after dot and front zeros

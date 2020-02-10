@@ -76,7 +76,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 	}
 
 	@SuppressLint("SourceLockedOrientationActivity")
-	private void apply_theme(boolean dark_mode){
+	private void applyTheme(boolean dark_mode){
 		ImageButton btn = findViewById(R.id.btnImgCopyNum);
 		Display d = getWindowManager().getDefaultDisplay();
 		Point p = new Point();
@@ -132,7 +132,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		Spinner to = findViewById(R.id.chooseToWhichSys);
 
 		start_type = getIntent().getStringExtra("start_type");
-		apply_theme(DarkMode);
+		applyTheme(DarkMode);
 		ArrayAdapter<String> ar = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
 		ar.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -165,7 +165,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				//toSys = Integer.valueOf(data[position]);
-				int choice = Integer.valueOf(data[position]);
+				int choice = Integer.parseInt(data[position]);
 				if(choice == fromSys){
 					fromSys = toSys;
 					from.setSelection(positionInSet(fromSys));
@@ -195,12 +195,21 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				if(count > 0){
-					char last = s.charAt(s.length() - 1);
+					char last = s.charAt(start);
 					if((fromSys == 16 && !(last >= '0' && last <= '9') && !((last >= 'a' && last <= 'f') || (last >= 'A' && last <= 'F')))
 						|| (fromSys == 2 && !(last >= '0' && last <= '1'))
 						|| (fromSys == 10 && !(last >= '0' && last <= '9'))
 						|| (fromSys == 8 && !(last >= '0' && last <= '7'))){
-						fromText.setText(s.toString().substring(0, s.length() - 1));
+						if(fromText.getText().length() == 1){
+							fromText.setText( "" );
+							return;
+						}
+						int curPos = fromText.getSelectionEnd() - 1;
+						fromText.setText(s.subSequence( 0, start ).toString().concat( s.subSequence( start + 1, s.length() ).toString()) );
+						if(curPos > fromText.getText().length()){
+							curPos = fromText.getText().length();
+						}
+						fromText.setSelection( curPos );
 					}
 				}
 				translate();
@@ -222,9 +231,9 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 			if(fromSys == 10)
 				result = from;
 			else
-				result = to_dec(from, fromSys).toPlainString();
+				result = toDecimal(from, fromSys).toPlainString();
 
-			result = from_dec(new BigDecimal(result), toSys);
+			result = fromDecimal(new BigDecimal(result), toSys);
 			toText.setText(result);
 			translated_to[positionInSet(toSys)] = result;
 			//findViewById(R.id.btnImgCopyNum).setVisibility(View.VISIBLE);
@@ -242,16 +251,16 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		Toast.makeText(getApplicationContext(), getResources().getString(R.string.copied), Toast.LENGTH_SHORT).show();
 	}
 
-	private int return_number(char c){
+	private int returnNumber(char c){
 		c = Character.toUpperCase(c);
 		if(c >= '0' && c <= '9'){
-			return Integer.valueOf(Character.toString(c));
+			return Integer.parseInt(Character.toString(c));
 		}else if(c >= 'A' && c <= 'Z'){
 			return 10 + (((int) c) - ((int) 'A'));
 		}
 		return '0';
 	}
-	private char return_char_from_num(int n){
+	private char returnCharFromNum(int n){
 		if(n >= 0 && n <= 9){
 			return ((char) (((int) '0') + n));
 		}else {
@@ -259,20 +268,20 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 		}
 	}
 
-	private BigDecimal to_dec(String s, final int k){
+	private BigDecimal toDecimal(String s, final int k){
 		BigDecimal x = BigDecimal.ZERO;
 		for(int i = 0; i < s.length(); i++){
 			x = x.multiply(BigDecimal.valueOf(k));
-			x = x.add(BigDecimal.valueOf(return_number(s.charAt(i))));
+			x = x.add(BigDecimal.valueOf( returnNumber(s.charAt(i))));
 		}
 		return x;
 	}
 
-	public String from_dec(BigDecimal dec, final int k){
+	public String fromDecimal(BigDecimal dec, final int k){
 		String ans = "";
 		do{
 			BigDecimal[] bg = dec.divideAndRemainder(BigDecimal.valueOf(k));
-			ans = return_char_from_num(bg[1].intValue()) + ans;
+			ans = returnCharFromNum(bg[1].intValue()) + ans;
 			dec = bg[0];
 		}while(dec.signum() > 0);
 

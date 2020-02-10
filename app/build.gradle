@@ -45,13 +45,13 @@ android {
             targetSdkVersion 29
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.13.2"
+            versionName "1.13.2.1"
             multiDexEnabled true
             buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
             buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
             buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-            buildConfigField "String", "CoreVersion", "\"v3.1.200208\""
+            buildConfigField "String", "CoreVersion", "\"v3.1.1.200210\""
             buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
             buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
         }

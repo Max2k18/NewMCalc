@@ -126,7 +126,7 @@
     <string name="restart_app">Anwendung neu starten</string>
     <string name="on_err_in_backup_file">In der Sicherungsdatei wurden die Daten falsch geschrieben oder manuell geändert. Es wurden keine Einstellungen importiert.</string>
     <string name="view_report">Bericht anzeigen</string>
-    <string name="in_calc_process_message"><![CDATA[Im Gange…<br>Wenn Sie diese Meldung sehen, versuchen Sie, eine zu große Zahl zu zählen. Wir raten davon ab, fortzufahren, da dies den Ressourcenverbrauch beeinträchtigen kann. Wenn der Vorgang 10 Sekunden lang andauert, wird die Berechnung unterbrochen.]]></string>
+    <string name="in_calc_process_message"><![CDATA[Im Gange…<br>Wenn Sie diese Meldung sehen, versuchen Sie, eine zu große Zahl zu zählen. Wir raten davon ab, fortzufahren, da dies den Ressourcenverbrauch beeinträchtigen kann. Wenn der Vorgang 7 Sekunden lang andauert, wird die Berechnung unterbrochen.]]></string>
     <string name="bottom_sheet_guide">Wenn Sie auf dieses Feld klicken oder darüber streichen, werden zusätzliche Aktionen angezeigt.</string>
     <string name="show_in_full">Vollständig anzeigen.</string>
     <string name="calc_accuracy">Berechnungsgenauigkeit (Anzahl der Nachkommastellen)</string>

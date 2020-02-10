@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
+import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,15 +37,10 @@ public final class CalculationCore{
 			bracketCeilOpen, bracketCeilClose;
 	private int mRoundScale;
 
-	/**
-	 * used for actions
-	 * */
-	private final Stack<String> s0 = new Stack<>();
+	private final Stack<String> s0 = new Stack<>(); // actions
 
-	/**
-	 * used for numbers
-	 * */
-	private final Stack<BigDecimal> s1 = new Stack<>();
+	private final Stack<BigDecimal> s1 = new Stack<>(); // numbers
+
 	private boolean mWasError = false;
 
 	public CalculationCore(Context context) {
@@ -139,7 +135,7 @@ public final class CalculationCore{
 	 *
 	 * @see CalculationResult
 	 */
-	public void prepareAndRun(@NotNull final String exampleArg, @Nullable String type) throws NullPointerException{
+	public void prepareAndRun(@NotNull final String exampleArg, @Nullable String type) throws NullPointerException, CoreInterruptedError{
 		if(coreLinkBridge == null)
 			throw new NullPointerException("Calculation Core: Interface wasn't set");
 		String example = String.copyValueOf( exampleArg.toCharArray() );
@@ -291,6 +287,35 @@ public final class CalculationCore{
 		}
 	}
 
+	private BigDecimal pow(BigDecimal a, BigDecimal n){
+		if(n.compareTo( BigDecimal.ZERO ) < 0){
+			BigDecimal result = sysPow( a, n.multiply( BigDecimal.valueOf( -1 ) ) );
+			String strRes = BigDecimal.ONE.divide( result, 8, RoundingMode.HALF_EVEN ).toPlainString();
+			return new BigDecimal( Utils.deleteZeros( strRes ) );
+		}else{
+			return sysPow( a, n );
+		}
+	}
+
+	private BigDecimal sysPow(BigDecimal a, BigDecimal n){
+		if(Thread.currentThread().isInterrupted()){
+			Log.v( TAG, "sysPow stopped" );
+			//throw new RuntimeException( "Stopped because thread waa interrupted" );
+			throw new CoreInterruptedError();
+		}
+		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " and n=" + n.toPlainString());
+		if(n.compareTo( BigDecimal.ZERO ) == 0){
+			return BigDecimal.ONE;
+		}
+		Log.v("Utils", "remainder=" + Utils.getRemainder( n, BigDecimal.valueOf( 2 ) ).toPlainString());
+		if(Utils.getRemainder( n, BigDecimal.valueOf( 2 ) ).compareTo( BigDecimal.ONE ) == 0){
+			return sysPow( a, n.subtract( BigDecimal.ONE ) ).multiply( a );
+		}else{
+			BigDecimal b = sysPow(a, n.divide( BigDecimal.valueOf( 2 ), 0, RoundingMode.HALF_EVEN ));
+			return b.multiply( b );
+		}
+	}
+
 	private MovedExample getSubExampleFromBrackets(String example, int pos){
 		int i = pos + 1;
 		String subExample = "";
@@ -308,7 +333,7 @@ public final class CalculationCore{
 		return new MovedExample( subExample, i );
 	}
 
-	private void calculate(String example, String type) {
+	private void calculate(String example, String type) throws CoreInterruptedError {
 		s0.clear();
 		s1.clear();
 		mWasError = false;
@@ -316,12 +341,11 @@ public final class CalculationCore{
 		String s;
 		int len = example.length();
 
-		label:
 		for (int i = 0; i < len; i++) {
 
 			if(mWasError || Thread.currentThread().isInterrupted()) {
 				Log.v( TAG, "Main loop destroyer was called; mWasError=" + mWasError + "; Thread.currentThread().isInterrupted()=" + Thread.currentThread().isInterrupted() );
-				return;
+				throw new CoreInterruptedError();
 			}
 
 			try {
@@ -415,6 +439,7 @@ public final class CalculationCore{
 									mWasError = true;
 									if ( isNumberBigger ) {
 										onError( new CalculationError().setErrorMessage( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
+										return;
 									}
 									break;
 								}
@@ -430,13 +455,13 @@ public final class CalculationCore{
 								if ( y.signum() < 0 ) {
 									mWasError = true;
 									onError( new CalculationError().setErrorMessage( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
-									break;
+									return;
 								} else {
 									if ( y.compareTo( MAX_FACTORIAL_VALUE ) > 0 ) {
 										mWasError = true;
 										onError( new CalculationError().setErrorMessage( "For some reason, we cannot calculate the factorial of this number " +
 												"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
-										break;
+										return;
 									} else {
 										s1.pop();
 										s1.push( Utils.fact( y ) );
@@ -453,7 +478,7 @@ public final class CalculationCore{
 							e.printStackTrace();
 							mWasError = true;
 							onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
-							break;
+							return;
 						}
 					case "%":
 						if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
@@ -538,7 +563,7 @@ public final class CalculationCore{
 								e.printStackTrace();
 								mWasError = true;
 								onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
-								break;
+								return;
 							}
 						}
 						break;
@@ -556,7 +581,7 @@ public final class CalculationCore{
 					case "R":
 						if ( i == len - 1 ) {
 							mWasError = true;
-							break label;
+							break;
 						} else {
 							if ( example.charAt( i + 1 ) == '(' ) {
 								in_s0( 'R' );
@@ -564,7 +589,7 @@ public final class CalculationCore{
 							} else {
 								mWasError = true;
 								onError( new CalculationError().setErrorMessage( "Invalid statement for square root" ).setShortError( invalidArgument ) );
-								break label;
+								return;
 							}
 						}
 					case "A": {
@@ -649,7 +674,7 @@ public final class CalculationCore{
 			}catch (Exception e){
 				mWasError = true;
 				onError( new CalculationError().setStatus( "Core" ).setShortError( "Smth went wrong" ) );
-				break;
+				return;
 			}
 		}
 		try {
@@ -673,6 +698,7 @@ public final class CalculationCore{
 		} catch (Exception e) {
 			mWasError = true;
 			onError( new CalculationError().setStatus( "Core" ) );
+			return;
 		}
 		if ( !mWasError ) {
 			onSuccess( new CalculationResult().setResult( s1.peek() ).setType( type ) );
@@ -680,6 +706,8 @@ public final class CalculationCore{
 	}
 
 	private void mult(String x) throws Exception {
+		if(Thread.currentThread().isInterrupted())
+			throw new CoreInterruptedError();
 		try {
 			if (x.length() == 3 || x.equals("ln") || x.equals("R")) {
 				double d = s1.peek().doubleValue();
@@ -710,7 +738,7 @@ public final class CalculationCore{
 						roundScale = 7;
 						if(operand.equals( BigDecimal.valueOf( 90 ) )){
 							mWasError = true;
-							onError( new CalculationError().setStatus( "Core" ) );
+							onError( new CalculationError().setShortError( "Impossible to find tan of 90" ) );
 							return;
 						}
 						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(6));
@@ -793,17 +821,22 @@ public final class CalculationCore{
 							onError( new CalculationError().setShortError( "Raising zero to zero degree." ) );
 							return;
 						}
-						String power = b.toPlainString();
-						power = Utils.deleteZeros(power);
-						if(power.contains(".")){
-							Fraction fraction = new Fraction(power);
-							//a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
-							a = Utils.pow( a, fraction.getNumerator() );
-							ans = rootWithBase( a, fraction.getDenominator() );
-						}else{
-							ans = Utils.pow( a, b );
+						try {
+							String power = b.toPlainString();
+							power = Utils.deleteZeros( power );
+							if ( power.contains( "." ) ) {
+								Fraction fraction = new Fraction( power );
+								//a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
+								a = pow( a, fraction.getNumerator() );
+								ans = rootWithBase( a, fraction.getDenominator() );
+							} else {
+								ans = pow( a, b );
+							}
+							Log.v( TAG, "pow answer returned ans=" + ans );
+						}catch (RuntimeException e){
+							mWasError = true;
+							return;
 						}
-						Log.v( TAG, "pow answer returned ans=" + ans );
 						break;
 				}
 				String answer = ans.toPlainString();
@@ -834,6 +867,9 @@ public final class CalculationCore{
 	}
 
 	private void in_s0(char x) throws Exception{
+		if(Thread.currentThread().isInterrupted())
+			throw new CoreInterruptedError();
+
 		Map<String, Integer> priority = new HashMap<>();
 		priority.put("(", 0);
 		priority.put("-", 1);

@@ -67,6 +67,7 @@ import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Constants;
+import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.CurrentAppLocale;
 import com.maxsavteam.newmcalc2.utils.Format;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
@@ -785,9 +786,7 @@ public class Main2Activity extends AppCompatActivity {
 			mNavigationView.setBackgroundColor(Color.BLACK);
 			mNavigationView.setNavigationItemSelectedListener(menuItem -> {
 				if (menuItem.getItemId() == R.id.nav_settings) {
-					//goToAdditionalActivities("settings");
-					// TODO: 06.02.2020 fix
-					char c = "char".charAt( -1 );
+					goToAdditionalActivities("settings");
 				} else if (menuItem.getItemId() == R.id.nav_history) {
 					goToAdditionalActivities("history");
 				} else if (menuItem.getItemId() == R.id.nav_numbersysconverter) {
@@ -1142,7 +1141,11 @@ public class Main2Activity extends AppCompatActivity {
 		mCoreThread = new Thread( new Runnable() {
 			@Override
 			public void run() {
-				mCalculationCore.prepareAndRun( finalExample, type );
+				try {
+					mCalculationCore.prepareAndRun( finalExample, type );
+				}catch (CoreInterruptedError e){
+					//
+				}
 			}
 		} );
 		mProgressDialog = new ProgressDialog( this );
@@ -1151,7 +1154,7 @@ public class Main2Activity extends AppCompatActivity {
 		mProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				mCoreThread.destroy();
+				destroyThread();
 				Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
 				dialog.cancel();
 			}
@@ -1191,24 +1194,36 @@ public class Main2Activity extends AppCompatActivity {
 			mProgressDialog.cancel();
 			progressDialogShown = false;
 		}
-		mCoreThread.destroy();
+
+		mCoreThread.interrupt();
+		hideAns();
 		killCoreTimer();
 	}
 
-	class CoreController extends TimerTask{
+	private class CoreController extends TimerTask{
 		@Override
 		public void run() {
+			final String TAG = "Timer";
 			++timerCountDown;
-			Log.v( "Main2Activity", "Timer running; countdown=" + timerCountDown );
-			long freeMemory = Runtime.getRuntime().freeMemory();
-			if(freeMemory < 1024 * 1024){
-				Log.v( "Timer", "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes" );
-				Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show();
+			Log.v( TAG, "Timer running. Countdown = " + timerCountDown + ". " + ((double) timerCountDown / 10) + " seconds passed." );
+			Runtime runtime = Runtime.getRuntime();
+			runtime.gc();
+			double freeMemory = (double) runtime.freeMemory();
+			double d = runtime.totalMemory() * 0.05;
+			Log.v( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
+			if(freeMemory < d){
+				Log.v( "Timer", "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
 				destroyThread();
+				runOnUiThread( new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show();
+					}
+				} );
 			}
 			if(timerCountDown == 20){
-				if(!mCoreThread.isAlive()){
-					Log.v( "Timer", "Something gone wrong. Thread is not alive. Killing timer" );
+				if(!mCoreThread.isAlive() || mCoreThread.isInterrupted()){
+					Log.v( TAG, "Something gone wrong. Thread is not alive. Killing timer" );
 					killCoreTimer();
 				}
 				else if(!progressDialogShown){
@@ -1222,19 +1237,20 @@ public class Main2Activity extends AppCompatActivity {
 					} );
 				}
 			}else if(timerCountDown > 20){
-				if(timerCountDown < 100){
-					if(!mCoreThread.isAlive()){
-						Log.v("Timer", "cancel progress dialog");
+				if(timerCountDown < 80){
+					if(!mCoreThread.isAlive() || mCoreThread.isInterrupted()){
+						Log.v(TAG, "cancel progress dialog");
 						runOnUiThread( new Runnable() {
 							@Override
 							public void run() {
 								mProgressDialog.cancel();
 							}
 						} );
+						killCoreTimer();
 					}
 				}else{
 					if(mCoreThread.isAlive()){
-						Log.v("Timer", "Time to kill process");
+						Log.v(TAG, "Time to kill process");
 						runOnUiThread( new Runnable() {
 							@Override
 							public void run() {
@@ -1243,6 +1259,7 @@ public class Main2Activity extends AppCompatActivity {
 							}
 						} );
 					}
+					killCoreTimer();
 				}
 			}
 		}
