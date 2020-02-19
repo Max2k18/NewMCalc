@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.utils.Math;
