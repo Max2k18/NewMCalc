@@ -9,19 +9,17 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Utils;
+import com.maxsavteam.newmcalc2.utils.Math;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-
-import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * @author Max Savitsky
@@ -31,7 +29,7 @@ public final class CalculationCore{
 
 	private Resources mResources;
 	private String invalidArgument, valueIsTooBig, divisionByZero;
-	private Context c;
+	private Context mContext;
 	private final String TAG = "Core";
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
@@ -49,7 +47,7 @@ public final class CalculationCore{
 
 	private void initialize(Context context){
 		this.mResources = context.getApplicationContext().getResources();
-		this.c = context;
+		this.mContext = context;
 		mRoundScale = PreferenceManager.getDefaultSharedPreferences( context.getApplicationContext() ).getInt( "rounding_scale", 8 );
 		invalidArgument = mResources.getString( R.string.invalid_argument );
 		valueIsTooBig = mResources.getString( R.string.value_is_too_big );
@@ -59,6 +57,8 @@ public final class CalculationCore{
 		bracketFloorClose = mResources.getString( R.string.bracket_floor_close );
 		bracketCeilOpen = mResources.getString( R.string.bracket_ceil_open );
 		bracketCeilClose = mResources.getString( R.string.bracket_ceil_close );
+
+		Math.setRoundScale( mRoundScale );
 	}
 
 	private boolean isOpenBracket(String str){
@@ -112,20 +112,13 @@ public final class CalculationCore{
 
 	private void onError(CalculationError calculationError) {
 		coreLinkBridge.onError( calculationError );
+		throw new CoreInterruptedError();
 		//currentThread().interrupt();
 	}
 
-	private BigDecimal rootWithBase(BigDecimal a, BigDecimal n){
-		Log.v( TAG, "rootBase called with a=" + a.toPlainString() + " n=" + n.toPlainString() );
-
-		BigDecimal log = BigDecimalMath.log(a, new MathContext(20));
-		BigDecimal dLog = log.divide(n, 20, RoundingMode.HALF_EVEN);
-		return BigDecimalMath.exp(dLog, new MathContext(8));
-	}
-
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
-	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
 
+	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
 	 *
@@ -226,68 +219,27 @@ public final class CalculationCore{
 		calculate( example, type );
 	}
 
-	private static class CoreSubProcess implements CoreLinkBridge {
-		private BigDecimal res;
-		private Context mContext;
-
-		private String TAG = "CoreSubProcess";
-
-		private CalculationError getError() {
-			return error;
-		}
-
-		private boolean isWasError() {
-			return mWasError;
-		}
-
-		private CalculationError error;
-		private boolean mWasError = false;
-
-		public BigDecimal getRes() {
-			return res;
-		}
-
-		@Override
-		public void onSuccess(CalculationResult calculationResult) {
-			res = calculationResult.getResult();
-		}
-
-		@Override
-		public void onError(CalculationError error) {
-			mWasError = true;
-			this.error = error;
-			if(error.getStatus().equals("Core")) {
-				if (error.getErrorMessage().contains("String is number")) {
-					res = error.getPossibleResult();
-				}
-			}
-		}
-
-		private void run(String ex) {
-			CalculationCore calculationCore = new CalculationCore(mContext);
-			calculationCore.setInterface(this);
-
-			Log.v( TAG, "run with ex=" + ex );
-			calculationCore.prepareAndRun(ex, "isolated");
-		}
-
-		CoreSubProcess(Context context){
-			this.mContext = context;
-			Log.v( TAG, "constructor" );
-		}
-	}
-
 	private static class MovedExample{
+
 		String subExample;
 		int newPos;
-
 		MovedExample(String subExample, int newPos){
 			this.subExample = subExample;
 			this.newPos = newPos;
 		}
+
+	}
+
+	private BigDecimal rootWithBase(BigDecimal a, BigDecimal n){
+		Log.v( TAG, "rootBase called with a=" + a.toPlainString() + " n=" + n.toPlainString() );
+
+		BigDecimal log = Math.ln( a );
+		BigDecimal dLog = log.divide(n, 10, RoundingMode.HALF_EVEN);
+		return Math.exp( dLog );
 	}
 
 	private BigDecimal pow(BigDecimal a, BigDecimal n){
+		Log.v( TAG, "pow called with a=" + a.toPlainString() + " n=" + n.toPlainString() );
 		if(n.compareTo( BigDecimal.ZERO ) < 0){
 			BigDecimal result = sysPow( a, n.multiply( BigDecimal.valueOf( -1 ) ) );
 			String strRes = BigDecimal.ONE.divide( result, 8, RoundingMode.HALF_EVEN ).toPlainString();
@@ -303,11 +255,11 @@ public final class CalculationCore{
 			//throw new RuntimeException( "Stopped because thread waa interrupted" );
 			throw new CoreInterruptedError();
 		}
-		Log.v("Utils", "sysPow called with a=" + a.toPlainString() + " and n=" + n.toPlainString());
+		Log.v(TAG, "sysPow called with a=" + a.toPlainString() + " and n=" + n.toPlainString());
 		if(n.compareTo( BigDecimal.ZERO ) == 0){
 			return BigDecimal.ONE;
 		}
-		Log.v("Utils", "remainder=" + Utils.getRemainder( n, BigDecimal.valueOf( 2 ) ).toPlainString());
+		Log.v(TAG, "remainder=" + Utils.getRemainder( n, BigDecimal.valueOf( 2 ) ).toPlainString());
 		if(Utils.getRemainder( n, BigDecimal.valueOf( 2 ) ).compareTo( BigDecimal.ONE ) == 0){
 			return sysPow( a, n.subtract( BigDecimal.ONE ) ).multiply( a );
 		}else{
@@ -355,19 +307,18 @@ public final class CalculationCore{
 					MovedExample movedExample = getSubExampleFromBrackets( example, i );
 					String subExample = movedExample.subExample;
 					i = movedExample.newPos;
-					CoreSubProcess coreSubProcess = new CoreSubProcess( c );
-					coreSubProcess.run( subExample );
+					CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
 					BigDecimal result;
-					if( coreSubProcess.isWasError()){
-						if( coreSubProcess.getError().getErrorMessage().contains( "String is number" )){
-							result = coreSubProcess.getRes();
-						}else{
+					if(Utils.isNumber( subExample )){
+						result = new BigDecimal( subExample );
+					}else {
+						coreSubProcess.run( subExample );
+						result = coreSubProcess.getRes();
+						if(result == null){
 							mWasError = true;
 							onError( coreSubProcess.getError() );
 							return;
 						}
-					}else{
-						result = coreSubProcess.getRes();
 					}
 
 					String bracketType = getTypeOfBracket( s );
@@ -414,9 +365,9 @@ public final class CalculationCore{
 					case "F": {
 						BigDecimal f;
 						if ( s.equals( "P" ) )
-							f = new BigDecimal( Math.PI );
+							f = Math.PI;
 						else
-							f = new BigDecimal( "1.618" );
+							f = Math.FI;
 						s1.push( f );
 						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
 							in_s0( '*' );
@@ -464,7 +415,7 @@ public final class CalculationCore{
 										return;
 									} else {
 										s1.pop();
-										s1.push( Utils.fact( y ) );
+										s1.push( Math.fact( y ) );
 									}
 								}
 								if ( i != len - 1 ) {
@@ -516,7 +467,7 @@ public final class CalculationCore{
 								}
 								x1 = s1.peek().toPlainString() + x1;
 								s1.pop();
-								CoreSubProcess coreSubProcess = new CoreSubProcess( c );
+								CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
 								coreSubProcess.run( x1 );
 								if ( coreSubProcess.isWasError() && !coreSubProcess.getError().getErrorMessage().contains( "String is number" ) ) {
 									mWasError = true;
@@ -568,7 +519,7 @@ public final class CalculationCore{
 						}
 						break;
 					case "e": {
-						BigDecimal f = new BigDecimal( Math.E );
+						BigDecimal f = Math.E;
 						s1.push( f );
 						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
 							in_s0( '*' );
@@ -660,12 +611,29 @@ public final class CalculationCore{
 					if ((i == 0 && example.charAt(i) == '-') || (example.charAt(i) == '-' && example.charAt(i - 1) == '(')) {
 						x = "";
 						i++;
-						while (i < example.length() && (example.charAt(i) == '.' || Utils.isDigit(example.charAt(i)) ) ) {
-							x = String.format("%s%c", x, example.charAt(i));
-							i++;
+						if(Utils.isDigit( example.charAt( i ) )) {
+							while ( i < example.length() && ( example.charAt( i ) == '.' || Utils.isDigit( example.charAt( i ) ) ) ) {
+								x = String.format( "%s%c", x, example.charAt( i ) );
+								i++;
+							}
+							i--;
+							s1.push( new BigDecimal( x ).multiply( BigDecimal.valueOf( -1 ) ) );
+						}else if(example.charAt( i ) == '('){
+							MovedExample movedExample = getSubExampleFromBrackets( example, i );
+							String sub = movedExample.subExample;
+							i = movedExample.newPos;
+							CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
+							coreSubProcess.run( sub );
+							BigDecimal res = coreSubProcess.getRes();
+							if(coreSubProcess.isWasError()){
+								if(res == null){
+									mWasError = true;
+									onError( coreSubProcess.getError() );
+									return;
+								}
+							}
+							s1.push( res.multiply( new BigDecimal( "-1" ) ) );
 						}
-						i--;
-						s1.push(new BigDecimal(x).multiply(BigDecimal.valueOf(-1)));
 						continue;
 					}
 
@@ -713,35 +681,30 @@ public final class CalculationCore{
 				double d = s1.peek().doubleValue();
 				BigDecimal operand = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
-				if (x.equals("log") && d <= 0) {
-					mWasError = true;
-					onError( new CalculationError().setErrorMessage( "You cannot find the logarithm of a zero or a negative number." ).setShortError( invalidArgument ) );
-					return;
-				}
 				s1.pop();
 				//d = Math.toRadians(d);
 				int roundScale = mRoundScale;
 				switch (x) {
 					case "cos": {
 						//ans = BigDecimal.valueOf(Math.cos(Math.toRadians(d)));
-						ans = BigDecimalMath.cos(Utils.toRadians(operand), new MathContext(6));
+						ans = Math.cos( operand );
 						roundScale = 7;
 						Log.v( TAG, "cos of " + operand.toPlainString() + " = " + ans.toPlainString() );
 						break;
 					}
 					case "sin": {
-						ans = BigDecimalMath.sin(Utils.toRadians(operand), new MathContext(6));
+						ans = Math.sin( operand );
 						roundScale = 7;
 						break;
 					}
 					case "tan": {
-						roundScale = 7;
 						if(operand.equals( BigDecimal.valueOf( 90 ) )){
 							mWasError = true;
 							onError( new CalculationError().setShortError( "Impossible to find tan of 90" ) );
 							return;
 						}
-						ans = BigDecimalMath.tan(Utils.toRadians(operand), new MathContext(6));
+						roundScale = 7;
+						ans = Math.tan( operand );
 						break;
 					}
 					case "log": {
@@ -751,15 +714,11 @@ public final class CalculationCore{
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
-						ans = BigDecimalMath.log10(operand, new MathContext(9));
+						ans = Math.log( operand );
 						break;
 					}
 					case "abs":
-						if(operand.signum() < 0){
-							ans = operand.multiply( BigDecimal.valueOf( -1 ) );
-						}else{
-							ans = operand;
-						}
+						ans = Math.abs( operand );
 						break;
 					case "ln": {
 						if (operand.signum() <= 0) {
@@ -768,7 +727,7 @@ public final class CalculationCore{
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
-						ans = BigDecimalMath.log(operand, new MathContext(9));
+						ans = Math.ln( operand );
 						break;
 					}
 					case "R":
@@ -816,39 +775,30 @@ public final class CalculationCore{
 							mWasError = true;
 							onError( new CalculationError().setShortError( valueIsTooBig ) );
 							return;
-						} else if(b.signum() == 0 && a.signum() == 0){
-							mWasError = true;
-							onError( new CalculationError().setShortError( "Raising zero to zero degree." ) );
-							return;
-						}
-						try {
-							String power = b.toPlainString();
-							power = Utils.deleteZeros( power );
-							if ( power.contains( "." ) ) {
-								Fraction fraction = new Fraction( power );
-								//a = BigDecimalMath.pow(a, fraction.getNumerator(), new MathContext(10));
-								a = pow( a, fraction.getNumerator() );
-								ans = rootWithBase( a, fraction.getDenominator() );
-							} else {
-								ans = pow( a, b );
+						} else if(a.signum() == 0){
+							if(b.signum() < 0) {
+								mWasError = true;
+								onError( new CalculationError().setShortError( "Not a number" ) );
+							}else if(b.signum() == 0){
+								mWasError = true;
+								onError( new CalculationError().setShortError( "Undefined" ) );
+							}else{
+								ans = BigDecimal.ZERO;
 							}
+						}else {
+							ans = Math.pow( a, b );
 							Log.v( TAG, "pow answer returned ans=" + ans );
-						}catch (RuntimeException e){
-							mWasError = true;
-							return;
 						}
 						break;
 				}
+				if(ans.scale() > 20)
+					ans = ans.setScale( 20, RoundingMode.HALF_EVEN );
 				String answer = ans.toPlainString();
 				ans = new BigDecimal(Utils.deleteZeros(answer));
 				s1.push(ans);
 			} catch (ArithmeticException e) {
 				String str = e.toString();
-				if (str.contains("Non-terminating decimal expansion; no exact representable decimal result")) {
-					ans = a.divide(b, mRoundScale, RoundingMode.HALF_EVEN);
-					ans = new BigDecimal(Utils.deleteZeros(ans.toPlainString()));
-					s1.push(ans);
-				}else if(str.contains("Infinity or Nan")){
+				if(str.contains("Infinity or Nan")){
 					mWasError = true;
 					onError( new CalculationError().setErrorMessage( e.toString() ).setShortError( valueIsTooBig ) );
 				} else {

@@ -770,7 +770,7 @@ public class Main2Activity extends AppCompatActivity {
 			if (DarkMode) {
 				setTheme(android.R.style.Theme_Material_NoActionBar);
 			} else {
-				setTheme(R.style.AppThemeMainActivity);
+				setTheme(R.style.AppTheme_MainActivity);
 			}
 			setContentView(R.layout.activity_main2);
 			Toolbar toolbar = findViewById(R.id.toolbar);
@@ -1144,7 +1144,7 @@ public class Main2Activity extends AppCompatActivity {
 				try {
 					mCalculationCore.prepareAndRun( finalExample, type );
 				}catch (CoreInterruptedError e){
-					//
+					// stop thread
 				}
 			}
 		} );
@@ -1237,7 +1237,7 @@ public class Main2Activity extends AppCompatActivity {
 					} );
 				}
 			}else if(timerCountDown > 20){
-				if(timerCountDown < 80){
+				if(timerCountDown < 90){
 					if(!mCoreThread.isAlive() || mCoreThread.isInterrupted()){
 						Log.v(TAG, "cancel progress dialog");
 						runOnUiThread( new Runnable() {

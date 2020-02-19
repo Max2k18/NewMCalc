@@ -6,13 +6,11 @@
         <item name="colorPrimary">#fff</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="textColorM">@color/black</item>
     </style>
 
-    <style name="AppThemeMainActivity" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme.MainActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#fff</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
         <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle</item>
     </style>
 

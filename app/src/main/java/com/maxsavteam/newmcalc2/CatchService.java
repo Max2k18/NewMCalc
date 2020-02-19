@@ -307,10 +307,6 @@ public class CatchService extends AppCompatActivity {
 			}
 		}else if(action.equals("somethingWentWrong")){
 			DarkMode = sp.getBoolean("dark_mode", false);
-			if (DarkMode)
-				setTheme(android.R.style.Theme_Material_NoActionBar);
-			else
-				setTheme(R.style.AppThemeMainActivity);
 			setContentView(R.layout.smth_went_wrong);
 			somethingWentWrong = true;
 			Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
