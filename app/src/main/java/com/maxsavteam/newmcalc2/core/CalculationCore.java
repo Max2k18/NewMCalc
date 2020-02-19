@@ -624,15 +624,19 @@ public final class CalculationCore{
 							i = movedExample.newPos;
 							CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
 							coreSubProcess.run( sub );
-							BigDecimal res = coreSubProcess.getRes();
-							if(coreSubProcess.isWasError()){
-								if(res == null){
+							BigDecimal result;
+							if(Utils.isNumber( sub )){
+								result = new BigDecimal( sub );
+							}else {
+								coreSubProcess.run( sub );
+								result = coreSubProcess.getRes();
+								if(result == null){
 									mWasError = true;
 									onError( coreSubProcess.getError() );
 									return;
 								}
 							}
-							s1.push( res.multiply( new BigDecimal( "-1" ) ) );
+							s1.push( result.multiply( new BigDecimal( "-1" ) ) );
 						}
 						continue;
 					}
