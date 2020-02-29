@@ -312,7 +312,7 @@ public final class CalculationCore{
 						result = new BigDecimal( subExample );
 					}else {
 						coreSubProcess.run( subExample );
-						result = coreSubProcess.getRes();
+						result = coreSubProcess.getResult();
 						if(result == null){
 							mWasError = true;
 							onError( coreSubProcess.getError() );
@@ -444,77 +444,72 @@ public final class CalculationCore{
 							}
 							continue;
 						} else if ( !s0.empty() && Utils.isBasicAction( s0.peek() ) ) {
-							try {
-
-								i++;
-								String x1 = "";
-								int brackets = 0;
-								while ( i < example.length() ) {
-									if ( brackets == 0 && ( example.charAt( i ) == '-' || example.charAt( i ) == '+' ) ) {
-										break;
-									}
-									if ( brackets == 0 && isCloseBracket( example.charAt( i ) ) )
-										break;
-
-									if ( isOpenBracket( example.charAt( i ) ) )
-										brackets++;
-									else if ( isCloseBracket( example.charAt( i ) ) )
-										brackets--;
-
-									x1 = String.format( "%s%c", x1, example.charAt( i ) );
-									i++;
+							i++;
+							String x1 = "";
+							int brackets = 0;
+							while ( i < example.length() ) {
+								if ( brackets == 0 && ( example.charAt( i ) == '-' || example.charAt( i ) == '+' ) ) {
+									break;
 								}
-								x1 = s1.peek().toPlainString() + x1;
-								s1.pop();
-								CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
+								if ( brackets == 0 && isCloseBracket( example.charAt( i ) ) )
+									break;
+
+								if ( isOpenBracket( example.charAt( i ) ) )
+									brackets++;
+								else if ( isCloseBracket( example.charAt( i ) ) )
+									brackets--;
+
+								x1 = String.format( "%s%c", x1, example.charAt( i ) );
+								i++;
+							}
+							x1 = s1.peek().toPlainString() + x1;
+							s1.pop();
+							CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
+							BigDecimal top;
+							if(Utils.isNumber( x1 )) {
+								top = new BigDecimal( x1 );
+							} else {
 								coreSubProcess.run( x1 );
-								if ( coreSubProcess.isWasError() && !coreSubProcess.getError().getErrorMessage().contains( "String is number" ) ) {
+								top = coreSubProcess.getResult();
+								if(top == null){
 									mWasError = true;
 									onError( coreSubProcess.getError() );
 									return;
-								} else {
-									BigDecimal top;
-									top = coreSubProcess.getRes();
-									top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
-									top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
-									//s1.push(top);
-									BigDecimal finalResult = s1.peek(), percent;
-									s1.pop();
-									percent = finalResult.multiply( top );
-									if ( !s0.empty() ) {
-										String action = s0.peek();
-										s0.pop();
-
-										if ( Utils.isBasicAction( action ) ) {
-											switch ( action ) {
-												case "+":
-													finalResult = finalResult.add( percent );
-													break;
-												case "-":
-													finalResult = finalResult.subtract( percent );
-													break;
-												case "*":
-													finalResult = finalResult.multiply( percent );
-													break;
-												case "/":
-													finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
-													finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
-													break;
-											}
-											finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
-											s1.push( finalResult );
-										}
-									}
-
 								}
-								i--;
-								continue;
-							} catch (Exception e) {
-								e.printStackTrace();
-								mWasError = true;
-								onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
-								return;
 							}
+
+							top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
+							top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
+							//s1.push(top);
+							BigDecimal finalResult = s1.peek(), percent;
+							s1.pop();
+							percent = finalResult.multiply( top );
+							if ( !s0.empty() ) {
+								String action = s0.peek();
+								s0.pop();
+
+								if ( Utils.isBasicAction( action ) ) {
+									switch ( action ) {
+										case "+":
+											finalResult = finalResult.add( percent );
+											break;
+										case "-":
+											finalResult = finalResult.subtract( percent );
+											break;
+										case "*":
+											finalResult = finalResult.multiply( percent );
+											break;
+										case "/":
+											finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
+											finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+											break;
+									}
+									finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+									s1.push( finalResult );
+								}
+							}
+							i--;
+							continue;
 						}
 						break;
 					case "e": {
@@ -628,7 +623,7 @@ public final class CalculationCore{
 								result = new BigDecimal( sub );
 							}else {
 								coreSubProcess.run( sub );
-								result = coreSubProcess.getRes();
+								result = coreSubProcess.getResult();
 								if(result == null){
 									mWasError = true;
 									onError( coreSubProcess.getError() );

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public class CoreSubProcess {
 
-	private BigDecimal res = null;
+	private BigDecimal mResult = null;
 	private Context mContext;
 	private String TAG = "CoreSubProcess";
 
@@ -22,24 +22,24 @@ public class CoreSubProcess {
 	private CalculationError error;
 
 	private boolean mWasError = false;
-	public BigDecimal getRes() {
-		return res;
+	public BigDecimal getResult() {
+		return mResult;
 	}
 
 	CalculationCore.CoreLinkBridge mCoreLinkBridge = new CalculationCore.CoreLinkBridge() {
 		@Override
 		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
-			res = calculationResult.getResult();
+			mResult = calculationResult.getResult();
 		}
 
 		@Override
 		public void onError(CalculationError error) {
 			mWasError = true;
 			CoreSubProcess.this.error = error;
-			res = null;
+			mResult = null;
 			if(error.getStatus().equals("Core")) {
 				if (error.getErrorMessage().contains("String is number")) {
-					res = error.getPossibleResult();
+					mResult = error.getPossibleResult();
 				}
 			}
 		}
