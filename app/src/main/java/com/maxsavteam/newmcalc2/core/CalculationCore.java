@@ -784,8 +784,9 @@ public final class CalculationCore{
 								ans = BigDecimal.ZERO;
 							}
 						}else {
-							ans = Math.pow( a, b );
-							Log.v( TAG, "pow answer returned ans=" + ans );
+							//ans = Math.pow( a, b );
+							ans = pow(a, b);
+							Log.v( TAG, "pow answer returned; ans=" + ans );
 						}
 						break;
 				}

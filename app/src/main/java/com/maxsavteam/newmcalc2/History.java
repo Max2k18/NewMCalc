@@ -136,7 +136,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             animate_hide();
         }
     }
-    final int SECONDS_BEFORE_DELETE = 5;
+    private final int SECONDS_BEFORE_DELETE = 5;
 
     @SuppressLint("DefaultLocale")
     private void setupTimer(){
