@@ -17,9 +17,10 @@
         android:maxAspectRatio="2.1"
         android:roundIcon="@drawable/newmcalc"
         android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">
-        <activity android:name=".ThemeActivity"></activity>
+        <activity android:name=".ThemeActivity" />
         <activity
             android:name=".ErrorHandlerActivity"
             android:process=":report_process" />

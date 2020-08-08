@@ -878,7 +878,6 @@ public final class CalculationCore{
 		private String mType = null;
 		private BigDecimal mResult = null;
 
-		@javax.annotation.Nullable
 		public final String getType() {
 			return mType;
 		}
@@ -888,7 +887,6 @@ public final class CalculationCore{
 			return this;
 		}
 
-		@javax.annotation.Nullable
 		public final BigDecimal getResult() {
 			return mResult;
 		}

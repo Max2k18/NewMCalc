@@ -6,8 +6,8 @@ import java.text.SimpleDateFormat
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'io.fabric'
-apply plugin: 'androidx.navigation.safeargs'
+apply plugin: 'com.google.firebase.crashlytics'
+
 
 android {
 
@@ -23,7 +23,7 @@ android {
             keyPassword "${props['keyPassword']}"
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion 30
     String apptype = "mid"
 
     def versionPropsFile = file('version.properties')
@@ -42,10 +42,10 @@ android {
             applicationId "com.maxsavteam.newmcalc2"
             minSdkVersion 22
             //noinspection OldTargetApi
-            targetSdkVersion 29
+            targetSdkVersion 30
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.13.4"
+            versionName "1.13.5"
             multiDexEnabled true
             buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
@@ -94,7 +94,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    buildToolsVersion '29.0.2'
+    buildToolsVersion '30.0.0'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -118,25 +118,22 @@ dependencies {
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.0.0'
     implementation 'ch.obermuhlner:big-math:2.3.0'
 
-    implementation 'com.google.firebase:firebase-core:17.3.0'
-    implementation 'com.google.firebase:firebase-perf:19.0.5'
-    implementation 'com.google.firebase:firebase-crash:16.2.1'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
-    implementation 'com.google.firebase:firebase-inappmessaging-display:19.0.4'
-    implementation 'com.google.firebase:firebase-analytics:17.3.0'
+    implementation 'com.google.firebase:firebase-core:17.4.4'
+    implementation 'com.google.firebase:firebase-perf:19.0.8'
+    implementation 'com.google.firebase:firebase-analytics:17.4.4'
+    implementation 'com.google.firebase:firebase-crashlytics:17.1.1'
 
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core:1.2.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core:1.3.1'
 
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.navigation:navigation-fragment:2.2.1'
-    implementation 'androidx.navigation:navigation-ui:2.2.1'
+    implementation 'androidx.navigation:navigation-fragment:2.3.0'
+    implementation 'androidx.navigation:navigation-ui:2.3.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
     implementation 'org.jetbrains:annotations:15.0'
-    implementation files('d:/Downloads/commons-net-3.6-bin/commons-net-3.6/commons-net-3.6.jar')
+
 }

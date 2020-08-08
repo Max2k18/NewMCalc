@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -128,6 +129,15 @@ public class Settings extends AppCompatActivity {
 				return true;
 			}
 		});
+
+		sw = findViewById( R.id.switchKeepScreenOn );
+		sw.setChecked( sp.getBoolean( "keep_screen_on", false ) );
+		sw.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+				sp.edit().putBoolean( "keep_screen_on", b ).apply();
+			}
+		} );
 
 		TextView scale = findViewById( R.id.textViewScale );
 		scale.setText( String.format( Locale.ROOT, "%d", sp.getInt( "rounding_scale", 8 ) ) );

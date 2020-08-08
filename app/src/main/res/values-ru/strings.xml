@@ -113,4 +113,5 @@
     <string name="show_in_full">Показать полностью.</string>
     <string name="calc_accuracy">Точность вычислений(количество знаков после запятой)</string>
     <string name="thread_destroy_reason">Подсчёт был прекращён из-за нехватки оперативной памяти устройства.</string>
+    <string name="keep_screen_on">Оставить экран включённым</string>
 </resources>

@@ -57,7 +57,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
@@ -88,7 +87,6 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.fabric.sdk.android.services.common.Crash;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class Main2Activity extends AppCompatActivity {
@@ -145,7 +143,7 @@ public class Main2Activity extends AppCompatActivity {
 		}
 	}
 
-	View.OnLongClickListener on_var_long_click = v -> {
+	View.OnLongClickListener mOnVariableLongClick = v -> {
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
 		Intent in = new Intent();
@@ -607,6 +605,7 @@ public class Main2Activity extends AppCompatActivity {
 	protected void onPause() {
 		if(!isOtherActivityOpened)
 			unregisterAllBroadcasts();
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		super.onPause();
 	}
 
@@ -615,6 +614,9 @@ public class Main2Activity extends AppCompatActivity {
 		isOtherActivityOpened = false;
 		if(!isBroadcastsRegistered){
 			registerBroadcastReceivers();
+		}
+		if(sp.getBoolean( "keep_screen_on", false )){
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 		super.onResume();
 	}
@@ -626,29 +628,7 @@ public class Main2Activity extends AppCompatActivity {
 		super.onStop();
 	}
 
-	@Override
-	protected void onNightModeChanged(int mode) {
-		if(AppCompatDelegate.MODE_NIGHT_YES == mode && !sp.getBoolean("force_enable_white",false)){
-			sp.edit().putBoolean("dark_mode", true).apply();
-			restartActivity();
-		}else if(AppCompatDelegate.MODE_NIGHT_NO == mode && !sp.getBoolean("force_enable_dark", false)){
-			sp.edit().putBoolean("dark_mode", false).apply();
-			restartActivity();
-		}
-		super.onNightModeChanged(mode);
-	}
-
 	private void registerBroadcastReceivers(){
-		/*BroadcastReceiver on_memory_edited = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				memoryEntries = mMemorySaverReader.read();
-			}
-		};
-		registerReceiver(on_memory_edited,
-				new IntentFilter(BuildConfig.APPLICATION_ID + ".MEMORY_EDITED"));
-		registeredBroadcasts.add(on_memory_edited);*/
-
 		BroadcastReceiver on_var_edited = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -658,16 +638,6 @@ public class Main2Activity extends AppCompatActivity {
 		registerReceiver(on_var_edited,
 				new IntentFilter(BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED"));
 		registeredBroadcasts.add(on_var_edited);
-
-		/*BroadcastReceiver on_recall_mem = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				addStringExampleToTheExampleStr(intent.getStringExtra("value"));
-			}
-		};
-		registerReceiver(on_recall_mem,
-				new IntentFilter(BuildConfig.APPLICATION_ID + ".RECALL_MEM"));
-		registeredBroadcasts.add(on_recall_mem);*/
 
 		isBroadcastsRegistered = true;
 	}
@@ -882,7 +852,7 @@ public class Main2Activity extends AppCompatActivity {
 							.setLongClickListeners(
 									new View.OnLongClickListener[]{
 											memory_actions,
-											on_var_long_click
+											mOnVariableLongClick
 									}
 							);
 			MyFragmentPagerAdapter.InitializationObject initializationObject =
