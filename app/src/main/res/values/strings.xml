@@ -152,4 +152,5 @@
     <string name="calc_accuracy">Calculation accuracy (number of decimal places)</string>
     <string name="thread_destroy_reason">Counting was stopped due to lack of RAM device.</string>
     <string name="keep_screen_on">Keep screen on</string>
+    <string name="number_generator">Number generator</string>
 </resources>
