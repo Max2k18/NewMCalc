@@ -22,9 +22,6 @@
         tools:targetApi="o">
         <activity android:name=".ThemeActivity" />
         <activity
-            android:name=".ErrorHandlerActivity"
-            android:process=":report_process" />
-        <activity
             android:name=".Main2Activity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
