@@ -6,15 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".ui.NumberSystemConverterActivity">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:theme="?actionBarStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:popupTheme="@style/PopupTheme"
+        app:title="@string/number_system_converter" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <TextView
             android:id="@+id/lblChooseSys"
@@ -23,7 +37,6 @@
             android:gravity="center"
             android:padding="10dp"
             android:text="@string/chooseSysLabel"
-            android:textColor="@color/black"
             android:textSize="24sp" />
 
         <LinearLayout
@@ -36,6 +49,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_marginEnd="25dp"
                 android:layout_weight="0.45"
                 android:orientation="vertical">
 
@@ -45,7 +59,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/chooseFromSys"
-                    android:textColor="@color/black"
                     android:textSize="20sp" />
 
                 <Spinner
@@ -62,14 +75,10 @@
                     android:ems="10"
                     android:gravity="center"
                     android:inputType="text"
+                    android:textColor="?textColor"
                     android:textSize="20sp" />
 
             </LinearLayout>
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.1" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -83,7 +92,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="@string/chooseToSys"
-                    android:textColor="@color/black"
                     android:textSize="20sp" />
 
                 <Spinner
@@ -102,23 +110,12 @@
                     android:ems="10"
                     android:gravity="center"
                     android:inputType="none"
+                    android:textColor="?textColor"
                     android:textSize="20sp" />
 
             </LinearLayout>
 
         </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/btnImgCopyNum"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="10dp"
-            android:background="@color/white"
-            android:backgroundTint="@android:color/transparent"
-            android:onClick="copy"
-            android:scaleType="centerInside"
-            android:src="@drawable/copy"
-            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

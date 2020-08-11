@@ -93,7 +93,7 @@
     <string name="chooseToSys">in</string>
     <string name="chooseSysLabel">Wählen Sie Zahlensysteme aus, um die Zahl zu konvertieren</string>
     <string name="CompileDateLbl">Zusammengestellt:</string>
-    <string name="number_system_convrter">Zahlensystemkonverter</string>
+    <string name="number_system_converter">Zahlensystemkonverter</string>
     <string name="thank_you">Danke schön</string>
     <string name="we_will_wait">Ok, wir werden warten</string>
     <string name="please_rate_out_app">Bitte bewerten Sie unsere App</string>

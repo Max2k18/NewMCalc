@@ -75,7 +75,7 @@
     <string name="chooseSysLabel">Выберите системы счисления для преобразования числа</string>
     <string name="chooseToSys">в</string>
     <string name="chooseFromSys">из</string>
-    <string name="number_system_convrter">Конвертер систем счисления</string>
+    <string name="number_system_converter">Конвертер систем счисления</string>
     <string name="thank_you">Спасибо!</string>
     <string name="we_will_wait">Хорошо, мы подождём</string>
     <string name="please_rate_out_app">Пожалуйста, оцените приложение</string>

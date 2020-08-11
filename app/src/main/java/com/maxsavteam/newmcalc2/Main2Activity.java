@@ -386,8 +386,8 @@ public class Main2Activity extends ThemeActivity {
 					.build();
 			t.putExtra( "to_", "bin" );
 			ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder( getApplicationContext(), "idNumSys" )
-					.setLongLabel( getResources().getString( R.string.number_system_convrter ) )
-					.setShortLabel( getResources().getString( R.string.number_system_convrter ) )
+					.setLongLabel( getResources().getString( R.string.number_system_converter ) )
+					.setShortLabel( getResources().getString( R.string.number_system_converter ) )
 					.setIcon( Icon.createWithResource( this, R.drawable.binary ) )
 					.setIntent( t )
 					.build();
