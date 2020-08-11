@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -36,32 +37,16 @@ import java.util.Objects;
 
 import static com.maxsavteam.newmcalc2.R.color.white;
 
-public class CatchService extends AppCompatActivity {
+public class CatchService extends ThemeActivity {
 
 	private boolean somethingWentWrong = false;
 
 	@Override
 	public void onBackPressed(){
 		if(!somethingWentWrong) {
-			finish();
-			overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+			super.onBackPressed();
+			Utils.defaultActivityAnim( this );
 		}
-	}
-
-	public void social(View v){
-		Intent in = new Intent(Intent.ACTION_VIEW);
-		String dynamic_vk = "https://maxsavteam.page.link/VK";
-		String dynamic_inst = "https://maxsavteam.page.link/Instagram";
-		if ( v.getId() == R.id.vkBtn ) {
-			in.setData( Uri.parse( dynamic_vk ) );
-		} else if ( v.getId() == R.id.instBtn ) {
-			in.setData( Uri.parse( dynamic_inst ) );
-		} else if ( v.getId() == R.id.siteBtn ) {
-			in.setData( Uri.parse( "http://m.maxsav.team" ) );
-		} else if ( v.getId() == R.id.playMarketBtn ) {
-			in.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
-		}
-		startActivity( in );
 	}
 
 	private void finishAct() {
@@ -78,31 +63,6 @@ public class CatchService extends AppCompatActivity {
 		}
 		return super.onOptionsItemSelected( item );
 	}
-
-	private boolean DarkMode;
-
-	private void applyActionbar() {
-		ActionBar appActionBar = getSupportActionBar();
-		if ( DarkMode ) {
-			Objects.requireNonNull( appActionBar ).setHomeAsUpIndicator( R.drawable.ic_arrow_back_white_32dp );
-			appActionBar.setBackgroundDrawable( getDrawable( R.drawable.black ) );
-			getWindow().setNavigationBarColor( Color.BLACK );
-		} else {
-			getWindow().setNavigationBarColor( Color.WHITE );
-			Objects.requireNonNull( appActionBar ).setHomeAsUpIndicator( R.drawable.ic_arrow_back_black_32dp );
-			appActionBar.setBackgroundDrawable( getDrawable( R.drawable.white ) );
-		}
-	}
-
-	private final String debugInfoStr = "Android Version: " + Build.VERSION.RELEASE + "\n" +
-			"Android SDK: " + Build.VERSION.SDK_INT + "\n\n" +
-			BuildConfig.APPLICATION_ID + "\n" +
-			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
-			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
-			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
-			"App type: " + BuildConfig.APPTYPE + "\n" +
-			"Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
-			"Core version: " + BuildConfig.CoreVersion;
 
 	private EditText value, name;
 	private int tag;
@@ -159,94 +119,16 @@ public class CatchService extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		DarkMode = sp.getBoolean("dark_mode", false);
-		if(DarkMode)
-			setTheme(android.R.style.Theme_Material_NoActionBar);
-		else
-			setTheme(R.style.AppTheme);
+		boolean darkMode = sp.getBoolean( "dark_mode", false );
 		super.onCreate(savedInstanceState);
 		//sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Intent in = getIntent();
 		String action = in.getStringExtra( "action" );
-		try {
-			Objects.requireNonNull( getSupportActionBar() ).setDisplayHomeAsUpEnabled( true );
-			getSupportActionBar().setTitle( "" );
-			getSupportActionBar().setElevation( 0 );
-			setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
-		} catch (Exception e) {
-			Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
-
-		}
-		applyActionbar();
 		if ( action == null ) {
 			finish();
 			return;
 		}
-		if ( action.equals( "about_app" ) ) {
-			setContentView( R.layout.about_activity );
-			( (TextView) findViewById( R.id.version ) ).setText( BuildConfig.VERSION_NAME );
-			( (TextView) findViewById( R.id.compiledate ) ).setText( BuildConfig.COMPILE_DATE );
-			( (TextView) findViewById( R.id.build ) ).setText( Integer.toString( BuildConfig.VERSION_CODE ) );
-
-			ImageView img = findViewById(R.id.appIcon);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				img.setImageIcon(Icon.createWithResource(this, R.drawable.newmcalc));
-			}
-			img.setOnLongClickListener(v -> {
-				AlertDialog debug_info;
-				AlertDialog.Builder builder = new AlertDialog.Builder(CatchService.this);
-				builder.setMessage(debugInfoStr)
-						.setPositiveButton("OK", (dialog, which) -> dialog.cancel())
-						.setCancelable(false);
-				debug_info = builder.create();
-				Window window = debug_info.getWindow();
-				if (window != null) {
-					if(DarkMode)
-						window.setBackgroundDrawableResource(R.drawable.grey);
-
-					window.requestFeature(Window.FEATURE_NO_TITLE);
-				}
-
-				Utils.recolorAlertDialogButtons(debug_info, this);
-				debug_info.show();
-				return true;
-			});
-			if (DarkMode) {
-				getWindow().setBackgroundDrawableResource(R.drawable.black);
-				int[] ids = new int[]{
-						R.id.label_version,
-						R.id.label_note,
-						R.id.appname,
-						R.id.label_compiledate,
-						R.id.label_build,
-						R.id.build,
-						R.id.version,
-						R.id.compiledate
-				};
-				for (int id : ids) {
-					((TextView) findViewById(id)).setTextColor(getResources().getColor(white));
-				}
-			}else{
-				getWindow().setBackgroundDrawableResource(R.drawable.white);
-			}
-		} else if(action.equals("aboutAG")){
-			setContentView(R.layout.about_average_geometric);
-			int[] ids = new int[]{
-					R.id.lblAboutAG,
-					R.id.lblA,
-					R.id.lblG,
-					R.id.lblAboutA,
-					R.id.lblAboutG
-			};
-			if(DarkMode) {
-				getWindow().setBackgroundDrawableResource(R.drawable.black);
-				for (int id : ids) {
-					((TextView) findViewById(id)).setTextColor(Color.WHITE);
-				}
-			}else{
-				getWindow().setBackgroundDrawableResource(R.drawable.white);
-			}
-		}else if(action.equals("add_var")){
+		if(action.equals("add_var")){
 			setContentView(R.layout.activity_add_var);
 			tag = in.getIntExtra("tag", 1);
 			value = findViewById(R.id.value);
@@ -285,7 +167,7 @@ public class CatchService extends AppCompatActivity {
 					R.id.name,
 					R.id.value
 			};
-			if(DarkMode) {
+			if( darkMode ) {
 				getWindow().setBackgroundDrawableResource(R.drawable.black);
 				for (int id : textViewIds) {
 					TextView t = findViewById( id );
@@ -306,12 +188,12 @@ public class CatchService extends AppCompatActivity {
 				e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
 			}
 		}else if(action.equals("somethingWentWrong")){
-			DarkMode = sp.getBoolean("dark_mode", false);
+			darkMode = sp.getBoolean("dark_mode", false);
 			setContentView(R.layout.smth_went_wrong);
 			somethingWentWrong = true;
 			Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
 			String mes = in.getStringExtra("mes");
-			if(DarkMode) {
+			if( darkMode ) {
 				TextView t = findViewById(R.id.lblSomethingWentWrong);
 				t.setTextColor(Color.WHITE);
 				t = findViewById(R.id.lblMes);

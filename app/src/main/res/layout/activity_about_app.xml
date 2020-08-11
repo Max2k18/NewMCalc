@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/name_and_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.25">
+
+        <ImageView
+            android:id="@+id/appIcon"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:src="@drawable/newmcalc"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/appname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_and_icon"
+        app:layout_constraintVertical_bias="0.81">
+
+        <ImageButton
+            android:id="@+id/vkBtn"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/vk" />
+
+        <ImageButton
+            android:id="@+id/instBtn"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/instagram" />
+
+        <ImageButton
+            android:id="@+id/siteBtn"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/website2" />
+
+        <ImageButton
+            android:id="@+id/playMarketBtn"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/google_play" />
+    </LinearLayout>
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?actionBarStyle"
+        app:title="@string/about"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

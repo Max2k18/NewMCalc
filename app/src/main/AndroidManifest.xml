@@ -21,10 +21,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">
+        <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ThemeActivity" />
         <activity
-            android:name=".Main2Activity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".Main2Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

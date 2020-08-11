@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.Window;
@@ -91,7 +92,7 @@ public final class Utils {
 		}
 	}
 
-	private static void recolorButtons(AlertDialog alertDialog, Context context) {
+	public static void recolorButtons(AlertDialog alertDialog, Context context) {
 		alertDialog.setOnShowListener(dialog -> {
 			Button positive = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
 			Button negative = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -106,6 +107,10 @@ public final class Utils {
 				neutral.setTextColor(context.getResources().getColor(R.color.colorAccent));
 			}
 		});
+	}
+
+	public static void defaultActivityAnim(Activity activity){
+		activity.overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
 	}
 
 	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context){

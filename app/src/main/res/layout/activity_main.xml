@@ -5,9 +5,8 @@
     android:id="@+id/activity_main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_weight="1.0"
-    android:orientation="vertical"
-    android:visibility="visible"
+    android:layout_marginTop="?actionBarSize"
+    tools:showIn="@layout/app_bar_main2"
     tools:context=".Main2Activity">
 
     <LinearLayout
@@ -52,7 +51,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAlignment="textEnd"
-                        android:textColor="?attr/textColorM"
+                        android:textColor="?attr/textColor"
                         android:textSize="34sp"
                         android:textStyle="bold"
                         android:visibility="invisible"
@@ -100,7 +99,7 @@
                         android:scrollbars="none"
                         android:selectAllOnFocus="false"
                         android:textAlignment="textEnd"
-                        android:textColor="?attr/textColorM"
+                        android:textColor="?attr/textColor"
                         android:textIsSelectable="true"
                         android:textSize="46sp"
                         android:textStyle="bold"
