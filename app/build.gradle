@@ -45,7 +45,7 @@ android {
             targetSdkVersion 30
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
             versionCode code
-            versionName "1.13.5"
+            versionName "1.14.0"
             multiDexEnabled true
             buildConfigField "Boolean", "WhatNewIsExisting", "false"
             buildConfigField "Boolean", "UCModuleActivated", "false"
@@ -65,7 +65,6 @@ android {
             buildConfigField "String", "APPTYPE", "\"stable\""
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.release
             aaptOptions {
                 cruncherEnabled = false
             }
@@ -94,7 +93,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    buildToolsVersion '30.0.0'
+    buildToolsVersion '30.0.1'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

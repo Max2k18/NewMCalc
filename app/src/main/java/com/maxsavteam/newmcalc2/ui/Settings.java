@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -24,6 +24,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.maxsavteam.newmcalc2.BuildConfig;
+import com.maxsavteam.newmcalc2.CatchService;
+import com.maxsavteam.newmcalc2.Main2Activity;
+import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
@@ -43,7 +47,7 @@ public class Settings extends AppCompatActivity {
 
 	private void backPressed() {
 		finish();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	@Override

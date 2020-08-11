@@ -33,12 +33,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NumberSystemConverterActivity" />
-        <activity android:name=".MemoryActionsActivity" />
+        <activity android:name=".ui.NumberSystemConverterActivity" />
+        <activity android:name=".ui.MemoryActionsActivity" />
         <activity android:name=".CatchService" />
-        <activity android:name=".History" />
-        <activity android:name=".NumberPasswordGeneratorActivity" />
-        <activity android:name=".Settings" />
+        <activity android:name=".ui.History" />
+        <activity android:name=".ui.NumberPasswordGeneratorActivity" />
+        <activity android:name=".ui.Settings" />
     </application>
 
 </manifest>

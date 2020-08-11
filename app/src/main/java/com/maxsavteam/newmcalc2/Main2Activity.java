@@ -49,7 +49,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -65,6 +64,11 @@ import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 import com.maxsavteam.newmcalc2.types.Tuple;
+import com.maxsavteam.newmcalc2.ui.History;
+import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
+import com.maxsavteam.newmcalc2.ui.NumberPasswordGeneratorActivity;
+import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
+import com.maxsavteam.newmcalc2.ui.Settings;
 import com.maxsavteam.newmcalc2.utils.Constants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.CurrentAppLocale;
@@ -547,17 +551,17 @@ public class Main2Activity extends AppCompatActivity {
 	private void goToAdditionalActivities( @NonNull String where){
 		switch (where) {
 			case "settings":
-				goToActivity(Settings.class, new Intent()
+				goToActivity( Settings.class, new Intent()
 						.putExtra("action", "simple")
 						.putExtra("start_type", "app"));
 				break;
 			case "numgen":
-				goToActivity(NumberPasswordGeneratorActivity.class, new Intent()
+				goToActivity( NumberPasswordGeneratorActivity.class, new Intent()
 						.putExtra("type", "number")
 						.putExtra("start_type", "app"));
 				break;
 			case "history":
-				goToActivity(History.class, new Intent()
+				goToActivity( History.class, new Intent()
 						.putExtra("start_type", "app"));
 				break;
 			case "pass":
@@ -566,7 +570,7 @@ public class Main2Activity extends AppCompatActivity {
 						.putExtra("type", "pass"));
 				break;
 			case "bin":
-				goToActivity(NumberSystemConverterActivity.class, new Intent()
+				goToActivity( NumberSystemConverterActivity.class, new Intent()
 						.putExtra("start_type", "app"));
 				break;
 		}
@@ -1399,7 +1403,7 @@ public class Main2Activity extends AppCompatActivity {
 				in.putExtra("value", t.getText().toString());
 			else return;
 		}
-		goToActivity(MemoryActionsActivity.class, in);
+		goToActivity( MemoryActionsActivity.class, in);
 	}
 
 	int countOfMemoryPlusMinusMethodCalls = 0;

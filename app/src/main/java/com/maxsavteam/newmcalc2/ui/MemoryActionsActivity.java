@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodes;
@@ -36,7 +37,7 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 
 	private void backPressed(){
 		finish();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	@Override

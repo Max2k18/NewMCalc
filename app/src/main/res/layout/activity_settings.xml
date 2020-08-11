@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".Settings">
+    tools:context=".ui.Settings">
 
     <Switch
         android:id="@+id/switchSaveOnExit"

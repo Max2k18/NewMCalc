@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -33,6 +33,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.maxsavteam.newmcalc2.BuildConfig;
+import com.maxsavteam.newmcalc2.Main2Activity;
+import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.MyRecyclerViewAdapter;
 import com.maxsavteam.newmcalc2.adapters.MyRecyclerViewAdapter.ViewHolder;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
@@ -64,7 +67,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
     private void backPressed(){
         //sendBroadcast(history_action);
         finish();
-        overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+        overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
     }
 
     private void restartActivity(){
@@ -705,7 +708,7 @@ public class History extends AppCompatActivity implements MyRecyclerViewAdapter.
             setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        history_action = new Intent(BuildConfig.APPLICATION_ID  + ".HISTORY_ACTION");
+        history_action = new Intent( BuildConfig.APPLICATION_ID  + ".HISTORY_ACTION");
         history_action.putExtra("example", "").putExtra("result", "");
         applyTheme();
 

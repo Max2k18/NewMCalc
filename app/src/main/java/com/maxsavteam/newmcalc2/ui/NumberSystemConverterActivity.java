@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,6 +29,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.maxsavteam.newmcalc2.Main2Activity;
+import com.maxsavteam.newmcalc2.R;
+
 import java.math.BigDecimal;
 
 public class NumberSystemConverterActivity extends AppCompatActivity {
@@ -42,7 +45,7 @@ public class NumberSystemConverterActivity extends AppCompatActivity {
 
 	protected void backPressed(){
 		finish();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
 	}
 
 	@Override
