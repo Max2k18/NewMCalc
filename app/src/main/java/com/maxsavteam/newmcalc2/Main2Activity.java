@@ -735,7 +735,8 @@ public class Main2Activity extends AppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		//Thread.setDefaultUncaughtExceptionHandler( new UncaughtExceptionHandler( this ) );
+		Utils.setContext( this );
+		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler() );
 		try {
 			super.onCreate(savedInstanceState);
 			sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

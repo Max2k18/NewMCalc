@@ -1,5 +1,6 @@
 package com.maxsavteam.newmcalc2.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.Window;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.maxsavteam.newmcalc2.R;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -17,6 +19,17 @@ import java.math.RoundingMode;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 public final class Utils {
+	@SuppressLint("StaticFieldLeak")
+	private static Context sContext;
+
+	public static void setContext(Context context) {
+		sContext = context;
+	}
+
+	public static File getExternalStoragePath(){
+		return sContext.getExternalFilesDir( null );
+	}
+
 	public static boolean isDigit(char c){
 		return c >= '0' && c <= '9';
 	}

@@ -26,37 +26,25 @@ android {
     compileSdkVersion 30
     String apptype = "mid"
 
-    def versionPropsFile = file('version.properties')
     String time_zone = "UTC" //you can modify this
-    if (versionPropsFile.canRead()) {
-        Properties versionProps = new Properties()
 
-        versionProps.load(new FileInputStream(versionPropsFile))
-
-        def code = versionProps['VERSION_CODE'].toInteger() + 1
-
-        versionProps['VERSION_CODE'] = code.toString()
-        versionProps.store(versionPropsFile.newWriter(), null)
-
-        defaultConfig {
-            applicationId "com.maxsavteam.newmcalc2"
-            minSdkVersion 22
-            //noinspection OldTargetApi
-            targetSdkVersion 30
-            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-            versionCode code
-            versionName "1.14.0"
-            multiDexEnabled true
-            buildConfigField "Boolean", "WhatNewIsExisting", "false"
-            buildConfigField "Boolean", "UCModuleActivated", "false"
-            buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
-            buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-            buildConfigField "String", "CoreVersion", "\"v3.2.200401\""
-            buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
-            buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
-        }
-    } else
-        throw new Exception("Unable to read version.properties")
+    defaultConfig {
+        applicationId "com.maxsavteam.newmcalc2"
+        minSdkVersion 22
+        //noinspection OldTargetApi
+        targetSdkVersion 30
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode 1858
+        versionName "1.15.0"
+        multiDexEnabled true
+        buildConfigField "Boolean", "WhatNewIsExisting", "false"
+        buildConfigField "Boolean", "UCModuleActivated", "false"
+        buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
+        buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
+        buildConfigField "String", "CoreVersion", "\"v3.2.200401\""
+        buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
+        buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
+    }
 
     buildTypes {
         release {
@@ -102,6 +90,7 @@ android {
     }
     android.defaultConfig.javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = true
 }
+
 def static getBuildDate(String format) {
     return new Date().format(format)
 }
