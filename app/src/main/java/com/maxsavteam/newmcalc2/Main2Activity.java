@@ -64,7 +64,7 @@ import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
-import com.maxsavteam.newmcalc2.ui.History;
+import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
 import com.maxsavteam.newmcalc2.ui.NumberPasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
@@ -77,6 +77,7 @@ import com.maxsavteam.newmcalc2.utils.RequestCodes;
 import com.maxsavteam.newmcalc2.utils.ResultCodes;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.utils.VariableUtils;
+import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -169,7 +170,7 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	public void onBackPressed() {
-		AlertDialog.Builder builder = new AlertDialog.Builder( this );
+		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 		builder.setTitle( R.string.exit )
 				.setMessage( R.string.areyousureexit )
 				.setCancelable( false )
@@ -182,15 +183,7 @@ public class Main2Activity extends ThemeActivity {
 					finishAndRemoveTask();
 					overridePendingTransition( R.anim.abc_popup_enter, R.anim.alpha_hide );
 				} );
-		AlertDialog alertDialog = builder.create();
-		if ( alertDialog.getWindow() != null ) {
-			if ( DarkMode ) {
-				alertDialog.getWindow().setBackgroundDrawableResource( R.drawable.grey );
-			}
-
-			Utils.recolorAlertDialogButtons( alertDialog, this );
-		}
-		putAndShowNextAlertDialog( alertDialog );
+		putAndShowNextAlertDialog( builder.create() );
 	}
 
 	@Override
@@ -339,7 +332,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( !sp.getBoolean( "never_request_permissions", false )
 				&& ( !read || !write ) ) {
 			@SuppressLint("InflateParams") View v = getLayoutInflater().inflate( R.layout.never_show_again, null );
-			AlertDialog request = new AlertDialog.Builder( this )
+			AlertDialog request = new CustomAlertDialogBuilder( this )
 					.setTitle( R.string.confirm )
 					.setView( v )
 					.setMessage( R.string.activity_requet_permissions )
@@ -429,9 +422,8 @@ public class Main2Activity extends ThemeActivity {
 		if ( !offer_to_rate ) {
 			if ( offers_count == 10 ) {
 				offers_count = 0;
-				AlertDialog rate;
-				AlertDialog.Builder builder = new AlertDialog.Builder( this )
-						.setTitle( R.string.please_rate_out_app )
+				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
+				builder.setTitle( R.string.please_rate_out_app )
 						.setMessage( R.string.rate_message )
 						.setCancelable( false )
 						.setPositiveButton( R.string.rate, (dialog, i)->{
@@ -455,14 +447,7 @@ public class Main2Activity extends ThemeActivity {
 							showNextAlertDialog();
 						} ) );
 
-				rate = builder.create();
-				Window rateWindow = rate.getWindow();
-				if ( rateWindow != null ) {
-					if ( DarkMode ) {
-						rateWindow.setBackgroundDrawableResource( R.drawable.grey );
-					}
-				}
-				putAndShowNextAlertDialog( rate );
+				putAndShowNextAlertDialog( builder.create() );
 			} else {
 				offers_count++;
 			}
@@ -479,7 +464,7 @@ public class Main2Activity extends ThemeActivity {
 		boolean guideShowed = sp.getBoolean( "sidebar_guide_showed", false );
 		if ( !guideShowed ) {
 			AlertDialog alertDialog;
-			AlertDialog.Builder builder = new AlertDialog.Builder( this );
+			CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 			builder
 					.setTitle( R.string.important_information )
 					.setMessage( Html.fromHtml( getResources().getString( R.string.sidebar_guide_message ) ) )
@@ -514,7 +499,7 @@ public class Main2Activity extends ThemeActivity {
 					&& APPTYPE.equals( "stable" )
 					&& BuildConfig.WhatNewIsExisting ) {
 				AlertDialog window;
-				AlertDialog.Builder builder = new AlertDialog.Builder( this );
+				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 				builder.setCancelable( false )
 						.setMessage( R.string.what_new_window_text )
 						.setTitle( R.string.important )
@@ -569,7 +554,7 @@ public class Main2Activity extends ThemeActivity {
 						.putExtra( "start_type", "app" ) );
 				break;
 			case "history":
-				goToActivity( History.class, new Intent()
+				goToActivity( HistoryActivity.class, new Intent()
 						.putExtra( "start_type", "app" ) );
 				break;
 			case "pass":
@@ -1478,7 +1463,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 		int requestCode = -1;
 		isOtherActivityOpened = true;
-		if ( cls.equals( History.class ) ) {
+		if ( cls.equals( HistoryActivity.class ) ) {
 			requestCode = RequestCodes.START_HISTORY;
 		} else if ( cls.equals( MemoryActionsActivity.class ) ) {
 			if ( possibleExtras.getStringExtra( "type" ).equals( "rc" ) ) {

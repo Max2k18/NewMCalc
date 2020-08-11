@@ -32,6 +32,7 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Utils;
+import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.io.File;
 import java.io.FileReader;
@@ -168,7 +169,8 @@ public class SettingsActivity extends ThemeActivity {
 			return;
 		}
 		AlertDialog warning;
-		AlertDialog.Builder builder = new AlertDialog.Builder(this).setMessage(
+		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder(this);
+		builder.setMessage(
 				getResources().getString(R.string.to_continue_need_to_restart_app)
 						+ "\n"
 						+ getResources().getString(R.string.want_to_continue_question)
@@ -178,15 +180,7 @@ public class SettingsActivity extends ThemeActivity {
 					dialog.cancel();
 				})
 				.setNegativeButton(R.string.no, (dialog, which) -> dialog.cancel());
-		warning = builder.create();
-		Window alertDialogWindow = warning.getWindow();
-		if (alertDialogWindow != null) {
-			alertDialogWindow.requestFeature(Window.FEATURE_NO_TITLE);
-			if(DarkMode)
-				alertDialogWindow.setBackgroundDrawableResource(R.drawable.grey);
-		}
-		Utils.recolorAlertDialogButtons(warning, this);
-		warning.show();
+		builder.show();
 	}
 
 	private void import_settings() {

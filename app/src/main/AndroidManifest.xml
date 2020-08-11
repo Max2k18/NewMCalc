@@ -34,7 +34,7 @@
         <activity android:name=".ui.NumberSystemConverterActivity" />
         <activity android:name=".ui.MemoryActionsActivity" />
         <activity android:name=".CatchService" />
-        <activity android:name=".ui.History" />
+        <activity android:name=".ui.HistoryActivity" />
         <activity android:name=".ui.NumberPasswordGeneratorActivity" />
         <activity android:name=".ui.SettingsActivity" />
     </application>

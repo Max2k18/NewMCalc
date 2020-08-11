@@ -24,6 +24,7 @@ import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodes;
 import com.maxsavteam.newmcalc2.utils.Utils;
+import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 
@@ -66,7 +67,7 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 	}
 
 	public void clear_all(View v){
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
+		new CustomAlertDialogBuilder(this)
 				.setMessage(R.string.delete_all_memories_quest)
 				.setPositiveButton(R.string.yes, (dialogInterface1, i) -> {
 					barr = new BigDecimal[10];
@@ -79,16 +80,8 @@ public class MemoryActionsActivity extends AppCompatActivity implements WindowRe
 					setResult( ResultCodes.RESULT_REFRESH );
 					backPressed();
 				})
-				.setNegativeButton(R.string.no, (dialogInterface1, i) -> dialogInterface1.cancel()).create();
-		Window window = alertDialog.getWindow();
-		if(window != null){
-			if(DarkMode)
-				window.setBackgroundDrawable(getDrawable(R.drawable.grey));
-			
-			window.requestFeature(Window.FEATURE_NO_TITLE);
-		}
-		Utils.recolorAlertDialogButtons(alertDialog, this);
-		alertDialog.show();
+				.setNegativeButton(R.string.no, (dialogInterface1, i) -> dialogInterface1.cancel())
+				.show();
 	}
 
 	@Override
