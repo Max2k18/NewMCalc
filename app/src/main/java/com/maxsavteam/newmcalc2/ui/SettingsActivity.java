@@ -23,11 +23,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.CatchService;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
@@ -41,7 +43,7 @@ import java.util.Map;
 import java.util.Set;
 //import java.lang.;
 
-public class Settings extends AppCompatActivity {
+public class SettingsActivity extends ThemeActivity {
 
 	private SharedPreferences sp;
 
@@ -78,11 +80,6 @@ public class Settings extends AppCompatActivity {
 			}
 		}else if(v.getId() == R.id.switchDarkMode){
 			sp.edit().putBoolean("dark_mode", sw.isChecked()).apply();
-			if(sw.isChecked()) {
-				sp.edit().putBoolean("force_enable_light", true).remove("force_enable_dark").apply();
-			}else{
-				sp.edit().putBoolean("force_enable_dark", true).remove("force_enable_light").apply();
-			}
 			restartApp();
 		}
 
@@ -90,23 +87,18 @@ public class Settings extends AppCompatActivity {
 
 	boolean DarkMode = false;
 
+	@SuppressLint("SourceLockedOrientationActivity")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		DarkMode = sp.getBoolean("dark_mode", false);
-		if(DarkMode){
-			setTheme(android.R.style.Theme_Material_NoActionBar);
-		}else{
-			setTheme(R.style.AppTheme);
-		}
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-		try {
-			getSupportActionBar().setTitle(getResources().getString(R.string.settings));
-		}catch (NullPointerException e){
-			e.printStackTrace();
-		}
-		applyTheme();
+
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		Toolbar toolbar = findViewById( R.id.toolbar );
+		setSupportActionBar( toolbar );
+		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
 		if(sp.getBoolean("storage_denied", false)){
 			findViewById(R.id.import_export).setVisibility(View.GONE);
@@ -166,48 +158,6 @@ public class Settings extends AppCompatActivity {
 		}
 		scalet.setText( String.format( Locale.ROOT, "%d", scale ) );
 		sp.edit().putInt( "rounding_scale", scale ).apply();
-	}
-
-	@SuppressLint("SourceLockedOrientationActivity")
-	private void applyTheme(){
-		ActionBar appActionBar = getSupportActionBar();
-		if(appActionBar != null){
-			appActionBar.setDisplayHomeAsUpEnabled(true);
-			appActionBar.setElevation(0);
-		}
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		if(DarkMode) {
-			getWindow().setBackgroundDrawableResource(R.drawable.black);
-			getWindow().setNavigationBarColor(Color.BLACK);
-			if(appActionBar != null) {
-				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
-				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
-			}
-
-			int[] textViewIds = new int[]{R.id.txtExIm, R.id.txtAccurancyOfCalculations, R.id.textViewScale};
-			for(int id : textViewIds){
-				TextView t = findViewById( id );
-				t.setTextColor(getResources().getColor(R.color.white));
-			}
-
-			int[] buttonsIds = new int[]{R.id.btnImport, R.id.btnExport};
-			for(int id : buttonsIds){
-				Button button = findViewById( id );
-				button.setTextColor(getResources().getColor(R.color.white));
-				button.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-			}
-		}else{
-			getWindow().setBackgroundDrawableResource(R.drawable.white);
-			getWindow().setNavigationBarColor(Color.WHITE);
-			if(appActionBar != null){
-				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
-				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
-			}
-		}
-		Switch sw = findViewById(R.id.switchSaveOnExit);
-		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
-		sw = findViewById(R.id.switchDarkMode);
-		sw.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent)));
 	}
 
 	public void initializeImport(View v){

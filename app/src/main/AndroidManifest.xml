@@ -36,7 +36,7 @@
         <activity android:name=".CatchService" />
         <activity android:name=".ui.History" />
         <activity android:name=".ui.NumberPasswordGeneratorActivity" />
-        <activity android:name=".ui.Settings" />
+        <activity android:name=".ui.SettingsActivity" />
     </application>
 
 </manifest>

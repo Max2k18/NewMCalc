@@ -48,7 +48,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -69,10 +68,9 @@ import com.maxsavteam.newmcalc2.ui.History;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
 import com.maxsavteam.newmcalc2.ui.NumberPasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
-import com.maxsavteam.newmcalc2.ui.Settings;
+import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.utils.Constants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
-import com.maxsavteam.newmcalc2.utils.CurrentAppLocale;
 import com.maxsavteam.newmcalc2.utils.Format;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodes;
@@ -561,7 +559,7 @@ public class Main2Activity extends ThemeActivity {
 	private void goToAdditionalActivities(@NonNull String where) {
 		switch ( where ) {
 			case "settings":
-				goToActivity( Settings.class, new Intent()
+				goToActivity( SettingsActivity.class, new Intent()
 						.putExtra( "action", "simple" )
 						.putExtra( "start_type", "app" ) );
 				break;
