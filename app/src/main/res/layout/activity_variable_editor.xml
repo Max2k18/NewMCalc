@@ -45,7 +45,8 @@
             android:gravity="center_horizontal"
             android:backgroundTint="@color/colorAccent"
             android:inputType="textPersonName"
-            android:singleLine="false"
+            android:singleLine="true"
+            android:maxLength="20"
             android:textSize="18sp" />
 
         <TextView
@@ -65,6 +66,7 @@
             android:textColor="?textColor"
             android:backgroundTint="@color/colorAccent"
             android:gravity="center_horizontal"
+            android:maxLength="20"
             android:inputType="numberDecimal" />
 
         <TextView
