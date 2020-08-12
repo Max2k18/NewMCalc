@@ -4,19 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.NumberPasswordGeneratorActivity">
+    tools:context=".ui.NumberGeneratorActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        app:title="@string/number_generator"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:theme="@style/ActionBarStyle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="100dp"
+        android:layout_height="0dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <TextView
             android:id="@+id/lblSelectNumber"
@@ -25,8 +36,8 @@
             android:gravity="center"
             android:text="@string/select_number"
             android:textAlignment="center"
-            android:textColor="@android:color/black"
             android:textSize="21sp"
+            android:layout_marginBottom="15sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -46,7 +57,6 @@
                 android:gravity="center"
                 android:text="@string/from"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
             <EditText
@@ -55,6 +65,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
+                android:textColor="?textColor"
+                android:backgroundTint="@color/colorAccent"
                 android:inputType="numberSigned|number" />
 
             <TextView
@@ -64,8 +76,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/to"
+                android:layout_marginStart="10dp"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
             <EditText
@@ -74,7 +86,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="numberSigned|number" />
+                android:textColor="?textColor"
+                android:backgroundTint="@color/colorAccent"
+                android:inputType="numberSigned|number"
+                android:importantForAutofill="no" />
 
         </LinearLayout>
 
@@ -83,30 +98,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_marginTop="15dp"
             android:orientation="horizontal"
-            android:visibility="gone"
-            android:weightSum="0.5">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/txtAnswer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
+                android:layout_marginEnd="15dp"
                 android:textSize="21sp" />
 
-            <TextView
-                android:id="@+id/indent"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.15" />
-
-            <ImageView
+            <ImageButton
                 android:id="@+id/btnCopy"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:onClick="copy"
                 android:visibility="visible"
-                app:srcCompat="@drawable/copy" />
+                android:scaleType="centerInside"
+                android:background="@android:color/transparent"
+                app:srcCompat="?copy_button_drawable" />
 
         </LinearLayout>
 
@@ -115,15 +126,12 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/forgenbtn"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/colorAccent"
             android:onClick="generate"
             android:text="@string/generate"
             android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            tools:layout_editor_absoluteX="162dp"
-            tools:layout_editor_absoluteY="466dp" />
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

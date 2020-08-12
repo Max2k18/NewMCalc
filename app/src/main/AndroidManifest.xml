@@ -21,10 +21,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">
+        <activity android:name=".ui.PasswordGeneratorActivity"></activity>
         <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ThemeActivity" />
-        <activity
-            android:name=".Main2Activity">
+        <activity android:name=".Main2Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,7 +35,7 @@
         <activity android:name=".ui.MemoryActionsActivity" />
         <activity android:name=".CatchService" />
         <activity android:name=".ui.HistoryActivity" />
-        <activity android:name=".ui.NumberPasswordGeneratorActivity" />
+        <activity android:name=".ui.NumberGeneratorActivity" />
         <activity android:name=".ui.SettingsActivity" />
     </application>
 

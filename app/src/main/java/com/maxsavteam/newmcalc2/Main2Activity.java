@@ -66,8 +66,9 @@ import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
-import com.maxsavteam.newmcalc2.ui.NumberPasswordGeneratorActivity;
+import com.maxsavteam.newmcalc2.ui.NumberGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
+import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.utils.Constants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
@@ -549,7 +550,7 @@ public class Main2Activity extends ThemeActivity {
 						.putExtra( "start_type", "app" ) );
 				break;
 			case "numgen":
-				goToActivity( NumberPasswordGeneratorActivity.class, new Intent()
+				goToActivity( NumberGeneratorActivity.class, new Intent()
 						.putExtra( "type", "number" )
 						.putExtra( "start_type", "app" ) );
 				break;
@@ -558,7 +559,7 @@ public class Main2Activity extends ThemeActivity {
 						.putExtra( "start_type", "app" ) );
 				break;
 			case "pass":
-				goToActivity( NumberPasswordGeneratorActivity.class, new Intent()
+				goToActivity( PasswordGeneratorActivity.class, new Intent()
 						.putExtra( "start_type", "app" )
 						.putExtra( "type", "pass" ) );
 				break;

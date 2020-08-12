@@ -11,12 +11,14 @@ import android.preference.PreferenceManager;
 public class ThemeActivity extends AppCompatActivity {
 
 	protected int textColor;
+	protected boolean isDarkMode;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(sp.getBoolean( "dark_mode", false )){
+		isDarkMode = sp.getBoolean( "dark_mode", false );
+		if(isDarkMode){
 			setTheme( R.style.AppTheme_Dark );
 			textColor = Color.WHITE;
 		}else{
