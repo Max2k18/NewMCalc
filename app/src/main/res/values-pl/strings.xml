@@ -115,4 +115,6 @@
     <string name="thread_destroy_reason">Liczenie zostało zatrzymane z powodu braku pamięci RAM.</string>
     <string name="keep_screen_on">Pozostaw ekran włączony</string>
     <string name="number_generator">Generator liczb</string>
+    <string name="invalid_name">Błędna nazwa</string>
+    <string name="variable_editor">Edytor zmiennych</string>
     --></resources>

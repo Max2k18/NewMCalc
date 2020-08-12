@@ -133,4 +133,6 @@
     <string name="thread_destroy_reason">Die Zählung wurde aufgrund eines fehlenden RAM-Geräts abgebrochen.</string>
     <string name="keep_screen_on">Bildschirm eingeschaltet lassen</string>
     <string name="number_generator">Zahlengenerator</string>
+    <string name="invalid_name">Ungültiger Name</string>
+    <string name="variable_editor">Variableneditor</string>
 </resources>

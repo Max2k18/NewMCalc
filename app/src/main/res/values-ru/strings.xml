@@ -115,4 +115,6 @@
     <string name="thread_destroy_reason">Подсчёт был прекращён из-за нехватки оперативной памяти устройства.</string>
     <string name="keep_screen_on">Оставить экран включённым</string>
     <string name="number_generator">Генератор чисел</string>
+    <string name="invalid_name">Некорректное имя</string>
+    <string name="variable_editor">Редактор переменных</string>
 </resources>

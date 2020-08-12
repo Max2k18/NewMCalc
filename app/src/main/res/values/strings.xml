@@ -153,4 +153,6 @@
     <string name="thread_destroy_reason">Counting was stopped due to lack of RAM device.</string>
     <string name="keep_screen_on">Keep screen on</string>
     <string name="number_generator">Number generator</string>
+    <string name="invalid_name">Invalid name</string>
+    <string name="variable_editor">Variable editor</string>
 </resources>

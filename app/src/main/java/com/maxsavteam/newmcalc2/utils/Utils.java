@@ -3,6 +3,8 @@ package com.maxsavteam.newmcalc2.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
@@ -25,6 +27,10 @@ public final class Utils {
 
 	public static void setContext(Context context) {
 		sContext = context;
+	}
+
+	public static SharedPreferences getDefaultSP(){
+		return PreferenceManager.getDefaultSharedPreferences( sContext );
 	}
 
 	public static File getExternalStoragePath(){

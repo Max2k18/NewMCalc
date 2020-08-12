@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,7 +22,8 @@ import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Tuple;
-import com.maxsavteam.newmcalc2.utils.VariableUtils;
+import com.maxsavteam.newmcalc2.variables.Variable;
+import com.maxsavteam.newmcalc2.variables.VariableUtils;
 
 import java.util.ArrayList;
 
@@ -77,15 +77,15 @@ public class Fragment2 extends Fragment {
 
 	private void setVariableButtons() {
 		setDefaultButtons();
-		ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( mContext );
+		ArrayList<Variable> a = VariableUtils.readVariables();
 		if ( a == null ) {
 			return;
 		}
 		for (int i = 0; i < a.size(); i++) {
-			Button b = view.findViewById( findButtonByTag( a.get( i ).first ) );
-			b.setText( a.get( i ).second );
+			Button b = view.findViewById( findButtonByTag( a.get( i ).getTag() ) );
+			b.setText( a.get( i ).getName() );
 			b.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
-			b.setContentDescription( a.get( i ).second );
+			b.setContentDescription( a.get( i ).getValue() );
 			b.setOnLongClickListener( longClickListeners[ 1 ] );
 			b.setTransformationMethod( null );
 		}

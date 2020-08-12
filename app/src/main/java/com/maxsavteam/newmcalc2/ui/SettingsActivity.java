@@ -5,33 +5,25 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
-import com.maxsavteam.newmcalc2.CatchService;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
-import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.io.File;
@@ -231,10 +223,11 @@ public class SettingsActivity extends ThemeActivity {
 								break;
 						}
 					}
-					Intent intent = new Intent(this, CatchService.class);
+					// TODO: 12.08.2020 somethingWentWrong Activity
+					/*Intent intent = new Intent(this, CatchService.class);
 					intent.putExtra("action", "somethingWentWrong");
 					intent.putExtra("mes", getResources().getString(R.string.on_err_in_backup_file));
-					startActivity(intent);
+					startActivity(intent);*/
 					finish();
 					return;
 				}

@@ -70,6 +70,7 @@ import com.maxsavteam.newmcalc2.ui.NumberGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
+import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.Constants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Format;
@@ -77,7 +78,8 @@ import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodes;
 import com.maxsavteam.newmcalc2.utils.ResultCodes;
 import com.maxsavteam.newmcalc2.utils.Utils;
-import com.maxsavteam.newmcalc2.utils.VariableUtils;
+import com.maxsavteam.newmcalc2.variables.Variable;
+import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
@@ -155,16 +157,16 @@ public class Main2Activity extends ThemeActivity {
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
 		Intent in = new Intent();
-		in.putExtra( "action", "add_var" ).putExtra( "tag", pos ).putExtra( "is_existing", true );
-		ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( Main2Activity.this );
+		in.putExtra( "tag", pos ).putExtra( "is_existing", true );
+		ArrayList<Variable> a = VariableUtils.readVariables();
 		if ( a != null ) {
 			for (int i = 0; i < a.size(); i++) {
-				if ( a.get( i ).first == pos ) {
-					in.putExtra( "name", btn.getText().toString() ).putExtra( "value", a.get( i ).third );
+				if ( a.get( i ).getTag() == pos ) {
+					in.putExtra( "name", btn.getText().toString() ).putExtra( "value", a.get( i ).getValue() );
 					break;
 				}
 			}
-			goToActivity( CatchService.class, in );
+			goToActivity( VariableEditorActivity.class, in );
 		}
 		return true;
 	};
@@ -727,7 +729,7 @@ public class Main2Activity extends ThemeActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Utils.setContext( this );
-		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler(  ) );
+		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler() );
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		DarkMode = sp.getBoolean( "dark_mode", false );
@@ -1345,7 +1347,7 @@ public class Main2Activity extends ThemeActivity {
 			String text = btn.getText().toString();
 			if ( text.equals( "+" ) ) {
 				Intent in = new Intent();
-				in.putExtra( "action", "add_var" ).putExtra( "tag", pos );
+				in.putExtra( "tag", pos );
 				TextView t = findViewById( R.id.ExampleStr );
 				String ts = t.getText().toString();
 				if ( !ts.equals( "" ) && ts.length() < 1000 ) {
@@ -1354,17 +1356,17 @@ public class Main2Activity extends ThemeActivity {
 						in.putExtra( "value", ts ).putExtra( "name", "" ).putExtra( "is_existing", true );
 					}
 				}
-				goToActivity( CatchService.class, in );
+				goToActivity( VariableEditorActivity.class, in );
 			} else {
 				String var_arr = sp.getString( "variables", null );
 				if ( var_arr == null ) {
 					btn.setText( "+" );
 				} else {
-					ArrayList<Tuple<Integer, String, String>> a = VariableUtils.readVariables( this );
+					ArrayList<Variable> a = VariableUtils.readVariables();
 					if ( a != null ) {
 						for (int i = 0; i < a.size(); i++) {
-							if ( a.get( i ).first == pos ) {
-								addStringExampleToTheExampleStr( a.get( i ).third );
+							if ( a.get( i ).getTag() == pos ) {
+								addStringExampleToTheExampleStr( a.get( i ).getValue() );
 								//break;
 								return;
 							}
@@ -1472,10 +1474,8 @@ public class Main2Activity extends ThemeActivity {
 			} else {
 				requestCode = RequestCodes.START_MEMORY_STORE;
 			}
-		} else if ( cls.equals( CatchService.class ) ) {
-			if ( possibleExtras.getStringExtra( "action" ).equals( "add_var" ) ) {
-				requestCode = RequestCodes.START_ADD_VAR;
-			}
+		} else if ( cls.equals( VariableEditorActivity.class ) ) {
+			requestCode = RequestCodes.START_ADD_VAR;
 		}
 		startActivityForResult( intent, requestCode );
 		overridePendingTransition( R.anim.activity_in, R.anim.activity_out );
