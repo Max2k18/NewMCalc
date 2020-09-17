@@ -15,7 +15,8 @@
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">-</string>
 
-    <string name="app_name" translatable="false">New MCalc</string>
+    <string name="app_name" translatable="false">MCalc</string>
+
     <string name="multiply" translatable="false">×</string>
     <string name="div" translatable="false">÷</string>
     <string name="delSymbol" translatable="false">◄</string>
