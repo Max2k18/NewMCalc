@@ -1127,7 +1127,7 @@ public class Main2Activity extends ThemeActivity {
 			mCoreThread.start();
 
 			// comment for debug
-			mCoreTimer.schedule( new CoreController(), 0, 100 );
+			//mCoreTimer.schedule( new CoreController(), 0, 100 );
 		} catch (Exception e) {
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
 		}
@@ -1734,13 +1734,13 @@ public class Main2Activity extends ThemeActivity {
 			}
 
 			if ( Utils.isDigit( last ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( PI ) || last == 'e' ) {
-				t.setText( txt + btntxt + "(" );
+				t.setText( txt + btntxt );
 				equallu( "not" );
 				return;
 			}
 			if ( !Utils.isDigit( last ) ) {
 				if ( last == '!' || last == '%' ) {
-					t.setText( txt + btntxt + "(" );
+					t.setText( txt + btntxt );
 					equallu( "not" );
 				}
 			}
@@ -1749,7 +1749,7 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( btntxt.equals( "√" ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt + "(" );
+				t.setText( btntxt );
 				show_str();
 				scrollExampleToEnd();
 				return;
@@ -1775,13 +1775,13 @@ public class Main2Activity extends ThemeActivity {
 						return;
 					} else {
 						if ( !Utils.isDigit( last ) ) {
-							t.setText( txt + btntxt + "(" );
+							t.setText( txt + btntxt );
 							equallu( "not" );
 							show_str();
 							scrollExampleToEnd();
 						} else {
 							if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-								t.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
+								t.setText( txt + MULTIPLY_SIGN + btntxt );
 								equallu( "not" );
 								show_str();
 								scrollExampleToEnd();
@@ -1958,13 +1958,6 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	}
 
-	/*@Override
-	public boolean onSupportNavigateUp() {
-		NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-		return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-				|| super.onSupportNavigateUp();
-	}*/
-
 	public void delSymbol(View v) {
 		TextView txt = findViewById( R.id.ExampleStr );
 		String text = txt.getText().toString();
@@ -1986,10 +1979,6 @@ public class Main2Activity extends ThemeActivity {
 				}
 			}
 			if ( last == '(' && len > 1 ) {
-				if ( text.charAt( text.length() - 2 ) == '√'
-						|| text.charAt( len - 2 ) == '^' ) {
-					a = 2;
-				}
 				if ( text.charAt( len - 2 ) == 'A' || text.charAt( len - 2 ) == 'G' ) {
 					a = 2;
 					exampleEnterMode = EnterModes.SIMPLE;

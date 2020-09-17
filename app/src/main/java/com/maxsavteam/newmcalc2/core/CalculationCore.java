@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.utils.Math;
@@ -239,6 +240,10 @@ public final class CalculationCore{
 
 	private BigDecimal pow(BigDecimal a, BigDecimal n){
 		Log.v( TAG, "pow called with a=" + a.toPlainString() + " n=" + n.toPlainString() );
+		if( Fraction.isFraction( n ) ){
+			Fraction fraction = new Fraction( n.toPlainString() );
+			return rootWithBase( sysPow( a, fraction.getNumerator() ), fraction.getDenominator() );
+		}
 		if(n.compareTo( BigDecimal.ZERO ) < 0){
 			BigDecimal result = sysPow( a, n.multiply( BigDecimal.valueOf( -1 ) ) );
 			String strRes = BigDecimal.ONE.divide( result, 8, RoundingMode.HALF_EVEN ).toPlainString();
@@ -528,14 +533,8 @@ public final class CalculationCore{
 							mWasError = true;
 							break;
 						} else {
-							if ( example.charAt( i + 1 ) == '(' ) {
-								in_s0( 'R' );
-								continue;
-							} else {
-								mWasError = true;
-								onError( new CalculationError().setErrorMessage( "Invalid statement for square root" ).setShortError( invalidArgument ) );
-								return;
-							}
+							in_s0( 'R' );
+							continue;
 						}
 					case "A": {
 						i += 2;
@@ -666,7 +665,7 @@ public final class CalculationCore{
 			onError( new CalculationError().setStatus( "Core" ) );
 			return;
 		}
-		if ( !mWasError ) {
+		if ( !mWasError && s0.empty() ) {
 			onSuccess( new CalculationResult().setResult( s1.peek() ).setType( type ) );
 		}
 	}
