@@ -93,33 +93,11 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layoutLinear"
+        <TextSwitcher
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginTop="15dp"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/txtAnswer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="15dp"
-                android:textSize="21sp" />
-
-            <ImageButton
-                android:id="@+id/btnCopy"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:onClick="copy"
-                android:visibility="visible"
-                android:scaleType="centerInside"
-                android:background="@android:color/transparent"
-                app:srcCompat="?copy_button_drawable" />
-
-        </LinearLayout>
+            android:id="@+id/textSwitcherNumGen" />
 
         <Button
             android:id="@+id/btnGen"

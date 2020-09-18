@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +18,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -89,15 +93,18 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 		mCheckBoxes.add( findViewById( R.id.swCap ) );
 		mCheckBoxes.add( findViewById( R.id.swLowerCase ) );
 		mCheckBoxes.add( findViewById( R.id.swDigits ) );
-	}
 
-	public void copy(View v){
-		android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-		if(clipboard != null){
-			TextView t = findViewById(R.id.txtGenedPass);
-			clipboard.setText(t.getText().toString());
-			Toast.makeText(getApplicationContext(), getResources().getString(R.string.copied), Toast.LENGTH_SHORT).show();
-		}
+		TextSwitcher textSwitcher = findViewById( R.id.textSwitcherPass );
+		textSwitcher.setFactory( ()->{
+			TextView textView = new TextView( this );
+			textView.setTextColor( super.textColor );
+			textView.setTextSize( TypedValue.COMPLEX_UNIT_SP, 30 );
+			textView.setGravity( Gravity.CENTER );
+			textView.setTextIsSelectable( true );
+			return textView;
+		} );
+		textSwitcher.setInAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_in ) );
+		textSwitcher.setOutAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_out ) );
 	}
 
 	private final int[] mCheckBoxIds = new int[]{
@@ -180,13 +187,15 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 					a = ThreadLocalRandom.current().nextInt( 0, resource_str.length() );
 					pass = String.format( "%s%s", pass, resource_str.charAt( a ) );
 				}
-				TextView t = findViewById( R.id.txtGenedPass );
+				/*TextView t = findViewById( R.id.txtGenedPass );
 				t.setText( pass );
 				LinearLayout lay = findViewById( R.id.linearLayout2 );
 				if ( lay.getVisibility() != View.VISIBLE ) {
 					lay.setVisibility( View.VISIBLE );
 					lay.animate().alpha( 1 ).setDuration( 100 ).start();
-				}
+				}*/
+				TextSwitcher textSwitcher = findViewById( R.id.textSwitcherPass );
+				textSwitcher.setText( pass );
 			} else {
 				Toast.makeText( this, getString( R.string.pass_sw_all_off ), Toast.LENGTH_LONG ).show();
 			}

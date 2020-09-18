@@ -1,5 +1,6 @@
 package com.maxsavteam.newmcalc2;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.preference.PreferenceManager;
 
 public class ThemeActivity extends AppCompatActivity {
 
+	@ColorInt
 	protected int textColor;
 	protected boolean isDarkMode;
 
