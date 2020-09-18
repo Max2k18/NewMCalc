@@ -1743,6 +1743,7 @@ public class Main2Activity extends ThemeActivity {
 			} else {
 				checkDot();
 			}
+			show_str();
 		} else {
 			if ( btntxt.equals( "!" ) || btntxt.equals( "%" ) ) {
 				if ( !txt.equals( "" ) ) {
