@@ -114,43 +114,8 @@ public class Main2Activity extends ThemeActivity {
 	private String FI, PI, original;
 	private CalculationCore mCalculationCore;
 	private Point displaySize = new Point();
-	private Queue<AlertDialog> mAlertDialogQueue = new LinkedList<>();
-	private boolean isDialogShowed = false;
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
-
-	private void putAndShowNextAlertDialog(AlertDialog alertDialog) {
-		mAlertDialogQueue.add( alertDialog );
-		alertDialog.setOnKeyListener( new DialogInterface.OnKeyListener() {
-			@Override
-			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-				isDialogShowed = false;
-				return true;
-			}
-		} );
-		if ( !isDialogShowed ) {
-			showNextAlertDialog();
-		}
-	}
-
-	private void showNextAlertDialog() {
-		if ( mAlertDialogQueue.size() > 0 ) {
-			mAlertDialogQueue.peek().show();
-			isDialogShowed = true;
-			mAlertDialogQueue.poll();
-		} else {
-			boolean showed = sp.getBoolean( "bottom_sheet_guide", false );
-			if ( !showed ) {
-				new MaterialTapTargetPrompt.Builder( this )
-						.setTarget( R.id.bottom_sheet_triangle )
-						.setPrimaryText( "New" )
-						.setSecondaryText( R.string.bottom_sheet_guide )
-						.show();
-
-				sp.edit().putBoolean( "bottom_sheet_guide", true ).apply();
-			}
-		}
-	}
 
 	View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
@@ -178,13 +143,12 @@ public class Main2Activity extends ThemeActivity {
 				.setCancelable( false )
 				.setNegativeButton( R.string.no, (dialog, which)->{
 					dialog.cancel();
-					showNextAlertDialog();
 				} )
 				.setPositiveButton( R.string.yes, (dialog, which)->{
 					dialog.cancel();
 					super.onBackPressed();
 				} );
-		putAndShowNextAlertDialog( builder.create() );
+		builder.show();
 	}
 
 	@Override
@@ -273,7 +237,6 @@ public class Main2Activity extends ThemeActivity {
 					&& grantResults[ 1 ] == PackageManager.PERMISSION_GRANTED ) {
 				sp.edit().remove( "storage_denied" ).remove( "never_request_permissions" ).apply();
 			}
-			showNextAlertDialog();
 		}
 	}
 
@@ -308,7 +271,7 @@ public class Main2Activity extends ThemeActivity {
 										10 );
 					} )
 					.create();
-			putAndShowNextAlertDialog( request );
+			request.show();
 		}
 		if ( read && write ) {
 			sp.edit().remove( "storage_denied" ).remove( "never_request_permissions" ).apply();
@@ -394,30 +357,23 @@ public class Main2Activity extends ThemeActivity {
 							go_to.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
 							startActivity( go_to );
 							dialog.cancel();
-							showNextAlertDialog();
 						} )
 						.setNegativeButton( R.string.no_thanks, ( (dialog, which)->{
 							Toast.makeText( this, ":(", Toast.LENGTH_SHORT ).show();
 							sp.edit().putBoolean( "offer_was_showed", true ).apply();
 							dialog.cancel();
-							showNextAlertDialog();
 						} ) )
 						.setNeutralButton( R.string.later, ( (dialog, which)->{
 							Toast.makeText( this, R.string.we_will_wait, Toast.LENGTH_SHORT ).show();
 							dialog.cancel();
-							showNextAlertDialog();
 						} ) );
 
-				putAndShowNextAlertDialog( builder.create() );
+				builder.show();
 			} else {
 				offers_count++;
 			}
 			sp.edit().putInt( "offers_count", offers_count ).apply();
 		}
-		if ( mAlertDialogQueue.size() == 0 ) {
-			showNextAlertDialog(); //для показа гайда
-		}
-		//setViewPager(0);
 	}
 
 	String APPTYPE = BuildConfig.APPTYPE;
@@ -435,12 +391,10 @@ public class Main2Activity extends ThemeActivity {
 						.setTitle( R.string.important )
 						.setNegativeButton( R.string.no, (dialog, which)->{
 							dialog.cancel();
-							showNextAlertDialog();
 						} ).setPositiveButton( R.string.view, ( (dialog, which)->{
 					Intent in = new Intent( Intent.ACTION_VIEW );
 					in.setData( Uri.parse( "https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME ) );
 					startActivity( in );
-					showNextAlertDialog();
 				} ) );
 				window = builder.create();
 				Map<String, ?> m = sp.getAll();
@@ -451,7 +405,7 @@ public class Main2Activity extends ThemeActivity {
 					}
 				}
 				sp.edit().putBoolean( BuildConfig.VERSION_NAME + ".VER.SHOWED", true ).apply();
-				putAndShowNextAlertDialog( window );
+				window.show();
 			}
 		} catch (Exception e) {
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();

@@ -25,4 +25,11 @@ public class CustomAlertDialogBuilder extends AlertDialog.Builder {
 
 		return alertDialog;
 	}
+
+	@Override
+	public AlertDialog show() {
+		AlertDialog alertDialog = create();
+		alertDialog.show();
+		return alertDialog;
+	}
 }

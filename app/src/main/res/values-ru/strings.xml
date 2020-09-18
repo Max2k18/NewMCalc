@@ -101,4 +101,11 @@
     <string name="number_generator">Генератор чисел</string>
     <string name="invalid_name">Некорректное имя</string>
     <string name="variable_editor">Редактор переменных</string>
+    <string name="theme">Тема</string>
+
+    <string-array name="theme_states">
+        <item>Светлая</item>
+        <item>Тёмная</item>
+        <item>Как в системе</item>
+    </string-array>
 </resources>

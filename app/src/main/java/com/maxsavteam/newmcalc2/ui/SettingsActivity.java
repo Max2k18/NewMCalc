@@ -24,6 +24,7 @@ import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
+import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.io.File;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-//import java.lang.;
 
 public class SettingsActivity extends ThemeActivity {
 
@@ -65,9 +65,6 @@ public class SettingsActivity extends ThemeActivity {
 				sw.setText(R.string.switchSaveOff);
 				sp.edit().remove("saveResult").apply();
 			}
-		}else if(v.getId() == R.id.switchDarkMode){
-			sp.edit().putBoolean("dark_mode", sw.isChecked()).apply();
-			restartApp();
 		}
 
 	}
@@ -88,6 +85,14 @@ public class SettingsActivity extends ThemeActivity {
 		if(sp.getBoolean("storage_denied", false)){
 			findViewById(R.id.import_export).setVisibility(View.GONE);
 		}
+
+		ButtonWithDropdown button = findViewById( R.id.theme_dropdown_button );
+		button.setElements( getResources().getStringArray( R.array.theme_states ) );
+		button.setSelection( sp.getInt( "theme_state", 2 ) );
+		button.setOnItemSelectedListener( index -> {
+			sp.edit().putInt( "theme_state", index ).apply();
+			restartApp();
+		} );
 	}
 
 	@Override
@@ -100,8 +105,6 @@ public class SettingsActivity extends ThemeActivity {
 		} else {
 			sw.setText(R.string.switchSaveOff);
 		}
-		sw = findViewById(R.id.switchDarkMode);
-		sw.setChecked(sp.getBoolean("dark_mode", false));
 		findViewById(R.id.btnExport).setOnLongClickListener(new View.OnLongClickListener() {
 			@Override
 			public boolean onLongClick(View v) {

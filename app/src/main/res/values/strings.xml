@@ -140,4 +140,11 @@
     <string name="number_generator">Number generator</string>
     <string name="invalid_name">Invalid name</string>
     <string name="variable_editor">Variable editor</string>
+    <string name="theme">Theme</string>
+
+    <string-array name="theme_states">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>As in the system</item>
+    </string-array>
 </resources>
