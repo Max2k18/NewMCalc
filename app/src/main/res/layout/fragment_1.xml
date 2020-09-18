@@ -34,7 +34,8 @@
                 android:layout_weight="0.3"
                 android:onClick="deleteExample"
                 android:text="C"
-                android:textColor="@android:color/background_light"
+                android:backgroundTint="?textColor"
+                android:textColor="?windowBackgroundColor"
                 android:textSize="25sp"
                 android:visibility="visible" />
 
@@ -253,7 +254,7 @@
                 android:onClick="onClick"
                 android:text="="
                 android:textAllCaps="false"
-                android:textColor="@color/black"
+                android:textColor="?textColor"
                 android:textSize="25sp" />
 
             <androidx.appcompat.widget.AppCompatButton
