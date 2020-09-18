@@ -5,7 +5,6 @@
         <item>You may have imported settings from an application with a higher version, where this protocol is supported.</item>
         <item>Please check if there is an application update.</item>
     </string-array>
-    <integer name="transition_animation_duration">350</integer>
 
     <string name="abs" translatable="false">abs</string>
     <string name="bracket_floor_open" translatable="false">&#8970;</string>
@@ -49,7 +48,6 @@
     <string name="ex_im_label">Import or export app\'s settings</string>
     <string name="export_file_not_found">External configuration file not found</string>
     <string name="exported">Exported</string>
-    <string name="text_dark_mode">Dark Mode</string>
     <string name="pass_sw_all_off">Please select at least one option</string>
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
@@ -129,11 +127,8 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <string name="important_information">Important information</string>
-    <string name="sidebar_guide_message">We have moved the settings, history, generators and converter button to the new side menu. You can open it with a swipe from the left edge of the screen or click on the button from the top left. &lt;br&gt;&lt;br&gt; &lt;b&gt;Have a nice use!&lt;/b&gt;</string>
     <string name="smth_went_wrong">Something went wrong</string>
     <string name="in_calc_process_message"><![CDATA[In the process…<br>If you see this message, then you are trying to count too large a number. We do not advise you to continue, as this may affect the consumption of resources. If the process continues for 7 seconds, the calculation will be interrupted.]]></string>
-    <string name="bottom_sheet_guide">If you click on this field or swipe it, additional actions will appear.</string>
     <string name="calc_accuracy">Calculation accuracy (number of decimal places)</string>
     <string name="thread_destroy_reason">Counting was stopped due to lack of RAM device.</string>
     <string name="keep_screen_on">Keep screen on</string>

@@ -27,12 +27,10 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -62,7 +60,6 @@ import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
-import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -87,14 +84,10 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EmptyStackException;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 public class Main2Activity extends ThemeActivity {
 
@@ -290,14 +283,14 @@ public class Main2Activity extends ThemeActivity {
 			ShortcutInfo shortcut1 = new ShortcutInfo.Builder( getApplicationContext(), "id1" )
 					.setLongLabel( getResources().getString( R.string.random_number_generator ) )
 					.setShortLabel( getResources().getString( R.string.random_number_generator ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.dice ) )
+					.setIcon( Icon.createWithResource( this, R.drawable.ic_dice ) )
 					.setIntent( t )
 					.build();
 			t.putExtra( "to_", "pass" );
 			ShortcutInfo shortcut2 = new ShortcutInfo.Builder( getApplicationContext(), "id2" )
 					.setLongLabel( getResources().getString( R.string.password_generator ) )
 					.setShortLabel( getResources().getString( R.string.password_generator ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.passgen ) )
+					.setIcon( Icon.createWithResource( this, R.drawable.ic_passgen ) )
 					.setIntent( t )
 					.build();
 
@@ -305,14 +298,14 @@ public class Main2Activity extends ThemeActivity {
 			ShortcutInfo shortcut3 = new ShortcutInfo.Builder( getApplicationContext(), "id3" )
 					.setLongLabel( getResources().getString( R.string.history ) )
 					.setShortLabel( getResources().getString( R.string.history ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.history ) )
+					.setIcon( Icon.createWithResource( this, R.drawable.ic_history ) )
 					.setIntent( t )
 					.build();
 			t.putExtra( "to_", "bin" );
 			ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder( getApplicationContext(), "idNumSys" )
 					.setLongLabel( getResources().getString( R.string.number_system_converter ) )
 					.setShortLabel( getResources().getString( R.string.number_system_converter ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.binary ) )
+					.setIcon( Icon.createWithResource( this, R.drawable.ic_binary ) )
 					.setIntent( t )
 					.build();
 

@@ -13,11 +13,11 @@
         android:name=".MCalcApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
-        android:icon="@drawable/newmcalc"
+        android:icon="@drawable/ic_mcalc"
         android:label="@string/app_name"
         android:maxAspectRatio="2.1"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/newmcalc"
+        android:roundIcon="@drawable/ic_mcalc"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">

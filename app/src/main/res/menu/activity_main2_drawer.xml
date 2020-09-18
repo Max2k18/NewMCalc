@@ -8,23 +8,23 @@
         android:checkableBehavior="none">
         <item
             android:id="@+id/nav_history"
-            android:icon="@drawable/history_dark"
+            android:icon="@drawable/ic_history"
             android:title="@string/history" />
         <item
             android:id="@+id/nav_numbersysconverter"
-            android:icon="@drawable/binary_dark"
+            android:icon="@drawable/ic_binary"
             android:title="@string/number_system_converter" />
         <item
             android:id="@+id/nav_passgen"
-            android:icon="@drawable/passgen_dark"
+            android:icon="@drawable/ic_passgen"
             android:title="@string/password_generator" />
         <item
             android:id="@+id/nav_numgen"
-            android:icon="@drawable/dice_dark"
+            android:icon="@drawable/ic_dice"
             android:title="@string/number_generator" />
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/settings_dark"
+            android:icon="@drawable/ic_settings"
             android:title="@string/settings" />
     </group>
 </menu>

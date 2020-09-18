@@ -19,7 +19,7 @@
         android:layout_height="95dp"
         android:backgroundTint="@android:color/transparent"
         android:scaleType="centerCrop"
-        app:srcCompat="@drawable/newmcalc" />
+        app:srcCompat="@drawable/ic_mcalc" />
 
     <TextView
         android:id="@+id/headerTitle"

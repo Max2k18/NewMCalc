@@ -22,7 +22,7 @@
             android:id="@+id/appIcon"
             android:layout_width="140dp"
             android:layout_height="140dp"
-            android:src="@drawable/newmcalc"
+            android:src="@drawable/ic_mcalc"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -62,7 +62,7 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="social"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/vk" />
+            app:srcCompat="@drawable/ic_vk" />
 
         <ImageButton
             android:id="@+id/instBtn"
@@ -71,7 +71,7 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="social"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/instagram" />
+            app:srcCompat="@drawable/ic_instagram" />
 
         <ImageButton
             android:id="@+id/siteBtn"
@@ -80,7 +80,7 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="social"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/website2" />
+            app:srcCompat="@drawable/ic_external_link" />
 
         <ImageButton
             android:id="@+id/playMarketBtn"
@@ -89,7 +89,7 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="social"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/google_play" />
+            app:srcCompat="@drawable/ic_google_play" />
     </LinearLayout>
 
     <androidx.appcompat.widget.Toolbar
