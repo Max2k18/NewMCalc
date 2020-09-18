@@ -25,6 +25,8 @@ public final class Utils {
 	@SuppressLint("StaticFieldLeak")
 	private static Context sContext;
 
+	public static final String MCALC_SITE = "https://mcalc.maxsav.team/";
+
 	public static void setContext(Context context) {
 		sContext = context;
 	}
@@ -116,7 +118,7 @@ public final class Utils {
 	}
 
 	public static void defaultActivityAnim(Activity activity){
-		activity.overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
+		//activity.overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
 	}
 
 	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context){

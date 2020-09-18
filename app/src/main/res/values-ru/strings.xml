@@ -6,7 +6,6 @@
         <item>Пожалуйста, проверьте, есть ли обновление приложения.</item>
     </string-array>
     <string name="settings">Настройки</string>
-    <string name="version">"Версия: "</string>
     <string name="from">от</string>
     <string name="to">до</string>
     <string name="select_number">Выберите число</string>
@@ -14,7 +13,6 @@
     <string name="random_number_generator">Генератор целых чисел</string>
     <string name="maxintexception">Значения должны быть в пределах от -9,223,372,036,854,775,808 до 9,223,372,036,854,775,807.</string>
     <string name="copied">Скопировано в буфер обмена</string>
-    <string name="build">"Сборка: "</string>
     <string name="history">История</string>
     <string name="history_not_found">Хм...\\nИстории тут нет...\\nГде же она?</string>
     <string name="password_generator">Генератор паролей</string>
@@ -23,19 +21,14 @@
     <string name="exit">Выход</string>
     <string name="areyousureexit">Желаете выйти?</string>
     <string name="about">О приложении</string>
-    <string name="about_text">Это приложение создано полностью одним человеком. Его зовут Макс Савицкий. Все системы, всё ядро, всё сделано этим человеком. Также он дал разрешение компании SM-app на издание данного приложения.</string>
     <string name="cls_history">Очистить историю</string>
     <string name="confirm_cls_history">Вы действительно хотите очистить историю?</string>
     <string name="confirm">Подтверждение</string>
     <string name="switchSaveOff">Последний результат не будет сохраняться после закрытия приложения.</string>
     <string name="switchSaveOn">Последний результат будет сохраняться после закрытия приложения.</string>
-    <string name="left">Слева</string>
-    <string name="right">Справа</string>
-    <string name="loc_of_btnadd">Выберите расположение кнопки для показа настроек, истории и т.д.</string>
     <string name="import_se">Импорт</string>
     <string name="export">Экспорт</string>
     <string name="ex_im_label">Импортировать или экспортировать настройки приложения</string>
-    <string name="other_set">Другие настройки</string>
     <string name="export_file_not_found">Внешний файл настроек не найден</string>
     <string name="exported">Экспортировано</string>
     <string name="text_dark_mode">Тёмная тема</string>
@@ -68,10 +61,6 @@
     <string name="activity_requet_permissions">Нам нужно получить разрешение на чтение и запись в память усторойства. Это нужно для того, чтобы Вы могли импортировать или экспортировать настройки приложения, ведь запись идёт в хранилище. Предоставьте нам разрешение, пожалуйста.</string>
     <string name="never_show_again">Не показывать снова</string>
     <string name="info">Инфо</string>
-    <string name="about_average">Среднее арифметическое. Это сумма всех чисел, делённая на их  количество. Вы сможете это использовать в различных связках действий. Например, использовать как слагаемое, множитель или найти факториал. К со Когда Вы нажали на кнопку этого режима, на экране появится обозначение и откроется скобка. Здесь вы можете дописывать только цифры и знак сложения, а также сможете прибавить число из истории. После закрытия скобки, ядро (алгоритм, по которому мы считаем ваш пример) переходит в обычный режим.</string>
-    <string name="about_geometric">Среднее геометрическое. Это квадратный корень из произведения всех чисел. Работает, как и среднее арифметическое. Различие только в том, что вместо знаков сложения можно использовать только знаки умножения.</string>
-    <string name="aboutAG_desc">Что такое среднее арифметическое и среднее геометрическое и как их использовать</string>
-    <string name="CompileDateLbl">Скомпилировано:</string>
     <string name="chooseSysLabel">Выберите системы счисления для преобразования числа</string>
     <string name="chooseToSys">в</string>
     <string name="chooseFromSys">из</string>
@@ -83,7 +72,6 @@
     <string name="rate">Оценить</string>
     <string name="no_thanks">Нет, спасибо</string>
     <string name="later">Позже</string>
-    <string name="show_all_errors">Показывать все ошибки при вычислении</string>
     <string name="invalid_argument">Неверный аргумент</string>
     <string name="value_is_too_big">Слишком большое знач.</string>
     <string name="division_by_zero">Деление на ноль</string>
@@ -105,12 +93,8 @@
     <string name="important_information">Важная информация</string>
     <string name="sidebar_guide_message">Мы переместили кнопку настроек, истории, генераторов и конвертера в новое боковое меню. Мы можете открыть его свайпом от левого края экрана или нажать на кнопку сверху слева.&lt;br&gt;&lt;br&gt; &lt;b&gt;Приятного использования!&lt;/b&gt;</string>
     <string name="smth_went_wrong">Что-то пошло не так</string>
-    <string name="restart_app">Перезапустить приложение</string>
-    <string name="on_err_in_backup_file">В резервном файле данные были некорректно записаны или вручную изменены. Никакие настройки не были импортированы.</string>
-    <string name="view_report">Просмотреть отчёт</string>
     <string name="in_calc_process_message"><![CDATA[В процессе…<br>Если Вы увидели это сообщение, значит Вы пытаетесь посчитать слишком большое число. Мы не советуем Вам продолжать, так как  это может отразиться на потреблении ресурсов. Если процесс будет продолжаться на протяжении 7 секунд, то подсчёт будет прерван.]]></string>
     <string name="bottom_sheet_guide">Если Вы нажмёте на это поле или смахнёте по нему, то появятся дополнительные действия.</string>
-    <string name="show_in_full">Показать полностью.</string>
     <string name="calc_accuracy">Точность вычислений(количество знаков после запятой)</string>
     <string name="thread_destroy_reason">Подсчёт был прекращён из-за нехватки оперативной памяти устройства.</string>
     <string name="keep_screen_on">Оставить экран включённым</string>

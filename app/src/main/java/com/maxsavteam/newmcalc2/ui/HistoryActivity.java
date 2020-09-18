@@ -63,28 +63,13 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private Menu mMenu;
 	private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 
-	private void backPressed() {
-		//sendBroadcast(history_action);
-		finish();
-		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
-	}
-
-	private void restartActivity() {
-		Intent in = new Intent( this, HistoryActivity.class );
-		this.startActivity( in );
-		this.finish();
-	}
-
 	@Override
 	public void onBackPressed() {
 		setResult( ResultCodes.RESULT_NORMAL, history_action );
-		if ( start_type.equals( "app" ) ) {
-			backPressed();
-		} else if ( start_type.equals( "shortcut" ) ) {
+		if ( start_type.equals( "shortcut" ) ) {
 			startActivity( new Intent( this, Main2Activity.class ) );
-			backPressed();
 		}
-		//super.onBackPressed();
+		super.onBackPressed();
 	}
 
 	@Override
@@ -97,7 +82,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		Toast.makeText( this, getResources().getString( R.string.smth_went_wrong ), Toast.LENGTH_LONG ).show();
 		history_action.putExtra( "error", true );
 		setResult( ResultCodes.RESULT_ERROR, history_action );
-		backPressed();
+		super.onBackPressed();
 	}
 
 	@Override
@@ -109,7 +94,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		//history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
 		history_action.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
 		setResult( ResultCodes.RESULT_NORMAL, history_action );
-		backPressed();
+		super.onBackPressed();
 		//Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
 	}
 
@@ -422,7 +407,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		int id = item.getItemId();
 		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
 		if ( id == android.R.id.home ) {
-			backPressed();
+			onBackPressed();
 		} else if ( id == R.id.clear_history ) {
 			CustomAlertDialogBuilder build = new CustomAlertDialogBuilder( this );
 			build.setMessage( R.string.confirm_cls_history )

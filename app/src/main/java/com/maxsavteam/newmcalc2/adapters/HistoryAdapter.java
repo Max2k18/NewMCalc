@@ -74,18 +74,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 	public void toggleDescriptionLayoutVisibility(int position) {
 		ViewHolder holder = mViewHolders.get( position );
 		if ( holder.descLayout.getVisibility() == View.VISIBLE ) {
-			/*view.animate()
-					.scaleY( 1 )
-					.withStartAction( ()->view.setVisibility( View.VISIBLE ) )
-					.setDuration( duration )
-					.start();*/
 			holder.descLayout.setVisibility( View.GONE );
 		} else {
-			/*view.animate()
-					.scaleY( 0 )
-					.withEndAction( ()->view.setVisibility( View.GONE ) )
-					.setDuration( duration )
-					.start();*/
 			holder.descLayout.setVisibility( View.VISIBLE );
 		}
 	}

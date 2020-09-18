@@ -16,10 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodes;
@@ -28,125 +30,90 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 
-public class MemoryActionsActivity extends AppCompatActivity implements WindowRecallAdapter.inter {
+public class MemoryActionsActivity extends ThemeActivity implements WindowRecallAdapter.inter {
 	private BigDecimal[] barr;
 	private WindowRecallAdapter adapter;
-	private boolean DarkMode;
 	private String type;
 	private Intent activity_intent;
 	private MemorySaverReader memorySaverReader;
 
-	private void backPressed(){
-		finish();
-		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
-	}
-
 	@Override
 	public void onBackPressed() {
-		backPressed();
+		super.onBackPressed();
 	}
 
-	private void applyActionBarProps(){
-		ActionBar appActionBar = getSupportActionBar();
-		if(appActionBar != null) {
-			if (DarkMode) {
-				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_32dp);
-				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.black));
-				getWindow().setNavigationBarColor(Color.BLACK);
-			} else {
-				getWindow().setNavigationBarColor(Color.WHITE);
-				appActionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_black_32dp);
-				appActionBar.setBackgroundDrawable(getDrawable(R.drawable.white));
-			}
-			appActionBar.setElevation(0);
-		}
+	public void cancel_all(View v) {
+		onBackPressed();
 	}
 
-	public void cancel_all(View v){
-		backPressed();
-	}
-
-	public void clear_all(View v){
-		new CustomAlertDialogBuilder(this)
-				.setMessage(R.string.delete_all_memories_quest)
-				.setPositiveButton(R.string.yes, (dialogInterface1, i) -> {
-					barr = new BigDecimal[10];
-					for(int ii = 0; ii < 10; ii++){
-						barr[ii] = BigDecimal.valueOf(0);
+	public void clear_all(View v) {
+		new CustomAlertDialogBuilder( this )
+				.setMessage( R.string.delete_all_memories_quest )
+				.setPositiveButton( R.string.yes, (dialogInterface1, i)->{
+					barr = new BigDecimal[ 10 ];
+					for (int ii = 0; ii < 10; ii++) {
+						barr[ ii ] = BigDecimal.valueOf( 0 );
 					}
-					memorySaverReader.save(barr);
+					memorySaverReader.save( barr );
 					adapter.notifyDataSetChanged();
 					dialogInterface1.cancel();
 					setResult( ResultCodes.RESULT_REFRESH );
-					backPressed();
-				})
-				.setNegativeButton(R.string.no, (dialogInterface1, i) -> dialogInterface1.cancel())
+					onBackPressed();
+				} )
+				.setNegativeButton( R.string.no, (dialogInterface1, i)->dialogInterface1.cancel() )
 				.show();
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
-		if(id == android.R.id.home){
-			backPressed();
+		if ( id == android.R.id.home ) {
+			onBackPressed();
 		}
-		return super.onOptionsItemSelected(item);
+		return super.onOptionsItemSelected( item );
 	}
 
 	@SuppressLint("SourceLockedOrientationActivity")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		DarkMode = sp.getBoolean("dark_mode", false);
-		if(DarkMode){
-			setTheme(android.R.style.Theme_Material_NoActionBar);
-		}else{
-			setTheme(R.style.AppTheme);
-		}
-		setContentView(R.layout.activity_memory_actions);
-		memorySaverReader = new MemorySaverReader(this);
+		super.onCreate( savedInstanceState );
+		setContentView( R.layout.activity_memory_actions );
 
-		if(DarkMode)
-			getWindow().setBackgroundDrawableResource(R.drawable.black);
-		else
-			getWindow().setBackgroundDrawableResource(R.drawable.white);
+		memorySaverReader = new MemorySaverReader( this );
 
 		activity_intent = getIntent();
-		type = activity_intent.getStringExtra("type");
-		try{
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setTitle( ( type.equals("rc") ? "Recall Memory" : "Store Memory" ) );
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		}catch(NullPointerException e){
-			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
-			e.printStackTrace();
-		}
-		applyActionBarProps();
+		type = activity_intent.getStringExtra( "type" );
+
+		Toolbar toolbar = findViewById( R.id.toolbar );
+		toolbar.setTitle( ( type.equals( "rc" ) ? "Recall Memory" : "Store Memory" ) );
+		setSupportActionBar( toolbar );
+		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
+		setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
 
 		barr = memorySaverReader.read();
-		RecyclerView rv = findViewById(R.id.memory_actions_rv);
-		adapter = new WindowRecallAdapter(this, barr);
-		adapter.setInterface(this);
-		LinearLayoutManager manager = new LinearLayoutManager(this);
-		manager.setOrientation(RecyclerView.VERTICAL);
-		rv.setLayoutManager(manager);
-		rv.setAdapter(adapter);
+		RecyclerView rv = findViewById( R.id.memory_actions_rv );
+		adapter = new WindowRecallAdapter( this, barr );
+		adapter.setInterface( this );
+		LinearLayoutManager manager = new LinearLayoutManager( this );
+		manager.setOrientation( RecyclerView.VERTICAL );
+		rv.setLayoutManager( manager );
+		rv.setAdapter( adapter );
 	}
 
 	@Override
 	public void onRecallClick(View view, int position) {
-		if(type.equals("st")){
-			String value = activity_intent.getStringExtra("value");
-			barr[position] = new BigDecimal(value);
-			memorySaverReader.save(barr);
+		if ( type.equals( "st" ) ) {
+			String value = activity_intent.getStringExtra( "value" );
+			barr[ position ] = new BigDecimal( value );
+			memorySaverReader.save( barr );
 			setResult( ResultCodes.RESULT_REFRESH );
-			backPressed();
-		}else if(type.equals("rc")){
+			onBackPressed();
+		} else if ( type.equals( "rc" ) ) {
 			Intent intent = new Intent();
-			intent.putExtra("value", barr[position].toString());
+			intent.putExtra( "value", barr[ position ].toString() );
 			setResult( ResultCodes.RESULT_APPEND, intent );
-			backPressed();
+			onBackPressed();
 		}
 	}
 }

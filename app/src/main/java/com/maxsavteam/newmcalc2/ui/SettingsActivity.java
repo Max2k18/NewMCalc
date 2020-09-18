@@ -40,15 +40,9 @@ public class SettingsActivity extends ThemeActivity {
 
 	private SharedPreferences sp;
 
-	private void backPressed() {
-		finish();
-		overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1);
-	}
-
 	@Override
 	public void onBackPressed() {
-		backPressed();
-		//super.onBackPressed();
+		super.onBackPressed();
 	}
 
 	@Override
@@ -56,13 +50,13 @@ public class SettingsActivity extends ThemeActivity {
 		int id = item.getItemId();
 		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
 		if (id == android.R.id.home) {
-			backPressed();
+			onBackPressed();
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
 	public void switchSave(View v) {
-		Switch sw = findViewById(v.getId());
+		Switch sw = (Switch) v;
 		if(v.getId() == R.id.switchSaveOnExit){
 			if (sw.isChecked()) {
 				sw.setText(R.string.switchSaveOn);
@@ -77,8 +71,6 @@ public class SettingsActivity extends ThemeActivity {
 		}
 
 	}
-
-	boolean DarkMode = false;
 
 	@SuppressLint("SourceLockedOrientationActivity")
 	@Override
@@ -135,8 +127,7 @@ public class SettingsActivity extends ThemeActivity {
 	private void restartApp(){
 		Intent intent = new Intent(this, Main2Activity.class);
 		this.startActivity(intent);
-		this.finishAffinity();
-		overridePendingTransition(R.anim.activity_in1, R.anim.activity_out1);
+		onBackPressed();
 	}
 
 	public void changeScaleClickListener(View v){

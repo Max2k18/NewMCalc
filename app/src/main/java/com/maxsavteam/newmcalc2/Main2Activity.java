@@ -103,7 +103,6 @@ public class Main2Activity extends ThemeActivity {
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
 	private boolean was_error = false;
-	private boolean DarkMode = true;
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
@@ -183,8 +182,7 @@ public class Main2Activity extends ThemeActivity {
 				} )
 				.setPositiveButton( R.string.yes, (dialog, which)->{
 					dialog.cancel();
-					finishAndRemoveTask();
-					overridePendingTransition( R.anim.abc_popup_enter, R.anim.alpha_hide );
+					super.onBackPressed();
 				} );
 		putAndShowNextAlertDialog( builder.create() );
 	}
@@ -197,7 +195,7 @@ public class Main2Activity extends ThemeActivity {
 			return true;
 		} else if ( id == R.id.what_new ) {
 			Intent in = new Intent( Intent.ACTION_VIEW );
-			in.setData( Uri.parse( "https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME ) );
+			in.setData( Uri.parse( Utils.MCALC_SITE + "what-new/#" + BuildConfig.VERSION_NAME ) );
 			startActivity( in );
 		}
 		return super.onOptionsItemSelected( item );
@@ -218,53 +216,13 @@ public class Main2Activity extends ThemeActivity {
 		ImageButton imageButton = header.findViewById( R.id.imgBtnHeader );
 		imageButton.setOnClickListener( v->{
 			Intent in = new Intent( Intent.ACTION_VIEW );
-			in.setData( Uri.parse( "https://newmcalc.maxsav.team/" ) );
+			in.setData( Uri.parse( Utils.MCALC_SITE ) );
 			startActivity( in );
 		} );
-		int[] headersIds = new int[]{
-				R.id.headerTitle
-		};
-		int navDefaultTextColor;
-		int navIconColor;
-		if ( DarkMode ) {
-			getWindow().setBackgroundDrawableResource( R.drawable.black );
-			getWindow().setNavigationBarColor( Color.BLACK );
-			TextView t;
-			int[] ids = new int[]{
-					R.id.AnswerStr,
-					R.id.ExampleStr
-			};
-			for (int id : ids) {
-				t = findViewById( id );
-				t.setTextColor( getResources().getColor( R.color.white ) );
-			}
-			header.setBackgroundColor( Color.BLACK );
-			for (int id : headersIds) {
-				( (TextView) header.findViewById( id ) ).setTextColor( Color.WHITE );
-			}
-			navDefaultTextColor = Color.WHITE;
-			navIconColor = Color.WHITE;
+		if(super.isDarkMode)
 			mNavigationView.setBackgroundColor( Color.BLACK );
-		} else {
-			TextView t;
-			getWindow().setBackgroundDrawableResource( R.drawable.white );
-			getWindow().setNavigationBarColor( Color.WHITE );
-			int[] ids = new int[]{
-					R.id.AnswerStr,
-					R.id.ExampleStr
-			};
-			for (int id : ids) {
-				t = findViewById( id );
-				t.setTextColor( getResources().getColor( R.color.black ) );
-			}
-			header.setBackgroundColor( Color.WHITE );
-			for (int id : headersIds) {
-				( (TextView) header.findViewById( id ) ).setTextColor( Color.BLACK );
-			}
-			navDefaultTextColor = Color.BLACK;
-			navIconColor = Color.BLACK;
+		else
 			mNavigationView.setBackgroundColor( Color.WHITE );
-		}
 
 		ColorStateList navMenuTextList = new ColorStateList(
 				new int[][]{
@@ -272,8 +230,8 @@ public class Main2Activity extends ThemeActivity {
 						new int[]{ -android.R.attr.state_checked }
 				},
 				new int[]{
-						navDefaultTextColor,
-						navDefaultTextColor
+						super.textColor,
+						super.textColor
 				}
 		);
 		ColorStateList navMenuIconColors = new ColorStateList(
@@ -282,8 +240,8 @@ public class Main2Activity extends ThemeActivity {
 						new int[]{ -android.R.attr.state_checked }
 				},
 				new int[]{
-						navIconColor,
-						navIconColor
+						super.textColor,
+						super.textColor
 				}
 		);
 		mNavigationView.setItemIconTintList( navMenuIconColors );
@@ -292,7 +250,7 @@ public class Main2Activity extends ThemeActivity {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		if ( toolbar != null ) {
 			toolbar.setElevation( 0 );
-			if ( DarkMode ) {
+			if ( super.isDarkMode ) {
 				toolbar.setBackgroundColor( Color.BLACK );
 				toolbar.setTitleTextColor( Color.WHITE );
 				toolbar.setNavigationIcon( R.drawable.ic_menu_white );
@@ -462,37 +420,6 @@ public class Main2Activity extends ThemeActivity {
 		//setViewPager(0);
 	}
 
-
-	private void showSidebarGuide() {
-		boolean guideShowed = sp.getBoolean( "sidebar_guide_showed", false );
-		if ( !guideShowed ) {
-			AlertDialog alertDialog;
-			CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-			builder
-					.setTitle( R.string.important_information )
-					.setMessage( Html.fromHtml( getResources().getString( R.string.sidebar_guide_message ) ) )
-					.setCancelable( false )
-					.setPositiveButton( "OK", (dialog, which)->{
-						sp.edit().putBoolean( "sidebar_guide_showed", true ).apply();
-						dialog.cancel();
-						showNextAlertDialog();
-					} );
-			alertDialog = builder.create();
-			Window window = alertDialog.getWindow();
-			if ( window != null ) {
-				if ( DarkMode ) {
-					window.setBackgroundDrawableResource( R.drawable.grey );
-				}
-
-				Button btn = alertDialog.getButton( AlertDialog.BUTTON_POSITIVE );
-				if ( btn != null ) {
-					btn.setTextColor( getResources().getColor( R.color.colorAccent ) );
-				}
-			}
-			putAndShowNextAlertDialog( alertDialog );
-		}
-	}
-
 	String APPTYPE = BuildConfig.APPTYPE;
 
 	private void showWhatNewWindow() {
@@ -516,14 +443,6 @@ public class Main2Activity extends ThemeActivity {
 					showNextAlertDialog();
 				} ) );
 				window = builder.create();
-				Window alertWindow = window.getWindow();
-				if ( alertWindow != null ) {
-					if ( DarkMode ) {
-						alertWindow.setBackgroundDrawableResource( R.drawable.grey );
-					}
-				}
-				Utils.recolorAlertDialogButtons( window, this );
-				//window.getButton(1).setTextColor(getResources().getColor(R.color.colorAccent));
 				Map<String, ?> m = sp.getAll();
 				for (Map.Entry<String, ?> e : m.entrySet()) {
 					if ( !e.getKey().equals( BuildConfig.VERSION_NAME + ".VER.SHOWED" )
@@ -576,7 +495,7 @@ public class Main2Activity extends ThemeActivity {
 		TextView t = findViewById( R.id.AnswerStr );
 		t.setText( "" );
 		t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
-		t.setTextColor( DarkMode ? Color.WHITE : Color.BLACK );
+		t.setTextColor( super.textColor );
 	}
 
 	private void restartActivity() {
@@ -673,7 +592,7 @@ public class Main2Activity extends ThemeActivity {
 		} );
 
 		// theme setup
-		if ( DarkMode ) {
+		if ( super.isDarkMode ) {
 			layout.setBackground( getDrawable( R.drawable.rounded_header_black_theme ) );
 			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_white ) );
 		} else {
@@ -732,7 +651,6 @@ public class Main2Activity extends ThemeActivity {
 		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler() );
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
-		DarkMode = sp.getBoolean( "dark_mode", false );
 		setContentView( R.layout.activity_main2 );
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
@@ -1478,7 +1396,6 @@ public class Main2Activity extends ThemeActivity {
 			requestCode = RequestCodes.START_ADD_VAR;
 		}
 		startActivityForResult( intent, requestCode );
-		overridePendingTransition( R.anim.activity_in, R.anim.activity_out );
 	}
 
 	private void show_str() {
