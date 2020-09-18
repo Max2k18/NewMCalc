@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
-        minSdkVersion 22
+        minSdkVersion 23
         //noinspection OldTargetApi
         targetSdkVersion 30
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

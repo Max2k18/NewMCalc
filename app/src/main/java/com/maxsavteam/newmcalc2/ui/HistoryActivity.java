@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,8 +33,7 @@ import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.adapters.MyRecyclerViewAdapter;
-import com.maxsavteam.newmcalc2.adapters.MyRecyclerViewAdapter.ViewHolder;
+import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
@@ -52,13 +49,15 @@ import java.util.TimerTask;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
-public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdapter.ItemClickListener {
+public class HistoryActivity extends ThemeActivity implements HistoryAdapter.AdapterCallback {
 
-	private MyRecyclerViewAdapter adapter;
+	private static final String TAG = Main2Activity.TAG + " History";
+
+	private HistoryAdapter adapter;
 
 	private SharedPreferences sp;
 	private Intent history_action;
-	private ArrayList<HistoryEntry> str = new ArrayList<>();
+	private ArrayList<HistoryEntry> mEntries = new ArrayList<>();
 	private RecyclerView rv;
 	private boolean needToCreateMenu = false;
 	private Menu mMenu;
@@ -88,6 +87,12 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 		//super.onBackPressed();
 	}
 
+	@Override
+	protected void onPause() {
+		saveHistory();
+		super.onPause();
+	}
+
 	private void onSomethingWentWrong() {
 		Toast.makeText( this, getResources().getString( R.string.smth_went_wrong ), Toast.LENGTH_LONG ).show();
 		history_action.putExtra( "error", true );
@@ -102,42 +107,23 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 			animate_hide();
 		}
 		//history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
-		history_action.putExtra( "example", str.get( position ).getExample() ).putExtra( "result", adapter.getItem( position ).getAnswer() );
+		history_action.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
 		setResult( ResultCodes.RESULT_NORMAL, history_action );
 		backPressed();
 		//Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
 	}
 
-	int POSITION_TO_DEL = -1;
-	View VIEW_ON_DELETE;
+	private int POSITION_TO_DEL = -1;
 
 	@Override
-	public void onDelete(int position, ViewHolder v) {
-		try {
-			if ( POSITION_TO_DEL == -1 && IN_ORDER ) {
-				Toast.makeText( this, "Something went wrong. Please, restart activity", Toast.LENGTH_SHORT ).show();
-				return;
-			}
-
-			if ( IN_ORDER ) {
-				return;
-			}
-			View view = v.itemView;
-			view.setBackgroundTintList( ColorStateList.valueOf( Color.RED ) );
-			TextView t;
-			for (int id : new int[]{ R.id.tvAns, R.id.tvAns2 }) {
-				t = view.findViewById( id );
-				t.setTextColor( getResources().getColor( R.color.white ) );
-			}
-			//view.setEnabled(false);
-			VIEW_ON_DELETE = view;
-			POSITION_TO_DEL = position;
-			showDeleteCountdownAndRun();
-		} catch (Exception e) {
-			Toast.makeText( this, e.toString() + "\n\n" + position + "\n\n" + rv.getLayoutManager().getChildCount(), Toast.LENGTH_LONG ).show();
-			cancelTimer();
-			animate_hide();
+	public boolean onDelete(int position) {
+		if ( POSITION_TO_DEL != -1 ) {
+			return false;
 		}
+
+		POSITION_TO_DEL = position;
+		showDeleteCountdownAndRun();
+		return true;
 	}
 
 	private final int SECONDS_BEFORE_DELETE = 5;
@@ -156,19 +142,15 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 		mTimer.schedule( myTimer, 600, 1000 );
 	}
 
-	View.OnLongClickListener forceDelete = new View.OnLongClickListener() {
-		@Override
-		public boolean onLongClick(View v) {
-			delete();
-			animate_hide();
-			cancelTimer();
-			setupRecyclerView();
-			return true;
-		}
+	View.OnLongClickListener forceDelete = v->{
+		delete();
+		animate_hide();
+		cancelTimer();
+		setupRecyclerView();
+		return true;
 	};
 
 	private void cancelTimer() {
-		IN_ORDER = false;
 		if ( mTimer != null ) {
 			mTimer.cancel();
 			mTimer = null;
@@ -219,120 +201,18 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 			}
 		} );
 		lay.setAnimation( animation );
-		lay.animate();
 		animation.start();
 	}
 
 	@Override
-	public void showInfoButtonPressed(ViewHolder viewHolder, int position) {
-		//view = (View) view.getParent().getParent();
-		View view = viewHolder.itemView;
-		TextView t = view.findViewById( R.id.tvWithDesc );
-		boolean with = Boolean.parseBoolean( t.getText().toString() );
-		if ( view.findViewById( R.id.with_desc ).getVisibility() == View.VISIBLE
-				|| view.findViewById( R.id.without_desc ).getVisibility() == View.VISIBLE ) {
-			LinearLayout lay;
-			if ( with ) {
-				lay = view.findViewById( R.id.with_desc );
-			} else {
-				lay = view.findViewById( R.id.without_desc );
-			}
-			Animation animation = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.anim_scalefordesc_hide );
-			animation.setAnimationListener( new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation animation) {
-
-				}
-
-				@Override
-				public void onAnimationEnd(Animation animation) {
-					lay.setVisibility( View.GONE );
-				}
-
-				@Override
-				public void onAnimationRepeat(Animation animation) {
-
-				}
-			} );
-			lay.clearAnimation();
-			lay.setAnimation( animation );
-			lay.animate();
-			animation.start();
-		} else {
-			LinearLayout lay;
-			if ( with ) {
-				lay = view.findViewById( R.id.with_desc );
-			} else {
-				lay = view.findViewById( R.id.without_desc );
-			}
-			Animation anim = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.anim_scalefordesc_show );
-			lay.clearAnimation();
-			anim.setAnimationListener( new Animation.AnimationListener() {
-				@Override
-				public void onAnimationStart(Animation animation) {
-
-				}
-
-				@Override
-				public void onAnimationEnd(Animation animation) {
-					//lay.setVisibility(View.VISIBLE);
-					lay.clearAnimation();
-				}
-
-				@Override
-				public void onAnimationRepeat(Animation animation) {
-
-				}
-			} );
-			lay.setAnimation( anim );
-			lay.setVisibility( View.VISIBLE );
-			lay.animate();
-			anim.start();
-		}
-	}
-
-	@Override
-	public void onDescriptionDelete(View view, int position) {
+	public void onDescriptionDelete(int position) {
 		AlertDialog alertDialog = new CustomAlertDialogBuilder( this )
 				.setCancelable( false )
-				.setNegativeButton( R.string.no, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
-						dialogInterface.cancel();
-					}
-				} )
-				.setPositiveButton( R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
-						str.get( position ).setDescription( null );
+				.setNegativeButton( R.string.no, (dialogInterface, i)->dialogInterface.cancel() )
+				.setPositiveButton( R.string.yes, (dialogInterface, i)->{
+					mEntries.get( position ).setDescription( null );
 
-						LinearLayout lay = view.findViewById( R.id.with_desc );
-						Animation animation = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.anim_scalefordesc_hide );
-						animation.setAnimationListener( new Animation.AnimationListener() {
-							@Override
-							public void onAnimationStart(Animation animation) {
-
-							}
-
-							@Override
-							public void onAnimationEnd(Animation animation) {
-								lay.setVisibility( View.GONE );
-								adapter.clearViews(); adapter.notifyDataSetChanged();
-							}
-
-							@Override
-							public void onAnimationRepeat(Animation animation) {
-
-							}
-						} );
-						lay.clearAnimation();
-						lay.setAnimation( animation );
-						lay.animate();
-						animation.start();
-						//par.findViewById(R.id.with_desc).setVisibility(View.GONE);
-						//par.findViewById(R.id.without_desc).setVisibility(View.VISIBLE);
-						saveHistory();
-					}
+					adapter.updateDescription( null, position );
 				} )
 				.setTitle( R.string.confirm )
 				.setMessage( R.string.confirm_del_desc )
@@ -341,71 +221,66 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 	}
 
 	@Override
-	public void onEditAdd(View view, int position, String mode) {
+	public void onDescriptionEdit(int position) {
 		final EditText input = new EditText( this );
 		input.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
 		input.setTextColor( super.textColor );
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT );
 		input.setLayoutParams( lp );
+		input.setText( mEntries.get( position ).getDescription() );
+
 		AlertDialog al = new CustomAlertDialogBuilder( this )
 				.setCancelable( false )
 				.setView( input )
 				.setMessage( R.string.enter_text )
 				.setTitle( R.string.desc )
-				.setPositiveButton( "OK", (dialogInterface, i)->{
+				.setPositiveButton( "OK", (dialog, which)->{
 					String newDesc = input.getText().toString();
-					if ( mode.equals( "edit" ) ) {
-						newDesc = Utils.trim( newDesc );
-						if ( !newDesc.equals( "" ) ) {
-							str.get( position ).setDescription( newDesc );
-							saveHistory();
-							( (TextView) view.findViewById( R.id.txtDesc2 ) ).setText( newDesc );
-						} else {
-							str.get( position ).setDescription( null );
-							saveHistory();
-							view.findViewById( R.id.with_desc ).setVisibility( View.GONE );
-							view.findViewById( R.id.without_desc ).setVisibility( View.VISIBLE );
-						}
-						adapter.clearViews(); adapter.notifyDataSetChanged();
-					} else if ( mode.equals( "add" ) ) {
-						newDesc = Utils.trim( newDesc );
-						if ( newDesc.equals( "" ) ) {
-							return;
-						}
-
-						str.get( position ).setDescription( newDesc );
-
-						view.findViewById( R.id.without_desc ).setVisibility( View.GONE );
-						( (TextView) view.findViewById( R.id.txtDesc2 ) ).setText( newDesc );
-						view.findViewById( R.id.with_desc ).setVisibility( View.GONE );
-						saveHistory();
-					}
-					adapter.clearViews(); adapter.notifyDataSetChanged();
-					dialogInterface.cancel();
+					newDesc = Utils.trim( newDesc );
+					mEntries.get( position ).setDescription( newDesc );
+					adapter.updateDescription( newDesc, position );
 				} )
-				.setNegativeButton( R.string.cancel, (dialog, i)->dialog.cancel() )
+				.setNegativeButton( R.string.cancel, (dialog, which)->dialog.cancel() )
 				.create();
-		if ( mode.equals( "edit" ) ) {
-			String desc = ( (TextView) view.findViewById( R.id.txtDesc2 ) ).getText().toString();
-			input.append( desc );
-		}
 		al.show();
 	}
 
 	@Override
-	public void onTrimmedDescription(String newDescription, int position) {
-		str.get( position ).setDescription( newDescription );
+	public void onDescriptionAdd(int position) {
+		final EditText input = new EditText( this );
+		input.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
+		input.setTextColor( super.textColor );
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams( LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT );
+		input.setLayoutParams( lp );
+
+		AlertDialog al = new CustomAlertDialogBuilder( this )
+				.setCancelable( false )
+				.setView( input )
+				.setMessage( R.string.enter_text )
+				.setTitle( R.string.desc )
+				.setPositiveButton( "OK", (dialog, which)->{
+					String newDesc = input.getText().toString();
+					newDesc = Utils.trim( newDesc );
+					if ( newDesc.isEmpty() ) {
+						return;
+					}
+					mEntries.get( position ).setDescription( newDesc );
+					adapter.updateDescription( newDesc, position );
+				} )
+				.setNegativeButton( R.string.cancel, (dialog, which)->dialog.cancel() )
+				.create();
+		al.show();
 	}
 
 	private void saveHistory() {
 		StringBuilder save = new StringBuilder();
-		int len = str.size();
+		int len = mEntries.size();
 		for (int i = 0; i < len; i++) {
-			save.append( str.get( i ).getExample() );
-			if ( str.get( i ).getDescription() != null ) {
-				save.append( Constants.HISTORY_DESC_SEPARATOR ).append( str.get( i ).getDescription() );
+			save.append( mEntries.get( i ).getExample() );
+			if ( mEntries.get( i ).getDescription() != null ) {
+				save.append( Constants.HISTORY_DESC_SEPARATOR ).append( mEntries.get( i ).getDescription() );
 			}
-			save.append( ( (char) 30 ) ).append( str.get( i ).getAnswer() ).append( ( (char) 29 ) );
+			save.append( ( (char) 30 ) ).append( mEntries.get( i ).getAnswer() ).append( ( (char) 29 ) );
 		}
 		sp.edit().putString( "history", save.toString() ).apply();
 
@@ -413,13 +288,18 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 
 	private void delete() {
 		cancelTimer();
-		str.remove( POSITION_TO_DEL );
+		mEntries.remove( POSITION_TO_DEL );
+		adapter.setWaitingToDelete( -1 );
+		adapter.remove( POSITION_TO_DEL );
+		POSITION_TO_DEL = -1;
+		mSwipeController.setSwipeable( true );
 		saveHistory();
-		setupRecyclerView();
 	}
 
+	private SwipeController mSwipeController = null;
+
 	private void setupRecyclerView() {
-		if ( str.size() == 0 ) {
+		if ( mEntries.size() == 0 ) {
 			needToCreateMenu = false;
 			if ( mMenu != null ) {
 				mMenu.removeItem( R.id.clear_history );
@@ -434,50 +314,46 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 			String[] strings = getResources().getStringArray( R.array.history_not_found );
 			t.setText( String.format( "%s\n%s\n%s", strings[ 0 ], strings[ 1 ], strings[ 2 ] ) );
 		} else {
-			try {
-				LinearLayoutManager lay = new LinearLayoutManager( this );
-				lay.setOrientation( RecyclerView.VERTICAL );
-				adapter = new MyRecyclerViewAdapter( getApplicationContext(), str );
-				adapter.setClickListener( this );
-				rv.setAdapter( adapter );
-				rv.setLayoutManager( lay );
-				SwipeController sc = new SwipeController( new SwipeControllerActions() {
-					@Override
-					public void onRightClicked(int position) {
-						ArrayList<MyRecyclerViewAdapter.ViewHolder> ar = adapter.getViews();
-						/*
-						 * Crutch, because recyclerview returns child count one value, but adapter returns right value.
-						 * I tried to google, but so far I haven't found anything.
-						 */
-						onDelete( position, ar.get( position ) );
-						//Toast.makeText(history.this, Integer.toString(adapter.getViews().size()), Toast.LENGTH_SHORT).show();
-					}
+			LinearLayoutManager lay = new LinearLayoutManager( this );
+			lay.setOrientation( RecyclerView.VERTICAL );
+			adapter = new HistoryAdapter( this, mEntries, this );
+			rv.setAdapter( adapter );
+			rv.setLayoutManager( lay );
 
-					@Override
-					public void onLeftClicked(int position) {
-						showInfoButtonPressed( adapter.getViews().get( position ), position );
+			RecyclerView.ItemDecoration itemDecoration = new RecyclerView.ItemDecoration() {
+				@Override
+				public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+					mSwipeController.onDraw( c );
+					super.onDraw( c, parent, state );
+				}
+			};
+
+			mSwipeController = new SwipeController( new SwipeControllerActions() {
+				@Override
+				public void onRightClicked(int position) {
+					if ( onDelete( position ) ) {
+						adapter.setWaitingToDelete( position );
+						mSwipeController.setSwipeable( false );
 					}
-				}, this );
-				ItemTouchHelper itemTouchHelper = new ItemTouchHelper( sc );
-				itemTouchHelper.attachToRecyclerView( rv );
-				rv.addItemDecoration( new RecyclerView.ItemDecoration() {
-					@Override
-					public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
-						sc.onDraw( c );
-					}
-				} );
-			} catch (Exception e) {
-				Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
-				Log.e( "Layout", e.toString() );
-			}
+				}
+
+				@Override
+				public void onLeftClicked(int position) {
+					adapter.toggleDescriptionLayoutVisibility( position );
+				}
+			}, this );
+
+			ItemTouchHelper itemTouchHelper = new ItemTouchHelper( mSwipeController );
+			itemTouchHelper.attachToRecyclerView( rv );
+			rv.addItemDecoration( itemDecoration );
 		}
 	}
 
 	public void cancel(View v) {
 		cancelTimer();
-		IN_ORDER = false;
+		adapter.setWaitingToDelete( -1 );
 		POSITION_TO_DEL = -1;
-		VIEW_ON_DELETE.setEnabled( true );
+		mSwipeController.setSwipeable( true );
 		animate_hide();
 	}
 
@@ -485,7 +361,6 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 	int countdown_del = 6;
 	TextView tCount;
 	LinearLayout cancel;
-	public boolean IN_ORDER = false;
 
 	class MyTimer extends TimerTask {
 		@SuppressLint("SetTextI18n")
@@ -493,12 +368,9 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 		public void run() {
 			if ( countdown_del != 0 ) {
 				countdown_del--;
-				IN_ORDER = true;
 				runOnUiThread( ()->tCount.setText( Integer.toString( countdown_del ) ) );
-
 			} else {
 				cancelTimer();
-				IN_ORDER = false;
 				runOnUiThread( HistoryActivity.this::delete );
 				animate_hide();
 			}
@@ -558,7 +430,7 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 					.setPositiveButton( R.string.yes, (dialog, which)->{
 						dialog.cancel();
 						sp.edit().remove( "history" ).apply();
-						str = new ArrayList<>();
+						mEntries = new ArrayList<>();
 						setupRecyclerView();
 					} ).setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() );
 			build.create().show();
@@ -606,7 +478,7 @@ public class HistoryActivity extends ThemeActivity implements MyRecyclerViewAdap
 					description = ex.substring( j + 1 );
 					ex = ex.substring( 0, j );
 				}
-				str.add( new HistoryEntry( ex, ans, description ) );
+				mEntries.add( new HistoryEntry( ex, ans, description ) );
 			}
 			progressDialog.dismiss();
 		}

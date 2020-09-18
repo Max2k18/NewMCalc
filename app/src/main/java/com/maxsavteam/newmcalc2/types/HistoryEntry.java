@@ -38,7 +38,11 @@ public final class HistoryEntry {
 	}
 
 	public void setDescription(@Nullable String description) {
-		this.description = description;
+		if(description == null || description.isEmpty()){
+			this.description = null;
+		}else {
+			this.description = description;
+		}
 	}
 
 	public static HistoryEntry create(String ex, String ans) {
