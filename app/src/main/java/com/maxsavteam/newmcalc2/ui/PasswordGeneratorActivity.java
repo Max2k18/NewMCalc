@@ -32,9 +32,14 @@ import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PasswordGeneratorActivity extends ThemeActivity {
+
+	private final Random mRandom = new Random();
 
 	@Override
 	public void onBackPressed() {
@@ -105,6 +110,32 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 		} );
 		textSwitcher.setInAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_in ) );
 		textSwitcher.setOutAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_out ) );
+
+		findViewById( R.id.btnGenPass ).setOnClickListener( v -> {
+			if ( mPassLen != 0 ) {
+				if ( mCheckBoxes.size() != 0 ) {
+					String resource_str = "";
+					for (CheckBox checkBox : mCheckBoxes) {
+						resource_str = String.format( "%s%s", resource_str, checkBox.getTag() );
+					}
+
+					ArrayList<Character> characters = new ArrayList<>();
+					for(int i = 0; i < resource_str.length(); i++){
+						characters.add( resource_str.charAt( i ) );
+					}
+					Collections.shuffle( characters, mRandom );
+
+					String pass = "";
+					for (int i = 0, a; i < mPassLen; i++) {
+						a = mRandom.nextInt(characters.size());
+						pass = String.format( "%s%c", pass, characters.get( a ) );
+					}
+					textSwitcher.setText( pass );
+				} else {
+					Toast.makeText( this, getString( R.string.pass_sw_all_off ), Toast.LENGTH_LONG ).show();
+				}
+			}
+		} );
 	}
 
 	private final int[] mCheckBoxIds = new int[]{
@@ -145,13 +176,8 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 	public void buttonOnClick(View v) {
 		Button btn = findViewById( v.getId() );
 		setBackground();
-		if ( super.isDarkMode ) {
-			btn.setTextColor( getResources().getColor( R.color.black ) );
-			btn.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.white ) ) );
-		} else {
-			btn.setTextColor( getResources().getColor( R.color.white ) );
-			btn.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.black ) ) );
-		}
+		btn.setTextColor( super.windowBackgroundColor );
+		btn.setBackgroundTintList( ColorStateList.valueOf( super.textColor ) );
 		mPassLen = Integer.parseInt( btn.getText().toString() );
 	}
 
@@ -161,44 +187,9 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 		b.add( findViewById( R.id.btnPass8 ) );
 		b.add( findViewById( R.id.btnPass12 ) );
 		b.add( findViewById( R.id.btnPass16 ) );
-		if ( super.isDarkMode ) {
-			for (int i = 0; i < b.size(); i++) {
-				b.get( i ).setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.black ) ) );
-				b.get( i ).setTextColor( getResources().getColor( R.color.white ) );
-			}
-		} else {
-			for (int i = 0; i < b.size(); i++) {
-				b.get( i ).setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.white ) ) );
-				b.get( i ).setTextColor( getResources().getColor( R.color.black ) );
-			}
-		}
-	}
-
-	public void genpass(View v) {
-		if ( mPassLen != 0 ) {
-			if ( mCheckBoxes.size() != 0 ) {
-				String resource_str = "";
-				for (CheckBox checkBox : mCheckBoxes) {
-					resource_str = (String) ( resource_str + checkBox.getTag() );
-				}
-
-				String pass = "";
-				for (int i = 0, a; i < mPassLen; i++) {
-					a = ThreadLocalRandom.current().nextInt( 0, resource_str.length() );
-					pass = String.format( "%s%s", pass, resource_str.charAt( a ) );
-				}
-				/*TextView t = findViewById( R.id.txtGenedPass );
-				t.setText( pass );
-				LinearLayout lay = findViewById( R.id.linearLayout2 );
-				if ( lay.getVisibility() != View.VISIBLE ) {
-					lay.setVisibility( View.VISIBLE );
-					lay.animate().alpha( 1 ).setDuration( 100 ).start();
-				}*/
-				TextSwitcher textSwitcher = findViewById( R.id.textSwitcherPass );
-				textSwitcher.setText( pass );
-			} else {
-				Toast.makeText( this, getString( R.string.pass_sw_all_off ), Toast.LENGTH_LONG ).show();
-			}
+		for(Button button : b){
+			button.setTextColor( super.textColor );
+			button.setBackgroundTintList( ColorStateList.valueOf( super.windowBackgroundColor ) );
 		}
 	}
 }

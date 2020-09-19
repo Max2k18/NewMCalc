@@ -9,23 +9,26 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 
 public class ThemeActivity extends AppCompatActivity {
 
 	@ColorInt
 	protected int textColor;
+
+	@ColorInt
+	protected int windowBackgroundColor;
+
 	protected boolean isDarkMode;
 
 	private void applyLightTheme(){
 		isDarkMode = false;
 		setTheme( R.style.AppTheme );
-		textColor = Color.BLACK;
 	}
 
 	private void applyDarkTheme(){
 		isDarkMode = true;
 		setTheme( R.style.AppTheme_Dark );
-		textColor = Color.WHITE;
 	}
 
 	@Override
@@ -47,5 +50,12 @@ public class ThemeActivity extends AppCompatActivity {
 					break;
 			}
 		}
+
+		TypedValue typedValue = new TypedValue();
+		getTheme().resolveAttribute( R.attr.textColor, typedValue, false );
+		textColor = getColor( typedValue.data );
+
+		getTheme().resolveAttribute( R.attr.windowBackgroundColor, typedValue, false );
+		windowBackgroundColor = getColor( typedValue.data );
 	}
 }

@@ -106,7 +106,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:backgroundTint="@color/colorAccent"
-            android:onClick="generate"
             android:text="@string/generate"
             android:textAlignment="center"
             android:textColor="@color/white" />
