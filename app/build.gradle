@@ -10,19 +10,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 
 android {
-
-    def keystoreFile = file('keystore.properties')
-    Properties props = new Properties()
-    props.load(new FileInputStream(keystoreFile))
-
-    signingConfigs {
-        release {
-            storeFile file(props['storeFile'])
-            storePassword "${props['storePassword']}"
-            keyAlias "${props['keyAlias']}"
-            keyPassword "${props['keyPassword']}"
-        }
-    }
     compileSdkVersion 30
     String apptype = "mid"
 
@@ -41,7 +28,7 @@ android {
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
         buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-        buildConfigField "String", "CoreVersion", "\"v3.3.200917\""
+        buildConfigField "String", "CoreVersion", "\"v3.4.200924\""
         buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
         buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
     }
@@ -67,7 +54,6 @@ android {
             jniDebuggable true
             zipAlignEnabled true
             versionNameSuffix "-DEBUG"
-            //signingConfig signingConfigs.release
         }
         forFirebaseTestLab {
             minifyEnabled true
@@ -78,7 +64,6 @@ android {
                 cruncherEnabled = false
             }
             versionNameSuffix "-FIREBASETESTLAB"
-            signingConfig signingConfigs.release
         }
     }
     buildToolsVersion '30.0.1'

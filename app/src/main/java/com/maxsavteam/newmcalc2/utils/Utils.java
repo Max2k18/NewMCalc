@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.maxsavteam.newmcalc2.R;
@@ -168,6 +169,21 @@ public final class Utils {
 			return true;
 		}catch (NumberFormatException e){
 			return false;
+		}
+	}
+
+	/**
+	 * NonNull Pair
+	 */
+	public static class Pair<F, T>{
+		@NonNull
+		public final F first;
+		@NonNull
+		public final T second;
+
+		public Pair(@NonNull F first, @NonNull T second) {
+			this.first = first;
+			this.second = second;
 		}
 	}
 }

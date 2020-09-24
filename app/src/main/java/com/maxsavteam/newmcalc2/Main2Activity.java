@@ -101,7 +101,7 @@ public class Main2Activity extends ThemeActivity {
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 	private TextView t;
 	private MemorySaverReader mMemorySaverReader;
-	private char last;
+	//private char last;
 	private BigDecimal[] memoryEntries;
 	private String MULTIPLY_SIGN;
 	private String FI, PI, original;
@@ -1437,6 +1437,7 @@ public class Main2Activity extends ThemeActivity {
 	public void appendToExampleString(String btntxt) {
 		t = findViewById( R.id.ExampleStr );
 		String txt = t.getText().toString();
+		char last = 1;
 		int len = txt.length();
 		if ( len + btntxt.length() >= 1000 ) {
 			return;
@@ -1657,34 +1658,38 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 		if ( isOpenBracket( btntxt ) ) {
+			if(len == 0){
+				t.setText( btntxt );
+				show_str();
+				return;
+			}
 			if ( last == '.' ) {
 				return;
 			}
 			if ( ( Utils.isDigit( last ) || last == '!' || last == '%' || Utils.isConstNum( last, this ) || isCloseBracket( last ) ) && !txt.equals( "" ) ) {
 				t.setText( txt + MULTIPLY_SIGN + btntxt );
-				equallu( "not" );
 			} else {
 				t.setText( txt + btntxt );
-				equallu( "not" );
 			}
+			equallu( "not" );
 			bracketsStack.push( btntxt );
 			return;
 		}
 		if ( btntxt.equals( "sin" ) || btntxt.equals( "log" ) || btntxt.equals( "tan" ) || btntxt.equals( "cos" ) || btntxt.equals( "ln" ) || btntxt.equals( "abs" ) ) {
 			if ( len == 0 ) {
 				t = findViewById( R.id.ExampleStr );
-				t.setText( btntxt + "(" );
+				t.setText( btntxt );
 				equallu( "not" );
 			} else {
 				if ( last == '.' ) {
 					return;
 				} else {
 					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && last != 'e' && !isCloseBracket( last ) ) {
-						t.setText( txt + btntxt + "(" );
+						t.setText( txt + btntxt );
 						equallu( "not" );
 					} else {
 						if ( !isOpenBracket( last ) && last != '^' ) {
-							t.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
+							t.setText( txt + MULTIPLY_SIGN + btntxt );
 							equallu( "not" );
 						}
 					}
@@ -1786,7 +1791,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( !txt.equals( "" ) ) {
 					if ( !Utils.isDigit( btntxt.charAt( 0 ) ) ) {
 
-						if ( !Utils.isDigit( txt.charAt( len - 1 ) ) ) {
+						if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && !Utils.isLetter( txt.charAt( len - 1 ) ) ) {
 							if ( len != 1 ) {
 								txt = txt.substring( 0, len - 1 );
 								t.setText( txt + btntxt );
@@ -1848,7 +1853,7 @@ public class Main2Activity extends ThemeActivity {
 					a = 2;
 					exampleEnterMode = EnterModes.SIMPLE;
 				}
-				if ( text.charAt( len - 2 ) == 's' || text.charAt( len - 2 ) == 'g' ) {
+				/*if ( text.charAt( len - 2 ) == 's' || text.charAt( len - 2 ) == 'g' ) {
 					a = 4;
 				}
 				if ( text.charAt( len - 2 ) == 'n' ) {
@@ -1856,6 +1861,18 @@ public class Main2Activity extends ThemeActivity {
 						a = 3;
 					} else if ( text.charAt( len - 3 ) == 'i' || text.charAt( len - 3 ) == 'a' ) {
 						a = 4;
+					}
+				}*/
+			}
+			if(Utils.isLetter( last )){ // sin cos tan ln abs
+				if ( last == 's' || last == 'g' ) {
+					a = 3;
+				}
+				if ( last == 'n' ) {
+					if ( text.charAt( len - 2 ) == 'l' ) {
+						a = 2;
+					} else if ( text.charAt( len - 2 ) == 'i' || text.charAt( len - 2 ) == 'a' ) {
+						a = 3;
 					}
 				}
 			}
