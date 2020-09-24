@@ -631,8 +631,7 @@ public final class CalculationCore {
 				}
 			} catch (Exception e) {
 				mWasError = true;
-				onError( new CalculationError().setStatus( "Core" ).setShortError( "Smth went wrong" ) );
-				return;
+				break;
 			}
 		}
 		try {
@@ -640,27 +639,11 @@ public final class CalculationCore {
 				mult( s0.peek() );
 				s0.pop();
 			}
-			/*while ( !mWasError && !s0.isEmpty() && s1.size() >= 2 ) {
-				mult( s0.peek() );
-				if ( mWasError ) {
-					break;
-				}
-				s0.pop();
-			}
-			if ( !mWasError && !s0.isEmpty() && s1.size() == 1 ) {
-				if ( s0.peek().equals( "R" ) ) {
-					mult( s0.peek() );
-					s0.pop();
-				}
-				if ( !s0.isEmpty() && ( s0.peek().length() == 3 || s0.peek().equals( "ln" ) ) ) {
-					mult( s0.peek() );
-					s0.pop();
-				}
-			}*/
 		} catch (EmptyStackException e) {
 			mWasError = true;
+		}
+		if(mWasError){
 			onError( new CalculationError().setStatus( "Core" ) );
-			return;
 		}
 		if ( !mWasError && s0.empty() ) {
 			onSuccess( new CalculationResult().setResult( s1.peek() ).setType( type ) );

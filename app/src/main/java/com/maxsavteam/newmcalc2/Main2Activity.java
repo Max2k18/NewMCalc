@@ -992,7 +992,8 @@ public class Main2Activity extends ThemeActivity {
 			mCoreThread.start();
 
 			// comment for debug
-			//mCoreTimer.schedule( new CoreController(), 0, 100 );
+			if(!BuildConfig.ISDEBUG)
+				mCoreTimer.schedule( new CoreController(), 0, 100 );
 		} catch (Exception e) {
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
 		}
