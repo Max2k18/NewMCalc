@@ -26,15 +26,15 @@ import java.util.Stack;
  * @author Max Savitsky
  */
 public final class CalculationCore {
-	private CoreLinkBridge coreLinkBridge;
+	private CoreInterface mCoreInterface;
 
-	private Resources mResources;
-	private String invalidArgument, valueIsTooBig, divisionByZero;
-	private Context mContext;
+	private final Resources mResources;
+	private final String invalidArgument, valueIsTooBig, divisionByZero;
+	private final Context mContext;
 	private final String TAG = "Core";
-	private String bracketFloorOpen, bracketFloorClose,
+	private final String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
-	private int mRoundScale;
+	private final int mRoundScale;
 
 	private final Stack<String> s0 = new Stack<>(); // actions
 
@@ -42,11 +42,7 @@ public final class CalculationCore {
 
 	private boolean mWasError = false;
 
-	public CalculationCore(Context context) {
-		initialize( context );
-	}
-
-	private void initialize(Context context) {
+	public CalculationCore(Context context, CoreInterface coreInterface) {
 		this.mResources = context.getApplicationContext().getResources();
 		this.mContext = context;
 		mRoundScale = PreferenceManager.getDefaultSharedPreferences( context.getApplicationContext() ).getInt( "rounding_scale", 8 );
@@ -60,6 +56,8 @@ public final class CalculationCore {
 		bracketCeilClose = mResources.getString( R.string.bracket_ceil_close );
 
 		Math.setRoundScale( mRoundScale );
+
+		this.mCoreInterface = coreInterface;
 	}
 
 	private boolean isOpenBracket(String str) {
@@ -100,25 +98,19 @@ public final class CalculationCore {
 		return getTypeOfBracket( Character.toString( c ) );
 	}
 
-	public final void setInterface(CoreLinkBridge clb) {
-		this.coreLinkBridge = clb;
-	}
-
-	public interface CoreLinkBridge {
+	public interface CoreInterface {
 		void onSuccess(CalculationResult calculationResult);
 
 		void onError(CalculationError calculationError);
 	}
 
 	private void onSuccess(CalculationResult calculationResult) {
-		coreLinkBridge.onSuccess( calculationResult );
-		//currentThread().interrupt();
+		mCoreInterface.onSuccess( calculationResult );
 	}
 
 	private void onError(CalculationError calculationError) {
-		coreLinkBridge.onError( calculationError );
+		mCoreInterface.onError( calculationError );
 		throw new CoreInterruptedError();
-		//currentThread().interrupt();
 	}
 
 	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
@@ -134,9 +126,6 @@ public final class CalculationCore {
 	 * @see CalculationResult
 	 */
 	public void prepareAndRun(@NotNull final String exampleArg, @Nullable String type) throws NullPointerException, CoreInterruptedError {
-		if ( coreLinkBridge == null ) {
-			throw new NullPointerException( "Calculation Core: Interface wasn't set" );
-		}
 		String example = String.copyValueOf( exampleArg.toCharArray() );
 		int len = example.length();
 		char last;

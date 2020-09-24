@@ -627,8 +627,7 @@ public class Main2Activity extends ThemeActivity {
 			return true;
 		} );
 
-		mCalculationCore = new CalculationCore( this );
-		mCalculationCore.setInterface( mCoreLinkBridge );
+		mCalculationCore = new CalculationCore( this, mCoreInterface );
 
 		FI = getResources().getString( R.string.fi );
 		PI = getResources().getString( R.string.pi );
@@ -1089,7 +1088,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	CalculationCore.CoreLinkBridge mCoreLinkBridge = new CalculationCore.CoreLinkBridge() {
+	CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
 		@Override
 		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
 			runOnUiThread( new Runnable() {
