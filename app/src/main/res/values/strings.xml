@@ -13,6 +13,7 @@
     <string name="bracket_ceil_close" translatable="false">&#8969;</string>
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">-</string>
+    <string name="rnd" translatable="false">rnd</string>
 
     <string name="app_name" translatable="false">MCalc</string>
 

@@ -125,6 +125,6 @@
 
     </LinearLayout>
 
-    <include layout="@layout/bottom_sheet" />
+    <include layout="@layout/bottom_line" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

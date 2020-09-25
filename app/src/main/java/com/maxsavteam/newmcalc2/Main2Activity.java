@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -106,7 +107,7 @@ public class Main2Activity extends ThemeActivity {
 	private String MULTIPLY_SIGN;
 	private String FI, PI, original;
 	private CalculationCore mCalculationCore;
-	private Point displaySize = new Point();
+	private final Point displaySize = new Point();
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
 
@@ -116,15 +117,13 @@ public class Main2Activity extends ThemeActivity {
 		Intent in = new Intent();
 		in.putExtra( "tag", pos ).putExtra( "is_existing", true );
 		ArrayList<Variable> a = VariableUtils.readVariables();
-		if ( a != null ) {
-			for (int i = 0; i < a.size(); i++) {
-				if ( a.get( i ).getTag() == pos ) {
-					in.putExtra( "name", btn.getText().toString() ).putExtra( "value", a.get( i ).getValue() );
-					break;
-				}
+		for (int i = 0; i < a.size(); i++) {
+			if ( a.get( i ).getTag() == pos ) {
+				in.putExtra( "name", btn.getText().toString() ).putExtra( "value", a.get( i ).getValue() );
+				break;
 			}
-			goToActivity( VariableEditorActivity.class, in );
 		}
+		goToActivity( VariableEditorActivity.class, in );
 		return true;
 	};
 
@@ -176,10 +175,11 @@ public class Main2Activity extends ThemeActivity {
 			in.setData( Uri.parse( Utils.MCALC_SITE ) );
 			startActivity( in );
 		} );
-		if(super.isDarkMode)
+		if ( super.isDarkMode ) {
 			mNavigationView.setBackgroundColor( Color.BLACK );
-		else
+		} else {
 			mNavigationView.setBackgroundColor( Color.WHITE );
+		}
 
 		ColorStateList navMenuTextList = new ColorStateList(
 				new int[][]{
@@ -386,7 +386,7 @@ public class Main2Activity extends ThemeActivity {
 							dialog.cancel();
 						} ).setPositiveButton( R.string.view, ( (dialog, which)->{
 					Intent in = new Intent( Intent.ACTION_VIEW );
-					in.setData( Uri.parse( "https://newmcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME ) );
+					in.setData( Uri.parse( "https://mcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME ) );
 					startActivity( in );
 				} ) );
 				window = builder.create();
@@ -511,45 +511,6 @@ public class Main2Activity extends ThemeActivity {
 		isBroadcastsRegistered = true;
 	}
 
-	private void setupBottomSheet() {
-		LinearLayout layout = findViewById( R.id.bottom_sheet_main );
-		BottomSheetBehavior<LinearLayout> bottomSheetBehavior = BottomSheetBehavior.from( layout );
-		ImageView imageView = findViewById( R.id.bottom_sheet_triangle );
-		bottomSheetBehavior.setBottomSheetCallback( new BottomSheetBehavior.BottomSheetCallback() {
-			@Override
-			public void onStateChanged(@NonNull View view, int i) {
-
-			}
-
-			@Override
-			public void onSlide(@NonNull View view, float v) {
-				imageView.animate().rotation( 180f * v ).setDuration( 0 ).start();
-			}
-		} );
-
-		findViewById( R.id.bottom_sheet_header ).setOnClickListener( new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if ( bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED ) {
-					bottomSheetBehavior.setState( BottomSheetBehavior.STATE_EXPANDED );
-				} else {
-					bottomSheetBehavior.setState( BottomSheetBehavior.STATE_COLLAPSED );
-				}
-			}
-		} );
-
-		// theme setup
-		if ( super.isDarkMode ) {
-			layout.setBackground( getDrawable( R.drawable.rounded_header_black_theme ) );
-			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_white ) );
-		} else {
-			layout.setBackground( getDrawable( R.drawable.rounded_header_white_theme ) );
-			imageView.setImageDrawable( getDrawable( R.drawable.ic_triangle_black ) );
-		}
-
-		//findViewById( R.id.btnAbs ).setOnLongClickListener( onAdditionalActionsHelp );
-	}
-
 	private void showToastAboveButton(View v, String message) {
 		int xOffset = 0;
 		int yOffset = 0;
@@ -607,6 +568,7 @@ public class Main2Activity extends ThemeActivity {
 				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
 		drawer.setDrawerListener( toggle );
 		toggle.syncState();
+		toggle.syncState();
 		mNavigationView = findViewById( R.id.nav_view );
 		mNavigationView.setBackgroundColor( Color.BLACK );
 		mNavigationView.setNavigationItemSelectedListener( menuItem->{
@@ -649,8 +611,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		setViewPager( 0 );
-
-		setupBottomSheet();
 	}
 
 	@Override
@@ -991,8 +951,9 @@ public class Main2Activity extends ThemeActivity {
 			mCoreThread.start();
 
 			// comment for debug
-			if(!BuildConfig.ISDEBUG)
+			if ( !BuildConfig.ISDEBUG ) {
 				mCoreTimer.schedule( new CoreController(), 0, 100 );
+			}
 		} catch (Exception e) {
 			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
 		}
@@ -1433,6 +1394,16 @@ public class Main2Activity extends ThemeActivity {
 				s.equals( getResources().getString( R.string.div ) );
 	}
 
+	private boolean isLetterOperator(String s) {
+		return s.equals( "sin" ) ||
+				s.equals( "log" ) ||
+				s.equals( "tan" ) ||
+				s.equals( "cos" ) ||
+				s.equals( "ln" ) ||
+				s.equals( "abs" ) ||
+				s.equals( "rnd" );
+	}
+
 	@SuppressLint("SetTextI18n")
 	public void appendToExampleString(String btntxt) {
 		t = findViewById( R.id.ExampleStr );
@@ -1658,7 +1629,7 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 		if ( isOpenBracket( btntxt ) ) {
-			if(len == 0){
+			if ( len == 0 ) {
 				t.setText( btntxt );
 				show_str();
 				return;
@@ -1675,26 +1646,26 @@ public class Main2Activity extends ThemeActivity {
 			bracketsStack.push( btntxt );
 			return;
 		}
-		if ( btntxt.equals( "sin" ) || btntxt.equals( "log" ) || btntxt.equals( "tan" ) || btntxt.equals( "cos" ) || btntxt.equals( "ln" ) || btntxt.equals( "abs" ) ) {
+		if ( isLetterOperator( btntxt ) ) {
 			if ( len == 0 ) {
 				t = findViewById( R.id.ExampleStr );
 				t.setText( btntxt );
-				equallu( "not" );
 			} else {
 				if ( last == '.' ) {
 					return;
 				} else {
 					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && last != 'e' && !isCloseBracket( last ) ) {
 						t.setText( txt + btntxt );
-						equallu( "not" );
 					} else {
 						if ( !isOpenBracket( last ) && last != '^' ) {
 							t.setText( txt + MULTIPLY_SIGN + btntxt );
-							equallu( "not" );
 						}
 					}
 				}
 			}
+			if(btntxt.equals( "rnd" ))
+				t.setText( txt + "rnd(" );
+			equallu( "not" );
 			return;
 		}
 
@@ -1853,18 +1824,10 @@ public class Main2Activity extends ThemeActivity {
 					a = 2;
 					exampleEnterMode = EnterModes.SIMPLE;
 				}
-				/*if ( text.charAt( len - 2 ) == 's' || text.charAt( len - 2 ) == 'g' ) {
+				if(text.charAt( len - 2 ) == 'd') // rnd
 					a = 4;
-				}
-				if ( text.charAt( len - 2 ) == 'n' ) {
-					if ( text.charAt( len - 3 ) == 'l' ) {
-						a = 3;
-					} else if ( text.charAt( len - 3 ) == 'i' || text.charAt( len - 3 ) == 'a' ) {
-						a = 4;
-					}
-				}*/
 			}
-			if(Utils.isLetter( last )){ // sin cos tan ln abs
+			if ( Utils.isLetter( last ) ) { // sin cos tan ln abs rnd
 				if ( last == 's' || last == 'g' ) {
 					a = 3;
 				}
@@ -1896,47 +1859,12 @@ public class Main2Activity extends ThemeActivity {
 		}
 		HorizontalScrollView scrollview = findViewById( R.id.scrollview );
 
-		//scrollview.postDelayed(() -> scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
-		scrollview.post( new Runnable() {
-			@Override
-			public void run() {
-				scrollview.fullScroll( focus );
-			}
-		} );
-		//scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+		scrollview.post( ()->scrollview.fullScroll( focus ) );
 		HorizontalScrollView scrollview1 = findViewById( R.id.scrollViewAns );
-		//scrollview1.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
-		scrollview1.post( new Runnable() {
-			@Override
-			public void run() {
-				scrollview1.fullScroll( HorizontalScrollView.FOCUS_RIGHT );
-			}
-		} );
-		//scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+		scrollview1.post( ()->scrollview1.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
 	}
 
 	private void scrollExampleToEnd() {
-		if ( findViewById( R.id.ExampleStr ).getVisibility() == View.INVISIBLE ) {
-			return;
-		}
-		HorizontalScrollView scrollview = findViewById( R.id.scrollview );
-
-		//scrollview.postDelayed(() -> scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
-		scrollview.post( new Runnable() {
-			@Override
-			public void run() {
-				scrollview.fullScroll( HorizontalScrollView.FOCUS_RIGHT );
-			}
-		} );
-		//scrollview.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-		HorizontalScrollView scrollview1 = findViewById( R.id.scrollViewAns );
-		//scrollview1.postDelayed(() -> scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT), 2L);
-		scrollview1.post( new Runnable() {
-			@Override
-			public void run() {
-				scrollview1.fullScroll( HorizontalScrollView.FOCUS_RIGHT );
-			}
-		} );
-		//scrollview1.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
+		scrollExampleToEnd( HorizontalScrollView.FOCUS_RIGHT );
 	}
 }

@@ -26,7 +26,7 @@ import java.util.Stack;
  * @author Max Savitsky
  */
 public final class CalculationCore {
-	private CoreInterface mCoreInterface;
+	private final CoreInterface mCoreInterface;
 
 	private final Resources mResources;
 	private final String invalidArgument, valueIsTooBig, divisionByZero;
@@ -358,6 +358,7 @@ public final class CalculationCore {
 					case "l":
 					case "c":
 					case "a":
+					case "r":
 						if ( i != 0 ) {
 							if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
 								s0.push( "*" );
@@ -687,6 +688,9 @@ public final class CalculationCore {
 					case "abs":
 						ans = Math.abs( operand );
 						break;
+					case "rnd":
+						ans = Math.round( operand );
+						break;
 					case "ln": {
 						if ( operand.signum() <= 0 ) {
 							mWasError = true;
@@ -813,6 +817,7 @@ public final class CalculationCore {
 		priority.put( "ln", 3 );
 		priority.put( "log", 3 );
 		priority.put( "abs", 3 );
+		priority.put( "rnd", 3 );
 
 		Log.i( TAG, "in_s0 called with x=" + x + "; s0.size()=" + s0.size() );
 

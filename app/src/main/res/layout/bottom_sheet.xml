@@ -38,43 +38,7 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:id="@+id/bottom_sheet_r1">
-            <Button
-                android:id="@+id/btnFloorOpen"
-                android:onClick="onAdditionalClick"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bracket_floor_open"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-            <Button
-                android:id="@+id/btnFloorClose"
-                android:onClick="onAdditionalClick"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bracket_floor_close"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
 
-            <Button
-                android:id="@+id/btnCeilOpen"
-                android:onClick="onAdditionalClick"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bracket_ceil_open"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-            <Button
-                android:id="@+id/btnCeilClose"
-                android:onClick="onAdditionalClick"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bracket_ceil_close"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
         </TableRow>
 
         <TableRow
@@ -84,15 +48,7 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnAbs"
-                android:onClick="onAdditionalClick"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/abs"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+
         </TableRow>
     </TableLayout>
 
