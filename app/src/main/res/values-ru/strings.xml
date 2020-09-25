@@ -104,4 +104,12 @@
         <item>Тёмная</item>
         <item>Как в системе</item>
     </string-array>
+    <string name="panel">Панель</string>
+    <string name="view_pager_guide1">Это панель с цифрами. Маленьким текстом указаны действия, которые можно ввести долгим нажатием на кнопку.</string>
+    <string name="view_pager_guide2">Вы можете свайпнуть вправо или влево для дополнительных инструментов таких как переменные и память.</string>
+    <string name="action_line">Линия действий</string>
+    <string name="action_line_guide">Это линия с дополнительными действиями, которые не поместились на панели. Линия также прокручивается.</string>
+    <string name="history_guide">Это запись истории. Вы можете провести влево, чтобы удалить запись, или вправо, чтобы добавить описание к ней.</string>
+    <string name="show_guide">Показать гайд</string>
+    <string name="guide_will_be_shown_next_time">Гайд будет показан при следующем запуске приложения.</string>
 </resources>

@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -49,6 +51,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
 
 public class HistoryActivity extends ThemeActivity implements HistoryAdapter.AdapterCallback {
 
@@ -103,7 +106,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	public void onDelete(int position) {
 		if ( POSITION_TO_DEL != -1 ) {
-			if(POSITION_TO_DEL < position) {
+			if ( POSITION_TO_DEL < position ) {
 				position--;
 			}
 			delete();
@@ -167,6 +170,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 					new MaterialTapTargetPrompt.Builder( HistoryActivity.this )
 							.setTarget( R.id.btnCancel )
 							.setPrimaryText( getResources().getString( R.string.force_delete ) )
+							.setFocalColour( Color.TRANSPARENT )
 							.setSecondaryText( getResources().getString( R.string.force_delete_guide_text ) )
 							.setPromptStateChangeListener( new MaterialTapTargetPrompt.PromptStateChangeListener() {
 								@Override
@@ -318,15 +322,16 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mSwipeController = new SwipeController( new SwipeControllerActions() {
 				@Override
 				public void onRightClicked(int position) {
-					if(position != POSITION_TO_DEL) {
+					if ( position != POSITION_TO_DEL ) {
 						onDelete( position );
 					}
 				}
 
 				@Override
 				public void onLeftClicked(int position) {
-					if(position != POSITION_TO_DEL)
+					if ( position != POSITION_TO_DEL ) {
 						adapter.toggleDescriptionLayoutVisibility( position );
+					}
 				}
 			}, this );
 
@@ -501,6 +506,25 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		btn.setOnLongClickListener( forceDelete );
 
 		rv = findViewById( R.id.rv_view );
+
+		rv.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				if ( sp.getBoolean( "history_guide", true ) ) {
+					if ( mEntries.size() > 0 ) {
+						sp.edit().putBoolean( "history_guide", false ).apply();
+						Utils.GuideMaker.getGuideTip(
+								HistoryActivity.this,
+								getString( R.string.history ),
+								getString( R.string.history_guide ),
+								R.id.cardView,
+								new RectanglePromptFocal()
+						).show();
+						rv.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+					}
+				}
+			}
+		} );
 
 		start_type = getIntent().getStringExtra( "start_type" );
 		LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt( "local_history_storage_protocol_version", 1 );

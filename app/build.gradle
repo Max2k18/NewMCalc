@@ -21,8 +21,8 @@ android {
         //noinspection OldTargetApi
         targetSdkVersion 30
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 1860
-        versionName "1.15.0"
+        versionCode 1862
+        versionName "1.16.0"
         multiDexEnabled true
         buildConfigField "Boolean", "WhatNewIsExisting", "true"
         buildConfigField "Boolean", "UCModuleActivated", "false"

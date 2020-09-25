@@ -1,11 +1,9 @@
 package com.maxsavteam.newmcalc2;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -34,11 +32,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,13 +43,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
@@ -89,6 +81,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetSequence;
+import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
 
 public class Main2Activity extends ThemeActivity {
 
@@ -141,6 +136,14 @@ public class Main2Activity extends ThemeActivity {
 					super.onBackPressed();
 				} );
 		builder.show();
+	}
+
+	private void startGuide(){
+		new MaterialTapTargetSequence()
+				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
+				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
+				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.action_line ), getString( R.string.action_line_guide ), R.id.bottom_line, new RectanglePromptFocal() ) )
+				.show();
 	}
 
 	@Override
@@ -239,38 +242,14 @@ public class Main2Activity extends ThemeActivity {
 
 		registerBroadcastReceivers();
 
-		boolean isFirstStart = sp.getBoolean( "first_start", true );
 
 		mMemorySaverReader = new MemorySaverReader( this );
 		memoryEntries = mMemorySaverReader.read();
 
-		boolean read = ContextCompat.checkSelfPermission( this, Manifest.permission.READ_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED;
-		boolean write = ContextCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED;
-		if ( !sp.getBoolean( "never_request_permissions", false )
-				&& ( !read || !write ) ) {
-			@SuppressLint("InflateParams") View v = getLayoutInflater().inflate( R.layout.never_show_again, null );
-			AlertDialog request = new CustomAlertDialogBuilder( this )
-					.setTitle( R.string.confirm )
-					.setView( v )
-					.setMessage( R.string.activity_requet_permissions )
-					.setNeutralButton( "OK", (dialogInterface, i)->{
-						if ( ( (CheckBox) v.findViewById( R.id.never_show_again ) ).isChecked() ) {
-							sp.edit().putBoolean( "never_request_permissions", true ).apply();
-						}
-						ActivityCompat
-								.requestPermissions( this,
-										new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE,
-												Manifest.permission.WRITE_EXTERNAL_STORAGE },
-										10 );
-					} )
-					.create();
-			request.show();
-		}
-		if ( read && write ) {
-			sp.edit().remove( "storage_denied" ).remove( "never_request_permissions" ).apply();
-		}
-		if ( !isFirstStart ) {
-			showWhatNewWindow();
+		boolean isGuideFirstStart = sp.getBoolean( "guide_first_start", true );
+		if ( isGuideFirstStart ) {
+			sp.edit().putBoolean( "guide_first_start", false ).apply();
+			startGuide();
 		}
 
 		//showSidebarGuide();

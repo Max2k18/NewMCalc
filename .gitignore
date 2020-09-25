@@ -14,3 +14,8 @@
 /app/keystore.properties
 /app/version.properties
 /app/src/main/java/com/maxsavteam/newmcalc2/utils/FTPInfo.java
+/app/build/
+/app/debug/output.json
+/app/release/app-release.aab
+/app/forFirebaseTestLab/app-forFirebaseTestLab.aab
+/app/debug/app-debug.apk

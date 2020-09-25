@@ -3,12 +3,15 @@ package com.maxsavteam.newmcalc2.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
@@ -21,6 +24,8 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+import uk.co.samuelwall.materialtaptargetprompt.extras.PromptFocal;
 
 public final class Utils {
 	@SuppressLint("StaticFieldLeak")
@@ -184,6 +189,19 @@ public final class Utils {
 		public Pair(@NonNull F first, @NonNull T second) {
 			this.first = first;
 			this.second = second;
+		}
+	}
+
+	public static class GuideMaker{
+		public static MaterialTapTargetPrompt getGuideTip(Activity activity, String primary, String secondary, @IdRes int id, PromptFocal promptFocal){
+			return new MaterialTapTargetPrompt.Builder( activity )
+					.setPrimaryText( primary )
+					.setSecondaryText( secondary )
+					.setTarget( id )
+					.setPromptFocal( promptFocal )
+					.setFocalColour( Color.TRANSPARENT )
+					.setBackgroundColour( activity.getColor( R.color.colorAccent ) )
+					.create();
 		}
 	}
 }

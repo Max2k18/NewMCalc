@@ -93,6 +93,13 @@ public class SettingsActivity extends ThemeActivity {
 			sp.edit().putInt( "theme_state", index ).apply();
 			restartApp();
 		} );
+
+		findViewById( R.id.btn_show_guide ).setOnClickListener( view -> {
+			sp.edit().remove( "guide_first_start" )
+					.remove( "history_guide" )
+					.apply();
+			Toast.makeText( this, R.string.guide_will_be_shown_next_time, Toast.LENGTH_SHORT ).show();
+		} );
 	}
 
 	@Override
