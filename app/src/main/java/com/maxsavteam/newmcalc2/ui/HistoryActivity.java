@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,15 +101,17 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	private int POSITION_TO_DEL = -1;
 
-	@Override
-	public boolean onDelete(int position) {
+	public void onDelete(int position) {
 		if ( POSITION_TO_DEL != -1 ) {
-			return false;
+			if(POSITION_TO_DEL < position) {
+				position--;
+			}
+			delete();
 		}
 
 		POSITION_TO_DEL = position;
+		adapter.setWaitingToDelete( POSITION_TO_DEL );
 		showDeleteCountdownAndRun();
-		return true;
 	}
 
 	private final int SECONDS_BEFORE_DELETE = 5;
@@ -277,7 +280,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		adapter.setWaitingToDelete( -1 );
 		adapter.remove( POSITION_TO_DEL );
 		POSITION_TO_DEL = -1;
-		mSwipeController.setSwipeable( true );
 		saveHistory();
 	}
 
@@ -316,15 +318,15 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mSwipeController = new SwipeController( new SwipeControllerActions() {
 				@Override
 				public void onRightClicked(int position) {
-					if ( onDelete( position ) ) {
-						adapter.setWaitingToDelete( position );
-						mSwipeController.setSwipeable( false );
+					if(position != POSITION_TO_DEL) {
+						onDelete( position );
 					}
 				}
 
 				@Override
 				public void onLeftClicked(int position) {
-					adapter.toggleDescriptionLayoutVisibility( position );
+					if(position != POSITION_TO_DEL)
+						adapter.toggleDescriptionLayoutVisibility( position );
 				}
 			}, this );
 
@@ -338,7 +340,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		cancelTimer();
 		adapter.setWaitingToDelete( -1 );
 		POSITION_TO_DEL = -1;
-		mSwipeController.setSwipeable( true );
 		animate_hide();
 	}
 
@@ -383,7 +384,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 				}
 			} );
-			cancel.animate();
 			anim.start();
 		} catch (Exception e) {
 			onSomethingWentWrong();

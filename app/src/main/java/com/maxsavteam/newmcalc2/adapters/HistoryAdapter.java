@@ -170,8 +170,6 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 	public interface AdapterCallback {
 		void onItemClick(View view, int position);
 
-		boolean onDelete(int position);
-
 		void onDescriptionEdit(int position);
 
 		void onDescriptionAdd(int position);
