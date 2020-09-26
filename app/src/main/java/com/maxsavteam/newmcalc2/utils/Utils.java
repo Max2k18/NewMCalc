@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.text.NumberFormat;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
@@ -169,39 +170,21 @@ public final class Utils {
 	public static boolean isNumber(String s){
 		s = deleteSpaces(s);
 		try{
-			BigDecimal b = null;
-			b = new BigDecimal(s);
+			BigDecimal b = new BigDecimal( s );
 			return true;
 		}catch (NumberFormatException e){
 			return false;
 		}
 	}
 
-	/**
-	 * NonNull Pair
-	 */
-	public static class Pair<F, T>{
-		@NonNull
-		public final F first;
-		@NonNull
-		public final T second;
-
-		public Pair(@NonNull F first, @NonNull T second) {
-			this.first = first;
-			this.second = second;
-		}
-	}
-
-	public static class GuideMaker{
-		public static MaterialTapTargetPrompt getGuideTip(Activity activity, String primary, String secondary, @IdRes int id, PromptFocal promptFocal){
-			return new MaterialTapTargetPrompt.Builder( activity )
-					.setPrimaryText( primary )
-					.setSecondaryText( secondary )
-					.setTarget( id )
-					.setPromptFocal( promptFocal )
-					.setFocalColour( Color.TRANSPARENT )
-					.setBackgroundColour( activity.getColor( R.color.colorAccent ) )
-					.create();
-		}
+	public static MaterialTapTargetPrompt getGuideTip(Activity activity, String primary, String secondary, @IdRes int id, PromptFocal promptFocal){
+		return new MaterialTapTargetPrompt.Builder( activity )
+				.setPrimaryText( primary )
+				.setSecondaryText( secondary )
+				.setTarget( id )
+				.setPromptFocal( promptFocal )
+				.setFocalColour( Color.TRANSPARENT )
+				.setBackgroundColour( activity.getColor( R.color.colorAccent ) )
+				.create();
 	}
 }

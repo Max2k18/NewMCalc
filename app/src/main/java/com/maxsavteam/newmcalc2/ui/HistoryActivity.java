@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -513,7 +512,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 				if ( sp.getBoolean( "history_guide", true ) ) {
 					if ( mEntries.size() > 0 ) {
 						sp.edit().putBoolean( "history_guide", false ).apply();
-						Utils.GuideMaker.getGuideTip(
+						Utils.getGuideTip(
 								HistoryActivity.this,
 								getString( R.string.history ),
 								getString( R.string.history_guide ),

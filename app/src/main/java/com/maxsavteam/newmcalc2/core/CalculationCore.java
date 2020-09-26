@@ -9,7 +9,7 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Utils;
-import com.maxsavteam.newmcalc2.utils.Utils.Pair;
+import com.maxsavteam.newmcalc2.types.Pair;
 import com.maxsavteam.newmcalc2.utils.Math;
 
 import org.jetbrains.annotations.NotNull;

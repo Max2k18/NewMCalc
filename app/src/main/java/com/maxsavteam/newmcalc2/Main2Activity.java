@@ -140,9 +140,9 @@ public class Main2Activity extends ThemeActivity {
 
 	private void startGuide(){
 		new MaterialTapTargetSequence()
-				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
-				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
-				.addPrompt( Utils.GuideMaker.getGuideTip( this, getString( R.string.action_line ), getString( R.string.action_line_guide ), R.id.bottom_line, new RectanglePromptFocal() ) )
+				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
+				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
+				.addPrompt( Utils.getGuideTip( this, getString( R.string.action_line ), getString( R.string.action_line_guide ), R.id.bottom_line, new RectanglePromptFocal() ) )
 				.show();
 	}
 
