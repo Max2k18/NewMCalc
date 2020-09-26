@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
+
 import java.math.BigDecimal;
 
 public class MemorySaverReader {
-	private SharedPreferences sp;
+	private final SharedPreferences sp;
 
 	public MemorySaverReader(Context c){
 		sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
@@ -22,21 +24,19 @@ public class MemorySaverReader {
 	}
 
 	public BigDecimal[] read(){
-		String mem_loc = sp.getString("memory", "0$0$0$0$0$0$0$0$0$0$");
+		final String def = "0$0$0$0$0$0$0$0$0$0$";
+		String memory = sp.getString("memory", def );
+		if(memory == null)
+			memory = def;
+
 		BigDecimal[] barr = new BigDecimal[10];
 		for(int i = 0; i < 10; i++){
-			barr[i] = BigDecimal.valueOf(0);
+			barr[i] = BigDecimal.ZERO;
 		}
-		int i = 0, cell = 0;
-		while(i < mem_loc.length()){
-			String num = "";
-			while(mem_loc.charAt(i) != '$'){
-				num += mem_loc.charAt(i);
-				i++;
-			}
-			barr[cell] = new BigDecimal(num);
-			cell++;
-			i++;
+
+		String[] strings = memory.split( "\\$" );
+		for(int i = 0; i < strings.length; i++){
+			barr[i] = new BigDecimal( strings[i] );
 		}
 		return barr;
 	}
