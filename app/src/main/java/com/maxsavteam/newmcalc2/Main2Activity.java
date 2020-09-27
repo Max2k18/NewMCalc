@@ -19,6 +19,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -41,9 +42,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -77,7 +78,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EmptyStackException;
-import java.util.Map;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -95,7 +95,7 @@ public class Main2Activity extends ThemeActivity {
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
-	private TextView t;
+	private TextView mExample;
 	private MemorySaverReader mMemorySaverReader;
 	//private char last;
 	private BigDecimal[] memoryEntries;
@@ -138,7 +138,7 @@ public class Main2Activity extends ThemeActivity {
 		builder.show();
 	}
 
-	private void startGuide(){
+	private void startGuide() {
 		new MaterialTapTargetSequence()
 				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
 				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
@@ -350,40 +350,6 @@ public class Main2Activity extends ThemeActivity {
 
 	String APPTYPE = BuildConfig.APPTYPE;
 
-	private void showWhatNewWindow() {
-
-		try {
-			if ( !sp.getBoolean( BuildConfig.VERSION_NAME + ".VER.SHOWED", false )
-					&& APPTYPE.equals( "stable" )
-					&& BuildConfig.WhatNewIsExisting ) {
-				AlertDialog window;
-				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-				builder.setCancelable( false )
-						.setMessage( R.string.what_new_window_text )
-						.setTitle( R.string.important )
-						.setNegativeButton( R.string.no, (dialog, which)->{
-							dialog.cancel();
-						} ).setPositiveButton( R.string.view, ( (dialog, which)->{
-					Intent in = new Intent( Intent.ACTION_VIEW );
-					in.setData( Uri.parse( "https://mcalc.maxsav.team/what-new/#" + BuildConfig.VERSION_NAME ) );
-					startActivity( in );
-				} ) );
-				window = builder.create();
-				Map<String, ?> m = sp.getAll();
-				for (Map.Entry<String, ?> e : m.entrySet()) {
-					if ( !e.getKey().equals( BuildConfig.VERSION_NAME + ".VER.SHOWED" )
-							&& e.getKey().contains( ".VER.SHOW" ) ) {
-						sp.edit().remove( e.getKey() ).apply();
-					}
-				}
-				sp.edit().putBoolean( BuildConfig.VERSION_NAME + ".VER.SHOWED", true ).apply();
-				window.show();
-			}
-		} catch (Exception e) {
-			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
-		}
-	}
-
 	/**
 	 * Can receive 5 types: settings (go to Settings), numgen (go to Number Generator)<br>
 	 * history (go to History), pass (go to Password Generator) <br>
@@ -579,6 +545,8 @@ public class Main2Activity extends ThemeActivity {
 		bracketCeilOpen = getResources().getString( R.string.bracket_ceil_open );
 		bracketCeilClose = getResources().getString( R.string.bracket_ceil_close );
 
+		mExample = findViewById( R.id.ExampleStr );
+
 		applyTheme();
 
 		Intent startIntent = getIntent();
@@ -595,14 +563,13 @@ public class Main2Activity extends ThemeActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if ( requestCode == RequestCodes.START_HISTORY ) {
-			t = findViewById( R.id.ExampleStr );
 			if ( resultCode != ResultCodes.RESULT_ERROR && data != null ) {
 				String example = data.getStringExtra( "example" );
 				if ( example != null && !example.equals( "" ) ) {
 					String result = data.getStringExtra( "result" );
 
-					if ( t.getText().toString().equals( "" ) ) {
-						t.setText( example );
+					if ( mExample.getText().toString().equals( "" ) ) {
+						mExample.setText( example );
 						show_str();
 					} else {
 						addStringExampleToTheExampleStr( result );
@@ -639,7 +606,7 @@ public class Main2Activity extends ThemeActivity {
 						.setContext( this )
 						.setLongClickListeners(
 								new View.OnLongClickListener[]{
-										memory_actions,
+										mMemoryActionsLongClick,
 										mOnVariableLongClick
 								}
 						);
@@ -669,7 +636,6 @@ public class Main2Activity extends ThemeActivity {
 			equallu( "all" );
 		} else {
 			Button btn = findViewById( v.getId() );
-			t = findViewById( R.id.ExampleStr );
 			String btntxt = btn.getText().toString().substring( 0, 1 );
 			appendToExampleString( btntxt );
 		}
@@ -760,41 +726,9 @@ public class Main2Activity extends ThemeActivity {
 		setTextViewsTextSizeToDefault();
 	}
 
-	public void resizeText() {
-		TextView txt = findViewById( R.id.ExampleStr );
-		TextView t = findViewById( R.id.AnswerStr );
-
-		String stri = txt.getText().toString(), strians = t.getText().toString();
-		Rect bounds = new Rect();
-		Rect boundsans = new Rect();
-		Paint textPaint = txt.getPaint();
-		Paint PaintAns = t.getPaint();
-		textPaint.getTextBounds( stri, 0, stri.length(), bounds );
-		PaintAns.getTextBounds( strians, 0, strians.length(), boundsans );
-		int twidth = bounds.width();
-		Display dis = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		dis.getSize( size );
-		int px = (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, 46, getResources().getDisplayMetrics() );
-		int width = size.x - px - 45, answidth = size.x - (int) TypedValue.applyDimension( TypedValue.COMPLEX_UNIT_DIP, 54, getResources().getDisplayMetrics() );
-		while ( twidth >= width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 32 ) {
-			txt.setTextSize( TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1 );
-			if ( boundsans.width() >= answidth ) {
-				t.setTextSize( TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1 );
-			}
-			textPaint.getTextBounds( stri, 0, stri.length(), bounds );
-			PaintAns.getTextBounds( strians, 0, strians.length(), boundsans );
-			twidth = bounds.width();
-		}
-		while ( bounds.width() >= answidth && t.getTextSize() / getResources().getDisplayMetrics().scaledDensity > 29 ) {
-			t.setTextSize( TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity - 1 );
-			PaintAns.getTextBounds( strians, 0, strians.length(), boundsans );
-		}
-		if ( twidth < width && txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity < 46 ) {
-			txt.setTextSize( TypedValue.COMPLEX_UNIT_SP, txt.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1 );
-			t.setTextSize( TypedValue.COMPLEX_UNIT_SP, t.getTextSize() / getResources().getDisplayMetrics().scaledDensity + 1 );
-			textPaint.getTextBounds( stri, 0, stri.length(), bounds );
-		}
+	private void resizeText() {
+		Format.scaleText( this, mExample, findViewById( R.id.scrollview ).getWidth(), 32, 46 );
+		Format.scaleText( this, findViewById( R.id.AnswerStr ), findViewById( R.id.scrollViewAns ).getWidth(), 29, 34 );
 	}
 
 	private void setTextViewsTextSizeToDefault() {
@@ -804,11 +738,11 @@ public class Main2Activity extends ThemeActivity {
 		t.setTextSize( TypedValue.COMPLEX_UNIT_SP, 34 );
 	}
 
-	private View.OnLongClickListener memory_actions = (View v)->{
+	private final View.OnLongClickListener mMemoryActionsLongClick = (View v)->{
 		if ( v.getId() == R.id.btnMR ) {
-			showMemAlert( "rc" );
+			openMemory( "rc" );
 		} else {
-			showMemAlert( "st" );
+			openMemory( "st" );
 		}
 		return true;
 	};
@@ -826,6 +760,7 @@ public class Main2Activity extends ThemeActivity {
 		TextView txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
 		format( R.id.ExampleStr );
+		resizeText();
 		int len = example.length();
 		if ( len != 0 ) {
 			show_str();
@@ -877,35 +812,15 @@ public class Main2Activity extends ThemeActivity {
 			}
 		}
 
-		resizeText();
-
 		was_error = false;
 		original = example;
 
-		TextView answerTv = findViewById( R.id.AnswerStr );
-		/*if(type.equals( "all" ) && answerTv.getVisibility() == View.VISIBLE && !answerTv.getText().toString().isEmpty()){
-			Log.v("Main2Activity", "inverting example and answer");
-			txt.setText( original );
-			String answer = answerTv.getText().toString();
-			returnback.onLongClick( findViewById( R.id.btnCalc ) );
-			resizeText();
-
-			putToHistory( original, answer );
-
-			if (sp.getBoolean("saveResult", false))
-				sp.edit().putString("saveResultText", original + ";" + answer).apply();
-			return;
-		}*/
-
 		String finalExample = example;
-		mCoreThread = new Thread( new Runnable() {
-			@Override
-			public void run() {
-				try {
-					mCalculationCore.prepareAndRun( finalExample, type );
-				} catch (CoreInterruptedError e) {
-					// stop thread
-				}
+		mCoreThread = new Thread( ()->{
+			try {
+				mCalculationCore.prepareAndRun( finalExample, type );
+			} catch (CoreInterruptedError e) {
+				// stop thread
 			}
 		} );
 		mProgressDialog = new ProgressDialog( this );
@@ -926,17 +841,11 @@ public class Main2Activity extends ThemeActivity {
 			mCoreTimer.purge();
 		}
 		mCoreTimer = new Timer();
-		try {
-			mCoreThread.start();
+		mCoreThread.start();
 
-			// comment for debug
-			if ( !BuildConfig.ISDEBUG ) {
-				mCoreTimer.schedule( new CoreController(), 0, 100 );
-			}
-		} catch (Exception e) {
-			Toast.makeText( this, e.toString(), Toast.LENGTH_LONG ).show();
+		if ( !BuildConfig.ISDEBUG ) {
+			mCoreTimer.schedule( new CoreController(), 0, 100 );
 		}
-		//mCalculationCore.prepareAndRun( example, type );
 	}
 
 	Timer mCoreTimer;
@@ -967,59 +876,41 @@ public class Main2Activity extends ThemeActivity {
 	private class CoreController extends TimerTask {
 		@Override
 		public void run() {
-			final String TAG = "Timer";
+			final String TAG = Main2Activity.TAG + " Timer";
 			++timerCountDown;
-			Log.v( TAG, "Timer running. Countdown = " + timerCountDown + ". " + ( (double) timerCountDown / 10 ) + " seconds passed." );
+			Log.i( TAG, "Timer running. Countdown = " + timerCountDown + ". " + ( (double) timerCountDown / 10 ) + " seconds passed." );
 			Runtime runtime = Runtime.getRuntime();
 			runtime.gc();
 			double freeMemory = (double) runtime.freeMemory();
-			double d = runtime.totalMemory() * 0.05;
-			Log.v( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
+			double d = runtime.totalMemory() * 0.05 ;
+			Log.i( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
 			if ( freeMemory < d ) {
-				Log.v( "Timer", "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
+				Log.i( TAG, "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
 				destroyThread();
-				runOnUiThread( new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show();
-					}
-				} );
+				runOnUiThread( ()->Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show() );
 			}
 			if ( timerCountDown == 20 ) {
 				if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
-					Log.v( TAG, "Something gone wrong. Thread is not alive. Killing timer" );
+					Log.i( TAG, "Something gone wrong. Thread is not alive. Killing timer" );
 					killCoreTimer();
 				} else if ( !progressDialogShown ) {
 					progressDialogShown = true;
-					Log.v( "Timer", "showing dialog" );
-					runOnUiThread( new Runnable() {
-						@Override
-						public void run() {
-							mProgressDialog.show();
-						}
-					} );
+					Log.i( TAG, "showing dialog" );
+					runOnUiThread( ()->mProgressDialog.show() );
 				}
 			} else if ( timerCountDown > 20 ) {
 				if ( timerCountDown < 90 ) {
 					if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
-						Log.v( TAG, "cancel progress dialog" );
-						runOnUiThread( new Runnable() {
-							@Override
-							public void run() {
-								mProgressDialog.cancel();
-							}
-						} );
+						Log.i( TAG, "cancel progress dialog" );
+						runOnUiThread( ()->mProgressDialog.cancel() );
 						killCoreTimer();
 					}
 				} else {
 					if ( mCoreThread.isAlive() ) {
-						Log.v( TAG, "Time to kill process" );
-						runOnUiThread( new Runnable() {
-							@Override
-							public void run() {
-								destroyThread();
-								Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
-							}
+						Log.i( TAG, "Time to kill process" );
+						runOnUiThread( ()->{
+							destroyThread();
+							Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
 						} );
 					}
 					killCoreTimer();
@@ -1095,7 +986,6 @@ public class Main2Activity extends ThemeActivity {
 				tans.setText( original );
 				show_ans();
 				show_str();
-				resizeText();
 
 				putToHistory( original, result.toPlainString() );
 
@@ -1112,12 +1002,12 @@ public class Main2Activity extends ThemeActivity {
 				format( R.id.AnswerStr );
 				show_ans();
 				setTextViewsTextSizeToDefault();
-				resizeText();
 				scrollExampleToEnd();
 				break;
 			default:
 				throw new IllegalArgumentException( "Arguments should be of two types: all, not" );
 		}
+		resizeText();
 	}
 
 	private void putToHistory(String example, String result) {
@@ -1185,7 +1075,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private void showMemAlert(final String type) {
+	private void openMemory(final String type) {
 		Intent in = new Intent();
 		in.putExtra( "type", type );
 		if ( type.equals( "st" ) ) {
@@ -1385,8 +1275,7 @@ public class Main2Activity extends ThemeActivity {
 
 	@SuppressLint("SetTextI18n")
 	public void appendToExampleString(String btntxt) {
-		t = findViewById( R.id.ExampleStr );
-		String txt = t.getText().toString();
+		String txt = mExample.getText().toString();
 		char last = 1;
 		int len = txt.length();
 		if ( len + btntxt.length() >= 1000 ) {
@@ -1408,7 +1297,7 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( btntxt.equals( "A" ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt + "(" );
+				mExample.setText( btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.AVERAGE;
 				return;
@@ -1418,17 +1307,17 @@ public class Main2Activity extends ThemeActivity {
 			}
 
 			if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-				t.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
+				mExample.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.AVERAGE;
 			} else if ( !Utils.isDigit( last ) && !isSpecific( last ) ) {
-				t.setText( txt + btntxt + "(" );
+				mExample.setText( txt + btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.AVERAGE;
 			}
 		} else if ( btntxt.equals( "G" ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt + "(" );
+				mExample.setText( btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.GEOMETRIC;
 				return;
@@ -1438,11 +1327,11 @@ public class Main2Activity extends ThemeActivity {
 			}
 
 			if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-				t.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
+				mExample.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.GEOMETRIC;
 			} else if ( !Utils.isDigit( last ) && !isSpecific( last ) ) {
-				t.setText( txt + btntxt + "(" );
+				mExample.setText( txt + btntxt + "(" );
 				equallu( "not" );
 				exampleEnterMode = EnterModes.GEOMETRIC;
 			}
@@ -1450,11 +1339,11 @@ public class Main2Activity extends ThemeActivity {
 		if ( exampleEnterMode != EnterModes.SIMPLE ) {
 			if ( btntxt.equals( ")" ) ) {
 				if ( Utils.isDigit( last ) ) {
-					t.setText( txt + btntxt );
+					mExample.setText( txt + btntxt );
 					equallu( "not" );
 				} else {
 					txt = txt.substring( 0, txt.length() - 1 );
-					t.setText( txt + btntxt );
+					mExample.setText( txt + btntxt );
 					equallu( "not" );
 				}
 				exampleEnterMode = EnterModes.SIMPLE;
@@ -1470,23 +1359,23 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( Utils.isDigit( btntxt ) ) {
 			if ( len > 1 && ( last == '%' || isCloseBracket( last ) ) ) {
-				t.setText( txt + MULTIPLY_SIGN + btntxt );
+				mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 				equallu( "not" );
 				return;
 			}
 			if ( txt.equals( "0" ) ) {
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 				return;
 			}
 			if ( len > 1 ) {
 				if ( last == '0' && !Utils.isDigit( txt.charAt( len - 2 ) ) && txt.charAt( len - 2 ) != '.' ) {
 					txt = txt.substring( 0, len - 1 ) + btntxt;
-					t.setText( txt );
+					mExample.setText( txt );
 					equallu( "not" );
 					return;
 				}
 			} else if ( len == 0 ) {
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 				show_str();
 				return;
 			}
@@ -1497,7 +1386,7 @@ public class Main2Activity extends ThemeActivity {
 				String typeOfBtnTxt = getTypeOfBracket( btntxt );
 				if ( typeOfBtnTxt.equals( getTypeOfBracket( bracketsStack.peek() ) ) ) {
 					if ( typeOfBtnTxt.equals( getTypeOfBracket( last ) ) ) {
-						t.setText( txt + btntxt );
+						mExample.setText( txt + btntxt );
 						equallu( "not" );
 						return;
 					}
@@ -1505,11 +1394,11 @@ public class Main2Activity extends ThemeActivity {
 					if ( isBasicAction( last ) ) {
 						if ( len != 1 ) {
 							txt = txt.substring( 0, len - 1 );
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 						}
 					} else {
-						t.setText( txt + btntxt );
+						mExample.setText( txt + btntxt );
 						equallu( "not" );
 					}
 				}
@@ -1520,21 +1409,21 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( btntxt.equals( FI ) || btntxt.equals( PI ) || btntxt.equals( "e" ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 				equallu( "not" );
 				return;
 			} else {
 				if ( isCloseBracket( last ) ) {
-					t.setText( txt + MULTIPLY_SIGN + btntxt );
+					mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 				} else {
 					if ( !Utils.isDigit( txt.charAt( len - 1 ) ) ) {
 						if ( txt.charAt( len - 1 ) != '.' ) {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 							return;
 						}
 					} else {
-						t.setText( txt + btntxt );
+						mExample.setText( txt + btntxt );
 						scrollExampleToEnd();
 						equallu( "not" );
 					}
@@ -1549,13 +1438,13 @@ public class Main2Activity extends ThemeActivity {
 			}
 
 			if ( Utils.isDigit( last ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( PI ) || last == 'e' ) {
-				t.setText( txt + btntxt );
+				mExample.setText( txt + btntxt );
 				equallu( "not" );
 				return;
 			}
 			if ( !Utils.isDigit( last ) ) {
 				if ( last == '!' || last == '%' ) {
-					t.setText( txt + btntxt );
+					mExample.setText( txt + btntxt );
 					equallu( "not" );
 				}
 			}
@@ -1564,7 +1453,7 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( btntxt.equals( "√" ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 				show_str();
 				scrollExampleToEnd();
 				return;
@@ -1582,7 +1471,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( x.length() == len ) {
 					x = Utils.deleteSpaces( x );
 					x = Utils.deleteZeros( x );
-					t.setText( btntxt + "(" + x + ")" );
+					mExample.setText( btntxt + "(" + x + ")" );
 					equallu( "all" );
 					return;
 				} else {
@@ -1590,13 +1479,13 @@ public class Main2Activity extends ThemeActivity {
 						return;
 					} else {
 						if ( !Utils.isDigit( last ) ) {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 							show_str();
 							scrollExampleToEnd();
 						} else {
 							if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-								t.setText( txt + MULTIPLY_SIGN + btntxt );
+								mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 								equallu( "not" );
 								show_str();
 								scrollExampleToEnd();
@@ -1609,7 +1498,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 		if ( isOpenBracket( btntxt ) ) {
 			if ( len == 0 ) {
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 				show_str();
 				return;
 			}
@@ -1617,9 +1506,9 @@ public class Main2Activity extends ThemeActivity {
 				return;
 			}
 			if ( ( Utils.isDigit( last ) || last == '!' || last == '%' || Utils.isConstNum( last, this ) || isCloseBracket( last ) ) && !txt.equals( "" ) ) {
-				t.setText( txt + MULTIPLY_SIGN + btntxt );
+				mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 			} else {
-				t.setText( txt + btntxt );
+				mExample.setText( txt + btntxt );
 			}
 			equallu( "not" );
 			bracketsStack.push( btntxt );
@@ -1627,29 +1516,29 @@ public class Main2Activity extends ThemeActivity {
 		}
 		if ( isLetterOperator( btntxt ) ) {
 			if ( len == 0 ) {
-				t = findViewById( R.id.ExampleStr );
-				t.setText( btntxt );
+				mExample.setText( btntxt );
 			} else {
 				if ( last == '.' ) {
 					return;
 				} else {
 					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && last != 'e' && !isCloseBracket( last ) ) {
-						t.setText( txt + btntxt );
+						mExample.setText( txt + btntxt );
 					} else {
 						if ( !isOpenBracket( last ) && last != '^' ) {
-							t.setText( txt + MULTIPLY_SIGN + btntxt );
+							mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 						}
 					}
 				}
 			}
-			if(btntxt.equals( "rnd" ))
-				t.setText( txt + "rnd(" );
+			if ( btntxt.equals( "rnd" ) ) {
+				mExample.setText( txt + "rnd(" );
+			}
 			equallu( "not" );
 			return;
 		}
 
 		if ( len != 0 && last == '(' && btntxt.equals( "-" ) ) {
-			t.setText( txt + btntxt );
+			mExample.setText( txt + btntxt );
 			equallu( "not" );
 			return;
 		}
@@ -1659,7 +1548,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( txt.charAt( len - 1 ) == 'π' ||
 						txt.charAt( len - 1 ) == 'φ' ||
 						txt.charAt( len - 1 ) == 'e' ) {
-					t.setText( txt + btntxt );
+					mExample.setText( txt + btntxt );
 					equallu( "not" );
 					return;
 				}
@@ -1667,7 +1556,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		if ( ( last == '!' || last == '%' ) && !btntxt.equals( "." ) && !btntxt.equals( "!" ) && !btntxt.equals( "%" ) ) {
-			t.setText( txt + btntxt );
+			mExample.setText( txt + btntxt );
 			equallu( "not" );
 			return;
 		}
@@ -1677,7 +1566,7 @@ public class Main2Activity extends ThemeActivity {
 			if ( isOpenBracket( last ) && !btntxt.equals( "-" ) ) {
 				return;
 			} else if ( isOpenBracket( last ) ) {
-				t.setText( txt + btntxt );
+				mExample.setText( txt + btntxt );
 				equallu( "not" );
 				return;
 			}
@@ -1685,9 +1574,9 @@ public class Main2Activity extends ThemeActivity {
 
 		if ( btntxt.equals( "." ) ) {
 			if ( txt.equals( "" ) ) {
-				t.setText( "0." );
+				mExample.setText( "0." );
 			} else if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && txt.charAt( len - 1 ) != '.' && last != '!' ) {
-				t.setText( txt + "0." );
+				mExample.setText( txt + "0." );
 			} else {
 				checkDot();
 			}
@@ -1701,18 +1590,18 @@ public class Main2Activity extends ThemeActivity {
 					if ( btntxt.equals( "!" ) ) {
 						if ( last == '!' ) {
 							if ( txt.charAt( len - 2 ) != '!' ) {
-								t.setText( txt + btntxt );
+								mExample.setText( txt + btntxt );
 								equallu( "not" );
 								return;
 							}
 						} else if ( Utils.isDigit( last ) ) {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 							return;
 						}
 					} else {
 						if ( last != '%' && ( Utils.isDigit( last ) || isCloseBracket( last ) ) ) {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 							return;
 						}
@@ -1722,11 +1611,11 @@ public class Main2Activity extends ThemeActivity {
 						if ( !isCloseBracket( last ) && !Utils.isDigit( last ) && ( !isOpenBracket( last ) && Utils.isLetter( txt.charAt( len - 2 ) )
 								&& !s.equals( PI ) && !s.equals( FI ) && txt.charAt( len - 2 ) != 'e' ) ) {
 							txt = txt.substring( 0, len - 1 );
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 						} else {
 							if ( Utils.isDigit( last ) || isCloseBracket( last ) ) {
-								t.setText( txt + btntxt );
+								mExample.setText( txt + btntxt );
 								equallu( "not" );
 							}
 						}
@@ -1735,7 +1624,7 @@ public class Main2Activity extends ThemeActivity {
 				return;
 			}
 			if ( len >= 1 && ( isCloseBracket( last ) && !Utils.isDigit( btntxt.charAt( 0 ) ) ) ) {
-				t.setText( txt + btntxt );
+				mExample.setText( txt + btntxt );
 				equallu( "not" );
 			} else {
 				if ( !txt.equals( "" ) ) {
@@ -1744,22 +1633,22 @@ public class Main2Activity extends ThemeActivity {
 						if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && !Utils.isLetter( txt.charAt( len - 1 ) ) ) {
 							if ( len != 1 ) {
 								txt = txt.substring( 0, len - 1 );
-								t.setText( txt + btntxt );
+								mExample.setText( txt + btntxt );
 								equallu( "not" );
 							}
 						} else {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 						}
 					} else {
 						if ( Utils.isDigit( btntxt.charAt( 0 ) ) ) {
-							t.setText( txt + btntxt );
+							mExample.setText( txt + btntxt );
 							equallu( "not" );
 						}
 					}
 				} else {
 					if ( Utils.isDigit( btntxt.charAt( 0 ) ) || btntxt.equals( "-" ) ) {
-						t.setText( btntxt );
+						mExample.setText( btntxt );
 						equallu( "not" );
 					}
 				}
@@ -1803,8 +1692,10 @@ public class Main2Activity extends ThemeActivity {
 					a = 2;
 					exampleEnterMode = EnterModes.SIMPLE;
 				}
-				if(text.charAt( len - 2 ) == 'd') // rnd
+				if ( text.charAt( len - 2 ) == 'd' ) // rnd
+				{
 					a = 4;
+				}
 			}
 			if ( Utils.isLetter( last ) ) { // sin cos tan ln abs rnd
 				if ( last == 's' || last == 'g' ) {
