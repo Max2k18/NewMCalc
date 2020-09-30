@@ -18,19 +18,20 @@ android {
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
         minSdkVersion 23
-        //noinspection OldTargetApi
+
         targetSdkVersion 30
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 1862
-        versionName "1.16.0"
+        versionCode 1870
+        versionName "1.17.0"
+
         multiDexEnabled true
+
         buildConfigField "Boolean", "WhatNewIsExisting", "true"
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
         buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-        buildConfigField "String", "CoreVersion", "\"v3.4.200924\""
-        buildConfigField "String", "UpdateDowVersion", "\"v0.4.01.91909_deactivated\""
-        buildConfigField "String", "UpdateCheckerVersion", "\"v0.7.1.91912_deactivated\""
+        buildConfigField "String", "CoreVersion", "\"v3.5.200930\""
     }
 
     buildTypes {
