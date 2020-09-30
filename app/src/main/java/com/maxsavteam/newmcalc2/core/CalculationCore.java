@@ -423,7 +423,6 @@ public final class CalculationCore {
 								i++;
 								s1.pop();
 								s1.push( ans );
-								continue;
 							} else {
 								BigDecimal y = s1.peek();
 								if ( y.signum() < 0 ) {
@@ -447,8 +446,8 @@ public final class CalculationCore {
 										in_s0( '*' );
 									}
 								}
-								continue;
 							}
+							continue;
 						} catch (Exception e) {
 							e.printStackTrace();
 							mWasError = true;
@@ -609,9 +608,6 @@ public final class CalculationCore {
 						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
 						continue;
 					}
-					case "^":
-						in_s0( '^' );
-						continue;
 				}
 				if ( Utils.isDigit( s ) ) {
 					x = "";
@@ -626,7 +622,7 @@ public final class CalculationCore {
 					if ( s.equals( "-" ) && ( i == 0 || Utils.isLetter( example.charAt( i - 1 ) ) ) ) {
 						s1.push( BigDecimal.ZERO );
 					}
-					in_s0( "-" );
+					in_s0( s );
 				}
 			} catch (Exception e) {
 				mWasError = true;
