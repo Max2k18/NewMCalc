@@ -774,42 +774,11 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		if ( example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" ) ) {
-			Stack<Character> bracketsStack = new Stack<>();
-			for (int i = 0; i < example.length(); i++) {
-				char cur = example.charAt( i );
-				if ( isOpenBracket( cur ) ) {
-					bracketsStack.push( cur );
-				} else if ( isCloseBracket( cur ) ) {
-					try {
-						bracketsStack.pop();
-					} catch (EmptyStackException e) {
-						e.printStackTrace();
-						//mWasError = true;
-						//onError(new Error().setStatus("Core"));
-						return;
-					}
-				}
-			}
-			if ( !bracketsStack.isEmpty() ) {
-				while ( !bracketsStack.isEmpty() ) {
-					String br = "";
-					switch ( getTypeOfBracket( bracketsStack.peek() ) ) {
-						case "simple":
-							br = ")";
-							break;
-						case "floor":
-							br = bracketFloorClose;
-							break;
-						case "ceil":
-							br = bracketCeilClose;
-							break;
-					}
-
-					example = String.format( "%s%s", example, br );
-					bracketsStack.pop();
-				}
-			}
+		try {
+			example = mCalculationCore.checkBrackets( example );
+		} catch (EmptyStackException e) {
+			e.printStackTrace();
+			return;
 		}
 
 		was_error = false;
@@ -882,7 +851,7 @@ public class Main2Activity extends ThemeActivity {
 			Runtime runtime = Runtime.getRuntime();
 			runtime.gc();
 			double freeMemory = (double) runtime.freeMemory();
-			double d = runtime.totalMemory() * 0.05 ;
+			double d = runtime.totalMemory() * 0.05;
 			Log.i( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
 			if ( freeMemory < d ) {
 				Log.i( TAG, "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
@@ -1244,8 +1213,9 @@ public class Main2Activity extends ThemeActivity {
 		if ( bracket.equals( "(" ) || bracket.equals( ")" ) ) {
 			return "simple";
 		}
-		if(bracket.equals( "[" ) || bracket.equals( "]" ))
+		if ( bracket.equals( "[" ) || bracket.equals( "]" ) ) {
 			return "round";
+		}
 		if ( bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ) ) {
 			return "floor";
 		}

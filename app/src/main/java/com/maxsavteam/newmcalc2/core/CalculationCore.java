@@ -103,6 +103,43 @@ public final class CalculationCore {
 		return getTypeOfBracket( Character.toString( c ) );
 	}
 
+	public String checkBrackets(String example) throws EmptyStackException {
+		if ( example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" ) || example.contains( "[" ) ) {
+			Stack<Character> bracketsStack = new Stack<>();
+			for (int i = 0; i < example.length(); i++) {
+				char cur = example.charAt( i );
+				if ( isOpenBracket( cur ) ) {
+					bracketsStack.push( cur );
+				} else if ( isCloseBracket( cur ) ) {
+					bracketsStack.pop();
+				}
+			}
+			while ( !bracketsStack.isEmpty() ) {
+				String br = "";
+				String typeOf = getTypeOfBracket( bracketsStack.peek() );
+				switch ( typeOf ) {
+					case "simple":
+						br = ")";
+						break;
+					case "floor":
+						br = bracketFloorClose;
+						break;
+					case "ceil":
+						br = bracketCeilClose;
+						break;
+					case "round":
+						br = "]";
+						break;
+				}
+				Log.i( TAG, "appending brackets; bracketsStack size=" + bracketsStack.size() + "; bracket type=" + typeOf + " bracket=" + br );
+				example = String.format( "%s%s", example, br );
+				bracketsStack.pop();
+			}
+			Log.i( TAG, "example after appending ex=" + example );
+		}
+		return example;
+	}
+
 	public interface CoreInterface {
 		void onSuccess(CalculationResult calculationResult);
 
@@ -145,48 +182,7 @@ public final class CalculationCore {
 			return;
 		}
 
-		if ( example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" ) ) {
-			Stack<Character> bracketsStack = new Stack<>();
-			for (int i = 0; i < example.length(); i++) {
-				char cur = example.charAt( i );
-				if ( isOpenBracket( cur ) ) {
-					bracketsStack.push( cur );
-				} else if ( isCloseBracket( cur ) ) {
-					try {
-						bracketsStack.pop();
-					} catch (EmptyStackException e) {
-						e.printStackTrace();
-						mWasError = true;
-						onError( new CalculationError().setStatus( "Core" ) );
-						return;
-					}
-				}
-			}
-			if ( !bracketsStack.isEmpty() ) {
-				while ( !bracketsStack.isEmpty() ) {
-					String br = "";
-					String typeOf = getTypeOfBracket( bracketsStack.peek() );
-					switch ( typeOf ) {
-						case "simple":
-							br = ")";
-							break;
-						case "floor":
-							br = bracketFloorClose;
-							break;
-						case "ceil":
-							br = bracketCeilClose;
-							break;
-						case "round":
-							br = "]";
-							break;
-					}
-					Log.v( TAG, "appending brackets; bracketsStack size=" + bracketsStack.size() + "; bracket type=" + typeOf + " bracket=" + br );
-					example = String.format( "%s%s", example, br );
-					bracketsStack.pop();
-				}
-				Log.v( TAG, "example after appending ex=" + example );
-			}
-		}
+		example = checkBrackets( example );
 		Utils.trimBrackets( example );
 		if ( example.contains( " " ) ) {
 			StringBuilder sb = new StringBuilder();
@@ -292,8 +288,9 @@ public final class CalculationCore {
 			} else if ( isCloseBracket( now ) ) {
 				bracketsLvl--;
 			}
-
-			subExample = String.format( "%s%c", subExample, now );
+			if ( bracketsLvl >= 0 ) {
+				subExample = String.format( "%s%c", subExample, now );
+			}
 			i++;
 		}
 		Pair<String, Integer> trimResult = Utils.trimBrackets( subExample );

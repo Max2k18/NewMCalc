@@ -6,4 +6,6 @@
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="additional_tools_peek_height">55dp</dimen>
     <dimen name="bottom_sheet_triangle_params">20dp</dimen>
+
+    <dimen name="bottom_line_btn_text_size">25sp</dimen>
 </resources>
