@@ -87,8 +87,9 @@ public final class CalculationCore {
 		if ( bracket.equals( "(" ) || bracket.equals( ")" ) ) {
 			return "simple";
 		}
-		if(bracket.equals( "[" ) || bracket.equals( "]" ))
+		if ( bracket.equals( "[" ) || bracket.equals( "]" ) ) {
 			return "round";
+		}
 		if ( bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ) ) {
 			return "floor";
 		}
@@ -113,6 +114,7 @@ public final class CalculationCore {
 	}
 
 	private void onError(CalculationError calculationError) {
+		mWasError = true;
 		mCoreInterface.onError( calculationError );
 		throw new CoreInterruptedError();
 	}
@@ -364,48 +366,62 @@ public final class CalculationCore {
 					continue;
 				}
 
-				switch ( s ) {
-					case "s":
-					case "t":
-					case "l":
-					case "c":
-					case "a":
-					case "r":
-						if ( i != 0 ) {
-							if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
-								in_s0( "*" );
-							}
+				if ( "s".equals( s ) || "t".equals( s ) || "l".equals( s ) || "c".equals( s ) || "a".equals( s ) || "r".equals( s ) ) {
+					if ( i != 0 ) {
+						if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
+							in_s0( "*" );
 						}
-						String let = "";
-						while ( i < example.length() && example.charAt( i ) != 'e' && Utils.isLetter( example.charAt( i ) ) ) {
-							let = String.format( "%s%c", let, example.charAt( i ) );
-							i++;
-						}
-						i--;
-						in_s0( let );
-						continue;
-					case "P":
-					case "F": {
-						BigDecimal f;
-						if ( s.equals( "P" ) ) {
-							f = Math.PI;
-						} else {
-							f = Math.FI;
-						}
-						s1.push( f );
-						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
+					}
+					String let = "";
+					while ( i < example.length() && example.charAt( i ) != 'e' && Utils.isLetter( example.charAt( i ) ) ) {
+						let = String.format( "%s%c", let, example.charAt( i ) );
+						i++;
+					}
+					i--;
+					in_s0( let );
+					continue;
+				} else if ( "P".equals( s ) || "F".equals( s ) ) {
+					BigDecimal f;
+					if ( s.equals( "P" ) ) {
+						f = Math.PI;
+					} else {
+						f = Math.FI;
+					}
+					s1.push( f );
+					if ( i != 0 && ( Utils.isDigit( example.charAt( i - 1 ) ) || example.charAt( i - 1 ) == '!' ) ) {
+						in_s0( '*' );
+					}
+					if ( i != example.length() - 1 ) {
+						char next = example.charAt( i + 1 );
+						if ( Utils.isDigit( example.charAt( i + 1 ) ) || next == 'F' || next == 'P' || next == 'e' ) {
 							in_s0( '*' );
 						}
-						if ( i != example.length() - 1 ) {
-							char next = example.charAt( i + 1 );
-							if ( Utils.isDigit( example.charAt( i + 1 ) ) || next == 'F' || next == 'P' || next == 'e' ) {
-								in_s0( '*' );
-							}
-						}
-						continue;
 					}
-					case "!":
-						try {
+					continue;
+				} else if ( "!".equals( s ) ) {
+					int cnt = 0;
+					while ( i < example.length() && example.charAt( i ) == '!' ) {
+						i++;
+						cnt++;
+					}
+					i--;
+
+					BigDecimal bigDecimal = s1.peek();
+					boolean isBigger = bigDecimal.compareTo( MAX_FACTORIAL_VALUE.multiply( BigDecimal.valueOf( cnt ) ) ) > 0;
+					if ( bigDecimal.signum() < 0 ) {
+						onError( new CalculationError().setErrorMessage( "Error: factorial of negative number" ) );
+						return;
+					}
+					if ( isBigger ) {
+						onError( new CalculationError().setErrorMessage( "Error: factorial is too big" ) );
+						return;
+					}
+					s1.pop();
+					s1.push( Math.fact( bigDecimal, cnt ) );
+					continue;
+
+
+						/*try {
 							if ( i != len - 1 && example.charAt( i + 1 ) == '!' ) {
 								BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
 								boolean isNumberBigger = y.compareTo( MAX_FACTORIAL_VALUE ) > 0;
@@ -453,161 +469,156 @@ public final class CalculationCore {
 							mWasError = true;
 							onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
 							return;
-						}
-					case "%":
-						if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
-							BigDecimal y = s1.peek();
-							s1.pop();
-							y = y.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
-							y = new BigDecimal( Utils.deleteZeros( y.toPlainString() ) );
-							s1.push( y );
-							if ( i != len - 1 ) {
-								char next = example.charAt( i + 1 );
-								if ( Utils.isDigit( next ) || next == 'P' || next == 'F' || next == 'e' ) {
-									in_s0( '*' );
-								}
+						}*/
+				} else if ( "%".equals( s ) ) {
+					if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
+						BigDecimal y = s1.peek();
+						s1.pop();
+						y = y.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
+						y = new BigDecimal( Utils.deleteZeros( y.toPlainString() ) );
+						s1.push( y );
+						if ( i != len - 1 ) {
+							char next = example.charAt( i + 1 );
+							if ( Utils.isDigit( next ) || next == 'P' || next == 'F' || next == 'e' ) {
+								in_s0( '*' );
 							}
-							continue;
-						} else if ( !s0.empty() && Utils.isBasicAction( s0.peek() ) ) {
-							i++;
-							String x1 = "";
-							int brackets = 0;
-							while ( i < example.length() ) {
-								if ( brackets == 0 && ( example.charAt( i ) == '-' || example.charAt( i ) == '+' ) ) {
-									break;
-								}
-								if ( brackets == 0 && isCloseBracket( example.charAt( i ) ) ) {
-									break;
-								}
-
-								if ( isOpenBracket( example.charAt( i ) ) ) {
-									brackets++;
-								} else if ( isCloseBracket( example.charAt( i ) ) ) {
-									brackets--;
-								}
-
-								x1 = String.format( "%s%c", x1, example.charAt( i ) );
-								i++;
-							}
-							x1 = s1.peek().toPlainString() + x1;
-							s1.pop();
-							CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
-							BigDecimal top;
-							if ( Utils.isNumber( x1 ) ) {
-								top = new BigDecimal( x1 );
-							} else {
-								coreSubProcess.run( x1 );
-								top = coreSubProcess.getResult();
-								if ( top == null ) {
-									mWasError = true;
-									onError( coreSubProcess.getError() );
-									return;
-								}
-							}
-
-							top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
-							top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
-							//s1.push(top);
-							BigDecimal finalResult = s1.peek(), percent;
-							s1.pop();
-							percent = finalResult.multiply( top );
-							if ( !s0.empty() ) {
-								String action = s0.peek();
-								s0.pop();
-
-								if ( Utils.isBasicAction( action ) ) {
-									switch ( action ) {
-										case "+":
-											finalResult = finalResult.add( percent );
-											break;
-										case "-":
-											finalResult = finalResult.subtract( percent );
-											break;
-										case "*":
-											finalResult = finalResult.multiply( percent );
-											break;
-										case "/":
-											finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
-											finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
-											break;
-									}
-									finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
-									s1.push( finalResult );
-								}
-							}
-							i--;
-							continue;
-						}
-						break;
-					case "e": {
-						BigDecimal f = Math.E;
-						s1.push( f );
-						if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
-							in_s0( '*' );
-						}
-						if ( i != example.length() - 1 && Utils.isDigit( example.charAt( i + 1 ) ) ) {
-							in_s0( '*' );
 						}
 						continue;
-					}
-					case "R":
-						if ( i == len - 1 ) {
-							mWasError = true;
-							break;
+					} else if ( !s0.empty() && Utils.isBasicAction( s0.peek() ) ) {
+						i++;
+						String x1 = "";
+						int brackets = 0;
+						while ( i < example.length() ) {
+							if ( brackets == 0 && ( example.charAt( i ) == '-' || example.charAt( i ) == '+' ) ) {
+								break;
+							}
+							if ( brackets == 0 && isCloseBracket( example.charAt( i ) ) ) {
+								break;
+							}
+
+							if ( isOpenBracket( example.charAt( i ) ) ) {
+								brackets++;
+							} else if ( isCloseBracket( example.charAt( i ) ) ) {
+								brackets--;
+							}
+
+							x1 = String.format( "%s%c", x1, example.charAt( i ) );
+							i++;
+						}
+						x1 = s1.peek().toPlainString() + x1;
+						s1.pop();
+						CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
+						BigDecimal top;
+						if ( Utils.isNumber( x1 ) ) {
+							top = new BigDecimal( x1 );
 						} else {
-							in_s0( 'R' );
-							continue;
-						}
-					case "A": {
-						i += 2;
-						String n = "";
-						int actions = 0;
-						while ( example.charAt( i ) != ')' ) {
-							if ( example.charAt( i ) == '+' ) {
-								actions++;
-								s1.push( new BigDecimal( n ) );
-								n = "";
-							} else {
-								n = String.format( "%s%c", n, example.charAt( i ) );
+							coreSubProcess.run( x1 );
+							top = coreSubProcess.getResult();
+							if ( top == null ) {
+								mWasError = true;
+								onError( coreSubProcess.getError() );
+								return;
 							}
-							i++;
 						}
-						s1.push( new BigDecimal( n ) );
-						BigDecimal sum = BigDecimal.ZERO;
-						for (int j = 0; j <= actions; j++) {
-							sum = sum.add( s1.peek() );
-							s1.pop();
+
+						top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
+						top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
+						//s1.push(top);
+						BigDecimal finalResult = s1.peek(), percent;
+						s1.pop();
+						percent = finalResult.multiply( top );
+						if ( !s0.empty() ) {
+							String action = s0.peek();
+							s0.pop();
+
+							if ( Utils.isBasicAction( action ) ) {
+								switch ( action ) {
+									case "+":
+										finalResult = finalResult.add( percent );
+										break;
+									case "-":
+										finalResult = finalResult.subtract( percent );
+										break;
+									case "*":
+										finalResult = finalResult.multiply( percent );
+										break;
+									case "/":
+										finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
+										finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+										break;
+								}
+								finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
+								s1.push( finalResult );
+							}
 						}
-						sum = sum.divide( BigDecimal.valueOf( actions + 1 ), mRoundScale, RoundingMode.HALF_EVEN );
-						String answer = sum.toPlainString();
-						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+						i--;
 						continue;
 					}
-					case "G": {
-						i += 2;
-						String n = "";
-						int actions = 0;
-						while ( example.charAt( i ) != ')' ) {
-							if ( example.charAt( i ) == '*' ) {
-								actions++;
-								s1.push( new BigDecimal( n ) );
-								n = "";
-							} else {
-								n = String.format( "%s%c", n, example.charAt( i ) );
-							}
-							i++;
-						}
-						s1.push( new BigDecimal( n ) );
-						BigDecimal pr = BigDecimal.ONE;
-						for (int j = 0; j <= actions; j++) {
-							pr = pr.multiply( s1.peek() );
-							s1.pop();
-						}
-						pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
-						String answer = pr.toPlainString();
-						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+				} else if ( "e".equals( s ) ) {
+					BigDecimal f = Math.E;
+					s1.push( f );
+					if ( i != 0 && Utils.isDigit( example.charAt( i - 1 ) ) ) {
+						in_s0( '*' );
+					}
+					if ( i != example.length() - 1 && Utils.isDigit( example.charAt( i + 1 ) ) ) {
+						in_s0( '*' );
+					}
+					continue;
+				} else if ( "R".equals( s ) ) {
+					if ( i == len - 1 ) {
+						mWasError = true;
+					} else {
+						in_s0( 'R' );
 						continue;
 					}
+				} else if ( "A".equals( s ) ) {
+					i += 2;
+					String n = "";
+					int actions = 0;
+					while ( example.charAt( i ) != ')' ) {
+						if ( example.charAt( i ) == '+' ) {
+							actions++;
+							s1.push( new BigDecimal( n ) );
+							n = "";
+						} else {
+							n = String.format( "%s%c", n, example.charAt( i ) );
+						}
+						i++;
+					}
+					s1.push( new BigDecimal( n ) );
+					BigDecimal sum = BigDecimal.ZERO;
+					for (int j = 0; j <= actions; j++) {
+						sum = sum.add( s1.peek() );
+						s1.pop();
+					}
+					sum = sum.divide( BigDecimal.valueOf( actions + 1 ), mRoundScale, RoundingMode.HALF_EVEN );
+					String answer = sum.toPlainString();
+					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+					continue;
+				} else if ( "G".equals( s ) ) {
+					i += 2;
+					String n = "";
+					int actions = 0;
+					while ( example.charAt( i ) != ')' ) {
+						if ( example.charAt( i ) == '*' ) {
+							actions++;
+							s1.push( new BigDecimal( n ) );
+							n = "";
+						} else {
+							n = String.format( "%s%c", n, example.charAt( i ) );
+						}
+						i++;
+					}
+					s1.push( new BigDecimal( n ) );
+					BigDecimal pr = BigDecimal.ONE;
+					for (int j = 0; j <= actions; j++) {
+						pr = pr.multiply( s1.peek() );
+						s1.pop();
+					}
+					pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
+					String answer = pr.toPlainString();
+					s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
+					continue;
 				}
 				if ( Utils.isDigit( s ) ) {
 					x = "";

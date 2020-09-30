@@ -1220,7 +1220,8 @@ public class Main2Activity extends ThemeActivity {
 	private boolean isOpenBracket(String str) {
 		return str.equals( "(" ) ||
 				str.equals( bracketCeilOpen ) ||
-				str.equals( bracketFloorOpen );
+				str.equals( bracketFloorOpen ) ||
+				str.equals( "[" );
 	}
 
 	private boolean isOpenBracket(char c) {
@@ -1231,7 +1232,8 @@ public class Main2Activity extends ThemeActivity {
 	private boolean isCloseBracket(String str) {
 		return str.equals( ")" ) ||
 				str.equals( bracketFloorClose ) ||
-				str.equals( bracketCeilClose );
+				str.equals( bracketCeilClose ) ||
+				str.equals( "]" );
 	}
 
 	private boolean isCloseBracket(char c) {
@@ -1242,6 +1244,8 @@ public class Main2Activity extends ThemeActivity {
 		if ( bracket.equals( "(" ) || bracket.equals( ")" ) ) {
 			return "simple";
 		}
+		if(bracket.equals( "[" ) || bracket.equals( "]" ))
+			return "round";
 		if ( bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ) ) {
 			return "floor";
 		}
@@ -1433,7 +1437,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		if ( btntxt.equals( "^" ) ) {
-			if ( len == 0 || last == '(' ) {
+			if ( len == 0 || isOpenBracket( last ) ) {
 				return;
 			}
 
@@ -1589,11 +1593,9 @@ public class Main2Activity extends ThemeActivity {
 					}
 					if ( btntxt.equals( "!" ) ) {
 						if ( last == '!' ) {
-							if ( txt.charAt( len - 2 ) != '!' ) {
-								mExample.setText( txt + btntxt );
-								equallu( "not" );
-								return;
-							}
+							mExample.setText( txt + btntxt );
+							equallu( "not" );
+							return;
 						} else if ( Utils.isDigit( last ) ) {
 							mExample.setText( txt + btntxt );
 							equallu( "not" );

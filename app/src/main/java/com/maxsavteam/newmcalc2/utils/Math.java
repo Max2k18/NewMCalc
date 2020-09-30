@@ -59,8 +59,15 @@ public class Math {
 		return BigDecimalMath.cos( Utils.toRadians( x ), new MathContext( 6 ) );
 	}
 
-	public static BigDecimal fact(BigDecimal x) {
-		return BigDecimalMath.factorial( x, new MathContext( mRoundScale ) );
+	public static BigDecimal fact(BigDecimal x, int step) {
+		if(x.signum() == 0)
+			return BigDecimal.ONE;
+		BigDecimal ans = BigDecimal.ONE;
+		BigDecimal bStep = BigDecimal.valueOf( step );
+		for(; 0 <= x.compareTo( BigDecimal.ONE ); x = x.subtract( bStep )){
+			ans = ans.multiply( x );
+		}
+		return ans;
 	}
 
 	public static BigDecimal floor(BigDecimal x){
