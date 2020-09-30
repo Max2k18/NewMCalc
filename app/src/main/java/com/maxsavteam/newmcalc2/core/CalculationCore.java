@@ -63,7 +63,8 @@ public final class CalculationCore {
 	private boolean isOpenBracket(String str) {
 		return str.equals( "(" ) ||
 				str.equals( bracketCeilOpen ) ||
-				str.equals( bracketFloorOpen );
+				str.equals( bracketFloorOpen ) ||
+				str.equals( "[" );
 	}
 
 	private boolean isOpenBracket(char c) {
@@ -74,7 +75,8 @@ public final class CalculationCore {
 	private boolean isCloseBracket(String str) {
 		return str.equals( ")" ) ||
 				str.equals( bracketFloorClose ) ||
-				str.equals( bracketCeilClose );
+				str.equals( bracketCeilClose ) ||
+				str.equals( "]" );
 	}
 
 	private boolean isCloseBracket(char c) {
@@ -85,6 +87,8 @@ public final class CalculationCore {
 		if ( bracket.equals( "(" ) || bracket.equals( ")" ) ) {
 			return "simple";
 		}
+		if(bracket.equals( "[" ) || bracket.equals( "]" ))
+			return "round";
 		if ( bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ) ) {
 			return "floor";
 		}
@@ -135,7 +139,7 @@ public final class CalculationCore {
 			last = example.charAt( len - 1 );
 		}
 
-		if ( last == '(' ) {
+		if ( isOpenBracket( last ) ) {
 			return;
 		}
 
@@ -170,6 +174,9 @@ public final class CalculationCore {
 						case "ceil":
 							br = bracketCeilClose;
 							break;
+						case "round":
+							br = "]";
+							break;
 					}
 					Log.v( TAG, "appending brackets; bracketsStack size=" + bracketsStack.size() + "; bracket type=" + typeOf + " bracket=" + br );
 					example = String.format( "%s%s", example, br );
@@ -178,6 +185,7 @@ public final class CalculationCore {
 				Log.v( TAG, "example after appending ex=" + example );
 			}
 		}
+		Utils.trimBrackets( example );
 		if ( example.contains( " " ) ) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < example.length(); i++) {
@@ -275,7 +283,7 @@ public final class CalculationCore {
 		int i = pos + 1;
 		String subExample = "";
 		int bracketsLvl = 0;
-		while ( bracketsLvl != 0 || !isCloseBracket( example.charAt( i ) ) ) {
+		while ( bracketsLvl >= 0 ) {
 			char now = example.charAt( i );
 			if ( isOpenBracket( now ) ) {
 				bracketsLvl++;
@@ -286,6 +294,8 @@ public final class CalculationCore {
 			subExample = String.format( "%s%c", subExample, now );
 			i++;
 		}
+		Pair<String, Integer> trimResult = Utils.trimBrackets( subExample );
+		subExample = trimResult.first;
 		return new MovedExample( subExample, i );
 	}
 
@@ -316,6 +326,8 @@ public final class CalculationCore {
 				return new Pair<>( Math.ceil( result ), pos );
 			case "floor":
 				return new Pair<>( Math.floor( result ), pos );
+			case "round":
+				return new Pair<>( Math.round( result ), pos );
 			default:
 				mWasError = true;
 				onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "type of bracket is undefined" ) );
@@ -361,7 +373,6 @@ public final class CalculationCore {
 					case "r":
 						if ( i != 0 ) {
 							if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
-								//s0.push( "*" );
 								in_s0( "*" );
 							}
 						}
@@ -371,7 +382,6 @@ public final class CalculationCore {
 							i++;
 						}
 						i--;
-						//s0.push( let );
 						in_s0( let );
 						continue;
 					case "P":
@@ -392,7 +402,6 @@ public final class CalculationCore {
 								in_s0( '*' );
 							}
 						}
-						//s1.push(f);
 						continue;
 					}
 					case "!":
@@ -595,8 +604,6 @@ public final class CalculationCore {
 							pr = pr.multiply( s1.peek() );
 							s1.pop();
 						}
-						//sum = BigDecimal.valueOf(Math.sqrt(sum.doubleValue())); // BigDecimal has method BigDecimal.abs(), but it is available in Java 9 and high, Android uses Java 8
-						//pr = BigDecimalMath.sqrt( pr, new MathContext( 10 ) );
 						pr = rootWithBase( pr, BigDecimal.valueOf( actions + 1 ) );
 						String answer = pr.toPlainString();
 						s1.push( new BigDecimal( Utils.deleteZeros( answer ) ) );
@@ -617,7 +624,6 @@ public final class CalculationCore {
 				} else {
 					// open bracket will never be before minus
 					if ( s.equals( "-" ) && ( i == 0 || Utils.isLetter( example.charAt( i - 1 ) ) ) ) {
-						//s0.push( "-*" );
 						s1.push( BigDecimal.ZERO );
 					}
 					in_s0( "-" );
@@ -803,8 +809,6 @@ public final class CalculationCore {
 		}
 
 		Map<String, Integer> priority = new HashMap<>();
-		priority.put( "-*", 0 );
-
 		priority.put( "-", 1 );
 		priority.put( "+", 1 );
 		priority.put( "/", 2 );
