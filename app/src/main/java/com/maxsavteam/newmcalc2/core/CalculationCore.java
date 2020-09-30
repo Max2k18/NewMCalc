@@ -361,7 +361,8 @@ public final class CalculationCore {
 					case "r":
 						if ( i != 0 ) {
 							if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
-								s0.push( "*" );
+								//s0.push( "*" );
+								in_s0( "*" );
 							}
 						}
 						String let = "";
@@ -370,7 +371,8 @@ public final class CalculationCore {
 							i++;
 						}
 						i--;
-						s0.push( let );
+						//s0.push( let );
+						in_s0( let );
 						continue;
 					case "P":
 					case "F": {
@@ -613,11 +615,12 @@ public final class CalculationCore {
 					s1.push( new BigDecimal( x ) );
 					i--;
 				} else {
-					if ( s.equals( "-" ) && ( i == 0 || isOpenBracket( example.charAt( i - 1 ) ) || Utils.isLetter( example.charAt( i - 1 ) ) ) ) {
-						s0.push( "-*" );
-					}else {
-						in_s0( example.charAt( i ) );
+					// open bracket will never be before minus
+					if ( s.equals( "-" ) && ( i == 0 || Utils.isLetter( example.charAt( i - 1 ) ) ) ) {
+						//s0.push( "-*" );
+						s1.push( BigDecimal.ZERO );
 					}
+					in_s0( "-" );
 				}
 			} catch (Exception e) {
 				mWasError = true;
@@ -632,7 +635,7 @@ public final class CalculationCore {
 		} catch (EmptyStackException e) {
 			mWasError = true;
 		}
-		if(mWasError){
+		if ( mWasError ) {
 			onError( new CalculationError().setStatus( "Core" ) );
 		}
 		if ( !mWasError && s0.empty() ) {
@@ -646,7 +649,6 @@ public final class CalculationCore {
 		}
 		try {
 			if ( x.length() == 3 || x.equals( "ln" ) || x.equals( "R" ) || x.equals( "-*" ) ) {
-				double d = s1.peek().doubleValue();
 				BigDecimal operand = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
 				s1.pop();
@@ -678,7 +680,7 @@ public final class CalculationCore {
 					case "log": {
 						if ( operand.signum() <= 0 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log10(d));
@@ -694,7 +696,7 @@ public final class CalculationCore {
 					case "ln": {
 						if ( operand.signum() <= 0 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find ln of " + ( d == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find ln of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
@@ -841,7 +843,7 @@ public final class CalculationCore {
 			mult( s0.peek() );
 			s0.pop();
 			in_s0( x );
-		}else {
+		} else {
 			s0.push( x );
 		}
 	}
