@@ -35,7 +35,7 @@ public final class Utils {
 	@SuppressLint("StaticFieldLeak")
 	private static Context sContext;
 
-	public static final String MCALC_SITE = "https://mcalc.maxsav.team/";
+	public static final String MCALC_SITE = "https://mcalc.maxsavteam.com/";
 
 	public static void setContext(Context context) {
 		sContext = context;
