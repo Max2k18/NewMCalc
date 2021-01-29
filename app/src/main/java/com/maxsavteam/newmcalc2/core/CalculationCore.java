@@ -194,7 +194,8 @@ public final class CalculationCore {
 			example = sb.toString();
 		}
 		if ( Utils.isNumber( example ) ) {
-			onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "String is number" ).setPossibleResult( new BigDecimal( example ) ) );
+			onSuccess( new CalculationResult().setResult( new BigDecimal( example ) ).setType( type ) );
+			//onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "String is number" ).setPossibleResult( new BigDecimal( example ) ) );
 			return;
 		}
 		if ( example.contains( mResources.getString( R.string.multiply ) ) || example.contains( mResources.getString( R.string.div ) )

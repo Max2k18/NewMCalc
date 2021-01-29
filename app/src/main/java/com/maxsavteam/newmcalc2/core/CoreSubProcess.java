@@ -39,11 +39,6 @@ public class CoreSubProcess {
 				mWasError = true;
 				CoreSubProcess.this.error = calculationError;
 				mResult = null;
-				if ( error.getStatus().equals( "Core" ) ) {
-					if ( error.getErrorMessage().contains( "String is number" ) ) {
-						mResult = error.getPossibleResult();
-					}
-				}
 			}
 		} );
 
