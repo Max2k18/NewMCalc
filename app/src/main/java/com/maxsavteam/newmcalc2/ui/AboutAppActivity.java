@@ -44,7 +44,7 @@ public class AboutAppActivity extends ThemeActivity {
 		} else if ( v.getId() == R.id.instBtn ) {
 			in.setData( Uri.parse( dynamic_inst ) );
 		} else if ( v.getId() == R.id.siteBtn ) {
-			in.setData( Uri.parse( "http://mobile.maxsavteam.com" ) );
+			in.setData( Uri.parse( "https://maxsavteam.com" ) );
 		} else if ( v.getId() == R.id.playMarketBtn ) {
 			in.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
 		}

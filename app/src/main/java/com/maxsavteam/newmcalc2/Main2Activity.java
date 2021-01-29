@@ -154,7 +154,7 @@ public class Main2Activity extends ThemeActivity {
 			return true;
 		} else if ( id == R.id.what_new ) {
 			Intent in = new Intent( Intent.ACTION_VIEW );
-			in.setData( Uri.parse( Utils.MCALC_SITE + "what-new/#" + BuildConfig.VERSION_NAME ) );
+			in.setData( Uri.parse( Utils.MCALC_SITE + "changelog#" + BuildConfig.VERSION_NAME ) );
 			startActivity( in );
 		}
 		return super.onOptionsItemSelected( item );
