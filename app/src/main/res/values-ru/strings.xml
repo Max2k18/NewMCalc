@@ -112,4 +112,5 @@
     <string name="history_guide">Это запись истории. Вы можете провести влево, чтобы удалить запись, или вправо, чтобы добавить описание к ней.</string>
     <string name="show_guide">Показать гайд</string>
     <string name="guide_will_be_shown_next_time">Гайд будет показан при следующем запуске приложения.</string>
+    <string name="changelog">Журнал изменений</string>
 </resources>

@@ -153,4 +153,5 @@
     <string name="history_guide">This is a record of history. You can swipe left to delete an entry or right to add a description to it.</string>
     <string name="show_guide">Show guide</string>
     <string name="guide_will_be_shown_next_time">The guide will be shown the next time you launch the application.</string>
+    <string name="changelog">Changelog</string>
 </resources>

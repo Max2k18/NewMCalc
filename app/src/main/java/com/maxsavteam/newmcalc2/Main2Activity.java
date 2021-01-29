@@ -14,12 +14,10 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -44,7 +42,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.core.widget.TextViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -152,7 +149,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( id == R.id.about ) {
 			goToActivity( AboutAppActivity.class, null );
 			return true;
-		} else if ( id == R.id.what_new ) {
+		} else if ( id == R.id.changelog ) {
 			Intent in = new Intent( Intent.ACTION_VIEW );
 			in.setData( Uri.parse( Utils.MCALC_SITE + "changelog#" + BuildConfig.VERSION_NAME ) );
 			startActivity( in );
@@ -1653,11 +1650,7 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate( R.menu.menu_main, menu );
-		if ( !BuildConfig.WhatNewIsExisting || !APPTYPE.equals( "stable" ) ) {
-			menu.removeItem( R.id.what_new );
-		}
 		return true;
 	}
 
