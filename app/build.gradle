@@ -32,7 +32,7 @@ android {
         buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
         buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
-        buildConfigField "String", "CoreVersion", "\"v3.5.200930\""
+        buildConfigField "String", "CoreVersion", "\"v3.6.210129\""
     }
 
     buildTypes {
