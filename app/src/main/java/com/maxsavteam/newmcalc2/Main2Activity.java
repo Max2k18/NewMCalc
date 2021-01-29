@@ -629,6 +629,28 @@ public class Main2Activity extends ThemeActivity {
 		ViewGroup.LayoutParams spaceLayoutParams = space.getLayoutParams();
 		spaceLayoutParams.height = displaySize.y / 11;
 		space.setLayoutParams( spaceLayoutParams );
+		viewPager.addOnPageChangeListener( new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+			}
+
+			@Override
+			public void onPageSelected(int position) {
+				if(position == 0){
+					findViewById( R.id.image_view_left ).animate().alpha( 0f ).setDuration( 100 ).start();
+					findViewById( R.id.image_view_right ).animate().alpha( 1f ).setDuration( 100 ).start();
+				}else{
+					findViewById( R.id.image_view_left ).animate().alpha( 1f ).setDuration( 100 ).start();
+					findViewById( R.id.image_view_right ).animate().alpha( 0f ).setDuration( 100 ).start();
+				}
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state) {
+
+			}
+		} );
 	}
 
 	public void onClick(@NonNull View v) {

@@ -8,4 +8,6 @@
     <dimen name="bottom_sheet_triangle_params">20dp</dimen>
 
     <dimen name="bottom_line_btn_text_size">25sp</dimen>
+
+    <dimen name="view_pager_arrow_size">15dp</dimen>
 </resources>
