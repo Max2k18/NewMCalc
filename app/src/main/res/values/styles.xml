@@ -21,6 +21,8 @@
 
         <item name="copy_button_drawable">@drawable/ic_content_copy_black_100dp</item>
 
+        <item name="backspace_drawable">@drawable/ic_backspace_black</item>
+
     </style>
 
     <style name="AppTheme.Dark">
@@ -28,6 +30,8 @@
         <item name="windowBackgroundColor">@color/black</item>
         <item name="textColor">@color/white</item>
         <item name="copy_button_drawable">@drawable/ic_content_copy_white_100dp</item>
+
+        <item name="backspace_drawable">@drawable/ic_backspace_white</item>
 
         <item name="android:itemBackground">@color/black</item>
     </style>

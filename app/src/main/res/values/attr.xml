@@ -3,4 +3,5 @@
     <attr name="textColor" format="color" />
     <attr name="copy_button_drawable" format="reference" />
     <attr name="windowBackgroundColor" format="color" />
+    <attr name="backspace_drawable" format="reference" />
 </resources>
