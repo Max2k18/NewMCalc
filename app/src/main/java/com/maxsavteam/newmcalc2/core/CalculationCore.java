@@ -358,7 +358,7 @@ public final class CalculationCore {
 					if ( result == null ) {
 						return;
 					}
-					i = result.second;
+					i = result.second - 1;
 					s1.push( result.first );
 
 					continue;
@@ -417,57 +417,6 @@ public final class CalculationCore {
 					s1.pop();
 					s1.push( Math.fact( bigDecimal, cnt ) );
 					continue;
-
-
-						/*try {
-							if ( i != len - 1 && example.charAt( i + 1 ) == '!' ) {
-								BigDecimal y = s1.peek(), ans = BigDecimal.ONE;
-								boolean isNumberBigger = y.compareTo( MAX_FACTORIAL_VALUE ) > 0;
-								if ( y.signum() < 0 || isNumberBigger ) {
-									mWasError = true;
-									if ( isNumberBigger ) {
-										onError( new CalculationError().setErrorMessage( "Invalid argument: factorial value is too much" ).setShortError( valueIsTooBig ) ); // I do not know how to name this error
-										return;
-									}
-									break;
-								}
-								for (; y.compareTo( BigDecimal.valueOf( 0 ) ) > 0; y = y.subtract( BigDecimal.valueOf( 2 ) )) {
-									ans = ans.multiply( y );
-								}
-								i++;
-								s1.pop();
-								s1.push( ans );
-							} else {
-								BigDecimal y = s1.peek();
-								if ( y.signum() < 0 ) {
-									mWasError = true;
-									onError( new CalculationError().setErrorMessage( "Error: Unable to find negative factorial." ).setShortError( invalidArgument ) );
-									return;
-								} else {
-									if ( y.compareTo( MAX_FACTORIAL_VALUE ) > 0 ) {
-										mWasError = true;
-										onError( new CalculationError().setErrorMessage( "For some reason, we cannot calculate the factorial of this number " +
-												"(because it is too large and may not have enough device resources when executed)" ).setShortError( valueIsTooBig ) );
-										return;
-									} else {
-										s1.pop();
-										s1.push( Math.fact( y ) );
-									}
-								}
-								if ( i != len - 1 ) {
-									char next = example.charAt( i + 1 );
-									if ( Utils.isDigit( next ) || next == 'P' || next == 'F' || next == 'e' ) {
-										in_s0( '*' );
-									}
-								}
-							}
-							continue;
-						} catch (Exception e) {
-							e.printStackTrace();
-							mWasError = true;
-							onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ).setShortError( valueIsTooBig ) );
-							return;
-						}*/
 				} else if ( "%".equals( s ) ) {
 					if ( s0.empty() || ( !s0.empty() && !Utils.isBasicAction( s0.peek() ) ) ) {
 						BigDecimal y = s1.peek();
