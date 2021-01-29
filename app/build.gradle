@@ -1,13 +1,14 @@
+plugins {
+    id 'com.android.application'
+    id 'com.google.gms.google-services';
+    id 'com.google.firebase.firebase-perf';
+    id 'com.google.firebase.crashlytics';
+}
+
 ext {
     var = 'D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks'
 }
 import java.text.SimpleDateFormat
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: 'com.google.firebase.crashlytics'
-
 
 android {
     compileSdkVersion 30
