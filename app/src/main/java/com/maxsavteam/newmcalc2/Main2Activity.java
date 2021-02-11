@@ -69,6 +69,7 @@ import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
+import com.maxsavteam.newmcalc2.widget.CustomTextView;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -92,7 +93,7 @@ public class Main2Activity extends ThemeActivity {
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
-	private TextView mExample;
+	private CustomTextView mExample;
 	private MemorySaverReader mMemorySaverReader;
 	//private char last;
 	private BigDecimal[] memoryEntries;
@@ -402,7 +403,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void format(int id) {
-		TextView t = findViewById( id );
+		CustomTextView t = findViewById( id );
 		String txt = t.getText().toString();
 		if ( txt.equals( "" ) || txt.length() < 4 ) {
 			return;
@@ -555,6 +556,54 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		setViewPager( 0 );
+
+		initializeScrollViews();
+	}
+
+	private void updateExampleArrows() {
+		HorizontalScrollView scrollView = findViewById( R.id.scrollview );
+
+		if ( scrollView.canScrollHorizontally( 1 ) ) {
+			showWithAlpha( R.id.example_right );
+		} else {
+			hideWithAlpha( R.id.example_right );
+		}
+
+		if ( scrollView.canScrollHorizontally( -1 ) ) {
+			showWithAlpha( R.id.example_left );
+		} else {
+			hideWithAlpha( R.id.example_left );
+		}
+	}
+
+	private void updateAnswerArrows(){
+		HorizontalScrollView scrollView = findViewById( R.id.scrollViewAns );
+
+		if ( scrollView.canScrollHorizontally( 1 ) ) {
+			showWithAlpha( R.id.answer_right );
+		} else {
+			hideWithAlpha( R.id.answer_right );
+		}
+
+		if ( scrollView.canScrollHorizontally( -1 ) ) {
+			showWithAlpha( R.id.answer_left );
+		} else {
+			hideWithAlpha( R.id.answer_left );
+		}
+	}
+
+	private void initializeScrollViews() {
+		CustomTextView exampleTextView = findViewById( R.id.ExampleStr );
+		exampleTextView.addListener( this::updateExampleArrows );
+
+		HorizontalScrollView exampleScrollView = findViewById( R.id.scrollview );
+		exampleScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateExampleArrows() );
+
+		CustomTextView answerTextView = findViewById( R.id.AnswerStr );
+		answerTextView.addListener( this::updateAnswerArrows );
+
+		HorizontalScrollView answerScrollView = findViewById( R.id.scrollViewAns );
+		answerScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateAnswerArrows() );
 	}
 
 	@Override
@@ -589,13 +638,21 @@ public class Main2Activity extends ThemeActivity {
 		super.onActivityResult( requestCode, resultCode, data );
 	}
 
+	private void showWithAlpha(int id) {
+		findViewById( id ).animate().alpha( 1f ).setDuration( 100 ).start();
+	}
+
+	private void hideWithAlpha(int id) {
+		findViewById( id ).animate().alpha( 0f ).setDuration( 100 ).start();
+	}
+
 	private void setViewPager(int which) {
 		Fragment1.InitializationObject fragmentOneInitializationObject =
 				new Fragment1.InitializationObject()
 						.setContext( this )
 						.setLongClickListeners( new View.OnLongClickListener[]{
 								mForAdditionalBtnsLongClick,
-								returnback,
+								mReturnBack,
 								btnDeleteSymbolLongClick
 						} );
 		Fragment2.InitializationObject fragmentTwoInitializationObject =
@@ -622,10 +679,6 @@ public class Main2Activity extends ThemeActivity {
 		viewPager.setLayoutParams( lay );
 		viewPager.setAdapter( myFragmentPagerAdapter );
 		viewPager.setCurrentItem( which );
-		Space space = findViewById( R.id.space_between_pager_and_str );
-		ViewGroup.LayoutParams spaceLayoutParams = space.getLayoutParams();
-		spaceLayoutParams.height = displaySize.y / 11;
-		space.setLayoutParams( spaceLayoutParams );
 		viewPager.addOnPageChangeListener( new ViewPager.OnPageChangeListener() {
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -634,12 +687,12 @@ public class Main2Activity extends ThemeActivity {
 
 			@Override
 			public void onPageSelected(int position) {
-				if(position == 0){
-					findViewById( R.id.image_view_left ).animate().alpha( 0f ).setDuration( 100 ).start();
-					findViewById( R.id.image_view_right ).animate().alpha( 1f ).setDuration( 100 ).start();
-				}else{
-					findViewById( R.id.image_view_left ).animate().alpha( 1f ).setDuration( 100 ).start();
-					findViewById( R.id.image_view_right ).animate().alpha( 0f ).setDuration( 100 ).start();
+				if ( position == 0 ) {
+					hideWithAlpha( R.id.image_view_left );
+					showWithAlpha( R.id.image_view_right );
+				} else {
+					showWithAlpha( R.id.image_view_left );
+					hideWithAlpha( R.id.image_view_right );
 				}
 			}
 
@@ -665,14 +718,11 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void addStringExampleToTheExampleStr(String value) {
-		TextView t = findViewById( R.id.ExampleStr );
-		String txt = t.getText().toString();
+		String txt = mExample.getText().toString();
 		if ( txt.equals( "" ) ) {
-			t.setText( value );
+			mExample.setText( value );
 			show_str();
 			hideAns();
-			format( R.id.ExampleStr );
-			resizeText();
 		} else {
 			char last = txt.charAt( txt.length() - 1 );
 			if ( new BigDecimal( value ).signum() < 0 ) {
@@ -681,15 +731,14 @@ public class Main2Activity extends ThemeActivity {
 			if ( Utils.isDigit( last ) || last == '%' || last == '!'
 					|| Character.toString( last ).equals( FI )
 					|| Character.toString( last ).equals( PI ) || last == 'e' || isCloseBracket( last ) ) {
-				t.setText( String.format( "%s%s%s", txt, MULTIPLY_SIGN, value ) );
-				equallu( "not" );
+				mExample.setText( String.format( "%s%s%s", txt, MULTIPLY_SIGN, value ) );
 			} else {
-				t.setText( String.format( "%s%s", txt, value ) );
-				equallu( "not" );
+				mExample.setText( String.format( "%s%s", txt, value ) );
 			}
-			format( R.id.ExampleStr );
-			resizeText();
+			equallu( "not" );
 		}
+		format( R.id.ExampleStr );
+		resizeText();
 	}
 
 	private boolean isSpecific(char last) {
@@ -704,7 +753,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	};
 
-	private View.OnLongClickListener returnback = v->{
+	private final View.OnLongClickListener mReturnBack = v->{
 		if ( !was_error ) {
 			TextView back = findViewById( R.id.AnswerStr ), str = findViewById( R.id.ExampleStr );
 			if ( back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE ) {
@@ -720,7 +769,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	};
 
-	private View.OnLongClickListener btnDeleteSymbolLongClick = (View v)->{
+	private final View.OnLongClickListener btnDeleteSymbolLongClick = (View v)->{
 		deleteExample( findViewById( R.id.btnDelAll ) );
 		return true;
 	};
@@ -735,7 +784,7 @@ public class Main2Activity extends ThemeActivity {
 
 	public void deleteExample(View v) {
 		exampleEnterMode = EnterModes.SIMPLE;
-		TextView t = findViewById( R.id.ExampleStr );
+		CustomTextView t = findViewById( R.id.ExampleStr );
 		hide_str();
 		t.setText( "" );
 		setTextViewAnswerTextSizeToDefault();
@@ -751,8 +800,8 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void setTextViewsTextSizeToDefault() {
-		TextView txt = findViewById( R.id.ExampleStr );
-		TextView t = findViewById( R.id.AnswerStr );
+		CustomTextView txt = findViewById( R.id.ExampleStr );
+		CustomTextView t = findViewById( R.id.AnswerStr );
 		txt.setTextSize( TypedValue.COMPLEX_UNIT_SP, 46 );
 		t.setTextSize( TypedValue.COMPLEX_UNIT_SP, 34 );
 	}
@@ -776,7 +825,7 @@ public class Main2Activity extends ThemeActivity {
 			setTextViewAnswerTextSizeToDefault();
 			hideAns();
 		}
-		TextView txt = findViewById( R.id.ExampleStr );
+		CustomTextView txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
 		format( R.id.ExampleStr );
 		resizeText();
@@ -1103,7 +1152,7 @@ public class Main2Activity extends ThemeActivity {
 			temp = memoryEntries[ 0 ].subtract( temp );
 		}
 		if ( countOfMemoryPlusMinusMethodCalls > 0 ) {
-			returnback.onLongClick( findViewById( R.id.btnCalc ) );
+			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
 		}
 		memoryEntries[ 0 ] = temp;
 		mMemorySaverReader.save( memoryEntries );
@@ -1129,7 +1178,7 @@ public class Main2Activity extends ThemeActivity {
 			temp = new BigDecimal( Utils.deleteSpaces( txt ) );
 		}
 		if ( countOfMemoryStoreMethodCalls > 0 ) {
-			returnback.onLongClick( findViewById( R.id.btnCalc ) );
+			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
 		}
 		countOfMemoryStoreMethodCalls = 0;
 		memoryEntries[ 0 ] = temp;
