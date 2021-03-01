@@ -91,7 +91,7 @@ dependencies {
     implementation 'ch.obermuhlner:big-math:2.3.0'
 
     implementation 'com.google.firebase:firebase-core:18.0.2'
-    implementation 'com.google.firebase:firebase-perf:19.1.0'
+    implementation 'com.google.firebase:firebase-perf:19.1.1'
     implementation 'com.google.firebase:firebase-analytics:18.0.2'
     implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
 
