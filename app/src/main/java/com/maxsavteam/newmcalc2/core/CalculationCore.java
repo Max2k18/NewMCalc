@@ -29,16 +29,24 @@ public final class CalculationCore {
 	private final CoreInterface mCoreInterface;
 
 	private final Resources mResources;
-	private final String invalidArgument, valueIsTooBig, divisionByZero;
 	private final Context mContext;
+	private final String invalidArgument;
+	private final String valueIsTooBig;
+	private final String divisionByZero;
 	private final String TAG = "Core";
-	private final String bracketFloorOpen, bracketFloorClose,
-			bracketCeilOpen, bracketCeilClose;
+	private final String bracketFloorOpen;
+	private final String bracketFloorClose;
+	private final String bracketCeilOpen;
+	private final String bracketCeilClose;
 	private final int mRoundScale;
 
 	private final Stack<String> s0 = new Stack<>(); // actions
 
 	private final Stack<BigDecimal> s1 = new Stack<>(); // numbers
+
+	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
+
+	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
 
 	private boolean mWasError = false;
 
@@ -103,7 +111,8 @@ public final class CalculationCore {
 		return getTypeOfBracket( Character.toString( c ) );
 	}
 
-	public String checkBrackets(String example) throws EmptyStackException {
+	public String checkBrackets(String s) throws EmptyStackException {
+		String example = s;
 		if ( example.contains( bracketFloorOpen ) || example.contains( bracketCeilOpen ) || example.contains( "(" ) || example.contains( "[" ) ) {
 			Stack<Character> bracketsStack = new Stack<>();
 			for (int i = 0; i < example.length(); i++) {
@@ -129,6 +138,8 @@ public final class CalculationCore {
 						break;
 					case "round":
 						br = "]";
+						break;
+					default:
 						break;
 				}
 				Log.i( TAG, "appending brackets; bracketsStack size=" + bracketsStack.size() + "; bracket type=" + typeOf + " bracket=" + br );
@@ -156,10 +167,6 @@ public final class CalculationCore {
 		throw new CoreInterruptedError();
 	}
 
-	private final BigDecimal MAX_FACTORIAL_VALUE = new BigDecimal( "1000" );
-
-	private final BigDecimal MAX_POW = new BigDecimal( "10000000000" );
-
 	/**
 	 * Performs all necessary checks and changes, and if everything is in order, starts the core (calculation)
 	 *
@@ -185,49 +192,60 @@ public final class CalculationCore {
 		example = checkBrackets( example );
 		Utils.trimBrackets( example );
 		if ( example.contains( " " ) ) {
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < example.length(); i++) {
-				if ( example.charAt( i ) != ' ' ) {
-					sb.append( example.charAt( i ) );
-				}
-			}
-			example = sb.toString();
+			example = deleteSpaces( example );
 		}
 		if ( Utils.isNumber( example ) ) {
 			onSuccess( new CalculationResult().setResult( new BigDecimal( example ) ).setType( type ) );
 			//onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "String is number" ).setPossibleResult( new BigDecimal( example ) ) );
 			return;
 		}
-		if ( example.contains( mResources.getString( R.string.multiply ) ) || example.contains( mResources.getString( R.string.div ) )
-				|| example.contains( mResources.getString( R.string.pi ) ) || example.contains( mResources.getString( R.string.fi ) )
-				|| example.contains( mResources.getString( R.string.sqrt ) ) ) {
-			char[] mas = example.toCharArray();
-			String p;
-
-			for (int i = 0; i < example.length(); i++) {
-				p = Character.toString( mas[ i ] );
-				if ( p.equals( mResources.getString( R.string.div ) ) ) {
-					mas[ i ] = '/';
-				} else if ( p.equals( mResources.getString( R.string.multiply ) ) ) {
-					mas[ i ] = '*';
-				} else if ( p.equals( mResources.getString( R.string.pi ) ) ) {
-					mas[ i ] = 'P';
-				} else if ( p.equals( mResources.getString( R.string.fi ) ) ) {
-					mas[ i ] = 'F';
-				} else if ( p.equals( mResources.getString( R.string.sqrt ) ) ) {
-					mas[ i ] = 'R';
-				}
-			}
-			example = new String( mas );
+		if ( example.contains( mResources.getString( R.string.multiply ) ) ||
+				example.contains( mResources.getString( R.string.div ) ) ||
+				example.contains( mResources.getString( R.string.pi ) ) ||
+				example.contains( mResources.getString( R.string.fi ) ) ||
+				example.contains( mResources.getString( R.string.sqrt ) )
+		) {
+			example = replaceDifficultCharacters( example );
 		}
 
 		calculate( example, type );
 	}
 
+	private String replaceDifficultCharacters(String s){
+		char[] mas = s.toCharArray();
+		String p;
+
+		for (int i = 0; i < mas.length; i++) {
+			p = Character.toString( mas[ i ] );
+			if ( p.equals( mResources.getString( R.string.div ) ) ) {
+				mas[ i ] = '/';
+			} else if ( p.equals( mResources.getString( R.string.multiply ) ) ) {
+				mas[ i ] = '*';
+			} else if ( p.equals( mResources.getString( R.string.pi ) ) ) {
+				mas[ i ] = 'P';
+			} else if ( p.equals( mResources.getString( R.string.fi ) ) ) {
+				mas[ i ] = 'F';
+			} else if ( p.equals( mResources.getString( R.string.sqrt ) ) ) {
+				mas[ i ] = 'R';
+			}
+		}
+		return new String( mas );
+	}
+
+	private String deleteSpaces(String example){
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < example.length(); i++) {
+			if ( example.charAt( i ) != ' ' ) {
+				sb.append( example.charAt( i ) );
+			}
+		}
+		return sb.toString();
+	}
+
 	private static class MovedExample {
 
-		final String subExample;
-		final int newPos;
+		private final String subExample;
+		private final int newPos;
 
 		MovedExample(String subExample, int newPos) {
 			this.subExample = subExample;
@@ -300,10 +318,11 @@ public final class CalculationCore {
 	}
 
 	private Pair<BigDecimal, Integer> getResultFromBrackets(String example, int pos) {
-		String bracket = String.valueOf( example.charAt( pos ) );
-		MovedExample movedExample = getSubExampleFromBrackets( example, pos );
+		int localPos = pos;
+		String bracket = String.valueOf( example.charAt( localPos ) );
+		MovedExample movedExample = getSubExampleFromBrackets( example, localPos );
 		String subExample = movedExample.subExample;
-		pos = movedExample.newPos;
+		localPos = movedExample.newPos;
 		CoreSubProcess coreSubProcess = new CoreSubProcess( mContext );
 		BigDecimal result;
 		if ( Utils.isNumber( subExample ) ) {
@@ -321,13 +340,13 @@ public final class CalculationCore {
 		String bracketType = getTypeOfBracket( bracket );
 		switch ( bracketType ) {
 			case "simple":
-				return new Pair<>( result, pos );
+				return new Pair<>( result, localPos );
 			case "ceil":
-				return new Pair<>( Math.ceil( result ), pos );
+				return new Pair<>( Math.ceil( result ), localPos );
 			case "floor":
-				return new Pair<>( Math.floor( result ), pos );
+				return new Pair<>( Math.floor( result ), localPos );
 			case "round":
-				return new Pair<>( Math.round( result ), pos );
+				return new Pair<>( Math.round( result ), localPos );
 			default:
 				mWasError = true;
 				onError( new CalculationError().setStatus( "Core" ).setMessage( "type of bracket is undefined" ) );
@@ -365,10 +384,8 @@ public final class CalculationCore {
 				}
 
 				if ( "s".equals( s ) || "t".equals( s ) || "c".equals( s ) || "a".equals( s ) || "r".equals( s ) ) {
-					if ( i != 0 ) {
-						if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
-							in_s0( "*" );
-						}
+					if ( i != 0 && isCloseBracket( example.charAt( i - 1 ) ) ) {
+						in_s0( "*" );
 					}
 					String let = "";
 					while ( i < example.length() && example.charAt( i ) != 'e' && Utils.isLetter( example.charAt( i ) ) ) {
@@ -496,7 +513,8 @@ public final class CalculationCore {
 						top = top.divide( BigDecimal.valueOf( 100 ), mRoundScale, RoundingMode.HALF_EVEN );
 						top = new BigDecimal( Utils.deleteZeros( top.toPlainString() ) );
 						//s1.push(top);
-						BigDecimal finalResult = s1.peek(), percent;
+						BigDecimal finalResult = s1.peek();
+						BigDecimal percent;
 						s1.pop();
 						percent = finalResult.multiply( top );
 						if ( !s0.empty() ) {
@@ -516,8 +534,9 @@ public final class CalculationCore {
 										break;
 									case "/":
 										finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
-										finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
 										break;
+									default:
+										throw new IllegalStateException("Utils.isBasicAction returned true, but default label called");
 								}
 								finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
 								s1.push( finalResult );
@@ -824,9 +843,7 @@ public final class CalculationCore {
 		if ( priorityOfX == null || priorityOfTopAction == null ) {
 			Log.v( TAG, "in_s0: priority.get returned null on " + s0.peek() );
 
-			NullPointerException nullPointerException = new NullPointerException( "Method: in_s0; priorityOfX equals null or priorityOfTopAction equals null" );
-			nullPointerException.printStackTrace();
-			throw nullPointerException;
+			throw new IllegalArgumentException( "Method: in_s0; priorityOfX or priorityOfTopAction is null" );
 		}
 
 		if ( priorityOfX < priorityOfTopAction || priorityOfX.equals( priorityOfTopAction ) ) {

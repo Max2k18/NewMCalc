@@ -820,6 +820,8 @@ public class Main2Activity extends ThemeActivity {
 				mCalculationCore.prepareAndRun( finalExample, type );
 			} catch (CoreInterruptedError e) {
 				// stop thread
+			}catch (RuntimeException e){
+				Log.i( TAG, "equallu: " + e );
 			}
 		} );
 		mProgressDialog = new ProgressDialog( this );
