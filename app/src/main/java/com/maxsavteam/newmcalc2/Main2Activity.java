@@ -44,6 +44,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
@@ -475,7 +476,7 @@ public class Main2Activity extends ThemeActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Utils.setContext( this );
-		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler() );
+		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler( this, null, true ) );
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		setContentView( R.layout.activity_main2 );

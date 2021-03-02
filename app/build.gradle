@@ -105,6 +105,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
+    implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:0.3.1'
+
     implementation 'org.jetbrains:annotations:15.0'
 
 }
