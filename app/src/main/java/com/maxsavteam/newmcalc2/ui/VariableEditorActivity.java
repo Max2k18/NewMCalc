@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.ResultCodes;
+import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
@@ -98,7 +98,7 @@ public class VariableEditorActivity extends ThemeActivity {
 		VariableUtils.saveVariables( mVariables );
 		Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
 		sendBroadcast( in );
-		setResult( ResultCodes.RESULT_APPLY );
+		setResult( ResultCodesConstants.RESULT_APPLY );
 		onBackPressed();
 	}
 
@@ -109,7 +109,7 @@ public class VariableEditorActivity extends ThemeActivity {
 				VariableUtils.saveVariables( mVariables );
 				Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
 				sendBroadcast( in );
-				setResult( ResultCodes.RESULT_APPLY );
+				setResult( ResultCodesConstants.RESULT_APPLY );
 				onBackPressed();
 
 				break;

@@ -39,9 +39,9 @@ import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
-import com.maxsavteam.newmcalc2.utils.Constants;
+import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.HistoryStorageProtocolsFormatter;
-import com.maxsavteam.newmcalc2.utils.ResultCodes;
+import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
@@ -69,7 +69,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	@Override
 	public void onBackPressed() {
-		setResult( ResultCodes.RESULT_NORMAL, mHistoryAction );
+		setResult( ResultCodesConstants.RESULT_NORMAL, mHistoryAction );
 		if ( mStartType.equals( "shortcut" ) ) {
 			startActivity( new Intent( this, Main2Activity.class ) );
 		}
@@ -85,7 +85,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private void onSomethingWentWrong() {
 		Toast.makeText( this, getResources().getString( R.string.smth_went_wrong ), Toast.LENGTH_LONG ).show();
 		mHistoryAction.putExtra( "error", true );
-		setResult( ResultCodes.RESULT_ERROR, mHistoryAction );
+		setResult( ResultCodesConstants.RESULT_ERROR, mHistoryAction );
 		super.onBackPressed();
 	}
 
@@ -97,7 +97,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		}
 		//history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
 		mHistoryAction.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
-		setResult( ResultCodes.RESULT_NORMAL, mHistoryAction );
+		setResult( ResultCodesConstants.RESULT_NORMAL, mHistoryAction );
 		super.onBackPressed();
 		//Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
 	}
@@ -281,7 +281,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		for (int i = 0; i < len; i++) {
 			save.append( mEntries.get( i ).getExample() );
 			if ( mEntries.get( i ).getDescription() != null ) {
-				save.append( Constants.HISTORY_DESC_SEPARATOR ).append( mEntries.get( i ).getDescription() );
+				save.append( HistoryConstants.HISTORY_DESC_SEPARATOR ).append( mEntries.get( i ).getDescription() );
 			}
 			save.append( ( (char) 30 ) ).append( mEntries.get( i ).getAnswer() ).append( ( (char) 29 ) );
 		}
@@ -430,11 +430,11 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 				boolean was_dot = false;
 				ex = ans = "";
 				while ( i < his.length() ) {
-					if ( his.charAt( i ) == Constants.HISTORY_ENTRIES_SEPARATOR ) {
+					if ( his.charAt( i ) == HistoryConstants.HISTORY_ENTRIES_SEPARATOR ) {
 						i++;
 						break;
 					}
-					if ( his.charAt( i ) == Constants.HISTORY_IN_ENTRY_SEPARATOR ) {
+					if ( his.charAt( i ) == HistoryConstants.HISTORY_IN_ENTRY_SEPARATOR ) {
 						i++;
 						was_dot = true;
 						continue;
@@ -447,9 +447,9 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 					i++;
 				}
 				String description = null;
-				if ( ex.contains( Character.toString( Constants.HISTORY_DESC_SEPARATOR ) ) ) {
+				if ( ex.contains( Character.toString( HistoryConstants.HISTORY_DESC_SEPARATOR ) ) ) {
 					int j = 0;
-					while ( j < ex.length() && ex.charAt( j ) != Constants.HISTORY_DESC_SEPARATOR ) {
+					while ( j < ex.length() && ex.charAt( j ) != HistoryConstants.HISTORY_DESC_SEPARATOR ) {
 						j++;
 					}
 					description = ex.substring( j + 1 );
@@ -467,7 +467,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			ProgressDialog pd = new ProgressDialog( this );
 			pd.requestWindowFeature( Window.FEATURE_NO_TITLE );
 			pd.setCancelable( false );
-			new HistoryStorageProtocolsFormatter( this ).reformatHistory( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, Constants.HISTORY_STORAGE_PROTOCOL_VERSION );
+			new HistoryStorageProtocolsFormatter( this ).reformatHistory( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION );
 			pd.dismiss();
 			prepareHistoryForRecyclerView();
 		} catch (StringIndexOutOfBoundsException e) {
@@ -517,7 +517,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt( "local_history_storage_protocol_version", 1 );
 		String history = sp.getString( "history", null );
 		if ( history != null ) {
-			if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < Constants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
+			if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
 				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 				builder
 						.setPositiveButton( "OK", (dialog, which)->{
@@ -527,7 +527,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 						.setCancelable( false )
 						.setMessage( R.string.confirm_history_reformat );
 				builder.create().show();
-			} else if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > Constants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
+			} else if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
 				setContentView( R.layout.activity_history_protocols_donot_match );
 				TextView note = findViewById( R.id.lblProtocolsDoNotMatch );
 				String text = "";
@@ -545,7 +545,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 				prepareHistoryForRecyclerView();
 			}
 		} else {
-			sp.edit().putInt( "local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
+			sp.edit().putInt( "local_history_storage_protocol_version", HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
 			prepareHistoryForRecyclerView();
 		}
 	}

@@ -16,7 +16,7 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
-import com.maxsavteam.newmcalc2.utils.ResultCodes;
+import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
@@ -43,7 +43,7 @@ public class MemoryActionsActivity extends ThemeActivity implements WindowRecall
 					memorySaverReader.save( barr );
 					adapter.notifyDataSetChanged();
 					dialogInterface1.cancel();
-					setResult( ResultCodes.RESULT_REFRESH );
+					setResult( ResultCodesConstants.RESULT_REFRESH );
 					onBackPressed();
 				} )
 				.setNegativeButton( R.string.no, (dialogInterface1, i)->dialogInterface1.cancel() )
@@ -93,12 +93,12 @@ public class MemoryActionsActivity extends ThemeActivity implements WindowRecall
 			String value = activity_intent.getStringExtra( "value" );
 			barr[ position ] = new BigDecimal( value );
 			memorySaverReader.save( barr );
-			setResult( ResultCodes.RESULT_REFRESH );
+			setResult( ResultCodesConstants.RESULT_REFRESH );
 			onBackPressed();
 		} else if ( type.equals( "rc" ) ) {
 			Intent intent = new Intent();
 			intent.putExtra( "value", barr[ position ].toString() );
-			setResult( ResultCodes.RESULT_APPEND, intent );
+			setResult( ResultCodesConstants.RESULT_APPEND, intent );
 			onBackPressed();
 		}
 	}

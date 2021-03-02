@@ -39,9 +39,9 @@ public class SwipeController extends Callback {
 
 	private RecyclerView.ViewHolder currentItemViewHolder = null;
 
-	private SwipeControllerActions buttonsActions;
+	private final SwipeControllerActions buttonsActions;
 
-	private static float buttonWidth = 250;
+	private final float buttonWidth;
 
 	private final Context context;
 
@@ -67,7 +67,7 @@ public class SwipeController extends Callback {
 
 	@Override
 	public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
+		// ignored
 	}
 
 	@Override
@@ -83,9 +83,12 @@ public class SwipeController extends Callback {
 	public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 		if (actionState == ACTION_STATE_SWIPE) {
 			if (buttonShowedState != ButtonsState.GONE) {
-				if (buttonShowedState == ButtonsState.LEFT_VISIBLE) dX = Math.max(dX, buttonWidth);
-				if (buttonShowedState == ButtonsState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWidth);
-				super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+				float rdX = dX;
+				if (buttonShowedState == ButtonsState.LEFT_VISIBLE)
+					rdX = Math.max(dX, buttonWidth);
+				if (buttonShowedState == ButtonsState.RIGHT_VISIBLE)
+					rdX = Math.min(dX, -buttonWidth);
+				super.onChildDraw(c, recyclerView, viewHolder, rdX, dY, actionState, isCurrentlyActive);
 			}
 			else {
 				setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -107,7 +110,7 @@ public class SwipeController extends Callback {
 				else if (dX > buttonWidth) buttonShowedState  = ButtonsState.LEFT_VISIBLE;
 
 				if (buttonShowedState != ButtonsState.GONE) {
-					setTouchDownListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+					setTouchDownListener(c, recyclerView, viewHolder, dY, actionState, isCurrentlyActive);
 					setItemsClickable(recyclerView, false);
 				}
 			}
@@ -115,16 +118,16 @@ public class SwipeController extends Callback {
 		} );
 	}
 
-	private void setTouchDownListener(final Canvas c, final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final float dX, final float dY, final int actionState, final boolean isCurrentlyActive) {
+	private void setTouchDownListener(final Canvas c, final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final float dY, final int actionState, final boolean isCurrentlyActive) {
 		recyclerView.setOnTouchListener( (v, event)->{
 			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				setTouchUpListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+				setTouchUpListener(c, recyclerView, viewHolder, dY, actionState, isCurrentlyActive);
 			}
 			return false;
 		} );
 	}
 
-	private void setTouchUpListener(final Canvas c, final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final float dX, final float dY, final int actionState, final boolean isCurrentlyActive) {
+	private void setTouchUpListener(final Canvas c, final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final float dY, final int actionState, final boolean isCurrentlyActive) {
 		recyclerView.setOnTouchListener( (v, event)->{
 			if (event.getAction() == MotionEvent.ACTION_UP) {
 				SwipeController.super.onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive);

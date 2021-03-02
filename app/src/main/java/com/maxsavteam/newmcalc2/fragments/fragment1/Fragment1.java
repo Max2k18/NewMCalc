@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TableLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +23,7 @@ import com.maxsavteam.newmcalc2.R;
 public class Fragment1 extends Fragment {
 	private final Context mContext;
 	private final View.OnLongClickListener[] mLongClickListeners;
+	private View view;
 
 	public Fragment1(InitializationObject initializationObject) {
 		mContext = initializationObject.getContext();
@@ -34,8 +34,6 @@ public class Fragment1 extends Fragment {
 	public View getView() {
 		return view;
 	}
-
-	private View view;
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -103,7 +101,7 @@ public class Fragment1 extends Fragment {
 			return this;
 		}
 
-		View.OnLongClickListener[] getLongClickListeners() {
+		private View.OnLongClickListener[] getLongClickListeners() {
 			return mLongClickListeners;
 		}
 

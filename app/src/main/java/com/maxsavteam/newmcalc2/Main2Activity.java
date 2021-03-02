@@ -14,7 +14,6 @@ import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -58,12 +57,12 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
-import com.maxsavteam.newmcalc2.utils.Constants;
+import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.Format;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
-import com.maxsavteam.newmcalc2.utils.RequestCodes;
-import com.maxsavteam.newmcalc2.utils.ResultCodes;
+import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
+import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
@@ -585,8 +584,8 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if ( requestCode == RequestCodes.START_HISTORY ) {
-			if ( resultCode != ResultCodes.RESULT_ERROR && data != null ) {
+		if ( requestCode == RequestCodesConstants.START_HISTORY ) {
+			if ( resultCode != ResultCodesConstants.RESULT_ERROR && data != null ) {
 				String example = data.getStringExtra( "example" );
 				if ( example != null && !example.equals( "" ) ) {
 					String result = data.getStringExtra( "result" );
@@ -602,14 +601,14 @@ public class Main2Activity extends ThemeActivity {
 				}
 			}
 		}
-		if ( requestCode == RequestCodes.START_MEMORY_RECALL ) {
-			if ( resultCode == ResultCodes.RESULT_APPEND ) {
+		if ( requestCode == RequestCodesConstants.START_MEMORY_RECALL ) {
+			if ( resultCode == ResultCodesConstants.RESULT_APPEND ) {
 				addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
-			} else if ( resultCode == ResultCodes.RESULT_REFRESH ) {
+			} else if ( resultCode == ResultCodesConstants.RESULT_REFRESH ) {
 				memoryEntries = mMemorySaverReader.read();
 			}
 		}
-		if ( requestCode == RequestCodes.START_ADD_VAR ) {
+		if ( requestCode == RequestCodesConstants.START_ADD_VAR ) {
 			setViewPager( 1 );
 		}
 		super.onActivityResult( requestCode, resultCode, data );
@@ -1004,7 +1003,7 @@ public class Main2Activity extends ThemeActivity {
 		String his = sp.getString( "history", null );
 		String formattedResult = Format.format( result );
 		if ( his != null ) {
-			if ( sp.getInt( "local_history_storage_protocol_version", 1 ) < Constants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
+			if ( sp.getInt( "local_history_storage_protocol_version", 1 ) < HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
 				Toast.makeText( this, "The record was not saved because the format of the history record does not match the new format." +
 								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
 						Toast.LENGTH_LONG ).show();
@@ -1021,7 +1020,7 @@ public class Main2Activity extends ThemeActivity {
 		} else {
 			his = String.format( "%s%c%s%c", example, ( (char) 30 ), formattedResult, ( (char) 29 ) );
 			sp.edit().putString( "history", his ).apply();
-			sp.edit().putInt( "local_history_storage_protocol_version", Constants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
+			sp.edit().putInt( "local_history_storage_protocol_version", HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
 		}
 	}
 
@@ -1152,15 +1151,15 @@ public class Main2Activity extends ThemeActivity {
 		int requestCode = -1;
 		isOtherActivityOpened = true;
 		if ( cls.equals( HistoryActivity.class ) ) {
-			requestCode = RequestCodes.START_HISTORY;
+			requestCode = RequestCodesConstants.START_HISTORY;
 		} else if ( cls.equals( MemoryActionsActivity.class ) ) {
 			if ( possibleExtras.getStringExtra( "type" ).equals( "rc" ) ) {
-				requestCode = RequestCodes.START_MEMORY_RECALL;
+				requestCode = RequestCodesConstants.START_MEMORY_RECALL;
 			} else {
-				requestCode = RequestCodes.START_MEMORY_STORE;
+				requestCode = RequestCodesConstants.START_MEMORY_STORE;
 			}
 		} else if ( cls.equals( VariableEditorActivity.class ) ) {
-			requestCode = RequestCodes.START_ADD_VAR;
+			requestCode = RequestCodesConstants.START_ADD_VAR;
 		}
 		startActivityForResult( intent, requestCode );
 	}

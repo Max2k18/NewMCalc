@@ -1,10 +1,10 @@
 package com.maxsavteam.newmcalc2.widget;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -16,6 +16,7 @@ import com.maxsavteam.newmcalc2.R;
 public class ButtonWithDropdown extends AppCompatButton {
 	private Context mContext;
 	private Object[] mElements = new Object[]{};
+	private OnItemSelectedListener mOnItemSelectedListener;
 
 	public ButtonWithDropdown(Context context) {
 		super( context );
@@ -43,8 +44,6 @@ public class ButtonWithDropdown extends AppCompatButton {
 	public interface OnItemSelectedListener{
 		void onItemSelected(int index);
 	}
-
-	private OnItemSelectedListener mOnItemSelectedListener;
 
 	public void setOnItemSelectedListener(OnItemSelectedListener onItemSelectedListener) {
 		mOnItemSelectedListener = onItemSelectedListener;
@@ -85,6 +84,8 @@ public class ButtonWithDropdown extends AppCompatButton {
 	};
 
 	@Override
-	public void setOnClickListener(@Nullable OnClickListener l) {}
+	public void setOnClickListener(@Nullable OnClickListener l) {
+		throw new UnsupportedOperationException();
+	}
 }
 

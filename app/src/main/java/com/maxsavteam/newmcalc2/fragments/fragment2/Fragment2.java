@@ -28,28 +28,26 @@ import java.util.ArrayList;
 
 public class Fragment2 extends Fragment {
 	private final Context mContext;
+	private final View view;
+	private final View.OnLongClickListener[] longClickListeners;
+	private final Point mDisplaySize = new Point();
 
 	/*
 	 *  0 - memory
 	 *  1 - variable buttons
 	 */
-	private final View.OnLongClickListener[] longClickListeners;
 	public Fragment2(InitializationObject initializationObject){
 		mContext = initializationObject.getContext();
 		this.longClickListeners = initializationObject.getLongClickListeners();
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.fragment_2, null, false);
 	}
-	private final Point mDisplaySize = new Point();
 
 	@Nullable
 	@Override
 	public View getView() {
 		return view;
 	}
-
-
-	private final View view;
 
 	private int findButtonByTag(int tag){
 		switch (tag){
