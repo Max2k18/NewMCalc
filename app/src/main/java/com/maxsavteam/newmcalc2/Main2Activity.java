@@ -576,7 +576,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private void updateAnswerArrows(){
+	private void updateAnswerArrows() {
 		HorizontalScrollView scrollView = findViewById( R.id.scrollViewAns );
 
 		if ( scrollView.canScrollHorizontally( 1 ) ) {
@@ -668,6 +668,7 @@ public class Main2Activity extends ThemeActivity {
 				new MyFragmentPagerAdapter.InitializationObject()
 						.setFragmentManager( getSupportFragmentManager() )
 						.setContext( this )
+						.setInitializationObject( fragmentTwoInitializationObject )
 						.setInitializationObject( fragmentTwoInitializationObject )
 						.setInitializationObject( fragmentOneInitializationObject );
 		MyFragmentPagerAdapter myFragmentPagerAdapter =
@@ -1547,7 +1548,24 @@ public class Main2Activity extends ThemeActivity {
 			if ( last == '.' ) {
 				return;
 			}
-			if ( ( Utils.isDigit( last ) || last == '!' || last == '%' || Utils.isConstNum( last, this ) || isCloseBracket( last ) ) && !txt.equals( "" ) ) {
+			boolean isPreviousLogWithBase = false;
+			int i = len - 1;
+			StringBuilder sb = new StringBuilder();
+			while ( i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || Utils.isLetter( txt.charAt( i ) ) || txt.charAt( i ) == '.' ) ) {
+				sb.append( txt.charAt( i ) );
+				i--;
+			}
+			String prev = sb.toString();
+			isPreviousLogWithBase = prev.endsWith( "gol" ) && prev.length() > 3; // because result string is reversed
+			if ( !isPreviousLogWithBase &&
+					(
+							Utils.isDigit( last ) ||
+									last == '!' ||
+									last == '%' ||
+									Utils.isConstNum( last, this ) ||
+									isCloseBracket( last )
+					)
+			) {
 				mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 			} else {
 				mExample.setText( txt + btntxt );

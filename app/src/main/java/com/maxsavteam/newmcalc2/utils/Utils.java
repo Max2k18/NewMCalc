@@ -104,6 +104,10 @@ public final class Utils {
 		return source;
 	}
 
+	public static BigDecimal deleteZeros(BigDecimal x){
+		return new BigDecimal( deleteZeros( x.toPlainString() ) );
+	}
+
 	private static void addSwipeFeature(AlertDialog alertDialog) {
 		Window window = alertDialog.getWindow();
 		if ( window != null ) {

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
@@ -37,6 +38,12 @@ public class Math {
 
 	public static BigDecimal log(BigDecimal x) {
 		return BigDecimalMath.log10( x, new MathContext( mRoundScale ) );
+	}
+
+	public static BigDecimal logWithBase(BigDecimal x, BigDecimal base){
+		BigDecimal logX = BigDecimalMath.log10( x, new MathContext( mRoundScale ) ),
+				logB = BigDecimalMath.log10( base, new MathContext( mRoundScale ) );
+		return logX.divide( logB, mRoundScale, RoundingMode.HALF_EVEN );
 	}
 
 	public static BigDecimal abs(BigDecimal x) {

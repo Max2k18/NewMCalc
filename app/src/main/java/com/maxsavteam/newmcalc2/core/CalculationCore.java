@@ -364,7 +364,7 @@ public final class CalculationCore {
 					continue;
 				}
 
-				if ( "s".equals( s ) || "t".equals( s ) || "l".equals( s ) || "c".equals( s ) || "a".equals( s ) || "r".equals( s ) ) {
+				if ( "s".equals( s ) || "t".equals( s ) || "c".equals( s ) || "a".equals( s ) || "r".equals( s ) ) {
 					if ( i != 0 ) {
 						if ( isCloseBracket( example.charAt( i - 1 ) ) ) {
 							in_s0( "*" );
@@ -377,6 +377,31 @@ public final class CalculationCore {
 					}
 					i--;
 					in_s0( let );
+					continue;
+				} else if ( "l".equals( s ) ) {
+					StringBuilder sb = new StringBuilder();
+					while(i < example.length() && Utils.isLetter( example.charAt( i ) )){
+						sb.append( example.charAt( i ) );
+						i++;
+					}
+					String let = sb.toString();
+					if(let.equals( "ln" ) || !Utils.isDigit( example.charAt( i ) )){
+						in_s0( let );
+						i--;
+						continue;
+					}
+					while(i < example.length() && (Utils.isDigit( example.charAt( i ) ) || example.charAt( i ) == '.')){
+						sb.append( example.charAt( i ) );
+						i++;
+					}
+					if(i != example.length() && isOpenBracket( example.charAt( i ) )){ // log with base
+						in_s0( sb.toString() );
+					}else{
+						String res = sb.toString();
+						in_s0( "log" );
+						s1.push( new BigDecimal( res.substring( 3 ) ) );
+					}
+					i--;
 					continue;
 				} else if ( "P".equals( s ) || "F".equals( s ) ) {
 					BigDecimal f;
@@ -608,6 +633,22 @@ public final class CalculationCore {
 			throw new CoreInterruptedError();
 		}
 		try {
+			if(x.startsWith( "log" )){
+				BigDecimal operand = s1.peek();
+				if ( operand.signum() <= 0 ) {
+					mWasError = true;
+					onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+					return;
+				}
+				BigDecimal base;
+				if(x.equals( "log" )){
+					base = new BigDecimal( "10" );
+				}else{
+					base = new BigDecimal( x.substring( 3 ) );
+				}
+				s1.push( Utils.deleteZeros( Math.logWithBase( operand, base ) ) );
+				return;
+			}
 			if ( x.length() == 3 || x.equals( "ln" ) || x.equals( "R" ) || x.equals( "-*" ) ) {
 				BigDecimal operand = s1.peek();
 				BigDecimal ans = BigDecimal.ONE;
@@ -775,9 +816,10 @@ public final class CalculationCore {
 		priority.put( "tan", 3 );
 		priority.put( "sin", 3 );
 		priority.put( "ln", 3 );
-		priority.put( "log", 3 );
 		priority.put( "abs", 3 );
 		priority.put( "rnd", 3 );
+		if(x.startsWith( "log" ))
+			priority.put( x, 3 );
 
 		Log.i( TAG, "in_s0 called with x=" + x + "; s0.size()=" + s0.size() );
 
