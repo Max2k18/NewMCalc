@@ -330,7 +330,7 @@ public final class CalculationCore {
 				return new Pair<>( Math.round( result ), pos );
 			default:
 				mWasError = true;
-				onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "type of bracket is undefined" ) );
+				onError( new CalculationError().setStatus( "Core" ).setMessage( "type of bracket is undefined" ) );
 				return null;
 		}
 	}
@@ -432,11 +432,11 @@ public final class CalculationCore {
 					BigDecimal bigDecimal = s1.peek();
 					boolean isBigger = bigDecimal.compareTo( MAX_FACTORIAL_VALUE.multiply( BigDecimal.valueOf( cnt ) ) ) > 0;
 					if ( bigDecimal.signum() < 0 ) {
-						onError( new CalculationError().setErrorMessage( "Error: factorial of negative number" ) );
+						onError( new CalculationError().setMessage( "Error: factorial of negative number" ) );
 						return;
 					}
 					if ( isBigger ) {
-						onError( new CalculationError().setErrorMessage( "Error: factorial is too big" ) );
+						onError( new CalculationError().setMessage( "Error: factorial is too big" ) );
 						return;
 					}
 					s1.pop();
@@ -637,7 +637,7 @@ public final class CalculationCore {
 				BigDecimal operand = s1.peek();
 				if ( operand.signum() <= 0 ) {
 					mWasError = true;
-					onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+					onError( new CalculationError().setMessage( "Illegal argument: unable to find log of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 					return;
 				}
 				BigDecimal base;
@@ -678,16 +678,6 @@ public final class CalculationCore {
 						ans = Math.tan( operand );
 						break;
 					}
-					case "log": {
-						if ( operand.signum() <= 0 ) {
-							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find log of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
-							return;
-						}
-						//ans = BigDecimal.valueOf(Math.log10(d));
-						ans = Math.log( operand );
-						break;
-					}
 					case "abs":
 						ans = Math.abs( operand );
 						break;
@@ -697,7 +687,7 @@ public final class CalculationCore {
 					case "ln": {
 						if ( operand.signum() <= 0 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Illegal argument: unable to find ln of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setMessage( "Illegal argument: unable to find ln of " + ( operand.signum() == 0 ? "zero." : "negative number." ) ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimal.valueOf(Math.log(d));
@@ -707,7 +697,7 @@ public final class CalculationCore {
 					case "R":
 						if ( operand.signum() < 0 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
+							onError( new CalculationError().setMessage( "Invalid argument: the root expression cannot be negative." ).setShortError( invalidArgument ) );
 							return;
 						}
 						//ans = BigDecimalMath.sqrt(operand, new MathContext(9));
@@ -741,7 +731,7 @@ public final class CalculationCore {
 					case "/":
 						if ( b.signum() == 0 ) {
 							mWasError = true;
-							onError( new CalculationError().setErrorMessage( "Division by zero." ).setShortError( divisionByZero ) );
+							onError( new CalculationError().setMessage( "Division by zero." ).setShortError( divisionByZero ) );
 							return;
 						}
 						ans = a.divide( b, mRoundScale, RoundingMode.HALF_EVEN );
@@ -779,18 +769,18 @@ public final class CalculationCore {
 				String str = e.toString();
 				if ( str.contains( "Infinity or Nan" ) ) {
 					mWasError = true;
-					onError( new CalculationError().setErrorMessage( e.toString() ).setShortError( valueIsTooBig ) );
+					onError( new CalculationError().setMessage( e.toString() ).setShortError( valueIsTooBig ) );
 				} else {
 					mWasError = true;
-					onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ) );
+					onError( new CalculationError().setMessage( e.toString() ).setMessage( e.getMessage() ) );
 				}
 			}
 		} catch (EmptyStackException e) {
 			mWasError = true;
-			onError( new CalculationError().setStatus( "Core" ).setErrorMessage( e.toString() ) );
+			onError( new CalculationError().setStatus( "Core" ).setMessage( e.toString() ) );
 		} catch (Exception e) {
 			mWasError = true;
-			onError( new CalculationError().setErrorMessage( e.toString() ).setMessage( e.getMessage() ) );
+			onError( new CalculationError().setMessage( e.toString() ).setMessage( e.getMessage() ) );
 		}
 	}
 
