@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.maxsavteam.newmcalc2.Main2Activity;
 
 public class Format {
-	private final static String TAG = Main2Activity.TAG + " Format";
+	public final static String TAG = Main2Activity.TAG + " Format";
 
 	/**
 	 * Returns string with formatted last number (if last symbol is digit)

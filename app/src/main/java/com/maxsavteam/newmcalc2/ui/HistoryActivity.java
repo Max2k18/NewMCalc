@@ -52,7 +52,7 @@ import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFoc
 
 public class HistoryActivity extends ThemeActivity implements HistoryAdapter.AdapterCallback {
 
-	private static final String TAG = Main2Activity.TAG + " History";
+	public static final String TAG = Main2Activity.TAG + " History";
 
 	private HistoryAdapter adapter;
 

@@ -140,6 +140,42 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	};
 
+	private final View.OnLongClickListener mForAdditionalBtnsLongClick = view->{
+		appendToExampleString( ( (Button) view ).getText().toString().substring( 1 ) );
+		return true;
+	};
+
+	private final View.OnLongClickListener mReturnBack = v->{
+		if ( !was_error ) {
+			TextView answer = findViewById( R.id.AnswerStr );
+			TextView example = findViewById( R.id.ExampleStr );
+			if ( answer.getVisibility() == View.INVISIBLE || answer.getVisibility() == View.GONE ) {
+				return false;
+			}
+			String txt = answer.getText().toString();
+			answer.setText( example.getText().toString() );
+			example.setText( txt );
+			scrollExampleToEnd();
+			return true;
+		} else {
+			return false;
+		}
+	};
+
+	private final View.OnLongClickListener btnDeleteSymbolLongClick = (View v)->{
+		deleteExample( findViewById( R.id.btnDelAll ) );
+		return true;
+	};
+
+	private final View.OnLongClickListener mMemoryActionsLongClick = (View v)->{
+		if ( v.getId() == R.id.btnMR ) {
+			openMemory( "rc" );
+		} else {
+			openMemory( "st" );
+		}
+		return true;
+	};
+
 	@Override
 	public void onBackPressed() {
 		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
@@ -258,7 +294,6 @@ public class Main2Activity extends ThemeActivity {
 
 		registerBroadcastReceivers();
 
-
 		mMemorySaverReader = new MemorySaverReader( this );
 		memoryEntries = mMemorySaverReader.read();
 
@@ -268,8 +303,14 @@ public class Main2Activity extends ThemeActivity {
 			startGuide();
 		}
 
-		//showSidebarGuide();
+		addShortcutsToApp();
 
+		restoreResultIfSaved();
+
+		showOfferToRate();
+	}
+
+	private void addShortcutsToApp() {
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
 			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
 			Intent t = new Intent( Intent.ACTION_VIEW, null, this, Main2Activity.class );
@@ -309,7 +350,9 @@ public class Main2Activity extends ThemeActivity {
 				shortcutManager.setDynamicShortcuts( Arrays.asList( shortcut3, shortCutNumSys, shortcut2, shortcut1 ) );
 			}
 		}
+	}
 
+	private void restoreResultIfSaved() {
 		if ( sp.getBoolean( "saveResult", false ) ) {
 			String text = sp.getString( "saveResultText", null );
 			if ( text != null ) {
@@ -329,11 +372,14 @@ public class Main2Activity extends ThemeActivity {
 				format( R.id.ExampleStr );
 			}
 		}
-		boolean offer_to_rate = sp.getBoolean( "offer_was_showed", false );
-		int offers_count = sp.getInt( "offers_count", 0 );
-		if ( !offer_to_rate ) {
-			if ( offers_count == 10 ) {
-				offers_count = 0;
+	}
+
+	private void showOfferToRate() {
+		boolean isOfferShowed = sp.getBoolean( "offer_was_showed", false );
+		int showedCount = sp.getInt( "offers_count", 0 );
+		if ( !isOfferShowed ) {
+			if ( showedCount == 10 ) {
+				showedCount = 0;
 				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 				builder.setTitle( R.string.please_rate_out_app )
 						.setMessage( R.string.rate_message )
@@ -358,13 +404,11 @@ public class Main2Activity extends ThemeActivity {
 
 				builder.show();
 			} else {
-				offers_count++;
+				showedCount++;
 			}
-			sp.edit().putInt( "offers_count", offers_count ).apply();
+			sp.edit().putInt( "offers_count", showedCount ).apply();
 		}
 	}
-
-	String APPTYPE = BuildConfig.APPTYPE;
 
 	/**
 	 * Can receive 5 types: settings (go to Settings), numgen (go to Number Generator)<br>
@@ -396,6 +440,8 @@ public class Main2Activity extends ThemeActivity {
 				goToActivity( NumberSystemConverterActivity.class, new Intent()
 						.putExtra( "start_type", "app" ) );
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -404,12 +450,6 @@ public class Main2Activity extends ThemeActivity {
 		t.setText( "" );
 		t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
 		t.setTextColor( super.textColor );
-	}
-
-	private void restartActivity() {
-		Intent in = new Intent( this, Main2Activity.class );
-		this.startActivity( in );
-		this.finish();
 	}
 
 	private void unregisterAllBroadcasts() {
@@ -584,21 +624,19 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if ( requestCode == RequestCodesConstants.START_HISTORY ) {
-			if ( resultCode != ResultCodesConstants.RESULT_ERROR && data != null ) {
-				String example = data.getStringExtra( "example" );
-				if ( example != null && !example.equals( "" ) ) {
-					String result = data.getStringExtra( "result" );
+		if ( requestCode == RequestCodesConstants.START_HISTORY && resultCode != ResultCodesConstants.RESULT_ERROR && data != null ) {
+			String example = data.getStringExtra( "example" );
+			if ( example != null && !example.equals( "" ) ) {
+				String result = data.getStringExtra( "result" );
 
-					if ( mExample.getText().toString().equals( "" ) ) {
-						mExample.setText( example );
-						showExample();
-					} else {
-						addStringExampleToTheExampleStr( result );
-					}
-
-					equallu( "not" );
+				if ( mExample.getText().toString().equals( "" ) ) {
+					mExample.setText( example );
+					showExample();
+				} else {
+					addStringExampleToTheExampleStr( result );
 				}
+
+				equallu( "not" );
 			}
 		}
 		if ( requestCode == RequestCodesConstants.START_MEMORY_RECALL ) {
@@ -694,7 +732,8 @@ public class Main2Activity extends ThemeActivity {
 		appendToExampleString( ( (Button) v ).getText().toString() );
 	}
 
-	private void addStringExampleToTheExampleStr(String value) {
+	private void addStringExampleToTheExampleStr(String s) {
+		String value = s;
 		String txt = mExample.getText().toString();
 		if ( txt.equals( "" ) ) {
 			mExample.setText( value );
@@ -722,32 +761,6 @@ public class Main2Activity extends ThemeActivity {
 		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( FI ) || last == 'e';
 	}
 
-	final View.OnLongClickListener mForAdditionalBtnsLongClick = view->{
-		appendToExampleString( ( (Button) view ).getText().toString().substring( 1 ) );
-		return true;
-	};
-
-	private final View.OnLongClickListener mReturnBack = v->{
-		if ( !was_error ) {
-			TextView back = findViewById( R.id.AnswerStr ), str = findViewById( R.id.ExampleStr );
-			if ( back.getVisibility() == View.INVISIBLE || back.getVisibility() == View.GONE ) {
-				return false;
-			}
-			String txt = back.getText().toString();
-			back.setText( str.getText().toString() );
-			str.setText( txt );
-			scrollExampleToEnd();
-			return true;
-		} else {
-			return false;
-		}
-	};
-
-	private final View.OnLongClickListener btnDeleteSymbolLongClick = (View v)->{
-		deleteExample( findViewById( R.id.btnDelAll ) );
-		return true;
-	};
-
 	public void deleteExample(View v) {
 		exampleEnterMode = EnterModes.SIMPLE;
 		CustomTextView t = findViewById( R.id.ExampleStr );
@@ -771,15 +784,6 @@ public class Main2Activity extends ThemeActivity {
 		txt.setTextSize( TypedValue.COMPLEX_UNIT_SP, 46 );
 		t.setTextSize( TypedValue.COMPLEX_UNIT_SP, 34 );
 	}
-
-	private final View.OnLongClickListener mMemoryActionsLongClick = (View v)->{
-		if ( v.getId() == R.id.btnMR ) {
-			openMemory( "rc" );
-		} else {
-			openMemory( "st" );
-		}
-		return true;
-	};
 
 	private void equallu(String type) {
 		if ( was_error ) {
@@ -819,10 +823,15 @@ public class Main2Activity extends ThemeActivity {
 				mCalculationCore.prepareAndRun( finalExample, type );
 			} catch (CoreInterruptedError e) {
 				// stop thread
-			}catch (RuntimeException e){
+			} catch (RuntimeException e) {
 				Log.i( TAG, "equallu: " + e );
 			}
 		} );
+
+		startThreadController();
+	}
+
+	private void startThreadController() {
 		mProgressDialog = new ProgressDialog( this );
 		mProgressDialog.setCancelable( false );
 		mProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
@@ -959,12 +968,10 @@ public class Main2Activity extends ThemeActivity {
 
 	private void writeCalculationResult(String type, BigDecimal result) {
 		String ans = result.toPlainString();
-		if ( ans.contains( "." ) ) {
-			if ( ans.length() - ans.indexOf( "." ) > 9 ) {
-				BigDecimal d = result;
-				d = d.divide( BigDecimal.ONE, 8, RoundingMode.HALF_EVEN );
-				ans = Utils.deleteZeros( d.toPlainString() );
-			}
+		if ( ans.contains( "." ) && ans.length() - ans.indexOf( "." ) > 9 ) {
+			BigDecimal d = result;
+			d = d.divide( BigDecimal.ONE, 8, RoundingMode.HALF_EVEN );
+			ans = Utils.deleteZeros( d.toPlainString() );
 		}
 		switch ( type ) {
 			case "all":
@@ -1078,9 +1085,11 @@ public class Main2Activity extends ThemeActivity {
 		goToActivity( MemoryActionsActivity.class, in );
 	}
 
-	int countOfMemoryPlusMinusMethodCalls = 0;
-
 	public void onMemoryPlusMinusButtonsClick(View v) {
+		onMemoryPlusMinusButtonsClick( v, false );
+	}
+
+	public void onMemoryPlusMinusButtonsClick(View v, boolean isPreviouslyCalled) {
 		TextView textExample = findViewById( R.id.ExampleStr );
 		String text = textExample.getText().toString();
 		if ( text.equals( "" ) ) {
@@ -1090,9 +1099,8 @@ public class Main2Activity extends ThemeActivity {
 		BigDecimal temp;
 		if ( !Utils.isNumber( text ) ) {
 			equallu( "all" );
-			if ( countOfMemoryPlusMinusMethodCalls < 1 ) {
-				countOfMemoryPlusMinusMethodCalls++;
-				onMemoryPlusMinusButtonsClick( v );
+			if ( !isPreviouslyCalled ) {
+				onMemoryPlusMinusButtonsClick( v, true );
 			}
 			return;
 		} else {
@@ -1103,16 +1111,18 @@ public class Main2Activity extends ThemeActivity {
 		} else if ( v.getId() == R.id.btnMemMinus ) {
 			temp = memoryEntries[ 0 ].subtract( temp );
 		}
-		if ( countOfMemoryPlusMinusMethodCalls > 0 ) {
+		if ( isPreviouslyCalled ) {
 			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
 		}
 		memoryEntries[ 0 ] = temp;
 		mMemorySaverReader.save( memoryEntries );
 	}
 
-	int countOfMemoryStoreMethodCalls = 0;
-
 	public void onMemoryStoreButtonClick(View view) {
+		onMemoryStoreButtonClick( view, false );
+	}
+
+	public void onMemoryStoreButtonClick(View view, boolean isPreviouslyCalled) {
 		TextView t = findViewById( R.id.ExampleStr );
 		String txt = t.getText().toString();
 		if ( txt.equals( "" ) ) {
@@ -1121,18 +1131,16 @@ public class Main2Activity extends ThemeActivity {
 		BigDecimal temp;
 		if ( !Utils.isNumber( txt ) ) {
 			equallu( "all" );
-			if ( countOfMemoryStoreMethodCalls < 1 ) {
-				countOfMemoryStoreMethodCalls++;
-				onMemoryStoreButtonClick( view );
+			if ( !isPreviouslyCalled ) {
+				onMemoryStoreButtonClick( view, true );
 			}
 			return;
 		} else {
 			temp = new BigDecimal( Utils.deleteSpaces( txt ) );
 		}
-		if ( countOfMemoryStoreMethodCalls > 0 ) {
+		if ( isPreviouslyCalled ) {
 			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
 		}
-		countOfMemoryStoreMethodCalls = 0;
 		memoryEntries[ 0 ] = temp;
 		mMemorySaverReader.save( memoryEntries );
 
@@ -1433,11 +1441,9 @@ public class Main2Activity extends ThemeActivity {
 				equallu( "not" );
 				return;
 			}
-			if ( !Utils.isDigit( last ) ) {
-				if ( last == '!' || last == '%' ) {
-					mExample.setText( txt + btntxt );
-					equallu( "not" );
-				}
+			if ( !Utils.isDigit( last ) && ( last == '!' || last == '%' ) ) {
+				mExample.setText( txt + btntxt );
+				equallu( "not" );
 			}
 			return;
 		}
@@ -1551,16 +1557,18 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		if ( !Utils.isDigit( btntxt ) && !Utils.isLetter( btntxt.charAt( 0 ) ) ) {
-			if ( len != 0 ) {
-				if ( txt.charAt( len - 1 ) == 'π' ||
-						txt.charAt( len - 1 ) == 'φ' ||
-						txt.charAt( len - 1 ) == 'e' ) {
-					mExample.setText( txt + btntxt );
-					equallu( "not" );
-					return;
-				}
-			}
+		if ( !Utils.isDigit( btntxt ) &&
+				!Utils.isLetter( btntxt.charAt( 0 ) ) &&
+				len != 0 &&
+				(
+						txt.charAt( len - 1 ) == 'π' ||
+								txt.charAt( len - 1 ) == 'φ' ||
+								txt.charAt( len - 1 ) == 'e'
+				)
+		) {
+			mExample.setText( txt + btntxt );
+			equallu( "not" );
+			return;
 		}
 
 		if ( ( last == '!' || last == '%' ) && !btntxt.equals( "." ) && !btntxt.equals( "!" ) && !btntxt.equals( "%" ) ) {

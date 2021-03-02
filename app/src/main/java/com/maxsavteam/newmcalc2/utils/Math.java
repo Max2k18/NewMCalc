@@ -9,7 +9,7 @@ import java.math.RoundingMode;
 import ch.obermuhlner.math.big.BigDecimalMath;
 
 public class Math {
-	private static final String TAG = "Math";
+	public static final String TAG = "Math";
 
 	public static final BigDecimal E = new BigDecimal( "2.7182818284590452354" );
 	public static final BigDecimal PI = new BigDecimal( "3.14159265358979323846" );

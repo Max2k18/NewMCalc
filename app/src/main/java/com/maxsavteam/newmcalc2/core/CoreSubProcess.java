@@ -9,7 +9,7 @@ public class CoreSubProcess {
 
 	private BigDecimal mResult = null;
 	private final Context mContext;
-	private final String TAG = "CoreSubProcess";
+	public static final String TAG = "CoreSubProcess";
 	private CalculationError error;
 
 	public CalculationError getError() {

@@ -28,12 +28,12 @@ import java.util.Stack;
 public final class CalculationCore {
 	private final CoreInterface mCoreInterface;
 
+	public static final String TAG = "Core";
 	private final Resources mResources;
 	private final Context mContext;
 	private final String invalidArgument;
 	private final String valueIsTooBig;
 	private final String divisionByZero;
-	private final String TAG = "Core";
 	private final String bracketFloorOpen;
 	private final String bracketFloorClose;
 	private final String bracketCeilOpen;

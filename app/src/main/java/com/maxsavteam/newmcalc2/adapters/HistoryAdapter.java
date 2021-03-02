@@ -28,7 +28,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 	private final AdapterCallback mAdapterCallback;
 	private final Context con;
 	private final ArrayList<ViewHolder> mViewHolders = new ArrayList<>();
-	private static final String TAG = Main2Activity.TAG + " HistoryAdapter";
+	public static final String TAG = Main2Activity.TAG + " HistoryAdapter";
 
 	// data is passed into the constructor
 	public HistoryAdapter(Context context, ArrayList<HistoryEntry> data, AdapterCallback callback) {
