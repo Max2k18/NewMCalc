@@ -77,22 +77,21 @@ public final class Utils {
 	 * @return String without back and front zeros
 	 */
 	public static String deleteZeros(String source) {
-		int len = source.length();
-		if ( source.contains( "." ) ) {
-			if ( source.charAt( len - 1 ) == '0' ) {
-				while ( source.charAt( len - 1 ) == '0' ) {
-					len--;
-					source = source.substring( 0, len );
-				}
-				if ( source.charAt( len - 1 ) == '.' ) {
-					source = source.substring( 0, len - 1 );
-				}
+		String res = source;
+		int len = res.length();
+		if ( res.contains( "." ) && res.charAt( len - 1 ) == '0' ) {
+			while ( res.charAt( len - 1 ) == '0' ) {
+				len--;
+				res = res.substring( 0, len );
+			}
+			if ( res.charAt( len - 1 ) == '.' ) {
+				res = res.substring( 0, len - 1 );
 			}
 		}
-		while ( source.charAt( 0 ) == '0' && source.length() > 1 && source.charAt( 1 ) != '.' ) {
-			source = source.substring( 1 );
+		while ( res.charAt( 0 ) == '0' && res.length() > 1 && res.charAt( 1 ) != '.' ) {
+			res = res.substring( 1 );
 		}
-		return source;
+		return res;
 	}
 
 	public static BigDecimal deleteZeros(BigDecimal x){
@@ -139,21 +138,22 @@ public final class Utils {
 	 * @return String without spaces
 	 */
 	public static String deleteSpaces(String source) {
-		if ( source.contains( " " ) ) {
+		String res = source;
+		if ( res.contains( " " ) ) {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < source.length(); i++) {
-				if ( source.charAt( i ) != ' ' ) {
-					sb.append( source.charAt( i ) );
+			for (int i = 0; i < res.length(); i++) {
+				if ( res.charAt( i ) != ' ' ) {
+					sb.append( res.charAt( i ) );
 				}
 			}
-			source = sb.toString();
+			res = sb.toString();
 		}
-		return source;
+		return res;
 	}
 
 	public static String trim(String s) {
 		if ( s == null ) {
-			throw new NullPointerException( "Utils.trim: String is null" );
+			throw new IllegalArgumentException( "Utils.trim: String is null" );
 		}
 		String res = s;
 		while ( res.length() > 0 && ( res.charAt( 0 ) == ' ' || res.charAt( 0 ) == '\n' ) ) {
@@ -168,10 +168,10 @@ public final class Utils {
 	/**
 	 * Returns true if string is number (spaces and dot includes)
 	 */
-	public static boolean isNumber(String s) {
-		s = deleteSpaces( s );
+	public static boolean isNumber(String source) {
+		String s = deleteSpaces( source );
 		try {
-			BigDecimal b = new BigDecimal( s );
+			new BigDecimal( s );
 			return true;
 		} catch (NumberFormatException e) {
 			return false;
@@ -181,7 +181,8 @@ public final class Utils {
 	/**
 	 * Function returns string without ( at the start and ) at the end and number of deleted pairs of brackets
 	 */
-	public static Pair<String, Integer> trimBrackets(String s) {
+	public static Pair<String, Integer> trimBrackets(String source) {
+		String s = source;
 		Integer cnt = 0;
 		while(s.startsWith( "(" ) && s.endsWith( ")" )){
 			s = s.substring( 1, s.length() - 1 );

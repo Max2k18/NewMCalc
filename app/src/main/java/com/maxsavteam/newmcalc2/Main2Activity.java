@@ -59,7 +59,7 @@ import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
-import com.maxsavteam.newmcalc2.utils.Format;
+import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
@@ -466,7 +466,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( txt.equals( "" ) || txt.length() < 4 ) {
 			return;
 		}
-		t.setText( Format.format( txt ) );
+		t.setText( FormatUtil.format( txt ) );
 	}
 
 	@Override
@@ -774,8 +774,8 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void resizeText() {
-		Format.scaleText( this, mExample, findViewById( R.id.scrollview ).getWidth(), 32, 46 );
-		Format.scaleText( this, findViewById( R.id.AnswerStr ), findViewById( R.id.scrollViewAns ).getWidth(), 29, 34 );
+		FormatUtil.scaleText( this, mExample, findViewById( R.id.scrollview ).getWidth(), 32, 46 );
+		FormatUtil.scaleText( this, findViewById( R.id.AnswerStr ), findViewById( R.id.scrollViewAns ).getWidth(), 29, 34 );
 	}
 
 	private void setTextViewsTextSizeToDefault() {
@@ -1008,7 +1008,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private void putToHistory(String example, String result) {
 		String his = sp.getString( "history", null );
-		String formattedResult = Format.format( result );
+		String formattedResult = FormatUtil.format( result );
 		if ( his != null ) {
 			if ( sp.getInt( "local_history_storage_protocol_version", 1 ) < HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
 				Toast.makeText( this, "The record was not saved because the format of the history record does not match the new format." +

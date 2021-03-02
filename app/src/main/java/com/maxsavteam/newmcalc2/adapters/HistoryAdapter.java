@@ -26,20 +26,18 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
 	private final ArrayList<HistoryEntry> mData;
 	private final AdapterCallback mAdapterCallback;
-	private final Context con;
+	private final Context mContext;
 	private final ArrayList<ViewHolder> mViewHolders = new ArrayList<>();
 	public static final String TAG = Main2Activity.TAG + " HistoryAdapter";
+	private int mWaitingToDelete = -1;
 
-	// data is passed into the constructor
 	public HistoryAdapter(Context context, ArrayList<HistoryEntry> data, AdapterCallback callback) {
 		mAdapterCallback = callback;
 		this.mData = new ArrayList<>( data );
-		con = context;
+		mContext = context;
 		for (int i = 0; i < data.size(); i++)
 			mViewHolders.add( null );
 	}
-
-	private int mWaitingToDelete = -1;
 
 	public void setWaitingToDelete(int pos) {
 		int temp = mWaitingToDelete;
@@ -78,22 +76,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 		}
 	}
 
-	// binds the data to the TextView in each row
 	@SuppressLint("SetTextI18n")
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		if ( mWaitingToDelete == position ) {
-			holder.example.setTextColor( con.getResources().getColor( R.color.white ) );
-			holder.answer.setTextColor( con.getResources().getColor( R.color.white ) );
+			holder.example.setTextColor( mContext.getResources().getColor( R.color.white ) );
+			holder.answer.setTextColor( mContext.getResources().getColor( R.color.white ) );
 			holder.cardView.setCardBackgroundColor( Color.RED );
 			holder.cardView.setEnabled( false );
 		} else {
 			TypedValue typedValue = new TypedValue();
-			con.getTheme().resolveAttribute( android.R.attr.windowBackground, typedValue, true );
+			mContext.getTheme().resolveAttribute( android.R.attr.windowBackground, typedValue, true );
 			holder.cardView.setCardBackgroundColor( typedValue.data );
 			holder.cardView.setEnabled( true );
 
-			con.getTheme().resolveAttribute( R.attr.textColor, typedValue, true );
+			mContext.getTheme().resolveAttribute( R.attr.textColor, typedValue, true );
 			holder.example.setTextColor( typedValue.data );
 			holder.answer.setTextColor( typedValue.data );
 		}
@@ -131,24 +128,22 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 		holder.descLayout.setVisibility( View.GONE );
 	}
 
-	// total number of rows
 	@Override
 	public int getItemCount() {
 		return mData.size();
 	}
 
-	// stores and recycles views as they are scrolled off screen
 	public static class ViewHolder extends RecyclerView.ViewHolder {
-		final TextView example;
-		final TextView answer;
-		final TextView tvPos;
-		final TextView txtDesc;
-		final LinearLayout descLayout;
-		final LinearLayout container;
-		final Button btnAddDesc;
-		final Button btnDeleteDesc;
-		final Button btnEditDesc;
-		final CardView cardView;
+		public final TextView example;
+		public final TextView answer;
+		public final TextView tvPos;
+		public final TextView txtDesc;
+		public final LinearLayout descLayout;
+		public final LinearLayout container;
+		public final Button btnAddDesc;
+		public final Button btnDeleteDesc;
+		public final Button btnEditDesc;
+		public final CardView cardView;
 
 		ViewHolder(View itemView) {
 			super( itemView );

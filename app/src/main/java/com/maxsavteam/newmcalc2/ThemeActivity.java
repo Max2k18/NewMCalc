@@ -44,6 +44,7 @@ public class ThemeActivity extends AppCompatActivity {
 					applyDarkTheme();
 					break;
 				case Configuration.UI_MODE_NIGHT_NO:
+				default:
 					applyLightTheme();
 					break;
 			}

@@ -29,9 +29,12 @@ import java.math.BigDecimal;
 
 public class NumberSystemConverterActivity extends ThemeActivity {
 	private final String[] data = { "2", "8", "10", "16" };
-	private String[] translated_from, translated_to;
-	private int fromSys = 10, toSys = 2;
-	private EditText fromText, toText;
+	private String[] translated_from;
+	private int fromSys = 10;
+	private int toSys = 2;
+	private EditText fromText;
+	private EditText toText;
+	private String mStartType;
 
 	protected void backPressed() {
 		super.onBackPressed();
@@ -40,16 +43,13 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 
 	@Override
 	public void onBackPressed() {
-		if ( start_type.equals( "app" ) ) {
+		if ( mStartType.equals( "app" ) ) {
 			backPressed();
-		} else if ( start_type.equals( "shortcut" ) ) {
+		} else if ( mStartType.equals( "shortcut" ) ) {
 			startActivity( new Intent( this, Main2Activity.class ) );
 			backPressed();
 		}
-		//super.onBackPressed();
 	}
-
-	String start_type;
 
 	private int positionInSet(int sys) {
 		for (int i = 0; i < data.length; i++) {
@@ -88,11 +88,10 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_number_system );
 		translated_from = new String[ data.length ];
-		translated_to = new String[ data.length ];
 		Spinner from = findViewById( R.id.chooseFromWhichSys );
 		Spinner to = findViewById( R.id.chooseToWhichSys );
 
-		start_type = getIntent().getStringExtra( "start_type" );
+		mStartType = getIntent().getStringExtra( "start_type" );
 		applyTheme();
 		ArrayAdapter<String> ar = new ArrayAdapter<>( this, android.R.layout.simple_spinner_item, data );
 		ar.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
@@ -186,7 +185,6 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 
 	private void translate() {
 		String from = fromText.getText().toString();
-		String to = toText.getText().toString();
 		if ( !from.equals( "" ) ) {
 			String result;
 			translated_from[ positionInSet( fromSys ) ] = from;
@@ -198,27 +196,17 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 
 			result = fromDecimal( new BigDecimal( result ), toSys );
 			toText.setText( result );
-			translated_to[ positionInSet( toSys ) ] = result;
 		} else {
 			toText.setText( "" );
 		}
 	}
 
-	public void copy(View v) {
-		if ( toText.getText().toString().equals( "" ) ) {
-			return;
-		}
-		android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService( Context.CLIPBOARD_SERVICE );
-		clipboard.setText( toText.getText().toString() );
-		Toast.makeText( getApplicationContext(), getResources().getString( R.string.copied ), Toast.LENGTH_SHORT ).show();
-	}
-
 	private int returnNumber(char c) {
-		c = Character.toUpperCase( c );
-		if ( c >= '0' && c <= '9' ) {
-			return Integer.parseInt( Character.toString( c ) );
-		} else if ( c >= 'A' && c <= 'Z' ) {
-			return 10 + ( ( (int) c ) - ( (int) 'A' ) );
+		char upperC = Character.toUpperCase( c );
+		if ( upperC >= '0' && upperC <= '9' ) {
+			return Integer.parseInt( Character.toString( upperC ) );
+		} else if ( upperC >= 'A' && upperC <= 'Z' ) {
+			return 10 + ( ( (int) upperC ) - ( (int) 'A' ) );
 		}
 		return '0';
 	}
@@ -242,11 +230,12 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 
 	public String fromDecimal(BigDecimal dec, final int k) {
 		String ans = "";
+		BigDecimal bd = dec;
 		do {
-			BigDecimal[] bg = dec.divideAndRemainder( BigDecimal.valueOf( k ) );
+			BigDecimal[] bg = bd.divideAndRemainder( BigDecimal.valueOf( k ) );
 			ans = String.format( "%s%s", returnCharFromNum( bg[ 1 ].intValue() ), ans );
-			dec = bg[ 0 ];
-		} while ( dec.signum() > 0 );
+			bd = bg[ 0 ];
+		} while ( bd.signum() > 0 );
 
 		return ans;
 	}

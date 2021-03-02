@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 
-public class Format {
+public class FormatUtil {
 	public final static String TAG = Main2Activity.TAG + " Format";
 
 	/**
@@ -22,9 +22,14 @@ public class Format {
 		return core( text );
 	}
 
-	private static String core(String txt) {
+	private static String core(String source) {
+		String txt = source;
 		String number = "";
-		int spaces = 0, dot_pos = -1, len = txt.length(), i = len - 1, nums = 0;
+		int spaces = 0;
+		int dotPos = -1;
+		int len = txt.length();
+		int i = len - 1;
+		int nums = 0;
 		for (; i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || txt.charAt( i ) == ' ' || txt.charAt( i ) == '.' ); i--) {
 			if ( txt.charAt( i ) != ' ' ) {
 				number = String.format( "%c%s", txt.charAt( i ), number );
@@ -38,21 +43,21 @@ public class Format {
 			return txt + number;
 		}
 		if ( number.contains( "." ) ) {
-			dot_pos = number.indexOf( "." );
+			dotPos = number.indexOf( "." );
 		}
-		String number_on_ret;
-		if ( dot_pos == -1 ) {
-			number_on_ret = "";
+		String numberOnRet;
+		if ( dotPos == -1 ) {
+			numberOnRet = "";
 		} else {
-			number_on_ret = number.substring( dot_pos );
+			numberOnRet = number.substring( dotPos );
 		}
-		for (i = ( dot_pos == -1 ? len - 1 : number.indexOf( "." ) - 1 ); i >= 0; i--, nums++) {
+		for (i = ( dotPos == -1 ? len - 1 : number.indexOf( "." ) - 1 ); i >= 0; i--, nums++) {
 			if ( nums != 0 && nums % 3 == 0 ) {// && (dot_pos == -1 || i < dot_pos)){
-				number_on_ret = String.format( " %s", number_on_ret );
+				numberOnRet = String.format( " %s", numberOnRet );
 			}
-			number_on_ret = number.charAt( i ) + number_on_ret;
+			numberOnRet = number.charAt( i ) + numberOnRet;
 		}
-		return txt + number_on_ret;
+		return txt + numberOnRet;
 	}
 
 	public static void scaleText(Activity activity, TextView textView, int maxWidth, int minScale, int maxScale) {
