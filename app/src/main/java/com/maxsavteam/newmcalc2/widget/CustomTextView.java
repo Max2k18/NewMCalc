@@ -11,6 +11,8 @@ import java.util.ArrayList;
 
 public class CustomTextView extends AppCompatTextView {
 
+	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
+
 	public CustomTextView(@NonNull Context context) {
 		super( context );
 	}
@@ -26,8 +28,6 @@ public class CustomTextView extends AppCompatTextView {
 	public interface TextListener {
 		void onTextChanged();
 	}
-
-	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
 
 	public void addListener(TextListener textListener) {
 		mTextListeners.add( textListener );

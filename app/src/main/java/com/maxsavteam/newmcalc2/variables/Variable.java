@@ -2,7 +2,8 @@ package com.maxsavteam.newmcalc2.variables;
 
 public class Variable {
 
-	private String name, value;
+	private String name;
+	private String value;
 	private final int tag;
 
 	public Variable(String name, String value, int tag) {

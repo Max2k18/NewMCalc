@@ -10,18 +10,11 @@ public class CoreSubProcess {
 	private BigDecimal mResult = null;
 	private final Context mContext;
 	private final String TAG = "CoreSubProcess";
+	private CalculationError error;
 
 	public CalculationError getError() {
 		return error;
 	}
-
-	public boolean isWasError() {
-		return mWasError;
-	}
-
-	private CalculationError error;
-
-	private boolean mWasError = false;
 
 	public BigDecimal getResult() {
 		return mResult;
@@ -36,7 +29,6 @@ public class CoreSubProcess {
 
 			@Override
 			public void onError(CalculationError calculationError) {
-				mWasError = true;
 				CoreSubProcess.this.error = calculationError;
 				mResult = null;
 			}

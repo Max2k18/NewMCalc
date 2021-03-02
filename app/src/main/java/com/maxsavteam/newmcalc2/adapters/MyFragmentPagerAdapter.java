@@ -40,7 +40,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 		private Fragment1.InitializationObject mInitializationObjectF1;
 		private Fragment2.InitializationObject mInitializationObjectF2;
 
-		FragmentManager getFragmentManager() {
+		private FragmentManager getFragmentManager() {
 			return mFragmentManager;
 		}
 
@@ -58,7 +58,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 			return this;
 		}
 
-		Fragment1.InitializationObject getInitializationObjectF1() {
+		private Fragment1.InitializationObject getInitializationObjectF1() {
 			return mInitializationObjectF1;
 		}
 
@@ -67,7 +67,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 			return this;
 		}
 
-		Fragment2.InitializationObject getInitializationObjectF2() {
+		private Fragment2.InitializationObject getInitializationObjectF2() {
 			return mInitializationObjectF2;
 		}
 

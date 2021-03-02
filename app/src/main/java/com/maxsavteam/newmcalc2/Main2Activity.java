@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -88,22 +87,44 @@ public class Main2Activity extends ThemeActivity {
 
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
+
 	private boolean was_error = false;
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
+	private boolean progressDialogShown = false;
+
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 	private CustomTextView mExample;
 	private MemorySaverReader mMemorySaverReader;
-	//private char last;
 	private BigDecimal[] memoryEntries;
-	private String MULTIPLY_SIGN;
-	private String FI, PI, original;
 	private CalculationCore mCalculationCore;
 	private final Point displaySize = new Point();
-	private String bracketFloorOpen, bracketFloorClose,
-			bracketCeilOpen, bracketCeilClose;
 
-	final View.OnLongClickListener mOnVariableLongClick = v->{
+	private String MULTIPLY_SIGN;
+	private String FI;
+	private String PI;
+	private String original;
+	private String bracketFloorOpen;
+	private String bracketFloorClose;
+	private String bracketCeilOpen;
+	private String bracketCeilClose;
+
+	private Timer mCoreTimer;
+	private Thread mCoreThread = null;
+
+	private int timerCountDown = 0;
+
+	private ProgressDialog mProgressDialog;
+
+	enum EnterModes {
+		SIMPLE,
+		AVERAGE,
+		GEOMETRIC
+	}
+
+	private EnterModes exampleEnterMode = EnterModes.SIMPLE;
+
+	private final View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
 		Intent in = new Intent();
@@ -303,7 +324,7 @@ public class Main2Activity extends ThemeActivity {
 				ver.setSelectAllOnFocus( false );
 				ver.setText( ex.toString() );
 				ver.setSelected( false );
-				show_str();
+				showExample();
 				equallu( "all" );
 				format( R.id.ExampleStr );
 			}
@@ -451,48 +472,6 @@ public class Main2Activity extends ThemeActivity {
 		isBroadcastsRegistered = true;
 	}
 
-	private void showToastAboveButton(View v, String message) {
-		int xOffset = 0;
-		int yOffset = 0;
-		Rect gvr = new Rect();
-
-		View parent = (View) v.getParent();
-		int parentHeight = parent.getHeight();
-
-		if ( v.getGlobalVisibleRect( gvr ) ) {
-			View root = v.getRootView();
-
-			int halfWidth = root.getRight() / 2;
-			int halfHeight = root.getBottom() / 2;
-
-			int parentCenterX = ( ( gvr.right - gvr.left ) / 2 ) + gvr.left;
-
-			int parentCenterY = ( ( gvr.bottom - gvr.top ) / 2 ) + gvr.top;
-
-			if ( parentCenterY <= halfHeight ) {
-				yOffset = -( halfHeight - parentCenterY ) - parentHeight;
-			} else {
-				yOffset = ( parentCenterY - halfHeight ) - parentHeight;
-			}
-
-			if ( parentCenterX < halfWidth ) {
-				xOffset = -( halfWidth - parentCenterX );
-			}
-
-			if ( parentCenterX >= halfWidth ) {
-				xOffset = parentCenterX - halfWidth;
-			}
-		}
-		try {
-			Toast toast = Toast.makeText( Main2Activity.this, message, Toast.LENGTH_LONG );
-			toast.setGravity( Gravity.CENTER, xOffset, yOffset );
-			toast.show();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText( Main2Activity.this, e.toString(), Toast.LENGTH_LONG ).show();
-		}
-	}
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Utils.setContext( this );
@@ -613,7 +592,7 @@ public class Main2Activity extends ThemeActivity {
 
 					if ( mExample.getText().toString().equals( "" ) ) {
 						mExample.setText( example );
-						show_str();
+						showExample();
 					} else {
 						addStringExampleToTheExampleStr( result );
 					}
@@ -719,8 +698,8 @@ public class Main2Activity extends ThemeActivity {
 		String txt = mExample.getText().toString();
 		if ( txt.equals( "" ) ) {
 			mExample.setText( value );
-			show_str();
-			hideAns();
+			showExample();
+			hideAnswer();
 		} else {
 			char last = txt.charAt( txt.length() - 1 );
 			if ( new BigDecimal( value ).signum() < 0 ) {
@@ -769,21 +748,13 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	};
 
-	enum EnterModes {
-		SIMPLE,
-		AVERAGE,
-		GEOMETRIC
-	}
-
-	EnterModes exampleEnterMode = EnterModes.SIMPLE;
-
 	public void deleteExample(View v) {
 		exampleEnterMode = EnterModes.SIMPLE;
 		CustomTextView t = findViewById( R.id.ExampleStr );
-		hide_str();
+		hideExample();
 		t.setText( "" );
 		setTextViewAnswerTextSizeToDefault();
-		hideAns();
+		hideAnswer();
 		was_error = false;
 		sp.edit().remove( "saveResultText" ).apply();
 		setTextViewsTextSizeToDefault();
@@ -810,15 +781,10 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	};
 
-	private Thread mCoreThread = null;
-	private int timerCountDown = 0;
-	private boolean progressDialogShown = false;
-	private ProgressDialog mProgressDialog;
-
 	private void equallu(String type) {
 		if ( was_error ) {
 			setTextViewAnswerTextSizeToDefault();
-			hideAns();
+			hideAnswer();
 		}
 		CustomTextView txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
@@ -826,14 +792,14 @@ public class Main2Activity extends ThemeActivity {
 		resizeText();
 		int len = example.length();
 		if ( len != 0 ) {
-			show_str();
+			showExample();
 			scrollExampleToEnd();
 		} else {
 			return;
 		}
 		char last = example.charAt( len - 1 );
 		if ( isBasicAction( last ) || isOpenBracket( last ) || Utils.isNumber( example ) ) {
-			hideAns();
+			hideAnswer();
 			return;
 		}
 
@@ -877,8 +843,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	Timer mCoreTimer;
-
 	private void killCoreTimer() {
 		if ( mCoreTimer != null ) {
 			mCoreTimer.cancel();
@@ -898,7 +862,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		mCoreThread.interrupt();
-		hideAns();
+		hideAnswer();
 		killCoreTimer();
 	}
 
@@ -948,7 +912,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	final CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
+	private final CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
 		@Override
 		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
 			runOnUiThread( ()->{
@@ -957,7 +921,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( calculationResult.getResult() != null ) {
 					writeCalculationResult( calculationResult.getType(), calculationResult.getResult() );
 				} else {
-					hideAns();
+					hideAnswer();
 				}
 			} );
 		}
@@ -983,11 +947,11 @@ public class Main2Activity extends ThemeActivity {
 
 	private void writeCalculationError(String text) {
 		TextView t = findViewById( R.id.AnswerStr );
-		hideAns();
+		hideAnswer();
 		t.setText( text );
 		t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
 		t.setTextColor( Color.parseColor( "#FF4B32" ) );
-		show_ans();
+		showAnswer();
 		was_error = true;
 	}
 
@@ -1007,8 +971,8 @@ public class Main2Activity extends ThemeActivity {
 				format( R.id.ExampleStr );
 				tans = findViewById( R.id.AnswerStr );
 				tans.setText( original );
-				show_ans();
-				show_str();
+				showAnswer();
+				showExample();
 
 				putToHistory( original, result.toPlainString() );
 
@@ -1021,9 +985,9 @@ public class Main2Activity extends ThemeActivity {
 			case "not":
 				TextView preans = findViewById( R.id.AnswerStr );
 				preans.setText( ans );
-				show_str();
+				showExample();
 				format( R.id.AnswerStr );
-				show_ans();
+				showAnswer();
 				setTextViewsTextSizeToDefault();
 				scrollExampleToEnd();
 				break;
@@ -1198,23 +1162,23 @@ public class Main2Activity extends ThemeActivity {
 		startActivityForResult( intent, requestCode );
 	}
 
-	private void show_str() {
+	private void showExample() {
 		TextView t = findViewById( R.id.ExampleStr );
 		//t.setTextIsSelectable(false);
 		t.setVisibility( View.VISIBLE );
 	}
 
-	private void hide_str() {
+	private void hideExample() {
 		TextView t = findViewById( R.id.ExampleStr );
 		t.setVisibility( View.INVISIBLE );
 	}
 
-	private void show_ans() {
+	private void showAnswer() {
 		TextView t = findViewById( R.id.AnswerStr );
 		t.setVisibility( View.VISIBLE );
 	}
 
-	private void hideAns() {
+	private void hideAnswer() {
 		TextView t = findViewById( R.id.AnswerStr );
 		t.setVisibility( View.INVISIBLE );
 	}
@@ -1401,7 +1365,7 @@ public class Main2Activity extends ThemeActivity {
 				}
 			} else if ( len == 0 ) {
 				mExample.setText( btntxt );
-				show_str();
+				showExample();
 				return;
 			}
 		}
@@ -1479,7 +1443,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( btntxt.equals( "√" ) ) {
 			if ( len == 0 ) {
 				mExample.setText( btntxt );
-				show_str();
+				showExample();
 				scrollExampleToEnd();
 				return;
 			} else {
@@ -1506,13 +1470,13 @@ public class Main2Activity extends ThemeActivity {
 						if ( !Utils.isDigit( last ) ) {
 							mExample.setText( txt + btntxt );
 							equallu( "not" );
-							show_str();
+							showExample();
 							scrollExampleToEnd();
 						} else {
 							if ( Utils.isDigit( last ) || isSpecific( last ) ) {
 								mExample.setText( txt + MULTIPLY_SIGN + btntxt );
 								equallu( "not" );
-								show_str();
+								showExample();
 								scrollExampleToEnd();
 							}
 						}
@@ -1524,7 +1488,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( isOpenBracket( btntxt ) ) {
 			if ( len == 0 ) {
 				mExample.setText( btntxt );
-				show_str();
+				showExample();
 				return;
 			}
 			if ( last == '.' ) {
@@ -1622,7 +1586,7 @@ public class Main2Activity extends ThemeActivity {
 			} else {
 				checkDot();
 			}
-			show_str();
+			showExample();
 		} else {
 			if ( btntxt.equals( "!" ) || btntxt.equals( "%" ) ) {
 				if ( !txt.equals( "" ) ) {
@@ -1747,7 +1711,7 @@ public class Main2Activity extends ThemeActivity {
 			}
 			was_error = false;
 			if ( text.length() - a == 0 ) {
-				hide_str();
+				hideExample();
 			}
 			text = text.substring( 0, text.length() - a );
 			txt.setText( text );

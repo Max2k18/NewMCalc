@@ -31,8 +31,8 @@ public class Fraction {
 		return a.add(b);
 	}
 
-	public Fraction(String s){
-		s = Utils.deleteZeros(s);
+	public Fraction(String fraction){
+		String s = Utils.deleteZeros(fraction);
 		if(s.contains(".")){
 			int pos = s.indexOf(".");
 			int n = s.length() - pos - 1;

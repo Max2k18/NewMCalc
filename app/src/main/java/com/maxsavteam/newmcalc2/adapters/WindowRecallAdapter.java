@@ -16,20 +16,20 @@ import com.maxsavteam.newmcalc2.R;
 import java.math.BigDecimal;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final Context con;
-	private final LayoutInflater inflater;
-	private final BigDecimal[] data;
-	private inter I;
-	private boolean DarkMode;
+	private final Context mContext;
+	private final LayoutInflater mLayoutInflater;
+	private final BigDecimal[] mData;
+	private WindowRecallAdapterCallback mCallback;
+	private final boolean DarkMode;
 
-	public void setInterface(inter T){
-		this.I = T;
+	public void setInterface(WindowRecallAdapterCallback T){
+		this.mCallback = T;
 	}
 
 	public WindowRecallAdapter(Context c, BigDecimal[] bd_arr){
-		this.con = c;
-		this.data = bd_arr;
-		this.inflater = LayoutInflater.from(c);
+		this.mContext = c;
+		this.mData = bd_arr;
+		this.mLayoutInflater = LayoutInflater.from(c);
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( c.getApplicationContext() );
 		DarkMode = sp.getBoolean("dark_mode", false);
 	}
@@ -37,7 +37,7 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = inflater.inflate(R.layout.recall_recycle_raw, parent, false);
+		View view = mLayoutInflater.inflate(R.layout.recall_recycle_raw, parent, false);
 		return new ViewHolder(view);
 	}
 
@@ -48,36 +48,36 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 			pos = "M";
 		else
 			pos = Integer.toString(position);
-		String result = data[position].toString();
+		String result = mData[position].toString();
 		holder.mResult.setText(result);
-		holder.mNumder.setText(pos);
+		holder.mNumber.setText(pos);
 		if(DarkMode)
-			holder.mResult.setTextColor(con.getResources().getColor(R.color.white));
+			holder.mResult.setTextColor( mContext.getResources().getColor(R.color.white));
 	}
 
 	@Override
 	public int getItemCount() {
-		return this.data.length;
+		return this.mData.length;
 	}
 
 	public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-		final TextView mNumder;
+		final TextView mNumber;
 		final TextView mResult;
 
 		ViewHolder(View itemView) {
 			super(itemView);
-			mNumder = itemView.findViewById(R.id.recall_text_number);
+			mNumber = itemView.findViewById(R.id.recall_text_number);
 			mResult = itemView.findViewById(R.id.recall_text_result);
 			itemView.setOnClickListener(this);
 		}
 
 		@Override
 		public void onClick(View view) {
-			I.onRecallClick(view, getAdapterPosition());
+			mCallback.onRecallClick(view, getAdapterPosition());
 		}
 	}
 
-	public interface inter{
+	public interface WindowRecallAdapterCallback {
 		void onRecallClick(View view, int position);
 	}
 }

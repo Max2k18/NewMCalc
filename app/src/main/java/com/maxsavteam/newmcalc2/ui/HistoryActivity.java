@@ -2,13 +2,13 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,8 +46,6 @@ import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
@@ -59,17 +57,20 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private HistoryAdapter adapter;
 
 	private SharedPreferences sp;
-	private Intent history_action;
+	private Intent mHistoryAction;
 	private ArrayList<HistoryEntry> mEntries = new ArrayList<>();
 	private RecyclerView rv;
 	private boolean needToCreateMenu = false;
 	private Menu mMenu;
 	private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
+	private SwipeController mSwipeController = null;
+	private String mStartType;
+	private int mPositionToDel = -1;
 
 	@Override
 	public void onBackPressed() {
-		setResult( ResultCodes.RESULT_NORMAL, history_action );
-		if ( start_type.equals( "shortcut" ) ) {
+		setResult( ResultCodes.RESULT_NORMAL, mHistoryAction );
+		if ( mStartType.equals( "shortcut" ) ) {
 			startActivity( new Intent( this, Main2Activity.class ) );
 		}
 		super.onBackPressed();
@@ -83,67 +84,81 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	private void onSomethingWentWrong() {
 		Toast.makeText( this, getResources().getString( R.string.smth_went_wrong ), Toast.LENGTH_LONG ).show();
-		history_action.putExtra( "error", true );
-		setResult( ResultCodes.RESULT_ERROR, history_action );
+		mHistoryAction.putExtra( "error", true );
+		setResult( ResultCodes.RESULT_ERROR, mHistoryAction );
 		super.onBackPressed();
 	}
 
 	@Override
 	public void onItemClick(View view, int position) {
-		if ( position == POSITION_TO_DEL ) {
+		if ( position == mPositionToDel ) {
 			cancelTimer();
-			animate_hide();
+			startHideAnimation();
 		}
 		//history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
-		history_action.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
-		setResult( ResultCodes.RESULT_NORMAL, history_action );
+		mHistoryAction.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
+		setResult( ResultCodes.RESULT_NORMAL, mHistoryAction );
 		super.onBackPressed();
 		//Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
 	}
 
-	private int POSITION_TO_DEL = -1;
-
 	public void onDelete(int position) {
-		if ( POSITION_TO_DEL != -1 ) {
-			if ( POSITION_TO_DEL < position ) {
+		if ( mPositionToDel != -1 ) {
+			if ( mPositionToDel < position ) {
 				position--;
 			}
 			delete();
 		}
 
-		POSITION_TO_DEL = position;
-		adapter.setWaitingToDelete( POSITION_TO_DEL );
+		mPositionToDel = position;
+		adapter.setWaitingToDelete( mPositionToDel );
 		showDeleteCountdownAndRun();
 	}
 
 	private final int SECONDS_BEFORE_DELETE = 5;
 
+	private CountDownTimer mCountDownTimer;
+	TextView mCountDownTextView;
+	LinearLayout mCancelLayout;
+
 	@SuppressLint("DefaultLocale")
 	private void setupTimer() {
-		if ( mTimer != null ) {
-			mTimer.cancel();
+		if ( mCountDownTimer != null ) {
+			mCountDownTimer.cancel();
 		}
-		countdown_del = SECONDS_BEFORE_DELETE;
-		mTimer = new Timer();
-		cancel = findViewById( R.id.cancel_delete );
-		tCount = cancel.findViewById( R.id.txtCountDown );
-		tCount.setText( String.format( "%d", countdown_del ) );
-		MyTimer myTimer = new MyTimer();
-		mTimer.schedule( myTimer, 600, 1000 );
+		mCancelLayout = findViewById( R.id.cancel_delete );
+		mCountDownTextView = mCancelLayout.findViewById( R.id.txtCountDown );
+		mCountDownTextView.setText( String.format( "%d", SECONDS_BEFORE_DELETE ) );
+		mCountDownTimer = new CountDownTimer( SECONDS_BEFORE_DELETE * 1000, 1000 ){
+			@Override
+			public void onTick(long millisUntilFinished) {
+				runOnUiThread( ()->{
+					mCountDownTextView.setText( String.format( "%d", millisUntilFinished / 1000L ) );
+				} );
+			}
+
+			@Override
+			public void onFinish() {
+				cancelTimer();
+				runOnUiThread( HistoryActivity.this::delete );
+				startHideAnimation();
+			}
+		};
+		mCountDownTimer.start();
 	}
 
-	final View.OnLongClickListener forceDelete = v->{
+	private final View.OnLongClickListener forceDelete = v->{
 		delete();
-		animate_hide();
+		startHideAnimation();
 		cancelTimer();
 		setupRecyclerView();
 		return true;
 	};
 
 	private void cancelTimer() {
-		if ( mTimer != null ) {
-			mTimer.cancel();
-			mTimer = null;
+		if ( mCountDownTimer != null ) {
+			mCountDownTimer.cancel();
+			mCountDownTimer = null;
 		}
 	}
 
@@ -276,14 +291,12 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	private void delete() {
 		cancelTimer();
-		mEntries.remove( POSITION_TO_DEL );
+		mEntries.remove( mPositionToDel );
 		adapter.setWaitingToDelete( -1 );
-		adapter.remove( POSITION_TO_DEL );
-		POSITION_TO_DEL = -1;
+		adapter.remove( mPositionToDel );
+		mPositionToDel = -1;
 		saveHistory();
 	}
-
-	private SwipeController mSwipeController = null;
 
 	private void setupRecyclerView() {
 		if ( mEntries.size() == 0 ) {
@@ -318,14 +331,14 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mSwipeController = new SwipeController( new SwipeControllerActions() {
 				@Override
 				public void onRightClicked(int position) {
-					if ( position != POSITION_TO_DEL ) {
+					if ( position != mPositionToDel ) {
 						onDelete( position );
 					}
 				}
 
 				@Override
 				public void onLeftClicked(int position) {
-					if ( position != POSITION_TO_DEL ) {
+					if ( position != mPositionToDel ) {
 						adapter.toggleDescriptionLayoutVisibility( position );
 					}
 				}
@@ -340,35 +353,15 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	public void cancel(View v) {
 		cancelTimer();
 		adapter.setWaitingToDelete( -1 );
-		POSITION_TO_DEL = -1;
-		animate_hide();
+		mPositionToDel = -1;
+		startHideAnimation();
 	}
 
-	Timer mTimer;
-	int countdown_del = 6;
-	TextView tCount;
-	LinearLayout cancel;
-
-	class MyTimer extends TimerTask {
-		@SuppressLint("SetTextI18n")
-		@Override
-		public void run() {
-			if ( countdown_del != 0 ) {
-				countdown_del--;
-				runOnUiThread( ()->tCount.setText( Integer.toString( countdown_del ) ) );
-			} else {
-				cancelTimer();
-				runOnUiThread( HistoryActivity.this::delete );
-				animate_hide();
-			}
-		}
-	}
-
-	public void animate_hide() {
+	public void startHideAnimation() {
 		Animation anim = AnimationUtils.loadAnimation( getApplicationContext(), R.anim.anim_scale_hide );
 		try {
-			cancel.clearAnimation();
-			cancel.setAnimation( anim );
+			mCancelLayout.clearAnimation();
+			mCancelLayout.setAnimation( anim );
 			anim.setAnimationListener( new Animation.AnimationListener() {
 				@Override
 				public void onAnimationStart(Animation animation) {
@@ -377,7 +370,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					cancel.setVisibility( View.GONE );
+					mCancelLayout.setVisibility( View.GONE );
 				}
 
 				@Override
@@ -390,8 +383,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			onSomethingWentWrong();
 		}
 	}
-
-	String start_type;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -495,8 +486,8 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		setSupportActionBar( toolbar );
 		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
-		history_action = new Intent( BuildConfig.APPLICATION_ID + ".HISTORY_ACTION" );
-		history_action.putExtra( "example", "" ).putExtra( "result", "" );
+		mHistoryAction = new Intent( BuildConfig.APPLICATION_ID + ".HISTORY_ACTION" );
+		mHistoryAction.putExtra( "example", "" ).putExtra( "result", "" );
 
 		Button btn = findViewById( R.id.btnCancel );
 		btn.setOnLongClickListener( forceDelete );
@@ -522,7 +513,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			}
 		} );
 
-		start_type = getIntent().getStringExtra( "start_type" );
+		mStartType = getIntent().getStringExtra( "start_type" );
 		LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt( "local_history_storage_protocol_version", 1 );
 		String history = sp.getString( "history", null );
 		if ( history != null ) {

@@ -21,7 +21,7 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 
-public class MemoryActionsActivity extends ThemeActivity implements WindowRecallAdapter.inter {
+public class MemoryActionsActivity extends ThemeActivity implements WindowRecallAdapter.WindowRecallAdapterCallback {
 	private BigDecimal[] barr;
 	private WindowRecallAdapter adapter;
 	private String type;
