@@ -73,15 +73,12 @@ public class ButtonWithDropdown extends AppCompatButton {
 			for(int i = 0; i < mElements.length; i++){
 				menu.add( Menu.NONE, i + 1, Menu.NONE, String.valueOf( mElements[i] ) );
 			}
-			popupMenu.setOnMenuItemClickListener( new PopupMenu.OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					if(mOnItemSelectedListener != null){
-						mOnItemSelectedListener.onItemSelected( item.getItemId() - 1 );
-					}
-					setText( item.getTitle() );
-					return true;
+			popupMenu.setOnMenuItemClickListener( item->{
+				if(mOnItemSelectedListener != null){
+					mOnItemSelectedListener.onItemSelected( item.getItemId() - 1 );
 				}
+				setText( item.getTitle() );
+				return true;
 			} );
 			popupMenu.show();
 		}

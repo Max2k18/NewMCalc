@@ -80,12 +80,10 @@ public class Fragment1 extends Fragment {
 
 		WindowManager windowManager = (WindowManager) mContext.getSystemService( Context.WINDOW_SERVICE );
 		if ( mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && windowManager != null ) {
-			TableLayout tbl = view.findViewById( R.id.tbl );
-			ViewGroup.LayoutParams tblLayoutParams = tbl.getLayoutParams();
 			Display display = windowManager.getDefaultDisplay();
 			Point displaySize = new Point();
 			display.getSize( displaySize );
-			tblLayoutParams = view.getLayoutParams();
+			ViewGroup.LayoutParams tblLayoutParams = view.getLayoutParams();
 			tblLayoutParams.height = displaySize.y;
 			view.setLayoutParams( tblLayoutParams );
 		}
@@ -95,16 +93,6 @@ public class Fragment1 extends Fragment {
 	public static class InitializationObject {
 		private Context mContext;
 		private View.OnLongClickListener[] mLongClickListeners;
-		private int mActionBarHeight;
-
-		/*int getActionBarHeight() {
-			return mActionBarHeight;
-		}
-
-		public FragmentOneInitializationObject setActionBarHeight(int actionBarHeight) {
-			mActionBarHeight = actionBarHeight;
-			return this;
-		}*/
 
 		public Context getContext() {
 			return mContext;

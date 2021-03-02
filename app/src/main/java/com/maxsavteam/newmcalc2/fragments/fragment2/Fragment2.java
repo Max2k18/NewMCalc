@@ -21,27 +21,26 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 
 import java.util.ArrayList;
 
 public class Fragment2 extends Fragment {
-	private Context mContext;
+	private final Context mContext;
 
 	/*
 	 *  0 - memory
 	 *  1 - variable buttons
 	 */
-	private View.OnLongClickListener[] longClickListeners;
+	private final View.OnLongClickListener[] longClickListeners;
 	public Fragment2(InitializationObject initializationObject){
 		mContext = initializationObject.getContext();
 		this.longClickListeners = initializationObject.getLongClickListeners();
 		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		view = inflater.inflate(R.layout.fragment_2, null, false);
 	}
-	private Point mDisplaySize = new Point();
+	private final Point mDisplaySize = new Point();
 
 	@Nullable
 	@Override
@@ -50,7 +49,7 @@ public class Fragment2 extends Fragment {
 	}
 
 
-	private View view;
+	private final View view;
 
 	private int findButtonByTag(int tag){
 		switch (tag){

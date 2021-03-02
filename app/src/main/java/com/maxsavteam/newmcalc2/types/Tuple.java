@@ -1,9 +1,9 @@
 package com.maxsavteam.newmcalc2.types;
 
 public class Tuple<F, S, T> {
-	public F first;
-	public S second;
-	public T third;
+	public final F first;
+	public final S second;
+	public final T third;
 
 	public Tuple(F a, S b, T c) {
 		this.first = a;

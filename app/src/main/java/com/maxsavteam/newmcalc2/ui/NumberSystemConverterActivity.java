@@ -3,31 +3,21 @@ package com.maxsavteam.newmcalc2.ui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
@@ -104,7 +94,7 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 
 		start_type = getIntent().getStringExtra( "start_type" );
 		applyTheme();
-		ArrayAdapter<String> ar = new ArrayAdapter<String>( this, android.R.layout.simple_spinner_item, data );
+		ArrayAdapter<String> ar = new ArrayAdapter<>( this, android.R.layout.simple_spinner_item, data );
 		ar.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
 
 		from.setAdapter( ar );
@@ -112,7 +102,7 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		from.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				int choice = Integer.valueOf( data[ position ] );
+				int choice = Integer.parseInt( data[ position ] );
 				if ( choice == toSys ) {
 					toSys = fromSys;
 					to.setSelection( positionInSet( toSys ) );
@@ -254,7 +244,7 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		String ans = "";
 		do {
 			BigDecimal[] bg = dec.divideAndRemainder( BigDecimal.valueOf( k ) );
-			ans = returnCharFromNum( bg[ 1 ].intValue() ) + ans;
+			ans = String.format( "%s%s", returnCharFromNum( bg[ 1 ].intValue() ), ans );
 			dec = bg[ 0 ];
 		} while ( dec.signum() > 0 );
 

@@ -41,11 +41,6 @@ public class SettingsActivity extends ThemeActivity {
 	private SharedPreferences sp;
 
 	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
@@ -112,23 +107,15 @@ public class SettingsActivity extends ThemeActivity {
 		} else {
 			sw.setText(R.string.switchSaveOff);
 		}
-		findViewById(R.id.btnExport).setOnLongClickListener(new View.OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				sp.edit().clear().apply();
-				restartApp();
-				return true;
-			}
-		});
+		findViewById(R.id.btnExport).setOnLongClickListener( v->{
+			sp.edit().clear().apply();
+			restartApp();
+			return true;
+		} );
 
 		sw = findViewById( R.id.switchKeepScreenOn );
 		sw.setChecked( sp.getBoolean( "keep_screen_on", false ) );
-		sw.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-				sp.edit().putBoolean( "keep_screen_on", b ).apply();
-			}
-		} );
+		sw.setOnCheckedChangeListener( (compoundButton, b)->sp.edit().putBoolean( "keep_screen_on", b ).apply() );
 
 		TextView scale = findViewById( R.id.textViewScale );
 		scale.setText( String.format( Locale.ROOT, "%d", sp.getInt( "rounding_scale", 8 ) ) );
@@ -225,10 +212,6 @@ public class SettingsActivity extends ThemeActivity {
 						}
 					}
 					// TODO: 12.08.2020 somethingWentWrong Activity
-					/*Intent intent = new Intent(this, CatchService.class);
-					intent.putExtra("action", "somethingWentWrong");
-					intent.putExtra("mes", getResources().getString(R.string.on_err_in_backup_file));
-					startActivity(intent);*/
 					finish();
 					return;
 				}
@@ -260,7 +243,7 @@ public class SettingsActivity extends ThemeActivity {
 			Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
 		}
 	}
-	String APPTYPE = BuildConfig.APPTYPE;
+	final String APPTYPE = BuildConfig.APPTYPE;
 
 	public void create_import(View v) {
 		ProgressDialog pd;

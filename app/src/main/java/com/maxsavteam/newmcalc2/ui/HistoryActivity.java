@@ -132,7 +132,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		mTimer.schedule( myTimer, 600, 1000 );
 	}
 
-	View.OnLongClickListener forceDelete = v->{
+	final View.OnLongClickListener forceDelete = v->{
 		delete();
 		animate_hide();
 		cancelTimer();
@@ -171,14 +171,11 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 							.setPrimaryText( getResources().getString( R.string.force_delete ) )
 							.setFocalColour( Color.TRANSPARENT )
 							.setSecondaryText( getResources().getString( R.string.force_delete_guide_text ) )
-							.setPromptStateChangeListener( new MaterialTapTargetPrompt.PromptStateChangeListener() {
-								@Override
-								public void onPromptStateChanged(@NonNull MaterialTapTargetPrompt prompt, int state) {
-									if ( state == MaterialTapTargetPrompt.STATE_DISMISSED || state == MaterialTapTargetPrompt.STATE_FINISHED ) {
-										sp.edit().putBoolean( "force_delete_guide_was_showed", true ).apply();
-										setupTimer();
-										findViewById( R.id.btnCancel ).setEnabled( true );
-									}
+							.setPromptStateChangeListener( (prompt, state)->{
+								if ( state == MaterialTapTargetPrompt.STATE_DISMISSED || state == MaterialTapTargetPrompt.STATE_FINISHED ) {
+									sp.edit().putBoolean( "force_delete_guide_was_showed", true ).apply();
+									setupTimer();
+									findViewById( R.id.btnCancel ).setEnabled( true );
 								}
 							} ).show();
 				} else {
@@ -532,12 +529,9 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < Constants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
 				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 				builder
-						.setPositiveButton( "OK", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.cancel();
-								runReformat();
-							}
+						.setPositiveButton( "OK", (dialog, which)->{
+							dialog.cancel();
+							runReformat();
 						} )
 						.setCancelable( false )
 						.setMessage( R.string.confirm_history_reformat );

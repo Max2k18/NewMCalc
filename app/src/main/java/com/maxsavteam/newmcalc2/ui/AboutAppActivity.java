@@ -2,7 +2,6 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
@@ -20,8 +18,6 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
-
-import java.util.Locale;
 
 public class AboutAppActivity extends ThemeActivity {
 
@@ -80,12 +76,7 @@ public class AboutAppActivity extends ThemeActivity {
 		img.setOnLongClickListener( v->{
 			CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( AboutAppActivity.this );
 			builder.setMessage( debugInfoStr )
-					.setPositiveButton( "OK", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							dialogInterface.cancel();
-						}
-					} )
+					.setPositiveButton( "OK", (dialogInterface, i)->dialogInterface.cancel() )
 					.setCancelable( false );
 
 			builder.create().show();

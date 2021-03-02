@@ -3,7 +3,6 @@ package com.maxsavteam.newmcalc2.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
-import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -141,13 +139,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
 	// stores and recycles views as they are scrolled off screen
 	public static class ViewHolder extends RecyclerView.ViewHolder {
-		TextView example;
-		TextView answer;
-		TextView tvPos;
-		TextView txtDesc;
-		LinearLayout descLayout, container;
-		Button btnAddDesc, btnDeleteDesc, btnEditDesc;
-		CardView cardView;
+		final TextView example;
+		final TextView answer;
+		final TextView tvPos;
+		final TextView txtDesc;
+		final LinearLayout descLayout;
+		final LinearLayout container;
+		final Button btnAddDesc;
+		final Button btnDeleteDesc;
+		final Button btnEditDesc;
+		final CardView cardView;
 
 		ViewHolder(View itemView) {
 			super( itemView );

@@ -1,14 +1,9 @@
 package com.maxsavteam.newmcalc2.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Display;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;

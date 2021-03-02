@@ -11,8 +11,8 @@ import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-	private Fragment1.InitializationObject mInitializationObjectF1;
-	private Fragment2.InitializationObject mInitializationObjectF2;
+	private final Fragment1.InitializationObject mInitializationObjectF1;
+	private final Fragment2.InitializationObject mInitializationObjectF2;
 
 	public MyFragmentPagerAdapter(InitializationObject initializationObject){
 		super(initializationObject.getFragmentManager());

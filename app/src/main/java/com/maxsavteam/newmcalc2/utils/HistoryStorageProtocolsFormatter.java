@@ -8,7 +8,7 @@ import android.util.Pair;
 import java.util.ArrayList;
 
 public class HistoryStorageProtocolsFormatter {
-	private SharedPreferences sp;
+	private final SharedPreferences sp;
 
 	public HistoryStorageProtocolsFormatter(Context context){
 		sp = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -18,7 +18,7 @@ public class HistoryStorageProtocolsFormatter {
 		ArrayList<Pair<Pair<String, String>, String>> formatted = new ArrayList<>();
 		try {
 			if (history != null) {
-				int i = 0;
+				int i;
 				while (true) {
 					i = 0;
 					while (i < history.length()) {

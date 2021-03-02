@@ -29,7 +29,7 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 		CALLED_FROM_EXCEPTION_HANDLER
 	}
 
-	private Thread.UncaughtExceptionHandler previous;
+	private final Thread.UncaughtExceptionHandler previous;
 
 	public ExceptionHandler(){
 		previous = Thread.getDefaultUncaughtExceptionHandler();

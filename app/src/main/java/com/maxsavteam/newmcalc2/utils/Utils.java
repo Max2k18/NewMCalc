@@ -3,31 +3,22 @@ package com.maxsavteam.newmcalc2.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
 
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.internal.ParcelableSparseIntArray;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Pair;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.text.NumberFormat;
 
-import ch.obermuhlner.math.big.BigDecimalMath;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.extras.PromptFocal;
 

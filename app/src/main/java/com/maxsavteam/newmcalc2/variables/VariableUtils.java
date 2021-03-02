@@ -1,8 +1,5 @@
 package com.maxsavteam.newmcalc2.variables;
 
-import android.content.Context;
-import android.preference.PreferenceManager;
-
 import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.Utils;
 

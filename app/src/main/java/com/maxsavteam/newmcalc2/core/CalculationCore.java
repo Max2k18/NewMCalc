@@ -226,8 +226,8 @@ public final class CalculationCore {
 
 	private static class MovedExample {
 
-		String subExample;
-		int newPos;
+		final String subExample;
+		final int newPos;
 
 		MovedExample(String subExample, int newPos) {
 			this.subExample = subExample;

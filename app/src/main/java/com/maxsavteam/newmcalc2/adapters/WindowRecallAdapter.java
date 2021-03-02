@@ -16,12 +16,11 @@ import com.maxsavteam.newmcalc2.R;
 import java.math.BigDecimal;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private Context con;
-	private LayoutInflater inflater;
-	private BigDecimal[] data;
+	private final Context con;
+	private final LayoutInflater inflater;
+	private final BigDecimal[] data;
 	private inter I;
-	private SharedPreferences sp;
-	private boolean DarkMode = false;
+	private boolean DarkMode;
 
 	public void setInterface(inter T){
 		this.I = T;
@@ -31,19 +30,19 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 		this.con = c;
 		this.data = bd_arr;
 		this.inflater = LayoutInflater.from(c);
-		sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( c.getApplicationContext() );
 		DarkMode = sp.getBoolean("dark_mode", false);
 	}
 
 	@NonNull
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = inflater.inflate(R.layout.recall_recycle_raw, parent, false);
 		return new ViewHolder(view);
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		String pos;
 		if(position == 0)
 			pos = "M";
@@ -62,8 +61,8 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 	}
 
 	public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-		TextView mNumder;
-		TextView mResult;
+		final TextView mNumder;
+		final TextView mResult;
 
 		ViewHolder(View itemView) {
 			super(itemView);

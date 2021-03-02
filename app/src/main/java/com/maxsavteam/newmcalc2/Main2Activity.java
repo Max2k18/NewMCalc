@@ -33,7 +33,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
-import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -104,7 +103,7 @@ public class Main2Activity extends ThemeActivity {
 	private String bracketFloorOpen, bracketFloorClose,
 			bracketCeilOpen, bracketCeilClose;
 
-	View.OnLongClickListener mOnVariableLongClick = v->{
+	final View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
 		Intent in = new Intent();
@@ -126,9 +125,7 @@ public class Main2Activity extends ThemeActivity {
 		builder.setTitle( R.string.exit )
 				.setMessage( R.string.areyousureexit )
 				.setCancelable( false )
-				.setNegativeButton( R.string.no, (dialog, which)->{
-					dialog.cancel();
-				} )
+				.setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() )
 				.setPositiveButton( R.string.yes, (dialog, which)->{
 					dialog.cancel();
 					super.onBackPressed();
@@ -746,12 +743,9 @@ public class Main2Activity extends ThemeActivity {
 		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( FI ) || last == 'e';
 	}
 
-	View.OnLongClickListener mForAdditionalBtnsLongClick = new View.OnLongClickListener() {
-		@Override
-		public boolean onLongClick(View view) {
-			appendToExampleString( ( (Button) view ).getText().toString().substring( 1 ) );
-			return true;
-		}
+	final View.OnLongClickListener mForAdditionalBtnsLongClick = view->{
+		appendToExampleString( ( (Button) view ).getText().toString().substring( 1 ) );
+		return true;
 	};
 
 	private final View.OnLongClickListener mReturnBack = v->{
@@ -864,18 +858,15 @@ public class Main2Activity extends ThemeActivity {
 		mProgressDialog = new ProgressDialog( this );
 		mProgressDialog.setCancelable( false );
 		mProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
-		mProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				destroyThread();
-				Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
-				dialog.cancel();
-			}
+		mProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), (dialog, which)->{
+			destroyThread();
+			Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
+			dialog.cancel();
 		} );
 		timerCountDown = 0;
 
 		if ( mCoreTimer != null ) {
-			mCoreTimer.cancel(); ;
+			mCoreTimer.cancel();
 			mCoreTimer.purge();
 		}
 		mCoreTimer = new Timer();
@@ -957,38 +948,32 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
+	final CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
 		@Override
 		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
-			runOnUiThread( new Runnable() {
-				@Override
-				public void run() {
-					Log.v( "Main2Activity", "Killing timer from onSuccess" );
-					killCoreTimer();
-					if ( calculationResult.getResult() != null ) {
-						writeCalculationResult( calculationResult.getType(), calculationResult.getResult() );
-					} else {
-						hideAns();
-					}
+			runOnUiThread( ()->{
+				Log.v( "Main2Activity", "Killing timer from onSuccess" );
+				killCoreTimer();
+				if ( calculationResult.getResult() != null ) {
+					writeCalculationResult( calculationResult.getType(), calculationResult.getResult() );
+				} else {
+					hideAns();
 				}
 			} );
 		}
 
 		@Override
 		public void onError(CalculationError calculationError) {
-			runOnUiThread( new Runnable() {
-				@Override
-				public void run() {
-					Log.v( "Main2Activity", "Killing core timer from onError" );
-					killCoreTimer();
-					if ( !calculationError.getStatus().equals( "Core" ) ) {
-						if ( calculationError.getShortError().equals( "" ) ) {
-							Toast t = Toast.makeText( Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG );
-							t.setGravity( Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0 );
-							t.show();
-						} else {
-							writeCalculationError( calculationError.getShortError() );
-						}
+			runOnUiThread( ()->{
+				Log.v( "Main2Activity", "Killing core timer from onError" );
+				killCoreTimer();
+				if ( !calculationError.getStatus().equals( "Core" ) ) {
+					if ( calculationError.getShortError().equals( "" ) ) {
+						Toast t = Toast.makeText( Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG );
+						t.setGravity( Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0 );
+						t.show();
+					} else {
+						writeCalculationError( calculationError.getShortError() );
 					}
 				}
 			} );
@@ -1381,14 +1366,11 @@ public class Main2Activity extends ThemeActivity {
 		}
 		if ( exampleEnterMode != EnterModes.SIMPLE ) {
 			if ( btntxt.equals( ")" ) ) {
-				if ( Utils.isDigit( last ) ) {
-					mExample.setText( txt + btntxt );
-					equallu( "not" );
-				} else {
+				if ( !Utils.isDigit( last ) ) {
 					txt = txt.substring( 0, txt.length() - 1 );
-					mExample.setText( txt + btntxt );
-					equallu( "not" );
 				}
+				mExample.setText( txt + btntxt );
+				equallu( "not" );
 				exampleEnterMode = EnterModes.SIMPLE;
 				return;
 			}
@@ -1548,7 +1530,7 @@ public class Main2Activity extends ThemeActivity {
 			if ( last == '.' ) {
 				return;
 			}
-			boolean isPreviousLogWithBase = false;
+			boolean isPreviousLogWithBase;
 			int i = len - 1;
 			StringBuilder sb = new StringBuilder();
 			while ( i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || Utils.isLetter( txt.charAt( i ) ) || txt.charAt( i ) == '.' ) ) {
