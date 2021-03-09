@@ -1,4 +1,7 @@
 # MCalc
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2f1532726f254fcd985aaea0e29579cb)](https://www.codacy.com/gh/MaxSavTeam/MCalc/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MaxSavTeam/MCalc&amp;utm_campaign=Badge_Grade)
+
 ## A little about this repository
 This is the repository of an application published on [Google Play](https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc2).
 I will try to add here a list of changes with each version. 
