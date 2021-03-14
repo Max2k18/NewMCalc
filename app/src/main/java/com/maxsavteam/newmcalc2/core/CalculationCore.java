@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.maxsavteam.calculator.Calculator;
+import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Fraction;
 import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
@@ -31,14 +33,22 @@ public final class CalculationCore {
 	public static final String TAG = "Core";
 	private final Resources mResources;
 	private final Context mContext;
+
 	private final String invalidArgument;
 	private final String valueIsTooBig;
 	private final String divisionByZero;
+	private final String tanOf90;
+	private final String undefined;
+	private final String invalidBracketsSequence;
+	private final String rootOfEvenDegree;
+
 	private final String bracketFloorOpen;
 	private final String bracketFloorClose;
 	private final String bracketCeilOpen;
 	private final String bracketCeilClose;
 	private final int mRoundScale;
+
+	private Calculator mCalculator;
 
 	private final Stack<String> s0 = new Stack<>(); // actions
 
@@ -54,9 +64,14 @@ public final class CalculationCore {
 		this.mResources = context.getApplicationContext().getResources();
 		this.mContext = context;
 		mRoundScale = PreferenceManager.getDefaultSharedPreferences( context.getApplicationContext() ).getInt( "rounding_scale", 8 );
+
 		invalidArgument = mResources.getString( R.string.invalid_argument );
 		valueIsTooBig = mResources.getString( R.string.value_is_too_big );
 		divisionByZero = mResources.getString( R.string.division_by_zero );
+		tanOf90 = mResources.getString( R.string.tan_of_90 );
+		undefined = mResources.getString( R.string.undefined );
+		invalidBracketsSequence = mResources.getString( R.string.invalid_brackets_sequence );
+		rootOfEvenDegree = mResources.getString( R.string.root_of_even_degree_of_even_number );
 
 		bracketFloorOpen = mResources.getString( R.string.bracket_floor_open );
 		bracketFloorClose = mResources.getString( R.string.bracket_floor_close );
@@ -66,6 +81,15 @@ public final class CalculationCore {
 		Math.setRoundScale( mRoundScale );
 
 		this.mCoreInterface = coreInterface;
+
+		mCalculator = new Calculator();
+		Map<String, String> replacementMap = new HashMap<>() {{
+			put( "*", mResources.getString( R.string.multiply ) );
+			put( "/", mResources.getString( R.string.div ) );
+			put( "R", mResources.getString( R.string.sqrt ) );
+		}};
+		replacementMap.putAll( Calculator.defaultReplacementMap );
+		mCalculator.setAliases( replacementMap );
 	}
 
 	private boolean isOpenBracket(String str) {
@@ -189,8 +213,6 @@ public final class CalculationCore {
 			return;
 		}
 
-		example = checkBrackets( example );
-		Utils.trimBrackets( example );
 		if ( example.contains( " " ) ) {
 			example = deleteSpaces( example );
 		}
@@ -199,19 +221,39 @@ public final class CalculationCore {
 			//onError( new CalculationError().setStatus( "Core" ).setErrorMessage( "String is number" ).setPossibleResult( new BigDecimal( example ) ) );
 			return;
 		}
-		if ( example.contains( mResources.getString( R.string.multiply ) ) ||
-				example.contains( mResources.getString( R.string.div ) ) ||
-				example.contains( mResources.getString( R.string.pi ) ) ||
-				example.contains( mResources.getString( R.string.fi ) ) ||
-				example.contains( mResources.getString( R.string.sqrt ) )
-		) {
-			example = replaceDifficultCharacters( example );
-		}
 
-		calculate( example, type );
+		try {
+			BigDecimal result = mCalculator.calculate( example );
+			onSuccess( new CalculationResult().setResult( result ).setType( type ) );
+		} catch (CalculatingException e) {
+			int errorCode = e.getErrorCode();
+			String localizedMessage = null;
+			switch ( errorCode ) {
+				case CalculatingException.TAN_OF_90:
+					localizedMessage = tanOf90;
+					break;
+				case CalculatingException.DIVISION_BY_ZERO:
+					localizedMessage = divisionByZero;
+					break;
+				case CalculatingException.UNDEFINED:
+					localizedMessage = undefined;
+					break;
+				case CalculatingException.INVALID_BRACKETS_SEQUENCE:
+					localizedMessage = invalidBracketsSequence;
+					break;
+				case CalculatingException.ROOT_OF_EVEN_DEGREE_OF_NEGATIVE_NUMBER:
+					localizedMessage = rootOfEvenDegree;
+					break;
+				default:
+					break;
+			}
+			if(localizedMessage != null){
+				onError( new CalculationError().setShortError( localizedMessage ) );
+			}
+		}
 	}
 
-	private String replaceDifficultCharacters(String s){
+	private String replaceDifficultCharacters(String s) {
 		char[] mas = s.toCharArray();
 		String p;
 
@@ -232,7 +274,7 @@ public final class CalculationCore {
 		return new String( mas );
 	}
 
-	private String deleteSpaces(String example){
+	private String deleteSpaces(String example) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < example.length(); i++) {
 			if ( example.charAt( i ) != ' ' ) {
@@ -397,23 +439,23 @@ public final class CalculationCore {
 					continue;
 				} else if ( "l".equals( s ) ) {
 					StringBuilder sb = new StringBuilder();
-					while(i < example.length() && Utils.isLetter( example.charAt( i ) )){
+					while ( i < example.length() && Utils.isLetter( example.charAt( i ) ) ) {
 						sb.append( example.charAt( i ) );
 						i++;
 					}
 					String let = sb.toString();
-					if(let.equals( "ln" ) || !Utils.isDigit( example.charAt( i ) )){
+					if ( let.equals( "ln" ) || !Utils.isDigit( example.charAt( i ) ) ) {
 						in_s0( let );
 						i--;
 						continue;
 					}
-					while(i < example.length() && (Utils.isDigit( example.charAt( i ) ) || example.charAt( i ) == '.')){
+					while ( i < example.length() && ( Utils.isDigit( example.charAt( i ) ) || example.charAt( i ) == '.' ) ) {
 						sb.append( example.charAt( i ) );
 						i++;
 					}
-					if(i != example.length() && isOpenBracket( example.charAt( i ) )){ // log with base
+					if ( i != example.length() && isOpenBracket( example.charAt( i ) ) ) { // log with base
 						in_s0( sb.toString() );
-					}else{
+					} else {
 						String res = sb.toString();
 						in_s0( "log" );
 						s1.push( new BigDecimal( res.substring( 3 ) ) );
@@ -536,7 +578,7 @@ public final class CalculationCore {
 										finalResult = finalResult.divide( percent, mRoundScale, RoundingMode.HALF_EVEN );
 										break;
 									default:
-										throw new IllegalStateException("Utils.isBasicAction returned true, but default label called");
+										throw new IllegalStateException( "Utils.isBasicAction returned true, but default label called" );
 								}
 								finalResult = new BigDecimal( Utils.deleteZeros( finalResult.toPlainString() ) );
 								s1.push( finalResult );
@@ -652,7 +694,7 @@ public final class CalculationCore {
 			throw new CoreInterruptedError();
 		}
 		try {
-			if(x.startsWith( "log" )){
+			if ( x.startsWith( "log" ) ) {
 				BigDecimal operand = s1.peek();
 				if ( operand.signum() <= 0 ) {
 					mWasError = true;
@@ -660,9 +702,9 @@ public final class CalculationCore {
 					return;
 				}
 				BigDecimal base;
-				if(x.equals( "log" )){
+				if ( x.equals( "log" ) ) {
 					base = new BigDecimal( "10" );
-				}else{
+				} else {
 					base = new BigDecimal( x.substring( 3 ) );
 				}
 				s1.push( Utils.deleteZeros( Math.logWithBase( operand, base ) ) );
@@ -827,8 +869,9 @@ public final class CalculationCore {
 		priority.put( "ln", 3 );
 		priority.put( "abs", 3 );
 		priority.put( "rnd", 3 );
-		if(x.startsWith( "log" ))
+		if ( x.startsWith( "log" ) ) {
 			priority.put( x, 3 );
+		}
 
 		Log.i( TAG, "in_s0 called with x=" + x + "; s0.size()=" + s0.size() );
 

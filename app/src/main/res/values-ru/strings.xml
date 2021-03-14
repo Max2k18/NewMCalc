@@ -73,7 +73,7 @@
     <string name="later">Позже</string>
     <string name="invalid_argument">Неверный аргумент</string>
     <string name="value_is_too_big">Слишком большое знач.</string>
-    <string name="division_by_zero">Деление на ноль</string>
+
     <string name="name_of_var">Имя переменной</string>
     <string name="value">Значение</string>
     <string name="apply">Применить</string>
@@ -98,6 +98,12 @@
     <string name="invalid_name">Некорректное имя</string>
     <string name="variable_editor">Редактор переменных</string>
     <string name="theme">Тема</string>
+
+    <string name="division_by_zero">Деление на ноль</string>
+    <string name="tan_of_90">Невозможно найти тангенс 90 градусов</string>
+    <string name="undefined">Неопределено</string>
+    <string name="invalid_brackets_sequence">Неправильная скобочная последовательность</string>
+    <string name="root_of_even_degree_of_even_number">Невозможно найти корень чётной степени из отрицательного числа</string>
 
     <string-array name="theme_states">
         <item>Светлая</item>

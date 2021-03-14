@@ -44,6 +44,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
+import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
@@ -960,7 +961,8 @@ public class Main2Activity extends ThemeActivity {
 		TextView t = findViewById( R.id.AnswerStr );
 		hideAnswer();
 		t.setText( text );
-		t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
+		//t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
+		resizeText();
 		t.setTextColor( Color.parseColor( "#FF4B32" ) );
 		showAnswer();
 		was_error = true;
