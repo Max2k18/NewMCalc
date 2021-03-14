@@ -45,7 +45,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
-import com.maxsavteam.newmcalc2.core.CalculationCore;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
@@ -96,7 +96,7 @@ public class Main2Activity extends ThemeActivity {
 	private CustomTextView mExample;
 	private MemorySaverReader mMemorySaverReader;
 	private BigDecimal[] memoryEntries;
-	private CalculationCore mCalculationCore;
+	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
 
 	private String MULTIPLY_SIGN;
@@ -547,7 +547,7 @@ public class Main2Activity extends ThemeActivity {
 			return true;
 		} );
 
-		mCalculationCore = new CalculationCore( this, mCoreInterface );
+		mCalculatorWrapper = new CalculatorWrapper();
 
 		FI = getResources().getString( R.string.fi );
 		PI = getResources().getString( R.string.pi );
@@ -809,7 +809,7 @@ public class Main2Activity extends ThemeActivity {
 		was_error = false;
 		original = example;
 
-		mCoreThread = new Thread( ()->mCalculationCore.prepareAndRun( example, type ) );
+		mCoreThread = new Thread( ()->mCalculatorWrapper.prepareAndRun( example, type, mCoreInterface ) );
 
 		startThreadController();
 	}
@@ -906,7 +906,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private final CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
+	private final CalculatorWrapper.CoreInterface mCoreInterface = new CalculatorWrapper.CoreInterface() {
 		@Override
 		public void onSuccess(CalculationResult calculationResult) {
 			runOnUiThread( ()->{

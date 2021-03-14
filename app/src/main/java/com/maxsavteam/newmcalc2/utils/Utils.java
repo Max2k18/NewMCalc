@@ -36,6 +36,10 @@ public final class Utils {
 		return PreferenceManager.getDefaultSharedPreferences( sContext );
 	}
 
+	public static Context getContext() {
+		return sContext;
+	}
+
 	public static File getExternalStoragePath() {
 		return sContext.getExternalFilesDir( null );
 	}

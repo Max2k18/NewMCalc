@@ -1,14 +1,14 @@
 package com.maxsavteam.newmcalc2.core;
 
-import android.content.Context;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,19 +20,20 @@ import java.util.Map;
 /**
  * @author Max Savitsky
  */
-public final class CalculationCore {
-	private final CoreInterface mCoreInterface;
-
-	public static final String TAG = "Core";
+public final class CalculatorWrapper {
 	private final Resources mResources;
 
 	private final Calculator mCalculator;
 
-	public CalculationCore(Context context, CoreInterface coreInterface) {
-		this.mResources = context.getApplicationContext().getResources();
-		int roundScale = PreferenceManager.getDefaultSharedPreferences( context.getApplicationContext() ).getInt( "rounding_scale", 8 );
+	public interface CoreInterface {
+		void onSuccess(CalculationResult calculationResult);
 
-		this.mCoreInterface = coreInterface;
+		void onError(CalculationError calculationError);
+	}
+
+	public CalculatorWrapper() {
+		this.mResources = Utils.getContext().getResources();
+		int roundScale = Utils.getDefaultSP().getInt( "rounding_scale", 8 );
 
 		mCalculator = new Calculator();
 		Map<String, String> replacementMap = new HashMap<>() {{
@@ -44,31 +45,21 @@ public final class CalculationCore {
 		mCalculator.setAliases( replacementMap );
 	}
 
-	public interface CoreInterface {
-		void onSuccess(CalculationResult calculationResult);
-
-		void onError(CalculationError calculationError);
-	}
-
-	private void onSuccess(CalculationResult calculationResult) {
-		mCoreInterface.onSuccess( calculationResult );
-	}
-
-	private void onError(CalculationError calculationError) {
-		mCoreInterface.onError( calculationError );
-	}
-
-	public void prepareAndRun(@NotNull final String example, @Nullable String type) {
+	public void prepareAndRun(@NotNull final String example, @Nullable String type, @NonNull CoreInterface coreInterface) {
 		try {
 			BigDecimal result = mCalculator.calculate( example );
-			onSuccess( new CalculationResult().setResult( result ).setType( type ) );
+			coreInterface.onSuccess( new CalculationResult().setResult( result ).setType( type ) );
 		} catch (CalculatingException e) {
 			int errorCode = e.getErrorCode();
 			int res = getStringResForErrorCode( errorCode );
 			if(res != -1){
-				onError( new CalculationError().setShortError( mResources.getString( res ) ) );
+				coreInterface.onError( new CalculationError().setShortError( mResources.getString( res ) ) );
 			}
 		}
+	}
+
+	public BigDecimal calculate(String example){
+		return mCalculator.calculate( example );
 	}
 
 	@StringRes
