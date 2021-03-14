@@ -63,10 +63,6 @@ public final class Utils {
 		return Character.toString( c ).equals( PI ) || Character.toString( c ).equals( FI ) || c == 'e';
 	}
 
-	public static BigDecimal toRadians(BigDecimal decimal) {
-		return decimal.multiply( Math.PI ).divide( BigDecimal.valueOf( 180 ), 8, RoundingMode.HALF_EVEN );
-	}
-
 	public static BigDecimal getRemainder(BigDecimal a, BigDecimal b) {
 		return a.remainder( b );
 	}

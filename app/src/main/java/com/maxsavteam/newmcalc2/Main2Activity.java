@@ -44,10 +44,10 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
-import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationCore;
 import com.maxsavteam.newmcalc2.core.CalculationError;
+import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
 import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
@@ -74,7 +74,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -808,26 +807,10 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		try {
-			example = mCalculationCore.checkBrackets( example );
-		} catch (EmptyStackException e) {
-			e.printStackTrace();
-			return;
-		}
-
 		was_error = false;
 		original = example;
 
-		String finalExample = example;
-		mCoreThread = new Thread( ()->{
-			try {
-				mCalculationCore.prepareAndRun( finalExample, type );
-			} catch (CoreInterruptedError e) {
-				// stop thread
-			} catch (RuntimeException e) {
-				Log.i( TAG, "equallu: " + e );
-			}
-		} );
+		mCoreThread = new Thread( ()->mCalculationCore.prepareAndRun( example, type ) );
 
 		startThreadController();
 	}
@@ -926,7 +909,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private final CalculationCore.CoreInterface mCoreInterface = new CalculationCore.CoreInterface() {
 		@Override
-		public void onSuccess(CalculationCore.CalculationResult calculationResult) {
+		public void onSuccess(CalculationResult calculationResult) {
 			runOnUiThread( ()->{
 				Log.v( "Main2Activity", "Killing timer from onSuccess" );
 				killCoreTimer();

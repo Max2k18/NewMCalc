@@ -23,7 +23,7 @@ public class CoreSubProcess {
 	public void run(String ex) {
 		CalculationCore calculationCore = new CalculationCore( mContext, new CalculationCore.CoreInterface() {
 			@Override
-			public void onSuccess(CalculationCore.CalculationResult calculationResult) {
+			public void onSuccess(CalculationResult calculationResult) {
 				mResult = calculationResult.getResult();
 			}
 
