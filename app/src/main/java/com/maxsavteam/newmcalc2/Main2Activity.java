@@ -59,7 +59,6 @@ import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.HistoryConstants;
-import com.maxsavteam.newmcalc2.utils.CoreInterruptedError;
 import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
