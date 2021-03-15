@@ -2,6 +2,9 @@ package com.maxsavteam.newmcalc2.types;
 
 import androidx.annotation.Nullable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public final class HistoryEntry {
 	private String example;
 	private String answer;
@@ -14,7 +17,10 @@ public final class HistoryEntry {
 	public HistoryEntry(String example, String answer, @Nullable String description) {
 		this.example = example;
 		this.answer = answer;
-		this.description = description;
+		if(description == null || description.isEmpty())
+			this.description = null;
+		else
+			this.description = description;
 	}
 
 	public String getExample() {
@@ -43,6 +49,13 @@ public final class HistoryEntry {
 		}else {
 			this.description = description;
 		}
+	}
+
+	public JSONObject getJSON() throws JSONException {
+		return new JSONObject()
+				.put( "example", example )
+				.put( "answer", answer )
+				.put( "description", description );
 	}
 
 	public static HistoryEntry create(String ex, String ans) {

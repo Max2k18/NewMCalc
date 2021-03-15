@@ -19,6 +19,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
 import com.maxsavteam.newmcalc2.utils.HistoryConstants;
+import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.HistoryStorageProtocolsFormatter;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -62,7 +64,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private RecyclerView rv;
 	private boolean needToCreateMenu = false;
 	private Menu mMenu;
-	private int LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION;
 	private SwipeController mSwipeController = null;
 	private String mStartType;
 	private int mPositionToDel = -1;
@@ -78,7 +79,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 	@Override
 	protected void onPause() {
-		saveHistory();
+		HistoryManager.getInstance().save();
 		super.onPause();
 	}
 
@@ -214,7 +215,10 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 				.setNegativeButton( R.string.no, (dialogInterface, i)->dialogInterface.cancel() )
 				.setPositiveButton( R.string.yes, (dialogInterface, i)->{
 					mEntries.get( position ).setDescription( null );
-
+					HistoryManager
+							.getInstance()
+							.change( position, mEntries.get( position ) )
+							.save();
 					adapter.updateDescription( null, position );
 				} )
 				.setTitle( R.string.confirm )
@@ -241,6 +245,10 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 					String newDesc = input.getText().toString();
 					newDesc = Utils.trim( newDesc );
 					mEntries.get( position ).setDescription( newDesc );
+					HistoryManager
+							.getInstance()
+							.change( position, mEntries.get( position ) )
+							.save();
 					adapter.updateDescription( newDesc, position );
 				} )
 				.setNegativeButton( R.string.cancel, (dialog, which)->dialog.cancel() )
@@ -268,6 +276,10 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 						return;
 					}
 					mEntries.get( position ).setDescription( newDesc );
+					HistoryManager
+							.getInstance()
+							.change( position, mEntries.get( position ) )
+							.save();
 					adapter.updateDescription( newDesc, position );
 				} )
 				.setNegativeButton( R.string.cancel, (dialog, which)->dialog.cancel() )
@@ -275,27 +287,15 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		al.show();
 	}
 
-	private void saveHistory() {
-		StringBuilder save = new StringBuilder();
-		int len = mEntries.size();
-		for (int i = 0; i < len; i++) {
-			save.append( mEntries.get( i ).getExample() );
-			if ( mEntries.get( i ).getDescription() != null ) {
-				save.append( HistoryConstants.HISTORY_DESC_SEPARATOR ).append( mEntries.get( i ).getDescription() );
-			}
-			save.append( ( (char) 30 ) ).append( mEntries.get( i ).getAnswer() ).append( ( (char) 29 ) );
-		}
-		sp.edit().putString( "history", save.toString() ).apply();
-
-	}
-
 	private void delete() {
 		cancelTimer();
 		mEntries.remove( mPositionToDel );
+		HistoryManager.getInstance()
+				.remove( mPositionToDel )
+				.save();
 		adapter.setWaitingToDelete( -1 );
 		adapter.remove( mPositionToDel );
 		mPositionToDel = -1;
-		saveHistory();
 	}
 
 	private void setupRecyclerView() {
@@ -408,71 +408,12 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 						dialog.cancel();
 						sp.edit().remove( "history" ).apply();
 						mEntries = new ArrayList<>();
+						HistoryManager.getInstance().clear().save();
 						setupRecyclerView();
 					} ).setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() );
 			build.create().show();
 		}
 		return super.onOptionsItemSelected( item );
-	}
-
-	private void prepareHistoryForRecyclerView() {
-		String his = sp.getString( "history", null );
-		//reformatHistory();
-		if ( his != null ) {
-			ProgressDialog progressDialog = new ProgressDialog( this );
-			progressDialog.requestWindowFeature( Window.FEATURE_NO_TITLE );
-			progressDialog.show();
-			needToCreateMenu = true;
-			this.invalidateOptionsMenu();
-			int i = 0;
-			String ex, ans;
-			while ( i < his.length() ) {// && his.charAt(i) != Constants.HISTORY_ENTRIES_SEPARATOR){
-				boolean was_dot = false;
-				ex = ans = "";
-				while ( i < his.length() ) {
-					if ( his.charAt( i ) == HistoryConstants.HISTORY_ENTRIES_SEPARATOR ) {
-						i++;
-						break;
-					}
-					if ( his.charAt( i ) == HistoryConstants.HISTORY_IN_ENTRY_SEPARATOR ) {
-						i++;
-						was_dot = true;
-						continue;
-					}
-					if ( !was_dot ) {
-						ex = String.format( "%s%c", ex, his.charAt( i ) );
-					} else {
-						ans = String.format( "%s%c", ans, his.charAt( i ) );
-					}
-					i++;
-				}
-				String description = null;
-				if ( ex.contains( Character.toString( HistoryConstants.HISTORY_DESC_SEPARATOR ) ) ) {
-					int j = 0;
-					while ( j < ex.length() && ex.charAt( j ) != HistoryConstants.HISTORY_DESC_SEPARATOR ) {
-						j++;
-					}
-					description = ex.substring( j + 1 );
-					ex = ex.substring( 0, j );
-				}
-				mEntries.add( new HistoryEntry( ex, ans, description ) );
-			}
-			progressDialog.dismiss();
-		}
-		setupRecyclerView();
-	}
-
-	private void runReformat() {
-		try {
-			ProgressDialog pd = new ProgressDialog( this );
-			pd.requestWindowFeature( Window.FEATURE_NO_TITLE );
-			pd.setCancelable( false );
-			new HistoryStorageProtocolsFormatter( this ).reformatHistory( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION, HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION );
-			pd.dismiss();
-			prepareHistoryForRecyclerView();
-		} catch (StringIndexOutOfBoundsException e) {
-			onSomethingWentWrong();
-		}
 	}
 
 	@SuppressLint({ "ClickableViewAccessibility", "SetTextI18n" })
@@ -514,40 +455,8 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		} );
 
 		mStartType = getIntent().getStringExtra( "start_type" );
-		LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION = sp.getInt( "local_history_storage_protocol_version", 1 );
-		String history = sp.getString( "history", null );
-		if ( history != null ) {
-			if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION < HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
-				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-				builder
-						.setPositiveButton( "OK", (dialog, which)->{
-							dialog.cancel();
-							runReformat();
-						} )
-						.setCancelable( false )
-						.setMessage( R.string.confirm_history_reformat );
-				builder.create().show();
-			} else if ( LOCAL_HISTORY_STORAGE_PROTOCOL_VERSION > HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
-				setContentView( R.layout.activity_history_protocols_donot_match );
-				TextView note = findViewById( R.id.lblProtocolsDoNotMatch );
-				String text = "";
-				String[] arr = getResources().getStringArray( R.array.protocols_do_not_match );
-				for (String s : arr) {
-					text = String.format( "%s\n%s", text, s );
-				}
-				note.setText( text );
-				needToCreateMenu = false;
-				if ( mMenu != null ) {
-					mMenu.removeItem( R.id.clear_history );
-					this.invalidateOptionsMenu();
-				}
-			} else {
-				prepareHistoryForRecyclerView();
-			}
-		} else {
-			sp.edit().putInt( "local_history_storage_protocol_version", HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
-			prepareHistoryForRecyclerView();
-		}
+		mEntries = HistoryManager.getInstance().getHistory();
+		setupRecyclerView();
 	}
 
 	@Override

@@ -45,6 +45,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
+import com.maxsavteam.calculator.CalculatorExpressionBracketsChecker;
+import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
@@ -52,6 +54,7 @@ import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
 import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
 import com.maxsavteam.newmcalc2.fragments.VariablesFragment;
+import com.maxsavteam.newmcalc2.types.HistoryEntry;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -62,6 +65,7 @@ import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.HistoryConstants;
+import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
@@ -800,7 +804,13 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		was_error = false;
-		original = example;
+
+		try {
+			original = new CalculatorExpressionBracketsChecker().tryToCloseExpressionBrackets( example );
+		}catch (CalculatingException e){
+			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
+			return;
+		}
 
 		mCoreThread = new Thread( ()->mCalculatorWrapper.prepareAndRun( example, type, mCoreInterface ) );
 
@@ -960,7 +970,9 @@ public class Main2Activity extends ThemeActivity {
 				showAnswer();
 				showExample();
 
-				putToHistory( original, result.toPlainString() );
+				HistoryManager.getInstance()
+						.put( new HistoryEntry( original, result.toPlainString() ) )
+						.save();
 
 				if ( sp.getBoolean( "saveResult", false ) ) {
 					sp.edit().putString( "saveResultText", original + ";" + result.toPlainString() ).apply();
