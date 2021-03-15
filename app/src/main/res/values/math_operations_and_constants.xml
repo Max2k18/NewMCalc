@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pi" translatable="false">π</string>
+    <string name="fi" translatable="false">φ</string>
+    <string name="euler_constant" translatable="false">Ɛ</string>
+
+    <string name="sin" translatable="false">sin</string>
+    <string name="cos" translatable="false">cos</string>
+    <string name="log" translatable="false">log</string>
+    <string name="ln" translatable="false">ln</string>
+    <string name="tan" translatable="false">tan</string>
+    <string name="abs" translatable="false">abs</string>
+
+    <string name="factorial" translatable="false">!</string>
+    <string name="average_function" translatable="false">A</string>
+    <string name="sqrt" translatable="false">√</string>
+    <string name="pow_sign" translatable="false">^</string>
+    <string name="percent" translatable="false">%</string>
+
+    <string name="simple_open_bracket" translatable="false">(</string>
+    <string name="simple_close_bracket" translatable="false">)</string>
+    <string name="round_open_bracket" translatable="false">[</string>
+    <string name="round_close_bracket" translatable="false">]</string>
+    <string name="floor_open_bracket" translatable="false">⌊</string>
+    <string name="floor_close_bracket" translatable="false">⌋</string>
+    <string name="ceil_open_bracket" translatable="false">⌈</string>
+    <string name="ceil_close_bracket" translatable="false">⌉</string>
+
+    <string-array name="additional_chars">
+        <item>sin</item>
+        <item>cos</item>
+        <item>log</item>
+        <item>ln</item>
+        <item>tan</item>
+        <item>Ɛ</item>
+        <item>(</item>
+        <item>)</item>
+        <item>!</item>
+        <item>A</item>
+        <item>π</item>
+        <item>φ</item>
+        <item>√</item>
+        <item>^</item>
+        <item>%</item>
+    </string-array>
+
+</resources>

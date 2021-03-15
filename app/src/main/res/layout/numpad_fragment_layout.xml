@@ -19,39 +19,6 @@
         android:visibility="visible">
 
         <TableRow
-            android:id="@+id/tblR5"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnDelAll"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.3"
-                android:onClick="deleteExample"
-                android:text="C"
-                android:backgroundTint="?textColor"
-                android:textColor="?windowBackgroundColor"
-                android:textSize="25sp"
-                android:visibility="visible" />
-
-            <ImageButton
-                android:id="@+id/btnDelete"
-                android:background="#00000000"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.3"
-                android:onClick="delSymbol"
-                android:scaleType="centerInside"
-                android:src="?backspace_drawable"/>
-
-        </TableRow>
-
-        <TableRow
             android:id="@+id/tblR1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

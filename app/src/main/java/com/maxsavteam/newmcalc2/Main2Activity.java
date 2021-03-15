@@ -46,9 +46,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
-import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
+import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
 import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
 import com.maxsavteam.newmcalc2.fragments.VariablesFragment;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
@@ -59,8 +60,8 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
-import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.FormatUtil;
+import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
@@ -528,7 +529,6 @@ public class Main2Activity extends ThemeActivity {
 				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
 		drawer.setDrawerListener( toggle );
 		toggle.syncState();
-		toggle.syncState();
 		mNavigationView = findViewById( R.id.nav_view );
 		mNavigationView.setBackgroundColor( Color.BLACK );
 		mNavigationView.setNavigationItemSelectedListener( menuItem->{
@@ -562,6 +562,12 @@ public class Main2Activity extends ThemeActivity {
 		bracketCeilClose = getResources().getString( R.string.bracket_ceil_close );
 
 		mExample = findViewById( R.id.ExampleStr );
+
+		ImageButton imageButton = findViewById( R.id.btnDelete );
+		imageButton.setOnLongClickListener( v->{
+			deleteExample( v );
+			return true;
+		} );
 
 		applyTheme();
 
@@ -664,7 +670,8 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<Fragment> fragments = new ArrayList<>();
-		fragments.add( new NumPadFragment( this, mReturnBack, btnDeleteSymbolLongClick, mForAdditionalBtnsLongClick ) );
+		fragments.add( new NumPadFragment( this, mReturnBack ) );
+		fragments.add( new MathOperationsFragment( this ) );
 		fragments.add( new VariablesFragment( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		MyFragmentPagerAdapter myFragmentPagerAdapter =
@@ -687,9 +694,12 @@ public class Main2Activity extends ThemeActivity {
 				if ( position == 0 ) {
 					hideWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
-				} else {
+				} else if(position == fragments.size() - 1) {
 					showWithAlpha( R.id.image_view_left );
 					hideWithAlpha( R.id.image_view_right );
+				}else{
+					showWithAlpha( R.id.image_view_left );
+					showWithAlpha( R.id.image_view_right );
 				}
 			}
 
