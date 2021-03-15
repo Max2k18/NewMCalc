@@ -64,7 +64,6 @@ import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtil;
-import com.maxsavteam.newmcalc2.utils.HistoryConstants;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
@@ -993,31 +992,6 @@ public class Main2Activity extends ThemeActivity {
 				throw new IllegalArgumentException( "Arguments should be of two types: all, not" );
 		}
 		resizeText();
-	}
-
-	private void putToHistory(String example, String result) {
-		String his = sp.getString( "history", null );
-		String formattedResult = FormatUtil.format( result );
-		if ( his != null ) {
-			if ( sp.getInt( "local_history_storage_protocol_version", 1 ) < HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ) {
-				Toast.makeText( this, "The record was not saved because the format of the history record does not match the new format." +
-								" To fix this, go to the \"History\" section and in the window that appears, click the \"OK\" button.",
-						Toast.LENGTH_LONG ).show();
-			} else {
-				if ( formattedResult.length() > 2000 ) {
-					Toast.makeText( this, "The record was not saved due to too long", Toast.LENGTH_LONG ).show();
-					return;
-				}
-				if ( !his.startsWith( String.format( "%s%c%s", example, ( (char) 30 ), formattedResult ) ) ) {
-					his = String.format( "%s%c%s%c%s", example, ( (char) 30 ), formattedResult, ( (char) 29 ), his );
-					sp.edit().putString( "history", his ).apply();
-				}
-			}
-		} else {
-			his = String.format( "%s%c%s%c", example, ( (char) 30 ), formattedResult, ( (char) 29 ) );
-			sp.edit().putString( "history", his ).apply();
-			sp.edit().putInt( "local_history_storage_protocol_version", HistoryConstants.HISTORY_STORAGE_PROTOCOL_VERSION ).apply();
-		}
 	}
 
 	public void variableClick(View v) {
