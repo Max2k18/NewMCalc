@@ -1,13 +1,13 @@
 package com.maxsavteam.newmcalc2;
 
-import androidx.annotation.ColorInt;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class ThemeActivity extends AppCompatActivity {
 

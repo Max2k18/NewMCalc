@@ -1,5 +1,9 @@
 package com.maxsavteam.newmcalc2.swipes;
 
+import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE;
+import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -7,21 +11,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ItemTouchHelper.*;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.maxsavteam.newmcalc2.R;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.ItemTouchHelper.Callback;
+import androidx.recyclerview.widget.RecyclerView;
 
-import static androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE;
-import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+import com.maxsavteam.newmcalc2.R;
 
 enum ButtonsState {
 	GONE,

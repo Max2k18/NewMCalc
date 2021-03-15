@@ -1,9 +1,9 @@
 package com.maxsavteam.newmcalc2.widget;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-
-import android.content.Context;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.Utils;
