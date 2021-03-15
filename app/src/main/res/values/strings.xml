@@ -6,12 +6,6 @@
         <item>Please check if there is an application update.</item>
     </string-array>
 
-    <string name="bracket_floor_open" translatable="false">&#8970;</string>
-    <string name="bracket_floor_close" translatable="false">&#8971;</string>
-    <string name="bracket_ceil_open" translatable="false">&#8968;</string>
-    <string name="bracket_ceil_close" translatable="false">&#8969;</string>
-    <string name="bracket_round_open" translatable="false">[</string>
-    <string name="bracket_round_close" translatable="false">]</string>
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">-</string>
     <string name="rnd" translatable="false">rnd</string>

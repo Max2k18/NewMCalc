@@ -196,7 +196,6 @@ public class Main2Activity extends ThemeActivity {
 		new MaterialTapTargetSequence()
 				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
 				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
-				.addPrompt( Utils.getGuideTip( this, getString( R.string.action_line ), getString( R.string.action_line_guide ), R.id.bottom_line, new RectanglePromptFocal() ) )
 				.show();
 	}
 
@@ -556,10 +555,10 @@ public class Main2Activity extends ThemeActivity {
 		E = getResources().getString( R.string.euler_constant );
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
 
-		bracketFloorOpen = getResources().getString( R.string.bracket_floor_open );
-		bracketFloorClose = getResources().getString( R.string.bracket_floor_close );
-		bracketCeilOpen = getResources().getString( R.string.bracket_ceil_open );
-		bracketCeilClose = getResources().getString( R.string.bracket_ceil_close );
+		bracketFloorOpen = getResources().getString( R.string.floor_open_bracket );
+		bracketFloorClose = getResources().getString( R.string.floor_close_bracket );
+		bracketCeilOpen = getResources().getString( R.string.ceil_open_bracket );
+		bracketCeilClose = getResources().getString( R.string.ceil_close_bracket );
 
 		mExample = findViewById( R.id.ExampleStr );
 
