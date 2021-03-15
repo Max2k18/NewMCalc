@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.fragments.fragment2;
+package com.maxsavteam.newmcalc2.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -21,26 +21,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 
 import java.util.ArrayList;
 
-public class Fragment2 extends Fragment {
+public class VariablesFragment extends Fragment {
 	private final Context mContext;
-	private final View view;
-	private final View.OnLongClickListener[] longClickListeners;
-	private final Point mDisplaySize = new Point();
+	private View view;
 
-	/*
-	 *  0 - memory
-	 *  1 - variable buttons
-	 */
-	public Fragment2(InitializationObject initializationObject){
-		mContext = initializationObject.getContext();
-		this.longClickListeners = initializationObject.getLongClickListeners();
-		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		view = inflater.inflate(R.layout.fragment_2, null, false);
+	private final View.OnLongClickListener mMemoryActionsLongClickListener;
+	private final View.OnLongClickListener mVariableButtonsLongClickListener;
+
+	public VariablesFragment(Context context, View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
+		mContext = context;
+		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
+		mVariableButtonsLongClickListener = variableButtonsLongClickListener;
 	}
 
 	@Nullable
@@ -75,15 +72,12 @@ public class Fragment2 extends Fragment {
 	private void setVariableButtons() {
 		setDefaultButtons();
 		ArrayList<Variable> a = VariableUtils.readVariables();
-		if ( a == null ) {
-			return;
-		}
 		for (int i = 0; i < a.size(); i++) {
 			Button b = view.findViewById( findButtonByTag( a.get( i ).getTag() ) );
 			b.setText( a.get( i ).getName() );
 			b.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
 			b.setContentDescription( a.get( i ).getValue() );
-			b.setOnLongClickListener( longClickListeners[ 1 ] );
+			b.setOnLongClickListener( mVariableButtonsLongClickListener );
 			b.setTransformationMethod( null );
 		}
 	}
@@ -99,15 +93,17 @@ public class Fragment2 extends Fragment {
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		view = inflater.inflate( R.layout.fragment_2, container, false );
+
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
 		boolean DarkMode = sp.getBoolean("dark_mode", false);
+
 		Button b = view.findViewById(R.id.btnMR);
-		b.setOnLongClickListener(longClickListeners[0]);
+		b.setOnLongClickListener( mMemoryActionsLongClickListener );
+
 		b = view.findViewById(R.id.btnMS);
-		b.setOnLongClickListener(longClickListeners[0]);
-		WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-		Display d = wm.getDefaultDisplay();
-		d.getSize(mDisplaySize);
+		b.setOnLongClickListener( mMemoryActionsLongClickListener );
+
 		int[] ids = new int[]{
 				R.id.btnMR,
 				R.id.btnMS,
@@ -128,26 +124,4 @@ public class Fragment2 extends Fragment {
 		return view;
 	}
 
-	public static class InitializationObject {
-		private Context mContext;
-		private View.OnLongClickListener[] mLongClickListeners;
-
-		public Context getContext() {
-			return mContext;
-		}
-
-		public InitializationObject setContext(Context context) {
-			mContext = context;
-			return this;
-		}
-
-		public View.OnLongClickListener[] getLongClickListeners() {
-			return mLongClickListeners;
-		}
-
-		public InitializationObject setLongClickListeners(View.OnLongClickListener[] longClickListeners) {
-			mLongClickListeners = longClickListeners;
-			return this;
-		}
-	}
 }

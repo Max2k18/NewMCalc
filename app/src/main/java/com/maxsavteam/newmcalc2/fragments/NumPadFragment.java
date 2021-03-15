@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.fragments.fragment1;
+package com.maxsavteam.newmcalc2.fragments;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -20,14 +20,19 @@ import androidx.fragment.app.Fragment;
 
 import com.maxsavteam.newmcalc2.R;
 
-public class Fragment1 extends Fragment {
+public class NumPadFragment extends Fragment {
 	private final Context mContext;
-	private final View.OnLongClickListener[] mLongClickListeners;
 	private View view;
 
-	public Fragment1(InitializationObject initializationObject) {
-		mContext = initializationObject.getContext();
-		this.mLongClickListeners = initializationObject.getLongClickListeners();
+	private final View.OnLongClickListener mCalculateButtonLongClickListener;
+	private final View.OnLongClickListener mDeleteButtonLongClickListener;
+	private final View.OnLongClickListener mNumPadButtonsLongClickListener;
+
+	public NumPadFragment(Context context, View.OnLongClickListener calculateButtonLongClickListener, View.OnLongClickListener deleteButtonLongClickListener, View.OnLongClickListener numPadButtonsLongClickListener) {
+		mContext = context;
+		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
+		mDeleteButtonLongClickListener = deleteButtonLongClickListener;
+		mNumPadButtonsLongClickListener = numPadButtonsLongClickListener;
 	}
 
 	@Override
@@ -62,7 +67,7 @@ public class Fragment1 extends Fragment {
 		for (int ii = 0; ii < btnIds.length; ii++) {
 			Button btn = view.findViewById( btnIds[ ii ] );
 			btn.setTransformationMethod( null );
-			btn.setOnLongClickListener( mLongClickListeners[ 0 ] );
+			btn.setOnLongClickListener( mNumPadButtonsLongClickListener );
 			String num = btn.getText().toString().substring( 0, 1 );
 			if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
 				btn.setText( Html.fromHtml( num + "<sup><small><small><small>" + arr[ ii ] + "</small></small></small></sup>", Html.FROM_HTML_MODE_COMPACT ) );
@@ -70,11 +75,13 @@ public class Fragment1 extends Fragment {
 				btn.setText( Html.fromHtml( num + "<sup><small><small><small>" + arr[ ii ] + "</small></small></small></sup>" ) );
 			}
 		}
+
+
 		Button b = view.findViewById( R.id.btnCalc );
-		b.setOnLongClickListener( mLongClickListeners[ 1 ] );
+		b.setOnLongClickListener( mCalculateButtonLongClickListener );
 
 		ImageButton imageButton = view.findViewById( R.id.btnDelete );
-		imageButton.setOnLongClickListener( mLongClickListeners[ 2 ] );
+		imageButton.setOnLongClickListener( mDeleteButtonLongClickListener );
 
 		WindowManager windowManager = (WindowManager) mContext.getSystemService( Context.WINDOW_SERVICE );
 		if ( mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && windowManager != null ) {
@@ -86,28 +93,5 @@ public class Fragment1 extends Fragment {
 			view.setLayoutParams( tblLayoutParams );
 		}
 		return view;
-	}
-
-	public static class InitializationObject {
-		private Context mContext;
-		private View.OnLongClickListener[] mLongClickListeners;
-
-		public Context getContext() {
-			return mContext;
-		}
-
-		public InitializationObject setContext(Context context) {
-			mContext = context;
-			return this;
-		}
-
-		private View.OnLongClickListener[] getLongClickListeners() {
-			return mLongClickListeners;
-		}
-
-		public InitializationObject setLongClickListeners(View.OnLongClickListener[] longClickListeners) {
-			mLongClickListeners = longClickListeners;
-			return this;
-		}
 	}
 }

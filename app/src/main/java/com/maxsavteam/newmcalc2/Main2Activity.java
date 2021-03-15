@@ -40,6 +40,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
@@ -48,8 +49,8 @@ import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
-import com.maxsavteam.newmcalc2.fragments.fragment1.Fragment1;
-import com.maxsavteam.newmcalc2.fragments.fragment2.Fragment2;
+import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
+import com.maxsavteam.newmcalc2.fragments.VariablesFragment;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -662,33 +663,13 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void setViewPager(int which) {
-		Fragment1.InitializationObject fragmentOneInitializationObject =
-				new Fragment1.InitializationObject()
-						.setContext( this )
-						.setLongClickListeners( new View.OnLongClickListener[]{
-								mForAdditionalBtnsLongClick,
-								mReturnBack,
-								btnDeleteSymbolLongClick
-						} );
-		Fragment2.InitializationObject fragmentTwoInitializationObject =
-				new Fragment2.InitializationObject()
-						.setContext( this )
-						.setLongClickListeners(
-								new View.OnLongClickListener[]{
-										mMemoryActionsLongClick,
-										mOnVariableLongClick
-								}
-						);
-		MyFragmentPagerAdapter.InitializationObject initializationObject =
-				new MyFragmentPagerAdapter.InitializationObject()
-						.setFragmentManager( getSupportFragmentManager() )
-						.setContext( this )
-						.setInitializationObject( fragmentTwoInitializationObject )
-						.setInitializationObject( fragmentTwoInitializationObject )
-						.setInitializationObject( fragmentOneInitializationObject );
+		ArrayList<Fragment> fragments = new ArrayList<>();
+		fragments.add( new NumPadFragment( this, mReturnBack, btnDeleteSymbolLongClick, mForAdditionalBtnsLongClick ) );
+		fragments.add( new VariablesFragment( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
+
 		MyFragmentPagerAdapter myFragmentPagerAdapter =
-				new MyFragmentPagerAdapter( initializationObject );
-		//}
+				new MyFragmentPagerAdapter( getSupportFragmentManager(), fragments );
+
 		ViewPager viewPager = findViewById( R.id.viewpager );
 		ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
 		lay.height = displaySize.y / 2;
