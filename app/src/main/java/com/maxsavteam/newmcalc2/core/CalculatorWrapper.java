@@ -37,7 +37,7 @@ public final class CalculatorWrapper {
 
 		mCalculator = new Calculator();
 		Map<String, String> replacementMap = new HashMap<>() {{
-			put( "*", mResources.getString( R.string.multiply ) );
+			put( "\\*", mResources.getString( R.string.multiply ) );
 			put( "/", mResources.getString( R.string.div ) );
 			put( "R", mResources.getString( R.string.sqrt ) );
 		}};

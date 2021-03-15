@@ -102,6 +102,7 @@ public class Main2Activity extends ThemeActivity {
 	private String MULTIPLY_SIGN;
 	private String FI;
 	private String PI;
+	private String E;
 	private String original;
 	private String bracketFloorOpen;
 	private String bracketFloorClose;
@@ -551,6 +552,7 @@ public class Main2Activity extends ThemeActivity {
 
 		FI = getResources().getString( R.string.fi );
 		PI = getResources().getString( R.string.pi );
+		E = getResources().getString( R.string.euler_constant );
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
 
 		bracketFloorOpen = getResources().getString( R.string.bracket_floor_open );
@@ -745,7 +747,8 @@ public class Main2Activity extends ThemeActivity {
 			}
 			if ( Utils.isDigit( last ) || last == '%' || last == '!'
 					|| Character.toString( last ).equals( FI )
-					|| Character.toString( last ).equals( PI ) || last == 'e' || isCloseBracket( last ) ) {
+					|| Character.toString( last ).equals( PI )
+					|| Character.toString( last ).equals( E )  || isCloseBracket( last ) ) {
 				mExample.setText( String.format( "%s%s%s", txt, MULTIPLY_SIGN, value ) );
 			} else {
 				mExample.setText( String.format( "%s%s", txt, value ) );
@@ -757,7 +760,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private boolean isSpecific(char last) {
-		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( FI ) || last == 'e';
+		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( E );
 	}
 
 	public void deleteExample(View v) {
@@ -1390,7 +1393,7 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		if ( btntxt.equals( FI ) || btntxt.equals( PI ) || btntxt.equals( "e" ) ) {
+		if ( btntxt.equals( FI ) || btntxt.equals( PI ) || btntxt.equals( E ) ) {
 			if ( len == 0 ) {
 				mExample.setText( btntxt );
 				equallu( "not" );
@@ -1420,7 +1423,7 @@ public class Main2Activity extends ThemeActivity {
 				return;
 			}
 
-			if ( Utils.isDigit( last ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( PI ) || last == 'e' ) {
+			if ( Utils.isDigit( last ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( E ) ) {
 				mExample.setText( txt + btntxt );
 				equallu( "not" );
 				return;
@@ -1519,7 +1522,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( last == '.' ) {
 					return;
 				} else {
-					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && last != 'e' && !isCloseBracket( last ) ) {
+					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && !Character.toString( last ).equals( E ) && !isCloseBracket( last ) ) {
 						mExample.setText( txt + btntxt );
 					} else {
 						if ( !isOpenBracket( last ) && last != '^' ) {
@@ -1607,7 +1610,7 @@ public class Main2Activity extends ThemeActivity {
 					if ( len > 1 ) {
 						String s = Character.toString( txt.charAt( len - 2 ) );
 						if ( !isCloseBracket( last ) && !Utils.isDigit( last ) && ( !isOpenBracket( last ) && Utils.isLetter( txt.charAt( len - 2 ) )
-								&& !s.equals( PI ) && !s.equals( FI ) && txt.charAt( len - 2 ) != 'e' ) ) {
+								&& !s.equals( PI ) && !s.equals( FI ) && !s.equals( E ) ) ) {
 							txt = txt.substring( 0, len - 1 );
 							mExample.setText( txt + btntxt );
 							equallu( "not" );
