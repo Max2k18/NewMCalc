@@ -6,15 +6,8 @@
         <item>Please check if there is an application update.</item>
     </string-array>
 
-    <string name="plus" translatable="false">+</string>
-    <string name="minus" translatable="false">-</string>
-    <string name="rnd" translatable="false">rnd</string>
-
     <string name="app_name" translatable="false">MCalc</string>
 
-    <string name="multiply" translatable="false">×</string>
-    <string name="div" translatable="false">÷</string>
-    <string name="delSymbol" translatable="false">◄</string>
     <string name="settings">Settings</string>
 
     <string name="from">from</string>

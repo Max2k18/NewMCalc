@@ -1,241 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:gravity="bottom"
     android:orientation="vertical"
     tools:context=".Main2Activity">
 
-    <TableLayout
-        android:id="@+id/tbl"
+    <LinearLayout
+        android:id="@+id/tblR1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:gravity="bottom"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn7"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_7" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn8"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_8" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn9"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_9" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnMult"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/multiply" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn4"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_4" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn5"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_5" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn6"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_6" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDiv"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/div" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
         android:orientation="horizontal"
         android:visibility="visible">
 
-        <TableRow
-            android:id="@+id/tblR1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn1"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_1" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn7"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="7"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn2"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_2" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn8"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:gravity="center|center_horizontal"
-                android:onClick="onClick"
-                android:text="8"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn3"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_3" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn9"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="9"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnPlus"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/plus" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMult"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="@string/multiply"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+    </LinearLayout>
 
-        </TableRow>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <TableRow
-            android:id="@+id/tblR2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnZero"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/digit_0" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn4"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="4"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDot"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/dot" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn5"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="5"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnCalc"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:backgroundTint="@android:color/holo_orange_dark"
+            android:onClick="onClick"
+            android:text="@string/eq"
+            android:textAllCaps="false"
+            android:textColor="?textColor"
+            android:textSize="25sp" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn6"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="6"
-                android:textSize="25sp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnMinus"
+            style="@style/NumPadButtonStyle"
+            android:onClick="onClick"
+            android:text="@string/minus" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnDiv"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="@string/div"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
+    </LinearLayout>
 
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tblR3"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="visible">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn1"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="1"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn2"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="2"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn3"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="3"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnPlus"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="+"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tblR4"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnZero"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="0"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnDot"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="."
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnCalc"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.25"
-                android:backgroundTint="@android:color/holo_orange_dark"
-                android:onClick="onClick"
-                android:text="="
-                android:textAllCaps="false"
-                android:textColor="?textColor"
-                android:textSize="25sp" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMinus"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onClick"
-                android:text="-"
-                android:textAllCaps="false"
-                android:textSize="25sp" />
-
-        </TableRow>
-
-    </TableLayout>
 </LinearLayout>
