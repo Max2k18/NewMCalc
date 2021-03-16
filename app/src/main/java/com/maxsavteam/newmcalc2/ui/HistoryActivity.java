@@ -294,12 +294,9 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	}
 
 	private void setupRecyclerView() {
+		needToCreateMenu = !mEntries.isEmpty();
+		invalidateOptionsMenu();
 		if ( mEntries.size() == 0 ) {
-			needToCreateMenu = false;
-			if ( mMenu != null ) {
-				mMenu.removeItem( R.id.clear_history );
-				invalidateOptionsMenu();
-			}
 			setContentView( R.layout.history_not_found );
 			Toolbar toolbar = findViewById( R.id.toolbar );
 			toolbar.setTitle( "" );
