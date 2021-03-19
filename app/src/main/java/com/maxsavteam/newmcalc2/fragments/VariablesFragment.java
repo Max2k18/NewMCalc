@@ -1,17 +1,11 @@
 package com.maxsavteam.newmcalc2.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,14 +18,12 @@ import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import java.util.ArrayList;
 
 public class VariablesFragment extends Fragment {
-	private final Context mContext;
 	private View view;
 
 	private final View.OnLongClickListener mMemoryActionsLongClickListener;
 	private final View.OnLongClickListener mVariableButtonsLongClickListener;
 
-	public VariablesFragment(Context context, View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
-		mContext = context;
+	public VariablesFragment(View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
 		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
 		mVariableButtonsLongClickListener = variableButtonsLongClickListener;
 	}
@@ -97,16 +89,6 @@ public class VariablesFragment extends Fragment {
 		b = view.findViewById(R.id.btnMS);
 		b.setOnLongClickListener( mMemoryActionsLongClickListener );
 
-		int[] ids = new int[]{
-				R.id.btnMR,
-				R.id.btnMS,
-				R.id.btnMemMinus,
-				R.id.btnMemPlus
-		};
-		for(int id : ids) {
-			b = view.findViewById(id);
-			b.setTextColor(ColorStateList.valueOf(mContext.getResources().getColor(R.color.colorAccent)));
-		}
 		setVariableButtons();
 		return view;
 	}

@@ -23,6 +23,7 @@
             android:layout_weight="0.25"
             android:onClick="onMemoryStoreButtonClick"
             android:text="MS/st"
+            android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textAllCaps="false"
             android:textSize="20sp" />
@@ -35,6 +36,7 @@
             android:layout_weight="0.25"
             android:onClick="onMemoryRecallButtonClick"
             android:text="MR/rc"
+            android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textAllCaps="false"
             android:textSize="20sp" />
@@ -47,6 +49,7 @@
             android:layout_weight="0.25"
             android:onClick="onMemoryPlusMinusButtonsClick"
             android:text="M-"
+            android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textSize="24sp" />
 
@@ -59,6 +62,7 @@
             android:layout_weight="0.25"
             android:onClick="onMemoryPlusMinusButtonsClick"
             android:text="M+"
+            android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textSize="24sp" />
 

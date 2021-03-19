@@ -674,7 +674,7 @@ public class Main2Activity extends ThemeActivity {
 		ArrayList<Fragment> fragments = new ArrayList<>();
 		fragments.add( new NumPadFragment( this, mReturnBack ) );
 		fragments.add( new MathOperationsFragment( this ) );
-		fragments.add( new VariablesFragment( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
+		fragments.add( new VariablesFragment( mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		MyFragmentPagerAdapter myFragmentPagerAdapter =
 				new MyFragmentPagerAdapter( getSupportFragmentManager(), fragments );
