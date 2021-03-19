@@ -25,24 +25,38 @@ public final class CalculatorWrapper {
 
 	private final Calculator mCalculator;
 
+	private static CalculatorWrapper instance;
+
+	private final Map<String, String> mReplacementMap;
+
+	public Map<String, String> getReplacementMap() {
+		return mReplacementMap;
+	}
+
+	public static CalculatorWrapper getInstance() {
+		if(instance == null)
+			instance = new CalculatorWrapper();
+		return instance;
+	}
+
 	public interface CoreInterface {
 		void onSuccess(CalculationResult calculationResult);
 
 		void onError(CalculationError calculationError);
 	}
 
-	public CalculatorWrapper() {
+	private CalculatorWrapper() {
 		this.mResources = Utils.getContext().getResources();
 		int roundScale = Utils.getDefaultSP().getInt( "rounding_scale", 8 );
 
 		mCalculator = new Calculator();
-		Map<String, String> replacementMap = new HashMap<>() {{
+		mReplacementMap = new HashMap<>() {{
 			put( mResources.getString( R.string.multiply ), "*" );
 			put( mResources.getString( R.string.div ), "/" );
 			put( mResources.getString( R.string.sqrt ), "R" );
 		}};
-		replacementMap.putAll( Calculator.defaultReplacementMap );
-		mCalculator.setAliases( replacementMap );
+		mReplacementMap.putAll( Calculator.defaultReplacementMap );
+		mCalculator.setAliases( mReplacementMap );
 	}
 
 	public void prepareAndRun(@NotNull final String example, @Nullable String type, @NonNull CoreInterface coreInterface) {

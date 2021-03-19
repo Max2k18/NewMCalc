@@ -46,6 +46,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
+import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.tree.TreeBuilder;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
@@ -541,7 +542,7 @@ public class Main2Activity extends ThemeActivity {
 			return true;
 		} );
 
-		mCalculatorWrapper = new CalculatorWrapper();
+		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
 		FI = getResources().getString( R.string.fi );
 		PI = getResources().getString( R.string.pi );
@@ -804,7 +805,12 @@ public class Main2Activity extends ThemeActivity {
 			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
 			formatter.setBracketsTypes( TreeBuilder.defaultBrackets );
 			formatter.setSuffixOperators( TreeBuilder.defaultSuffixOperators );
-			original = formatter.formatNearBrackets( formatter.tryToCloseExpressionBrackets( example ) );
+			String formatted = formatter.tryToCloseExpressionBrackets( example );
+			formatted = formatter.formatNearBrackets( formatted );
+
+			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
+			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
+			original = tokenizer.localizeExpression( formatted );
 		}catch (CalculatingException e){
 			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
 			return;
