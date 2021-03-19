@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/numpad_buttons_ripple.xml" value="1.4071428571428573" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_main2.xml" value="0.16448032290615539" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_password_generator.xml" value="0.16548940464177597" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/app_bar_main2.xml" value="0.16448032290615539" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/bottom_line.xml" value="0.16448032290615539" />
