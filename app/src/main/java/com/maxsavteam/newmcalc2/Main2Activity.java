@@ -650,6 +650,11 @@ public class Main2Activity extends ThemeActivity {
 		if ( requestCode == RequestCodesConstants.START_ADD_VAR ) {
 			setViewPager( ((ViewPager) findViewById( R.id.viewpager )).getCurrentItem() );
 		}
+		if(resultCode == ResultCodesConstants.RESULT_RESTART_APP){
+			Intent intent = new Intent(this, Main2Activity.class);
+			startActivity( intent );
+			finish();
+		}
 		super.onActivityResult( requestCode, resultCode, data );
 	}
 
@@ -1111,7 +1116,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( possibleExtras != null && possibleExtras.getExtras() != null ) {
 			intent.putExtras( possibleExtras.getExtras() );
 		}
-		int requestCode = -1;
+		int requestCode = 0;
 		isOtherActivityOpened = true;
 		if ( cls.equals( HistoryActivity.class ) ) {
 			requestCode = RequestCodesConstants.START_HISTORY;

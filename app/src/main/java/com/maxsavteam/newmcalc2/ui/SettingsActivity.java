@@ -22,6 +22,7 @@ import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
+import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
@@ -121,8 +122,7 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	private void restartApp() {
-		Intent intent = new Intent( this, Main2Activity.class );
-		this.startActivity( intent );
+		setResult( ResultCodesConstants.RESULT_RESTART_APP );
 		onBackPressed();
 	}
 
