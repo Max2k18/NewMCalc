@@ -1,188 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center"
     android:orientation="vertical"
     android:weightSum="1.0"
     tools:context=".Main2Activity">
 
-    <TableLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnMS"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:onClick="onMemoryStoreButtonClick"
+            android:text="MS/st"
+            android:background="?selectableItemBackgroundBorderless"
+            android:textAllCaps="false"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnMR"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:onClick="onMemoryRecallButtonClick"
+            android:text="MR/rc"
+            android:background="?selectableItemBackgroundBorderless"
+            android:textAllCaps="false"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnMemMinus"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:onClick="onMemoryPlusMinusButtonsClick"
+            android:text="M-"
+            android:background="?selectableItemBackgroundBorderless"
+            android:textSize="24sp" />
+
+
+        <Button
+            android:id="@+id/btnMemPlus"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:onClick="onMemoryPlusMinusButtonsClick"
+            android:text="M+"
+            android:background="?selectableItemBackgroundBorderless"
+            android:textSize="24sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/variables"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/variables"
+        android:textColor="?textColor"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1.0">
+
+        <Button
+            android:id="@+id/btnVar1"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="1" />
+
+        <Button
+            android:id="@+id/btnVar2"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="2" />
+
+        <Button
+            android:id="@+id/btnVar3"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="3" />
+
+        <Button
+            android:id="@+id/btnVar4"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="4" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TableRow
-            android:id="@+id/tblR1"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:gravity="center"
-            android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnVar5"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="5" />
 
-            <Button
-                android:id="@+id/btnMS"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onMemoryStoreButtonClick"
-                android:text="MS/st"
-                android:textAllCaps="false"
-                android:textSize="20sp" />
+        <Button
+            android:id="@+id/btnVar6"
+            style="@style/VariableButtonStyle"
+            android:tag="6"
+            android:text="@string/plus" />
 
-            <Button
-                android:id="@+id/btnMR"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onMemoryRecallButtonClick"
-                android:text="MR/rc"
-                android:textAllCaps="false"
-                android:textSize="20sp" />
+        <Button
+            android:id="@+id/btnVar7"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="7" />
 
-            <Button
-                android:id="@+id/btnMemMinus"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onMemoryPlusMinusButtonsClick"
-                android:text="M-"
-                android:textSize="24sp" />
+        <Button
+            android:id="@+id/btnVar8"
+            style="@style/VariableButtonStyle"
+            android:onClick="variableClick"
+            android:tag="8" />
+    </LinearLayout>
 
-
-            <Button
-                android:id="@+id/btnMemPlus"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="onMemoryPlusMinusButtonsClick"
-                android:text="M+"
-                android:textSize="24sp" />
-
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/F2RVar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/variables"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/variables"
-                android:textColor="@color/black"
-                android:textSize="18sp" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/F2R4"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="1.0">
-
-            <Button
-                android:id="@+id/btnVar1"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="variableClick"
-                android:tag="1"
-                android:text="@string/plus"
-                android:textSize="24sp" />
-
-            <Button
-                android:id="@+id/btnVar2"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:onClick="variableClick"
-                android:textSize="24sp"
-                android:tag="2"/>
-
-            <Button
-                android:id="@+id/btnVar3"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:onClick="variableClick"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:textSize="24sp"
-                android:tag="3"/>
-
-            <Button
-                android:id="@+id/btnVar4"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:onClick="variableClick"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:textSize="24sp"
-                android:tag="4"/>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/F2R5"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="1.0">
-
-            <Button
-                android:id="@+id/btnVar5"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:onClick="variableClick"
-                android:textSize="24sp"
-                android:tag="5"/>
-
-            <Button
-                android:id="@+id/btnVar6"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:onClick="variableClick"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:textSize="24sp"
-                android:tag="6"/>
-
-            <Button
-                android:id="@+id/btnVar7"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:onClick="variableClick"
-                android:text="@string/plus"
-                android:textSize="24sp"
-                android:tag="7"/>
-
-            <Button
-                android:id="@+id/btnVar8"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.25"
-                android:text="@string/plus"
-                android:textSize="24sp"
-                android:onClick="variableClick"
-                android:tag="8"/>
-        </TableRow>
-
-    </TableLayout>
 </LinearLayout>

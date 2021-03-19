@@ -657,7 +657,7 @@ public class Main2Activity extends ThemeActivity {
 			}
 		}
 		if ( requestCode == RequestCodesConstants.START_ADD_VAR ) {
-			setViewPager( 1 );
+			setViewPager( ((ViewPager) findViewById( R.id.viewpager )).getCurrentItem() );
 		}
 		super.onActivityResult( requestCode, resultCode, data );
 	}

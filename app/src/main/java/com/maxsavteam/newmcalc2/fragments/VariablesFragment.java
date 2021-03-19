@@ -91,9 +91,6 @@ public class VariablesFragment extends Fragment {
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		view = inflater.inflate( R.layout.variables_fragment_layout, container, false );
 
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
-		boolean DarkMode = sp.getBoolean("dark_mode", false);
-
 		Button b = view.findViewById(R.id.btnMR);
 		b.setOnLongClickListener( mMemoryActionsLongClickListener );
 
@@ -109,12 +106,6 @@ public class VariablesFragment extends Fragment {
 		for(int id : ids) {
 			b = view.findViewById(id);
 			b.setTextColor(ColorStateList.valueOf(mContext.getResources().getColor(R.color.colorAccent)));
-		}
-		TextView var = view.findViewById(R.id.variables);
-		if(DarkMode){
-			var.setTextColor(Color.WHITE);
-		}else {
-			var.setTextColor(Color.BLACK);
 		}
 		setVariableButtons();
 		return view;
