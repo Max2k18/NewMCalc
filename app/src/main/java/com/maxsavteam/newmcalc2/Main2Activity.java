@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -70,6 +71,7 @@ import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
+import com.maxsavteam.newmcalc2.utils.UpdateMessagesContainer;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
@@ -303,7 +305,7 @@ public class Main2Activity extends ThemeActivity {
 
 		restoreResultIfSaved();
 
-		showOfferToRate();
+		//showOfferToRate();
 	}
 
 	private void addShortcutsToApp() {
@@ -575,6 +577,25 @@ public class Main2Activity extends ThemeActivity {
 		setViewPager( 0 );
 
 		initializeScrollViews();
+
+		showWhatNew();
+	}
+
+	private void showWhatNew(){
+		String version = BuildConfig.VERSION_NAME;
+		if ( UpdateMessagesContainer.isReleaseNoteExists( version ) && !UpdateMessagesContainer.isReleaseNoteShown( version ) ) {
+			Spanned spanned = Html.fromHtml( getString( UpdateMessagesContainer.getStringIdForNote( version ) ) );
+			CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
+			builder.setTitle( R.string.whats_new )
+					.setMessage( spanned )
+					.setCancelable( false )
+					.setPositiveButton( R.string.ok, ((dialog, which) -> {
+						SharedPreferences sharedPreferences = getSharedPreferences( "shown_release_notes", MODE_PRIVATE );
+						sharedPreferences.edit().putBoolean( version, true ).apply();
+						dialog.cancel();
+					}) );
+			builder.show();
+		}
 	}
 
 	private void updateExampleArrows() {

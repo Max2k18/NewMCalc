@@ -10,6 +10,8 @@
 
     <string name="settings">Settings</string>
 
+    <string name="ok" translatable="false">OK</string>
+
     <string name="from">from</string>
     <string name="to">to</string>
     <string name="select_number">Select number</string>
@@ -128,4 +130,6 @@
     <string name="show_guide">Show guide</string>
     <string name="guide_will_be_shown_next_time">The guide will be shown the next time you launch the application.</string>
     <string name="changelog">Changelog</string>
+    <string name="whats_new">What\'s new</string>
+    <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
 </resources>

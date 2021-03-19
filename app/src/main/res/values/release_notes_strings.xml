@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="release_note_2_0"><![CDATA[We are introducing version 2.0.<br>It has a lot of changes both in the user interface and internal functional improvements.<br><br>From the interface changes:<br>- Mathematical operations (which were on the numbers) are moved to a separate panel, which can be opened by swiping to the left.<br>- Added a beautiful ripple when you click on the numbers and operations buttons.<br>- New notation of the Euler number.<br><br>From functional changes:<br>- Added the Fi number (1.618)<br>- Added an arbitrary base of the logarithm. For example, the expression "log2(64)" is equivalent to "logarithm 64 on base 2", and the expression "log 20" is equivalent to "logarithm 20 on base 10".<br>- Removed the geometric mean function due to uselessness.<br><br>The method of parsing and counting the expression has also been changed, which is more optimal from the point of view of work and from the point of view of maintenance by the developer.]]></string>
+
+</resources>
