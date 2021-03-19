@@ -673,7 +673,7 @@ public class Main2Activity extends ThemeActivity {
 	private void setViewPager(int which) {
 		ArrayList<Fragment> fragments = new ArrayList<>();
 		fragments.add( new NumPadFragment( this, mReturnBack ) );
-		fragments.add( new MathOperationsFragment( this ) );
+		fragments.add( new MathOperationsFragment() );
 		fragments.add( new VariablesFragment( mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		MyFragmentPagerAdapter myFragmentPagerAdapter =
