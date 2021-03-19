@@ -45,8 +45,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
-import com.maxsavteam.calculator.CalculatorExpressionBracketsChecker;
+import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
+import com.maxsavteam.calculator.tree.TreeBuilder;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationError;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
@@ -145,11 +146,6 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	};
 
-	private final View.OnLongClickListener mForAdditionalBtnsLongClick = view->{
-		appendToExampleString( ( (Button) view ).getText().toString().substring( 1 ) );
-		return true;
-	};
-
 	private final View.OnLongClickListener mReturnBack = v->{
 		if ( !was_error ) {
 			TextView answer = findViewById( R.id.AnswerStr );
@@ -165,11 +161,6 @@ public class Main2Activity extends ThemeActivity {
 		} else {
 			return false;
 		}
-	};
-
-	private final View.OnLongClickListener btnDeleteSymbolLongClick = (View v)->{
-		deleteExample( findViewById( R.id.btnDelAll ) );
-		return true;
 	};
 
 	private final View.OnLongClickListener mMemoryActionsLongClick = (View v)->{
@@ -362,7 +353,6 @@ public class Main2Activity extends ThemeActivity {
 			if ( text != null ) {
 				int i = 0;
 				StringBuilder ex = new StringBuilder();
-				StringBuilder ans = new StringBuilder();
 				while ( i < text.length() && text.charAt( i ) != ';' ) {
 					ex.append( text.charAt( i ) );
 					i++;
@@ -651,7 +641,8 @@ public class Main2Activity extends ThemeActivity {
 		}
 		if ( requestCode == RequestCodesConstants.START_MEMORY_RECALL ) {
 			if ( resultCode == ResultCodesConstants.RESULT_APPEND ) {
-				addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
+				if(data != null)
+					addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
 			} else if ( resultCode == ResultCodesConstants.RESULT_REFRESH ) {
 				memoryEntries = mMemorySaverReader.read();
 			}
@@ -805,7 +796,10 @@ public class Main2Activity extends ThemeActivity {
 		was_error = false;
 
 		try {
-			original = new CalculatorExpressionBracketsChecker().tryToCloseExpressionBrackets( example );
+			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
+			formatter.setBracketsTypes( TreeBuilder.defaultBrackets );
+			formatter.setSuffixOperators( TreeBuilder.defaultSuffixOperators );
+			original = formatter.formatNearBrackets( formatter.tryToCloseExpressionBrackets( example ) );
 		}catch (CalculatingException e){
 			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
 			return;
@@ -1017,13 +1011,11 @@ public class Main2Activity extends ThemeActivity {
 					btn.setText( "+" );
 				} else {
 					ArrayList<Variable> a = VariableUtils.readVariables();
-					if ( a != null ) {
-						for (int i = 0; i < a.size(); i++) {
-							if ( a.get( i ).getTag() == pos ) {
-								addStringExampleToTheExampleStr( a.get( i ).getValue() );
-								//break;
-								return;
-							}
+					for (int i = 0; i < a.size(); i++) {
+						if ( a.get( i ).getTag() == pos ) {
+							addStringExampleToTheExampleStr( a.get( i ).getValue() );
+							//break;
+							return;
 						}
 					}
 				}
@@ -1082,10 +1074,10 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
-		onMemoryStoreButtonClick( view, false );
+		onMemoryStoreButtonClick( false );
 	}
 
-	public void onMemoryStoreButtonClick(View view, boolean isPreviouslyCalled) {
+	public void onMemoryStoreButtonClick(boolean isPreviouslyCalled) {
 		TextView t = findViewById( R.id.ExampleStr );
 		String txt = t.getText().toString();
 		if ( txt.equals( "" ) ) {
@@ -1095,7 +1087,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( !Utils.isNumber( txt ) ) {
 			equallu( "all" );
 			if ( !isPreviouslyCalled ) {
-				onMemoryStoreButtonClick( view, true );
+				onMemoryStoreButtonClick( true );
 			}
 			return;
 		} else {
@@ -1137,7 +1129,6 @@ public class Main2Activity extends ThemeActivity {
 
 	private void showExample() {
 		TextView t = findViewById( R.id.ExampleStr );
-		//t.setTextIsSelectable(false);
 		t.setVisibility( View.VISIBLE );
 	}
 
