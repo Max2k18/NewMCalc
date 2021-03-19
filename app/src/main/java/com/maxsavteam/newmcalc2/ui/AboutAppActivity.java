@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
+import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
@@ -28,7 +29,7 @@ public class AboutAppActivity extends ThemeActivity {
 			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
 			"App type: " + BuildConfig.APPTYPE + "\n" +
 			"Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
-			"Core version: " + BuildConfig.CoreVersion;
+			"Core version: v" + Calculator.VERSION;
 
 	public void social(View v) {
 		Intent in = new Intent( Intent.ACTION_VIEW );
