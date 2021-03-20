@@ -1,9 +1,11 @@
 package com.maxsavteam.newmcalc2.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -13,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
@@ -37,6 +40,9 @@ public class SettingsActivity extends ThemeActivity {
 
 	private SharedPreferences sp;
 	private final String mAppType = BuildConfig.APPTYPE;
+
+	private static final int IMPORT_STORAGE_REQUEST = 0;
+	private static final int EXPORT_STORAGE_REQUEST = 1;
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -131,18 +137,23 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	public void initializeImport(View v) {
-		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
-		File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
-		if ( !f.exists() ) {
-			Toast.makeText( getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG ).show();
-			return;
+		if ( checkSelfPermission( Manifest.permission.READ_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED ) {
+			String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+			File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
+			if ( !f.exists() ) {
+				Toast.makeText( getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG ).show();
+				return;
+			}
+			showImportDialog();
+		} else {
+			requestPermissions( new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, IMPORT_STORAGE_REQUEST );
 		}
+	}
+
+	private void showImportDialog() {
 		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-		builder.setMessage(
-				getResources().getString( R.string.to_continue_need_to_restart_app )
-						+ "\n"
-						+ getResources().getString( R.string.want_to_continue_question )
-		)
+		builder
+				.setMessage( getResources().getString( R.string.to_continue_need_to_restart_app ) + "\n" + getResources().getString( R.string.want_to_continue_question ) )
 				.setCancelable( false ).setPositiveButton( R.string.restart, (dialog, which)->{
 			importSettings();
 			dialog.cancel();
@@ -238,7 +249,7 @@ public class SettingsActivity extends ThemeActivity {
 		}
 	}
 
-	public void export(View v) {
+	private void export() {
 		ProgressDialog pd;
 		pd = new ProgressDialog( this );
 		pd.setProgressStyle( ProgressDialog.STYLE_SPINNER );
@@ -247,7 +258,7 @@ public class SettingsActivity extends ThemeActivity {
 		if ( !f.isDirectory() ) {
 			f.mkdir();
 		}
-		String fileName = "NewMCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
 		f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 		pd.show();
 		try {
@@ -271,5 +282,28 @@ public class SettingsActivity extends ThemeActivity {
 			Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
 			e.printStackTrace();
 		}
+	}
+
+	public void initializeExport(View v) {
+		if ( checkSelfPermission( Manifest.permission.WRITE_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED ) {
+			export();
+		} else {
+			requestPermissions( new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, EXPORT_STORAGE_REQUEST );
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if ( requestCode == EXPORT_STORAGE_REQUEST ) {
+			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
+				export();
+			}
+		}
+		if ( requestCode == IMPORT_STORAGE_REQUEST ) {
+			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
+				initializeImport( null );
+			}
+		}
+		super.onRequestPermissionsResult( requestCode, permissions, grantResults );
 	}
 }
