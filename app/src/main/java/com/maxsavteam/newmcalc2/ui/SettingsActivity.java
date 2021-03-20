@@ -2,7 +2,6 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
-import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
@@ -87,13 +85,6 @@ public class SettingsActivity extends ThemeActivity {
 		button.setOnItemSelectedListener( index->{
 			sp.edit().putInt( "theme_state", index ).apply();
 			restartApp();
-		} );
-
-		findViewById( R.id.btn_show_guide ).setOnClickListener( view->{
-			sp.edit().remove( "guide_first_start" )
-					.remove( "history_guide" )
-					.apply();
-			Toast.makeText( this, R.string.guide_will_be_shown_next_time, Toast.LENGTH_SHORT ).show();
 		} );
 	}
 

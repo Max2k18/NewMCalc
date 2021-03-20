@@ -295,12 +295,6 @@ public class Main2Activity extends ThemeActivity {
 		mMemorySaverReader = new MemorySaverReader( this );
 		memoryEntries = mMemorySaverReader.read();
 
-		boolean isGuideFirstStart = sp.getBoolean( "guide_first_start", true );
-		if ( isGuideFirstStart ) {
-			sp.edit().putBoolean( "guide_first_start", false ).apply();
-			startGuide();
-		}
-
 		addShortcutsToApp();
 
 		restoreResultIfSaved();

@@ -171,15 +171,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_show_guide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:textColor="@color/white"
-            android:layout_marginTop="10dp"
-            android:text="@string/show_guide" />
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
