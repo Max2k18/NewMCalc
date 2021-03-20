@@ -131,7 +131,7 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	public void initializeImport(View v) {
-		String fileName = "NewMCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
 		File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 		if ( !f.exists() ) {
 			Toast.makeText( getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG ).show();
@@ -152,7 +152,7 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	private void importSettings() {
-		String fileName = "NewMCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
 		File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 		try {
 			FileReader fr = new FileReader( f );
