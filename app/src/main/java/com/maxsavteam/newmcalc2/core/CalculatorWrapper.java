@@ -1,12 +1,14 @@
 package com.maxsavteam.newmcalc2.core;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
+import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
@@ -21,6 +23,7 @@ import java.util.Map;
  * @author Max Savitsky
  */
 public final class CalculatorWrapper {
+	private static final String TAG = Main2Activity.TAG + " CalculatorWrapper";
 	private final Resources mResources;
 
 	private final Calculator mCalculator;
@@ -34,8 +37,9 @@ public final class CalculatorWrapper {
 	}
 
 	public static CalculatorWrapper getInstance() {
-		if(instance == null)
+		if ( instance == null ) {
 			instance = new CalculatorWrapper();
+		}
 		return instance;
 	}
 
@@ -66,18 +70,22 @@ public final class CalculatorWrapper {
 		} catch (CalculatingException e) {
 			int errorCode = e.getErrorCode();
 			int res = getStringResForErrorCode( errorCode );
-			if(res != -1){
+			Log.i( TAG, "prepareAndRun: " + e );
+			if ( res != -1 ) {
 				coreInterface.onError( new CalculationError().setShortError( mResources.getString( res ) ) );
 			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			Log.i( TAG, "prepareAndRun: " + e );
 		}
 	}
 
-	public BigDecimal calculate(String example){
+	public BigDecimal calculate(String example) {
 		return mCalculator.calculate( example );
 	}
 
 	@StringRes
-	public static int getStringResForErrorCode(int errorCode){
+	public static int getStringResForErrorCode(int errorCode) {
 		int result = -1;
 		switch ( errorCode ) {
 			case CalculatingException.TAN_OF_90:
