@@ -154,10 +154,11 @@ public class SettingsActivity extends ThemeActivity {
 		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 		builder
 				.setMessage( getResources().getString( R.string.to_continue_need_to_restart_app ) + "\n" + getResources().getString( R.string.want_to_continue_question ) )
-				.setCancelable( false ).setPositiveButton( R.string.restart, (dialog, which)->{
-			importSettings();
-			dialog.cancel();
-		} )
+				.setCancelable( false )
+				.setPositiveButton( R.string.restart, (dialog, which)->{
+					importSettings();
+					dialog.cancel();
+				} )
 				.setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() );
 		builder.show();
 	}
