@@ -43,15 +43,17 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:background="@null"
-            android:inputType="none"
-            android:scrollbars="none"
             android:textColor="?textColor"
             android:textSize="46sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/example_right"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/example_left"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxTextSize="46sp"
+            app:minTextSize="32sp"
+            app:stepTextSize="4sp" />
 
     </HorizontalScrollView>
 

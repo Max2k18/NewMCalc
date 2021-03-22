@@ -20,7 +20,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Layout;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -116,6 +118,8 @@ public class Main2Activity extends ThemeActivity {
 
 	private ProgressDialog mThreadControllerProgressDialog;
 
+	private TextPaint mTempPaint = new TextPaint();
+
 	enum EnterModes {
 		SIMPLE,
 		AVERAGE,
@@ -146,14 +150,14 @@ public class Main2Activity extends ThemeActivity {
 	private final View.OnLongClickListener mReturnBack = v->{
 		if ( !wasError ) {
 			TextView answer = findViewById( R.id.AnswerStr );
-			TextView example = findViewById( R.id.ExampleStr );
+			CalculatorEditText example = findViewById( R.id.ExampleStr );
 			if ( answer.getVisibility() == View.INVISIBLE || answer.getVisibility() == View.GONE ) {
 				return false;
 			}
 			String txt = answer.getText().toString();
 			answer.setText( example.getText().toString() );
 			example.setText( txt );
-			scrollExampleToEnd();
+			example.setSelection( txt.length() );
 			return true;
 		} else {
 			return false;
@@ -527,6 +531,7 @@ public class Main2Activity extends ThemeActivity {
 
 		EditText editText = findViewById( R.id.ExampleStr );
 		editText.setShowSoftInputOnFocus( false );
+		editText.setSelection( 0 );
 
 		ImageButton imageButton = findViewById( R.id.btnDelete );
 		imageButton.setOnLongClickListener( v->{
@@ -607,8 +612,9 @@ public class Main2Activity extends ThemeActivity {
 		HorizontalScrollView exampleScrollView = findViewById( R.id.scrollview );
 		exampleScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateExampleArrows() );
 
-		CustomTextView answerTextView = findViewById( R.id.AnswerStr );
+		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 		answerTextView.addListener( this::updateAnswerArrows );
+		answerTextView.addListener( this::scrollAnswerToEnd );
 
 		HorizontalScrollView answerScrollView = findViewById( R.id.scrollViewAns );
 		answerScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateAnswerArrows() );
@@ -923,6 +929,7 @@ public class Main2Activity extends ThemeActivity {
 		int selection = editText.getSelectionStart();
 		e.insert( selection, s );
 		editText.setSelection( selection + s.length() );
+		editText.requestFocus();
 		calculate( CalculateMode.PRE_ANSWER );
 	}
 
@@ -932,7 +939,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void clearAnswer() {
-		CustomTextView textView = findViewById( R.id.AnswerStr );
+		CalculatorEditText textView = findViewById( R.id.AnswerStr );
 		textView.setText( "" );
 		textView.setTextColor( super.textColor );
 	}
@@ -1110,7 +1117,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private void writeResult(CalculateMode mode, BigDecimal result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
-		CustomTextView answerTextView = findViewById( R.id.AnswerStr );
+		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
 		if ( mode == CalculateMode.PRE_ANSWER ) {
 			answerTextView.setText( result.toPlainString() );
@@ -1131,14 +1138,8 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	}
 
-	private void scrollExampleToEnd() {
-		if ( findViewById( R.id.ExampleStr ).getVisibility() == View.INVISIBLE ) {
-			return;
-		}
-		HorizontalScrollView scrollview = findViewById( R.id.scrollview );
-		scrollview.post( ()->scrollview.fullScroll( View.FOCUS_RIGHT ) );
-
-		HorizontalScrollView scrollview1 = findViewById( R.id.scrollViewAns );
-		scrollview1.post( ()->scrollview1.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
+	private void scrollAnswerToEnd(){
+		HorizontalScrollView scrollView = findViewById( R.id.scrollViewAns );
+		scrollView.post( ()->scrollView.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
 	}
 }

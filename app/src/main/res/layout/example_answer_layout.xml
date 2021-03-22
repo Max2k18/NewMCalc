@@ -34,13 +34,18 @@
         app:layout_constraintStart_toEndOf="@+id/answer_left"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.maxsavteam.newmcalc2.widget.CustomTextView
+        <com.maxsavteam.newmcalc2.widget.CalculatorEditText
             android:id="@+id/AnswerStr"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:textColor="?attr/textColor"
             android:textSize="34sp"
+            app:maxTextSize="34sp"
+            app:minTextSize="28sp"
+            app:stepTextSize="2sp"
+            android:background="@null"
+            android:cursorVisible="false"
             android:textStyle="bold" />
 
     </HorizontalScrollView>

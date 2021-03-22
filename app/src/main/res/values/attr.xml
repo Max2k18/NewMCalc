@@ -4,4 +4,11 @@
     <attr name="copy_button_drawable" format="reference" />
     <attr name="windowBackgroundColor" format="color" />
     <attr name="backspace_drawable" format="reference" />
+
+    <declare-styleable name="CalculatorEditText">
+        <attr name="maxTextSize" format="dimension" />
+        <attr name="minTextSize" format="dimension" />
+        <attr name="stepTextSize" format="dimension" />
+        <attr name="showKeyboardOnFocus" format="boolean" />
+    </declare-styleable>
 </resources>
