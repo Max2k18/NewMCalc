@@ -18,18 +18,18 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -49,10 +49,8 @@ import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
-import com.maxsavteam.calculator.tree.TreeBuilder;
+import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
-import com.maxsavteam.newmcalc2.core.CalculationError;
-import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
 import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
@@ -75,6 +73,7 @@ import com.maxsavteam.newmcalc2.utils.UpdateMessagesContainer;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
+import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 import com.maxsavteam.newmcalc2.widget.CustomTextView;
 
@@ -82,7 +81,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -96,34 +94,27 @@ public class Main2Activity extends ThemeActivity {
 	private NavigationView mNavigationView;
 	private SharedPreferences sp;
 
-	private boolean was_error = false;
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
 	private boolean progressDialogShown = false;
+	private boolean wasError = false;
 
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
-	private CustomTextView mExample;
 	private MemorySaverReader mMemorySaverReader;
 	private BigDecimal[] memoryEntries;
 	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
 
 	private String MULTIPLY_SIGN;
-	private String FI;
-	private String PI;
-	private String E;
-	private String original;
-	private String bracketFloorOpen;
-	private String bracketFloorClose;
-	private String bracketCeilOpen;
-	private String bracketCeilClose;
+	private String DIVISION_SIGN;
 
 	private Timer mCoreTimer;
 	private Thread mCoreThread = null;
 
 	private int timerCountDown = 0;
+	private final static int ROUND_SCALE = 8;
 
-	private ProgressDialog mProgressDialog;
+	private ProgressDialog mThreadControllerProgressDialog;
 
 	enum EnterModes {
 		SIMPLE,
@@ -131,7 +122,10 @@ public class Main2Activity extends ThemeActivity {
 		GEOMETRIC
 	}
 
-	private EnterModes exampleEnterMode = EnterModes.SIMPLE;
+	enum CalculateMode {
+		PRE_ANSWER,
+		FULL_ANSWER
+	}
 
 	private final View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
@@ -150,7 +144,7 @@ public class Main2Activity extends ThemeActivity {
 	};
 
 	private final View.OnLongClickListener mReturnBack = v->{
-		if ( !was_error ) {
+		if ( !wasError ) {
 			TextView answer = findViewById( R.id.AnswerStr );
 			TextView example = findViewById( R.id.ExampleStr );
 			if ( answer.getVisibility() == View.INVISIBLE || answer.getVisibility() == View.GONE ) {
@@ -354,13 +348,8 @@ public class Main2Activity extends ThemeActivity {
 					ex.append( text.charAt( i ) );
 					i++;
 				}
-				TextView ver = findViewById( R.id.ExampleStr );
-				ver.setSelectAllOnFocus( false );
-				ver.setText( ex.toString() );
-				ver.setSelected( false );
-				showExample();
-				equallu( "all" );
-				format( R.id.ExampleStr );
+				insert( ex.toString() );
+				calculate( CalculateMode.FULL_ANSWER );
 			}
 		}
 	}
@@ -434,13 +423,6 @@ public class Main2Activity extends ThemeActivity {
 			default:
 				break;
 		}
-	}
-
-	private void setTextViewAnswerTextSizeToDefault() {
-		TextView t = findViewById( R.id.AnswerStr );
-		t.setText( "" );
-		t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
-		t.setTextColor( super.textColor );
 	}
 
 	private void unregisterAllBroadcasts() {
@@ -540,21 +522,15 @@ public class Main2Activity extends ThemeActivity {
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
-		FI = getResources().getString( R.string.fi );
-		PI = getResources().getString( R.string.pi );
-		E = getResources().getString( R.string.euler_constant );
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
+		DIVISION_SIGN = getResources().getString( R.string.div );
 
-		bracketFloorOpen = getResources().getString( R.string.floor_open_bracket );
-		bracketFloorClose = getResources().getString( R.string.floor_close_bracket );
-		bracketCeilOpen = getResources().getString( R.string.ceil_open_bracket );
-		bracketCeilClose = getResources().getString( R.string.ceil_close_bracket );
-
-		mExample = findViewById( R.id.ExampleStr );
+		EditText editText = findViewById( R.id.ExampleStr );
+		editText.setShowSoftInputOnFocus( false );
 
 		ImageButton imageButton = findViewById( R.id.btnDelete );
 		imageButton.setOnLongClickListener( v->{
-			deleteExample( v );
+			onClear( v );
 			return true;
 		} );
 
@@ -575,7 +551,7 @@ public class Main2Activity extends ThemeActivity {
 		showWhatNew();
 	}
 
-	private void showWhatNew(){
+	private void showWhatNew() {
 		String version = BuildConfig.VERSION_NAME;
 		if ( UpdateMessagesContainer.isReleaseNoteExists( version ) && !UpdateMessagesContainer.isReleaseNoteShown( version ) ) {
 			Spanned spanned = Html.fromHtml( getString( UpdateMessagesContainer.getStringIdForNote( version ) ) );
@@ -583,11 +559,11 @@ public class Main2Activity extends ThemeActivity {
 			builder.setTitle( R.string.whats_new )
 					.setMessage( spanned )
 					.setCancelable( false )
-					.setPositiveButton( R.string.ok, ((dialog, which) -> {
+					.setPositiveButton( R.string.ok, ( (dialog, which)->{
 						SharedPreferences sharedPreferences = getSharedPreferences( "shown_release_notes", MODE_PRIVATE );
 						sharedPreferences.edit().putBoolean( version, true ).apply();
 						dialog.cancel();
-					}) );
+					} ) );
 			builder.show();
 		}
 	}
@@ -625,8 +601,8 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void initializeScrollViews() {
-		CustomTextView exampleTextView = findViewById( R.id.ExampleStr );
-		exampleTextView.addListener( this::updateExampleArrows );
+		CalculatorEditText exampleEditText = findViewById( R.id.ExampleStr );
+		exampleEditText.addListener( this::updateExampleArrows );
 
 		HorizontalScrollView exampleScrollView = findViewById( R.id.scrollview );
 		exampleScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateExampleArrows() );
@@ -645,29 +621,23 @@ public class Main2Activity extends ThemeActivity {
 			if ( example != null && !example.equals( "" ) ) {
 				String result = data.getStringExtra( "result" );
 
-				if ( mExample.getText().toString().equals( "" ) ) {
-					mExample.setText( example );
-					showExample();
-				} else {
-					addStringExampleToTheExampleStr( result );
-				}
-
-				equallu( "not" );
+				addStringExampleToTheExampleStr( result );
 			}
 		}
 		if ( requestCode == RequestCodesConstants.START_MEMORY_RECALL ) {
 			if ( resultCode == ResultCodesConstants.RESULT_APPEND ) {
-				if(data != null)
+				if ( data != null ) {
 					addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
+				}
 			} else if ( resultCode == ResultCodesConstants.RESULT_REFRESH ) {
 				memoryEntries = mMemorySaverReader.read();
 			}
 		}
 		if ( requestCode == RequestCodesConstants.START_ADD_VAR ) {
-			setViewPager( ((ViewPager) findViewById( R.id.viewpager )).getCurrentItem() );
+			setViewPager( ( (ViewPager) findViewById( R.id.viewpager ) ).getCurrentItem() );
 		}
-		if(resultCode == ResultCodesConstants.RESULT_RESTART_APP){
-			Intent intent = new Intent(this, Main2Activity.class);
+		if ( resultCode == ResultCodesConstants.RESULT_RESTART_APP ) {
+			Intent intent = new Intent( this, Main2Activity.class );
 			startActivity( intent );
 			finish();
 		}
@@ -708,10 +678,10 @@ public class Main2Activity extends ThemeActivity {
 				if ( position == 0 ) {
 					hideWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
-				} else if(position == fragments.size() - 1) {
+				} else if ( position == fragments.size() - 1 ) {
 					showWithAlpha( R.id.image_view_left );
 					hideWithAlpha( R.id.image_view_right );
-				}else{
+				} else {
 					showWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
 				}
@@ -724,294 +694,20 @@ public class Main2Activity extends ThemeActivity {
 		} );
 	}
 
-	public void onClick(@NonNull View v) {
-		if ( v.getId() == R.id.btnCalc ) {
-			equallu( "all" );
-		} else {
-			Button btn = findViewById( v.getId() );
-			String btntxt = btn.getText().toString().substring( 0, 1 );
-			appendToExampleString( btntxt );
-		}
-	}
-
-	public void onAdditionalClick(View v) {
-		appendToExampleString( ( (Button) v ).getText().toString() );
-	}
-
 	private void addStringExampleToTheExampleStr(String s) {
-		String value = s;
-		String txt = mExample.getText().toString();
-		if ( txt.equals( "" ) ) {
-			mExample.setText( value );
-			showExample();
-			hideAnswer();
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable e = editText.getText();
+		if ( e == null || e.toString().isEmpty() ) {
+			insert( s );
 		} else {
-			char last = txt.charAt( txt.length() - 1 );
-			if ( new BigDecimal( value ).signum() < 0 ) {
-				value = "(" + value + ")";
-			}
-			if ( Utils.isDigit( last ) || last == '%' || last == '!'
-					|| Character.toString( last ).equals( FI )
-					|| Character.toString( last ).equals( PI )
-					|| Character.toString( last ).equals( E )  || isCloseBracket( last ) ) {
-				mExample.setText( String.format( "%s%s%s", txt, MULTIPLY_SIGN, value ) );
-			} else {
-				mExample.setText( String.format( "%s%s", txt, value ) );
-			}
-			equallu( "not" );
-		}
-		format( R.id.ExampleStr );
-		resizeText();
-	}
-
-	private boolean isSpecific(char last) {
-		return isCloseBracket( last ) || last == '!' || last == '%' || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( E );
-	}
-
-	public void deleteExample(View v) {
-		exampleEnterMode = EnterModes.SIMPLE;
-		CustomTextView t = findViewById( R.id.ExampleStr );
-		hideExample();
-		t.setText( "" );
-		setTextViewAnswerTextSizeToDefault();
-		hideAnswer();
-		was_error = false;
-		sp.edit().remove( "saveResultText" ).apply();
-		setTextViewsTextSizeToDefault();
-	}
-
-	private void resizeText() {
-		FormatUtil.scaleText( this, mExample, findViewById( R.id.scrollview ).getWidth(), 32, 46 );
-		FormatUtil.scaleText( this, findViewById( R.id.AnswerStr ), findViewById( R.id.scrollViewAns ).getWidth(), 29, 34 );
-	}
-
-	private void setTextViewsTextSizeToDefault() {
-		CustomTextView txt = findViewById( R.id.ExampleStr );
-		CustomTextView t = findViewById( R.id.AnswerStr );
-		txt.setTextSize( TypedValue.COMPLEX_UNIT_SP, 46 );
-		t.setTextSize( TypedValue.COMPLEX_UNIT_SP, 34 );
-	}
-
-	private void equallu(String type) {
-		if ( was_error ) {
-			setTextViewAnswerTextSizeToDefault();
-			hideAnswer();
-		}
-		CustomTextView txt = findViewById( R.id.ExampleStr );
-		String example = txt.getText().toString();
-		format( R.id.ExampleStr );
-		resizeText();
-		int len = example.length();
-		if ( len != 0 ) {
-			showExample();
-			scrollExampleToEnd();
-		} else {
-			return;
-		}
-		char last = example.charAt( len - 1 );
-		if ( isBasicAction( last ) || isOpenBracket( last ) || Utils.isNumber( example ) ) {
-			hideAnswer();
-			return;
-		}
-
-		was_error = false;
-
-		try {
-			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
-			formatter.setBracketsTypes( TreeBuilder.defaultBrackets );
-			formatter.setSuffixOperators( TreeBuilder.defaultSuffixOperators );
-			String formatted = formatter.tryToCloseExpressionBrackets( example );
-			formatted = formatter.formatNearBrackets( formatted );
-
-			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
-			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
-			original = tokenizer.localizeExpression( formatted );
-		}catch (CalculatingException e){
-			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
-			return;
-		}
-
-		mCoreThread = new Thread( ()->mCalculatorWrapper.prepareAndRun( example, type, mCoreInterface ) );
-
-		startThreadController();
-	}
-
-	private void startThreadController() {
-		mProgressDialog = new ProgressDialog( this );
-		mProgressDialog.setCancelable( false );
-		mProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
-		mProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), (dialog, which)->{
-			destroyThread();
-			Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
-			dialog.cancel();
-		} );
-		timerCountDown = 0;
-
-		if ( mCoreTimer != null ) {
-			mCoreTimer.cancel();
-			mCoreTimer.purge();
-		}
-		mCoreTimer = new Timer();
-		mCoreThread.start();
-
-		if ( !BuildConfig.ISDEBUG ) {
-			mCoreTimer.schedule( new CoreController(), 0, 100 );
+			insert( "(" + s + ")" );
 		}
 	}
-
-	private void killCoreTimer() {
-		if ( mCoreTimer != null ) {
-			mCoreTimer.cancel();
-			mCoreTimer.purge();
-			mCoreTimer = null;
-		}
-		if ( progressDialogShown ) {
-			mProgressDialog.cancel();
-			progressDialogShown = false;
-		}
-	}
-
-	private void destroyThread() {
-		if ( progressDialogShown ) {
-			mProgressDialog.cancel();
-			progressDialogShown = false;
-		}
-
-		mCoreThread.interrupt();
-		hideAnswer();
-		killCoreTimer();
-	}
-
-	private class CoreController extends TimerTask {
-		@Override
-		public void run() {
-			final String TAG = Main2Activity.TAG + " Timer";
-			++timerCountDown;
-			Log.i( TAG, "Timer running. Countdown = " + timerCountDown + ". " + ( (double) timerCountDown / 10 ) + " seconds passed." );
-			Runtime runtime = Runtime.getRuntime();
-			runtime.gc();
-			double freeMemory = (double) runtime.freeMemory();
-			double d = runtime.totalMemory() * 0.05;
-			Log.i( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
-			if ( freeMemory < d ) {
-				Log.i( TAG, "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
-				destroyThread();
-				runOnUiThread( ()->Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show() );
-			}
-			if ( timerCountDown == 20 ) {
-				if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
-					Log.i( TAG, "Something gone wrong. Thread is not alive. Killing timer" );
-					killCoreTimer();
-				} else if ( !progressDialogShown ) {
-					progressDialogShown = true;
-					Log.i( TAG, "showing dialog" );
-					runOnUiThread( ()->mProgressDialog.show() );
-				}
-			} else if ( timerCountDown > 20 ) {
-				if ( timerCountDown < 90 ) {
-					if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
-						Log.i( TAG, "cancel progress dialog" );
-						runOnUiThread( ()->mProgressDialog.cancel() );
-						killCoreTimer();
-					}
-				} else {
-					if ( mCoreThread.isAlive() ) {
-						Log.i( TAG, "Time to kill process" );
-						runOnUiThread( ()->{
-							destroyThread();
-							Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
-						} );
-					}
-					killCoreTimer();
-				}
-			}
-		}
-	}
-
-	private final CalculatorWrapper.CoreInterface mCoreInterface = new CalculatorWrapper.CoreInterface() {
-		@Override
-		public void onSuccess(CalculationResult calculationResult) {
-			runOnUiThread( ()->{
-				Log.v( "Main2Activity", "Killing timer from onSuccess" );
-				killCoreTimer();
-				if ( calculationResult.getResult() != null ) {
-					writeCalculationResult( calculationResult.getType(), calculationResult.getResult() );
-				} else {
-					hideAnswer();
-				}
-			} );
-		}
-
-		@Override
-		public void onError(CalculationError calculationError) {
-			runOnUiThread( ()->{
-				Log.v( "Main2Activity", "Killing core timer from onError" );
-				killCoreTimer();
-				if ( !calculationError.getStatus().equals( "Core" ) ) {
-					if ( calculationError.getShortError().equals( "" ) ) {
-						Toast t = Toast.makeText( Main2Activity.this, calculationError.getMessage(), Toast.LENGTH_LONG );
-						t.setGravity( Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0 );
-						t.show();
-					} else {
-						writeCalculationError( calculationError.getShortError() );
-					}
-				}
-			} );
-
-		}
-	};
 
 	private void writeCalculationError(String text) {
 		TextView t = findViewById( R.id.AnswerStr );
-		hideAnswer();
 		t.setText( text );
-		//t.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 32 );
-		resizeText();
 		t.setTextColor( Color.parseColor( "#FF4B32" ) );
-		showAnswer();
-		was_error = true;
-	}
-
-	private void writeCalculationResult(String type, BigDecimal result) {
-		String ans = result.toPlainString();
-		if ( ans.contains( "." ) && ans.length() - ans.indexOf( "." ) > 9 ) {
-			BigDecimal d = result;
-			d = d.divide( BigDecimal.ONE, 8, RoundingMode.HALF_EVEN );
-			ans = Utils.deleteZeros( d.toPlainString() );
-		}
-		switch ( type ) {
-			case "all":
-				TextView tans = findViewById( R.id.ExampleStr );
-				tans.setText( ans );
-				format( R.id.ExampleStr );
-				tans = findViewById( R.id.AnswerStr );
-				tans.setText( original );
-				showAnswer();
-				showExample();
-
-				HistoryManager.getInstance()
-						.put( new HistoryEntry( original, result.toPlainString() ) )
-						.save();
-
-				if ( sp.getBoolean( "saveResult", false ) ) {
-					sp.edit().putString( "saveResultText", original + ";" + result.toPlainString() ).apply();
-				}
-
-				scrollExampleToEnd( HorizontalScrollView.FOCUS_LEFT );
-				break;
-			case "not":
-				TextView preans = findViewById( R.id.AnswerStr );
-				preans.setText( ans );
-				showExample();
-				format( R.id.AnswerStr );
-				showAnswer();
-				setTextViewsTextSizeToDefault();
-				scrollExampleToEnd();
-				break;
-			default:
-				throw new IllegalArgumentException( "Arguments should be of two types: all, not" );
-		}
-		resizeText();
 	}
 
 	public void variableClick(View v) {
@@ -1067,10 +763,6 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onMemoryPlusMinusButtonsClick(View v) {
-		onMemoryPlusMinusButtonsClick( v, false );
-	}
-
-	public void onMemoryPlusMinusButtonsClick(View v, boolean isPreviouslyCalled) {
 		TextView textExample = findViewById( R.id.ExampleStr );
 		String text = textExample.getText().toString();
 		if ( text.equals( "" ) ) {
@@ -1078,53 +770,38 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		BigDecimal temp;
-		if ( !Utils.isNumber( text ) ) {
-			equallu( "all" );
-			if ( !isPreviouslyCalled ) {
-				onMemoryPlusMinusButtonsClick( v, true );
-			}
+		try {
+			temp = CalculatorWrapper.getInstance().calculate( text );
+		} catch (CalculatingException | NumberFormatException e) {
+			Log.i( TAG, "onMemoryPlusMinusButtonsClick: " + e );
+			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
 			return;
-		} else {
-			temp = new BigDecimal( Utils.deleteSpaces( text ) );
 		}
 		if ( v.getId() == R.id.btnMemPlus ) {
 			temp = temp.add( memoryEntries[ 0 ] );
 		} else if ( v.getId() == R.id.btnMemMinus ) {
 			temp = memoryEntries[ 0 ].subtract( temp );
 		}
-		if ( isPreviouslyCalled ) {
-			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
-		}
 		memoryEntries[ 0 ] = temp;
 		mMemorySaverReader.save( memoryEntries );
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
-		onMemoryStoreButtonClick( false );
-	}
-
-	public void onMemoryStoreButtonClick(boolean isPreviouslyCalled) {
 		TextView t = findViewById( R.id.ExampleStr );
-		String txt = t.getText().toString();
-		if ( txt.equals( "" ) ) {
+		String text = t.getText().toString();
+		if ( text.equals( "" ) ) {
 			return;
 		}
 		BigDecimal temp;
-		if ( !Utils.isNumber( txt ) ) {
-			equallu( "all" );
-			if ( !isPreviouslyCalled ) {
-				onMemoryStoreButtonClick( true );
-			}
+		try {
+			temp = CalculatorWrapper.getInstance().calculate( text );
+		} catch (CalculatingException | NumberFormatException e) {
+			Log.i( TAG, "onMemoryPlusMinusButtonsClick: " + e );
+			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
 			return;
-		} else {
-			temp = new BigDecimal( Utils.deleteSpaces( txt ) );
-		}
-		if ( isPreviouslyCalled ) {
-			mReturnBack.onLongClick( findViewById( R.id.btnCalc ) );
 		}
 		memoryEntries[ 0 ] = temp;
 		mMemorySaverReader.save( memoryEntries );
-
 	}
 
 	public void onMemoryRecallButtonClick(View view) {
@@ -1153,502 +830,299 @@ public class Main2Activity extends ThemeActivity {
 		startActivityForResult( intent, requestCode );
 	}
 
-	private void showExample() {
-		TextView t = findViewById( R.id.ExampleStr );
-		t.setVisibility( View.VISIBLE );
+	public void insertBinaryOperatorOnClick(View v) {
+		insertBinaryOperator( ( (Button) v ).getText().toString() );
 	}
 
-	private void hideExample() {
-		TextView t = findViewById( R.id.ExampleStr );
-		t.setVisibility( View.INVISIBLE );
-	}
-
-	private void showAnswer() {
-		TextView t = findViewById( R.id.AnswerStr );
-		t.setVisibility( View.VISIBLE );
-	}
-
-	private void hideAnswer() {
-		TextView t = findViewById( R.id.AnswerStr );
-		t.setVisibility( View.INVISIBLE );
-	}
-
-	private void checkDot() {
-		TextView t = findViewById( R.id.ExampleStr );
-		String txt = t.getText().toString();
-		int i = txt.length() - 1;
-		if ( !Utils.isDigit( txt.charAt( i ) ) ) {
+	private void insertBinaryOperator(String s) {
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable e = editText.getText();
+		int selection = editText.getSelectionStart();
+		if ( e == null || e.toString().isEmpty() || selection == 0 ) {
+			if ( s.equals( "-" ) ) {
+				insert( s );
+			}
 			return;
 		}
-		boolean dot = false;
-		while ( i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || txt.charAt( i ) == '.' ) ) {
-			if ( txt.charAt( i ) == '.' ) {
-				dot = true;
+		String atSelection = e.subSequence( selection - 1, selection ).toString();
+		if ( isBinaryOperator( atSelection ) ) {
+			deleteSymbol();
+		}
+		insert( s );
+	}
+
+	public void insertSuffixOperatorOnClick(View v) {
+		insertSuffixOperator( ( (Button) v ).getText().toString() );
+	}
+
+	private void insertSuffixOperator(String s) {
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable e = editText.getText();
+		int selection = editText.getSelectionStart();
+		if ( e == null || e.toString().isEmpty() || selection == 0 ) {
+			return;
+		}
+		String atSelection = e.subSequence( selection - 1, selection ).toString();
+		if ( isBinaryOperator( atSelection ) ) {
+			deleteSymbol();
+		}
+		insert( s );
+	}
+
+	private boolean isBinaryOperator(String s) {
+		return s.equals( "+" ) ||
+				s.equals( "-" ) ||
+				s.equals( MULTIPLY_SIGN ) ||
+				s.equals( DIVISION_SIGN ) ||
+				s.equals( "^" );
+	}
+
+	public void insertFunction(View v) {
+		justInsert( v );
+	}
+
+	public void insertBracket(View v) {
+		justInsert( v );
+	}
+
+	public void justInsert(View v) {
+		insert( ( (Button) v ).getText().toString() );
+	}
+
+	public void insertDot(View v) {
+		EditText editText = findViewById( R.id.ExampleStr );
+		String text = editText.getText().toString();
+		int selection = editText.getSelectionStart();
+		boolean wasDot = false;
+		int i = selection - 1;
+		while ( i >= 0 && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == '.' || text.charAt( i ) == ' ' ) ) {
+			if ( text.charAt( i ) == '.' ) {
+				wasDot = true;
 				break;
-			} else {
-				i--;
+			}
+			i--;
+		}
+		if ( !wasDot ) {
+			i = selection + 1;
+			while ( i < text.length() && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == '.' || text.charAt( i ) == ' ' ) ) {
+				if ( text.charAt( i ) == '.' ) {
+					wasDot = true;
+					break;
+				}
+				i++;
+			}
+			if ( !wasDot ) {
+				insert( "." );
 			}
 		}
-		if ( !dot ) {
-			t.setText( String.format( "%s.", txt ) );
-		}
 	}
 
-	private boolean isOpenBracket(String str) {
-		return str.equals( "(" ) ||
-				str.equals( bracketCeilOpen ) ||
-				str.equals( bracketFloorOpen ) ||
-				str.equals( "[" );
+	private void insert(String s) {
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable e = editText.getText();
+		int selection = editText.getSelectionStart();
+		e.insert( selection, s );
+		editText.setSelection( selection + s.length() );
+		calculate( CalculateMode.PRE_ANSWER );
 	}
 
-	private boolean isOpenBracket(char c) {
-		String str = Character.toString( c );
-		return isOpenBracket( str );
+	public void onClear(View v) {
+		clearFormulaEditText();
+		clearAnswer();
 	}
 
-	private boolean isCloseBracket(String str) {
-		return str.equals( ")" ) ||
-				str.equals( bracketFloorClose ) ||
-				str.equals( bracketCeilClose ) ||
-				str.equals( "]" );
+	private void clearAnswer() {
+		CustomTextView textView = findViewById( R.id.AnswerStr );
+		textView.setText( "" );
+		textView.setTextColor( super.textColor );
 	}
 
-	private boolean isCloseBracket(char c) {
-		return isCloseBracket( String.valueOf( c ) );
+	private void clearFormulaEditText() {
+		EditText editText = findViewById( R.id.ExampleStr );
+		editText.setText( "" );
+		editText.setSelection( 0 );
 	}
 
-	private String getTypeOfBracket(String bracket) {
-		if ( bracket.equals( "(" ) || bracket.equals( ")" ) ) {
-			return "simple";
-		}
-		if ( bracket.equals( "[" ) || bracket.equals( "]" ) ) {
-			return "round";
-		}
-		if ( bracket.equals( bracketFloorClose ) || bracket.equals( bracketFloorOpen ) ) {
-			return "floor";
-		}
-		if ( bracket.equals( bracketCeilOpen ) || bracket.equals( bracketCeilClose ) ) {
-			return "ceil";
-		}
-		return "undefined";
+	public void onEqual(View v) {
+		calculate( CalculateMode.FULL_ANSWER );
 	}
 
-	private String getTypeOfBracket(char c) {
-		return getTypeOfBracket( Character.toString( c ) );
-	}
+	private void calculate(CalculateMode mode) {
+		EditText txt = findViewById( R.id.ExampleStr );
+		String example = txt.getText().toString();
+		wasError = false;
 
-	private boolean isBasicAction(char c) {
-		String s = String.valueOf( c );
-		return c == '+' ||
-				c == '-' ||
-				s.equals( getResources().getString( R.string.multiply ) ) ||
-				s.equals( getResources().getString( R.string.div ) );
-	}
-
-	private boolean isLetterOperator(String s) {
-		return s.equals( "sin" ) ||
-				s.equals( "log" ) ||
-				s.equals( "tan" ) ||
-				s.equals( "cos" ) ||
-				s.equals( "ln" ) ||
-				s.equals( "abs" ) ||
-				s.equals( "rnd" );
-	}
-
-	@SuppressLint("SetTextI18n")
-	public void appendToExampleString(String btntxt) {
-		String txt = mExample.getText().toString();
-		char last = 1;
-		int len = txt.length();
-		if ( len + btntxt.length() >= 1000 ) {
+		if ( Utils.isNumber( example ) || example.isEmpty() ) {
+			clearAnswer();
 			return;
 		}
 
-		if ( len != 0 ) {
-			last = txt.charAt( len - 1 );
+		String formatted;
+
+		try {
+			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
+			formatted = formatter.tryToCloseExpressionBrackets( example );
+			formatted = formatter.formatNearBrackets( formatted );
+
+			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
+			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
+			formatted = tokenizer.localizeExpression( formatted );
+		} catch (CalculatingException e) {
+			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
+			return;
 		}
 
-		Stack<String> bracketsStack = new Stack<>();
-		for (int i = 0; i < len; i++) {
-			if ( isOpenBracket( txt.charAt( i ) ) ) {
-				bracketsStack.push( String.valueOf( txt.charAt( i ) ) );
-			} else if ( isCloseBracket( txt.charAt( i ) ) ) {
-				bracketsStack.pop();
-			}
-		}
-
-		if ( btntxt.equals( "A" ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.AVERAGE;
-				return;
-			}
-			if ( exampleEnterMode != EnterModes.SIMPLE ) {
-				return;
-			}
-
-			if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-				mExample.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.AVERAGE;
-			} else if ( !Utils.isDigit( last ) && !isSpecific( last ) ) {
-				mExample.setText( txt + btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.AVERAGE;
-			}
-		} else if ( btntxt.equals( "G" ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.GEOMETRIC;
-				return;
-			}
-			if ( exampleEnterMode != EnterModes.SIMPLE ) {
-				return;
-			}
-
-			if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-				mExample.setText( txt + MULTIPLY_SIGN + btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.GEOMETRIC;
-			} else if ( !Utils.isDigit( last ) && !isSpecific( last ) ) {
-				mExample.setText( txt + btntxt + "(" );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.GEOMETRIC;
-			}
-		}
-		if ( exampleEnterMode != EnterModes.SIMPLE ) {
-			if ( btntxt.equals( ")" ) ) {
-				if ( !Utils.isDigit( last ) ) {
-					txt = txt.substring( 0, txt.length() - 1 );
-				}
-				mExample.setText( txt + btntxt );
-				equallu( "not" );
-				exampleEnterMode = EnterModes.SIMPLE;
-				return;
-			}
-			if ( exampleEnterMode == EnterModes.AVERAGE && ( btntxt.length() > 1 || ( !btntxt.equals( "+" ) && !btntxt.equals( "." ) ) ) && !Utils.isDigit( btntxt.charAt( 0 ) ) ) {
-				return;
-			}
-			if ( exampleEnterMode == EnterModes.GEOMETRIC && ( btntxt.length() > 1 || ( !btntxt.equals( MULTIPLY_SIGN ) && !btntxt.equals( "." ) ) ) && !Utils.isDigit( btntxt.charAt( 0 ) ) ) {
-				return;
-			}
-		}
-
-		if ( Utils.isDigit( btntxt ) ) {
-			if ( len > 1 && ( last == '%' || isCloseBracket( last ) ) ) {
-				mExample.setText( txt + MULTIPLY_SIGN + btntxt );
-				equallu( "not" );
-				return;
-			}
-			if ( txt.equals( "0" ) ) {
-				mExample.setText( btntxt );
-				return;
-			}
-			if ( len > 1 ) {
-				if ( last == '0' && !Utils.isDigit( txt.charAt( len - 2 ) ) && txt.charAt( len - 2 ) != '.' ) {
-					txt = txt.substring( 0, len - 1 ) + btntxt;
-					mExample.setText( txt );
-					equallu( "not" );
-					return;
-				}
-			} else if ( len == 0 ) {
-				mExample.setText( btntxt );
-				showExample();
-				return;
-			}
-		}
-
-		if ( isCloseBracket( btntxt ) ) {
-			if ( !bracketsStack.isEmpty() && !isOpenBracket( last ) ) {
-				String typeOfBtnTxt = getTypeOfBracket( btntxt );
-				if ( typeOfBtnTxt.equals( getTypeOfBracket( bracketsStack.peek() ) ) ) {
-					if ( typeOfBtnTxt.equals( getTypeOfBracket( last ) ) ) {
-						mExample.setText( txt + btntxt );
-						equallu( "not" );
-						return;
-					}
-
-					if ( isBasicAction( last ) ) {
-						if ( len != 1 ) {
-							txt = txt.substring( 0, len - 1 );
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
+		String finalFormatted = formatted;
+		mCoreThread = new Thread( ()->{
+			try {
+				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
+				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
+				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
+			} catch (CalculatingException | NumberFormatException e) {
+				wasError = true;
+				if ( mode == CalculateMode.FULL_ANSWER ) {
+					int stringRes = R.string.error;
+					if ( e instanceof CalculatingException ) {
+						CalculatingException calculatingException = (CalculatingException) e;
+						int res = CalculatorWrapper.getStringResForErrorCode( calculatingException.getErrorCode() );
+						if ( res != -1 ) {
+							stringRes = res;
 						}
-					} else {
-						mExample.setText( txt + btntxt );
-						equallu( "not" );
 					}
-				}
-			}
-
-			return;
-		}
-
-		if ( btntxt.equals( FI ) || btntxt.equals( PI ) || btntxt.equals( E ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt );
-				equallu( "not" );
-				return;
-			} else {
-				if ( isCloseBracket( last ) ) {
-					mExample.setText( txt + MULTIPLY_SIGN + btntxt );
+					int finalStringRes = stringRes;
+					runOnUiThread( ()->writeCalculationError( getString( finalStringRes ) ) );
 				} else {
-					if ( !Utils.isDigit( txt.charAt( len - 1 ) ) ) {
-						if ( txt.charAt( len - 1 ) != '.' ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-							return;
-						}
-					} else {
-						mExample.setText( txt + btntxt );
-						scrollExampleToEnd();
-						equallu( "not" );
-					}
+					runOnUiThread( Main2Activity.this::clearAnswer );
 				}
 			}
-			return;
+		} );
+
+		startThreadController();
+	}
+
+	private void startThreadController() {
+		mThreadControllerProgressDialog = new ProgressDialog( this );
+		mThreadControllerProgressDialog.setCancelable( false );
+		mThreadControllerProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
+		mThreadControllerProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), (dialog, which)->{
+			destroyThread();
+			Toast.makeText( Main2Activity.this, "Calculation process stopped", Toast.LENGTH_SHORT ).show();
+			dialog.cancel();
+		} );
+		timerCountDown = 0;
+
+		if ( mCoreTimer != null ) {
+			mCoreTimer.cancel();
+			mCoreTimer.purge();
+		}
+		mCoreTimer = new Timer();
+		mCoreThread.start();
+
+		if ( !BuildConfig.ISDEBUG ) {
+			mCoreTimer.schedule( new CoreController(), 0, 100 );
+		}
+	}
+
+	private void killCoreTimer() {
+		if ( mCoreTimer != null ) {
+			mCoreTimer.cancel();
+			mCoreTimer.purge();
+			mCoreTimer = null;
+		}
+		if ( progressDialogShown ) {
+			mThreadControllerProgressDialog.cancel();
+			progressDialogShown = false;
+		}
+	}
+
+	private void destroyThread() {
+		if ( progressDialogShown ) {
+			mThreadControllerProgressDialog.cancel();
+			progressDialogShown = false;
 		}
 
-		if ( btntxt.equals( "^" ) ) {
-			if ( len == 0 || isOpenBracket( last ) ) {
-				return;
-			}
+		mCoreThread.interrupt();
+		killCoreTimer();
+	}
 
-			if ( Utils.isDigit( last ) || Character.toString( last ).equals( FI ) || Character.toString( last ).equals( PI ) || Character.toString( last ).equals( E ) ) {
-				mExample.setText( txt + btntxt );
-				equallu( "not" );
-				return;
+	private class CoreController extends TimerTask {
+		@Override
+		public void run() {
+			final String TAG = Main2Activity.TAG + " Timer";
+			++timerCountDown;
+			Log.i( TAG, "Timer running. Countdown = " + timerCountDown + ". " + ( (double) timerCountDown / 10 ) + " seconds passed." );
+			Runtime runtime = Runtime.getRuntime();
+			runtime.gc();
+			double freeMemory = (double) runtime.freeMemory();
+			double d = runtime.totalMemory() * 0.05;
+			Log.i( TAG, "Total memory: " + runtime.totalMemory() + ". Free memory: " + freeMemory + ". 5% of total memory: " + d );
+			if ( freeMemory < d ) {
+				Log.i( TAG, "Thread destroyed due to lack of memory. Free memory: " + freeMemory + " bytes. Total memory: " + Runtime.getRuntime().totalMemory() );
+				destroyThread();
+				runOnUiThread( ()->Toast.makeText( Main2Activity.this, R.string.thread_destroy_reason, Toast.LENGTH_LONG ).show() );
 			}
-			if ( !Utils.isDigit( last ) && ( last == '!' || last == '%' ) ) {
-				mExample.setText( txt + btntxt );
-				equallu( "not" );
-			}
-			return;
-		}
-
-		if ( btntxt.equals( "√" ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt );
-				showExample();
-				scrollExampleToEnd();
-				return;
-			} else {
-				String x = "";
-				for (int i = 0; i < len; i++) {
-					if ( !Utils.isDigit( txt.charAt( i ) ) && txt.charAt( i ) != '.' && txt.charAt( i ) != ' ' ) {
-						break;
-					} else {
-						if ( Utils.isDigit( txt.charAt( i ) ) || txt.charAt( i ) == '.' || txt.charAt( i ) == ' ' ) {
-							x = String.format( "%s%c", x, txt.charAt( i ) );
-						}
-					}
+			if ( timerCountDown == 20 ) {
+				if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
+					Log.i( TAG, "Something gone wrong. Thread is not alive. Killing timer" );
+					killCoreTimer();
+				} else if ( !progressDialogShown ) {
+					progressDialogShown = true;
+					Log.i( TAG, "showing dialog" );
+					runOnUiThread( ()->mThreadControllerProgressDialog.show() );
 				}
-				if ( x.length() == len ) {
-					x = Utils.deleteSpaces( x );
-					x = Utils.deleteZeros( x );
-					mExample.setText( btntxt + "(" + x + ")" );
-					equallu( "all" );
-					return;
+			} else if ( timerCountDown > 20 ) {
+				if ( timerCountDown < 90 ) {
+					if ( !mCoreThread.isAlive() || mCoreThread.isInterrupted() ) {
+						Log.i( TAG, "cancel progress dialog" );
+						runOnUiThread( ()->mThreadControllerProgressDialog.cancel() );
+						killCoreTimer();
+					}
 				} else {
-					if ( last == '.' ) {
-						return;
-					} else {
-						if ( !Utils.isDigit( last ) ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-							showExample();
-							scrollExampleToEnd();
-						} else {
-							if ( Utils.isDigit( last ) || isSpecific( last ) ) {
-								mExample.setText( txt + MULTIPLY_SIGN + btntxt );
-								equallu( "not" );
-								showExample();
-								scrollExampleToEnd();
-							}
-						}
+					if ( mCoreThread.isAlive() ) {
+						Log.i( TAG, "Time to kill process" );
+						runOnUiThread( ()->{
+							destroyThread();
+							Toast.makeText( Main2Activity.this, "The process was interrupted due to too long execution time.", Toast.LENGTH_LONG ).show();
+						} );
 					}
+					killCoreTimer();
 				}
 			}
-			return;
 		}
-		if ( isOpenBracket( btntxt ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt );
-				showExample();
-				return;
-			}
-			if ( last == '.' ) {
-				return;
-			}
-			boolean isPreviousLogWithBase;
-			int i = len - 1;
-			StringBuilder sb = new StringBuilder();
-			while ( i >= 0 && ( Utils.isDigit( txt.charAt( i ) ) || Utils.isLetter( txt.charAt( i ) ) || txt.charAt( i ) == '.' ) ) {
-				sb.append( txt.charAt( i ) );
-				i--;
-			}
-			String prev = sb.toString();
-			isPreviousLogWithBase = prev.endsWith( "gol" ) && prev.length() > 3; // because result string is reversed
-			if ( !isPreviousLogWithBase &&
-					(
-							Utils.isDigit( last ) ||
-									last == '!' ||
-									last == '%' ||
-									Utils.isConstNum( last, this ) ||
-									isCloseBracket( last )
-					)
-			) {
-				mExample.setText( txt + MULTIPLY_SIGN + btntxt );
-			} else {
-				mExample.setText( txt + btntxt );
-			}
-			equallu( "not" );
-			bracketsStack.push( btntxt );
-			return;
-		}
-		if ( isLetterOperator( btntxt ) ) {
-			if ( len == 0 ) {
-				mExample.setText( btntxt );
-			} else {
-				if ( last == '.' ) {
-					return;
-				} else {
-					if ( !Utils.isDigit( last ) && last != '!' && !Character.toString( last ).equals( FI ) && !Character.toString( last ).equals( PI ) && !Character.toString( last ).equals( E ) && !isCloseBracket( last ) ) {
-						mExample.setText( txt + btntxt );
-					} else {
-						if ( !isOpenBracket( last ) && last != '^' ) {
-							mExample.setText( txt + MULTIPLY_SIGN + btntxt );
-						}
-					}
-				}
-			}
-			if ( btntxt.equals( "rnd" ) ) {
-				mExample.setText( txt + "rnd(" );
-			}
-			equallu( "not" );
-			return;
-		}
+	}
 
-		if ( len != 0 && last == '(' && btntxt.equals( "-" ) ) {
-			mExample.setText( txt + btntxt );
-			equallu( "not" );
+	public void deleteSymbolOnClick(View v) {
+		deleteSymbol();
+	}
+
+	private void deleteSymbol() {
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable e = editText.getText();
+		if ( e == null || e.toString().isEmpty() ) {
 			return;
 		}
-
-		if ( !Utils.isDigit( btntxt ) &&
-				!Utils.isLetter( btntxt.charAt( 0 ) ) &&
-				len != 0 &&
-				(
-						txt.charAt( len - 1 ) == 'π' ||
-								txt.charAt( len - 1 ) == 'φ' ||
-								txt.charAt( len - 1 ) == 'e'
-				)
-		) {
-			mExample.setText( txt + btntxt );
-			equallu( "not" );
-			return;
+		int selection = editText.getSelectionStart();
+		if ( selection != 0 ) {
+			e.delete( selection - 1, selection );
+			calculate( CalculateMode.PRE_ANSWER );
 		}
+	}
 
-		if ( ( last == '!' || last == '%' ) && !btntxt.equals( "." ) && !btntxt.equals( "!" ) && !btntxt.equals( "%" ) ) {
-			mExample.setText( txt + btntxt );
-			equallu( "not" );
-			return;
-		}
-		if ( btntxt.equals( "+" ) || btntxt.equals( "-" )
-				|| btntxt.equals( getResources().getString( R.string.multiply ) )
-				|| btntxt.equals( getResources().getString( R.string.div ) ) ) {
-			if ( isOpenBracket( last ) && !btntxt.equals( "-" ) ) {
-				return;
-			} else if ( isOpenBracket( last ) ) {
-				mExample.setText( txt + btntxt );
-				equallu( "not" );
-				return;
-			}
-		}
+	private void writeResult(CalculateMode mode, BigDecimal result, String formattedExample) {
+		EditText editText = findViewById( R.id.ExampleStr );
+		CustomTextView answerTextView = findViewById( R.id.AnswerStr );
 
-		if ( btntxt.equals( "." ) ) {
-			if ( txt.equals( "" ) ) {
-				mExample.setText( "0." );
-			} else if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && txt.charAt( len - 1 ) != '.' && last != '!' ) {
-				mExample.setText( txt + "0." );
-			} else {
-				checkDot();
-			}
-			showExample();
+		if ( mode == CalculateMode.PRE_ANSWER ) {
+			answerTextView.setText( result.toPlainString() );
 		} else {
-			if ( btntxt.equals( "!" ) || btntxt.equals( "%" ) ) {
-				if ( !txt.equals( "" ) ) {
-					if ( isOpenBracket( last ) ) {
-						return;
-					}
-					if ( btntxt.equals( "!" ) ) {
-						if ( last == '!' ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-							return;
-						} else if ( Utils.isDigit( last ) ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-							return;
-						}
-					} else {
-						if ( last != '%' && ( Utils.isDigit( last ) || isCloseBracket( last ) ) ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-							return;
-						}
-					}
-					if ( len > 1 ) {
-						String s = Character.toString( txt.charAt( len - 2 ) );
-						if ( !isCloseBracket( last ) && !Utils.isDigit( last ) && ( !isOpenBracket( last ) && Utils.isLetter( txt.charAt( len - 2 ) )
-								&& !s.equals( PI ) && !s.equals( FI ) && !s.equals( E ) ) ) {
-							txt = txt.substring( 0, len - 1 );
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-						} else {
-							if ( Utils.isDigit( last ) || isCloseBracket( last ) ) {
-								mExample.setText( txt + btntxt );
-								equallu( "not" );
-							}
-						}
-					}
-				}
-				return;
-			}
-			if ( len >= 1 && ( isCloseBracket( last ) && !Utils.isDigit( btntxt.charAt( 0 ) ) ) ) {
-				mExample.setText( txt + btntxt );
-				equallu( "not" );
-			} else {
-				if ( !txt.equals( "" ) ) {
-					if ( !Utils.isDigit( btntxt.charAt( 0 ) ) ) {
+			clearAnswer();
+			answerTextView.setText( formattedExample );
+			editText.setText( result.toPlainString() );
 
-						if ( !Utils.isDigit( txt.charAt( len - 1 ) ) && !Utils.isLetter( txt.charAt( len - 1 ) ) ) {
-							if ( len != 1 ) {
-								txt = txt.substring( 0, len - 1 );
-								mExample.setText( txt + btntxt );
-								equallu( "not" );
-							}
-						} else {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-						}
-					} else {
-						if ( Utils.isDigit( btntxt.charAt( 0 ) ) ) {
-							mExample.setText( txt + btntxt );
-							equallu( "not" );
-						}
-					}
-				} else {
-					if ( Utils.isDigit( btntxt.charAt( 0 ) ) || btntxt.equals( "-" ) ) {
-						mExample.setText( btntxt );
-						equallu( "not" );
-					}
-				}
-			}
+			HistoryManager.getInstance()
+					.put( new HistoryEntry( formattedExample, result.toPlainString() ) )
+					.save();
 		}
-
 	}
 
 	@Override
@@ -1657,74 +1131,14 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	}
 
-	public void delSymbol(View v) {
-		TextView txt = findViewById( R.id.ExampleStr );
-		String text = txt.getText().toString();
-		int len = text.length();
-		setTextViewAnswerTextSizeToDefault();
-		if ( len != 0 ) {
-			char last = text.charAt( len - 1 );
-			int a = 1;
-			if ( last == ')' && ( text.contains( "A" ) || text.contains( "G" ) ) ) {
-				int i = len - 1;
-				while ( i >= 1 && text.charAt( i ) != '(' ) {
-					i--;
-				}
-				i--;
-				if ( text.charAt( i ) == 'A' ) {
-					exampleEnterMode = EnterModes.AVERAGE;
-				} else if ( text.charAt( i ) == 'G' ) {
-					exampleEnterMode = EnterModes.GEOMETRIC;
-				}
-			}
-			if ( last == '(' && len > 1 ) {
-				if ( text.charAt( len - 2 ) == 'A' || text.charAt( len - 2 ) == 'G' ) {
-					a = 2;
-					exampleEnterMode = EnterModes.SIMPLE;
-				}
-				if ( text.charAt( len - 2 ) == 'd' ) // rnd
-				{
-					a = 4;
-				}
-			}
-			if ( Utils.isLetter( last ) ) { // sin cos tan ln abs rnd
-				if ( last == 's' || last == 'g' ) {
-					a = 3;
-				}
-				if ( last == 'n' ) {
-					if ( text.charAt( len - 2 ) == 'l' ) {
-						a = 2;
-					} else if ( text.charAt( len - 2 ) == 'i' || text.charAt( len - 2 ) == 'a' ) {
-						a = 3;
-					}
-				}
-			}
-			was_error = false;
-			if ( text.length() - a == 0 ) {
-				hideExample();
-			}
-			text = text.substring( 0, text.length() - a );
-			txt.setText( text );
-			equallu( "not" );
-		}
-		if ( txt.getText().toString().equals( "" ) ) {
-			deleteExample( findViewById( R.id.btnDelAll ) );
-		}
-		scrollExampleToEnd();
-	}
-
-	private void scrollExampleToEnd(final int focus) {
+	private void scrollExampleToEnd() {
 		if ( findViewById( R.id.ExampleStr ).getVisibility() == View.INVISIBLE ) {
 			return;
 		}
 		HorizontalScrollView scrollview = findViewById( R.id.scrollview );
+		scrollview.post( ()->scrollview.fullScroll( View.FOCUS_RIGHT ) );
 
-		scrollview.post( ()->scrollview.fullScroll( focus ) );
 		HorizontalScrollView scrollview1 = findViewById( R.id.scrollViewAns );
 		scrollview1.post( ()->scrollview1.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
-	}
-
-	private void scrollExampleToEnd() {
-		scrollExampleToEnd( HorizontalScrollView.FOCUS_RIGHT );
 	}
 }

@@ -121,4 +121,6 @@
     <string name="changelog">Журнал изменений</string>
     <string name="whats_new">Что нового</string>
     <string name="something_went_wrong_when_getting_note">Что-то пошло не так при получении заметки об обновлении</string>
+    <string name="error">Ошибка</string>
+    <string name="some_error_occurred">Произошла ошибка</string>
 </resources>

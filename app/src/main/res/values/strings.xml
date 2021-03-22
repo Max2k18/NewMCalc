@@ -132,4 +132,6 @@
     <string name="changelog">Changelog</string>
     <string name="whats_new">What\'s new</string>
     <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
+    <string name="error">Error</string>
+    <string name="some_error_occurred">Some error occurred</string>
 </resources>

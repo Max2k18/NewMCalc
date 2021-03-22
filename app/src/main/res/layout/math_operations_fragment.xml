@@ -13,22 +13,22 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/sin" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/cos" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/log" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/ln" />
 
     </LinearLayout>
@@ -40,22 +40,22 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/tan" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/abs" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/average_function" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertFunction"
             android:text="@string/sqrt" />
 
     </LinearLayout>
@@ -67,17 +67,17 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="justInsert"
             android:text="@string/euler_constant" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="justInsert"
             android:text="@string/pi" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="justInsert"
             android:text="@string/fi" />
 
     </LinearLayout>
@@ -89,17 +89,17 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertSuffixOperatorOnClick"
             android:text="@string/percent" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertSuffixOperatorOnClick"
             android:text="@string/factorial" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBinaryOperatorOnClick"
             android:text="@string/pow_sign" />
 
     </LinearLayout>
@@ -111,22 +111,22 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/simple_open_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/simple_close_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/round_open_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/round_close_bracket" />
 
     </LinearLayout>
@@ -138,22 +138,22 @@
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/floor_open_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/floor_close_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/ceil_open_bracket" />
 
         <Button
             style="@style/MathOperationButtonStyle"
-            android:onClick="onAdditionalClick"
+            android:onClick="insertBracket"
             android:text="@string/ceil_close_bracket" />
 
     </LinearLayout>

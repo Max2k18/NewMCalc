@@ -35,16 +35,23 @@
         app:layout_constraintStart_toEndOf="@+id/example_left"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.maxsavteam.newmcalc2.widget.CustomTextView
+        <com.maxsavteam.newmcalc2.widget.CalculatorEditText
             android:id="@+id/ExampleStr"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="end|center_vertical"
+            android:layout_gravity="end"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:textColor="?attr/textColor"
+            android:background="@null"
+            android:inputType="none"
+            android:scrollbars="none"
+            android:textColor="?textColor"
             android:textSize="46sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/example_right"
+            app:layout_constraintStart_toEndOf="@+id/example_left"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </HorizontalScrollView>
 
