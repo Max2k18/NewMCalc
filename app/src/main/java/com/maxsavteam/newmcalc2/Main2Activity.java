@@ -21,7 +21,6 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -65,7 +64,6 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
-import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
@@ -76,7 +74,6 @@ import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
-import com.maxsavteam.newmcalc2.widget.CustomTextView;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -84,9 +81,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetSequence;
-import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
 
 public class Main2Activity extends ThemeActivity {
 
@@ -117,12 +111,6 @@ public class Main2Activity extends ThemeActivity {
 
 	private ProgressDialog mThreadControllerProgressDialog;
 
-	enum EnterModes {
-		SIMPLE,
-		AVERAGE,
-		GEOMETRIC
-	}
-
 	enum CalculateMode {
 		PRE_ANSWER,
 		FULL_ANSWER
@@ -152,7 +140,7 @@ public class Main2Activity extends ThemeActivity {
 				return false;
 			}
 			String txt = answer.getText().toString();
-			answer.setText( example.getText().toString() );
+			answer.setText( example.getText() );
 			example.setText( txt );
 			example.setSelection( txt.length() );
 			return true;
@@ -182,13 +170,6 @@ public class Main2Activity extends ThemeActivity {
 					super.onBackPressed();
 				} );
 		builder.show();
-	}
-
-	private void startGuide() {
-		new MaterialTapTargetSequence()
-				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide1 ), R.id.viewpager, new RectanglePromptFocal() ) )
-				.addPrompt( Utils.getGuideTip( this, getString( R.string.panel ), getString( R.string.view_pager_guide2 ), R.id.viewpager, new RectanglePromptFocal() ) )
-				.show();
 	}
 
 	@Override
@@ -293,8 +274,6 @@ public class Main2Activity extends ThemeActivity {
 		addShortcutsToApp();
 
 		restoreResultIfSaved();
-
-		//showOfferToRate();
 	}
 
 	private void addShortcutsToApp() {
@@ -355,47 +334,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private void showOfferToRate() {
-		boolean isOfferShowed = sp.getBoolean( "offer_was_showed", false );
-		int showedCount = sp.getInt( "offers_count", 0 );
-		if ( !isOfferShowed ) {
-			if ( showedCount == 10 ) {
-				showedCount = 0;
-				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-				builder.setTitle( R.string.please_rate_out_app )
-						.setMessage( R.string.rate_message )
-						.setCancelable( false )
-						.setPositiveButton( R.string.rate, (dialog, i)->{
-							Toast.makeText( this, getResources().getString( R.string.thank_you ), Toast.LENGTH_SHORT ).show();
-							sp.edit().putBoolean( "offer_was_showed", true ).apply();
-							Intent go_to = new Intent( Intent.ACTION_VIEW );
-							go_to.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
-							startActivity( go_to );
-							dialog.cancel();
-						} )
-						.setNegativeButton( R.string.no_thanks, ( (dialog, which)->{
-							Toast.makeText( this, ":(", Toast.LENGTH_SHORT ).show();
-							sp.edit().putBoolean( "offer_was_showed", true ).apply();
-							dialog.cancel();
-						} ) )
-						.setNeutralButton( R.string.later, ( (dialog, which)->{
-							Toast.makeText( this, R.string.we_will_wait, Toast.LENGTH_SHORT ).show();
-							dialog.cancel();
-						} ) );
-
-				builder.show();
-			} else {
-				showedCount++;
-			}
-			sp.edit().putInt( "offers_count", showedCount ).apply();
-		}
-	}
-
-	/**
-	 * Can receive 5 types: settings (go to Settings), numgen (go to Number Generator)<br>
-	 * history (go to History), pass (go to Password Generator) <br>
-	 * and bin (go to Number Systems Converter)
-	 */
 	private void goToAdditionalActivities(@NonNull String where) {
 		switch ( where ) {
 			case "settings":
@@ -432,15 +370,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 		isBroadcastsRegistered = false;
 		registeredBroadcasts = new ArrayList<>();
-	}
-
-	private void format(int id) {
-		CustomTextView t = findViewById( id );
-		String txt = t.getText().toString();
-		if ( txt.equals( "" ) || txt.length() < 4 ) {
-			return;
-		}
-		t.setText( FormatUtil.format( txt ) );
 	}
 
 	@Override
