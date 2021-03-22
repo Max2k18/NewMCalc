@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Layout;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.util.Log;
@@ -117,8 +116,6 @@ public class Main2Activity extends ThemeActivity {
 	private final static int ROUND_SCALE = 8;
 
 	private ProgressDialog mThreadControllerProgressDialog;
-
-	private TextPaint mTempPaint = new TextPaint();
 
 	enum EnterModes {
 		SIMPLE,
@@ -985,19 +982,16 @@ public class Main2Activity extends ThemeActivity {
 				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
 				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
 				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
-			} catch (CalculatingException | NumberFormatException e) {
+			} catch (CalculatingException e) {
 				wasError = true;
 				if ( mode == CalculateMode.FULL_ANSWER ) {
-					int stringRes = R.string.error;
-					if ( e instanceof CalculatingException ) {
-						CalculatingException calculatingException = (CalculatingException) e;
-						int res = CalculatorWrapper.getStringResForErrorCode( calculatingException.getErrorCode() );
-						if ( res != -1 ) {
-							stringRes = res;
-						}
-					}
-					int finalStringRes = stringRes;
-					runOnUiThread( ()->writeCalculationError( getString( finalStringRes ) ) );
+					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
+					int stringRes;
+					if ( res != -1 )
+						stringRes = res;
+					else
+						stringRes = R.string.error;
+					runOnUiThread( ()->writeCalculationError( getString( stringRes ) ) );
 				} else {
 					runOnUiThread( Main2Activity.this::clearAnswer );
 				}
@@ -1138,7 +1132,7 @@ public class Main2Activity extends ThemeActivity {
 		return true;
 	}
 
-	private void scrollAnswerToEnd(){
+	private void scrollAnswerToEnd() {
 		HorizontalScrollView scrollView = findViewById( R.id.scrollViewAns );
 		scrollView.post( ()->scrollView.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
 	}

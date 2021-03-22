@@ -2,14 +2,10 @@ package com.maxsavteam.newmcalc2.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Paint;
 import android.text.Layout;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +19,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	private final float mMaximumTextSize;
 	private final float mMinimumTextSize;
 	private final float mStepTextSize;
+	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
 
 	public CalculatorEditText(@NonNull Context context) {
 		this( context, null );
@@ -55,17 +52,6 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 				return super.onTextContextMenuItem( id );
 		}
 	}
-
-	@Override
-	public boolean isSuggestionsEnabled() {
-		return false;
-	}
-
-	public boolean canPaste(){
-		return false;
-	}
-
-	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
 
 	@FunctionalInterface
 	public interface TextListener{
