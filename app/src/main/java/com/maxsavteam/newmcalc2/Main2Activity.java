@@ -925,6 +925,7 @@ public class Main2Activity extends ThemeActivity {
 					runOnUiThread( Main2Activity.this::clearAnswer );
 				}
 			}
+			killCoreTimer();
 		} );
 
 		startThreadController();
