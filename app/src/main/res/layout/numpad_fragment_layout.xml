@@ -128,16 +128,11 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnCalc"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.25"
-            android:backgroundTint="@android:color/holo_orange_dark"
-            android:onClick="onEqual"
+            style="@style/NumPadButtonStyle"
+            android:textColor="?colorAccent"
             android:text="@string/eq"
-            android:textAllCaps="false"
-            android:textColor="?textColor"
-            android:textSize="25sp" />
+            android:textSize="30sp"
+             />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnMinus"
