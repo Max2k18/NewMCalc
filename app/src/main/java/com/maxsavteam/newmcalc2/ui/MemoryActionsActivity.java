@@ -65,7 +65,7 @@ public class MemoryActionsActivity extends ThemeActivity implements WindowRecall
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_memory_actions );
 
-		memorySaverReader = new MemorySaverReader( this );
+		memorySaverReader = new MemorySaverReader();
 
 		activity_intent = getIntent();
 		type = activity_intent.getStringExtra( "type" );

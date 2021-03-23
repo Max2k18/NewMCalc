@@ -45,7 +45,6 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
-import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
@@ -268,7 +267,7 @@ public class Main2Activity extends ThemeActivity {
 
 		registerBroadcastReceivers();
 
-		mMemorySaverReader = new MemorySaverReader( this );
+		mMemorySaverReader = new MemorySaverReader();
 		memoryEntries = mMemorySaverReader.read();
 
 		addShortcutsToApp();
@@ -418,7 +417,6 @@ public class Main2Activity extends ThemeActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Utils.setContext( this );
-		Thread.setDefaultUncaughtExceptionHandler( new ExceptionHandler( this, null, true ) );
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		setContentView( R.layout.activity_main2 );
@@ -569,9 +567,14 @@ public class Main2Activity extends ThemeActivity {
 			setViewPager( ( (ViewPager) findViewById( R.id.viewpager ) ).getCurrentItem() );
 		}
 		if ( resultCode == ResultCodesConstants.RESULT_RESTART_APP ) {
-			Intent intent = new Intent( this, Main2Activity.class );
-			startActivity( intent );
-			finish();
+			//Intent intent = new Intent( this, Main2Activity.class );
+			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
+			if(intent != null) {
+				intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+				startActivity( intent );
+				finish();
+			}
 		}
 		super.onActivityResult( requestCode, resultCode, data );
 	}

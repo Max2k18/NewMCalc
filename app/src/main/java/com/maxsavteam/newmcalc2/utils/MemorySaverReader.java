@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 public class MemorySaverReader {
 	private final SharedPreferences sp;
 
-	public MemorySaverReader(Context c){
-		sp = PreferenceManager.getDefaultSharedPreferences(c.getApplicationContext());
+	public MemorySaverReader(){
+		sp = Utils.getDefaultSP();
 	}
 
 	public void save(BigDecimal[] barr){
