@@ -131,6 +131,7 @@
             style="@style/NumPadButtonStyle"
             android:textColor="?colorAccent"
             android:text="@string/eq"
+            android:onClick="onEqual"
             android:textSize="30sp"
              />
 
