@@ -123,8 +123,7 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnDot"
             style="@style/NumPadButtonStyle"
-            android:onClick="insertDot"
-            android:text="@string/dot" />
+            android:onClick="insertDot" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnCalc"

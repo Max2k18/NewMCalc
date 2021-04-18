@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.core;
 
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -61,6 +64,16 @@ public final class CalculatorWrapper {
 		}};
 		mReplacementMap.putAll( Calculator.defaultReplacementMap );
 		mCalculator.setAliases( mReplacementMap );
+
+		Locale locale;
+		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+			locale = mResources.getConfiguration().getLocales().get( 0 );
+		}else{
+			locale = mResources.getConfiguration().locale;
+		}
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(locale);
+		mCalculator.setDecimalSeparator( decimalFormatSymbols.getDecimalSeparator() );
+		mCalculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
 	}
 
 	public void prepareAndRun(@NotNull final String example, @Nullable String type, @NonNull CoreInterface coreInterface) {

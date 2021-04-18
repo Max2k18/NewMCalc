@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 
+import java.text.DecimalFormatSymbols;
+
 public class FormatUtil {
 	public final static String TAG = Main2Activity.TAG + " Format";
 
@@ -104,4 +106,56 @@ public class FormatUtil {
 
 		textView.setTextSize( textSize );
 	}
+
+	public static String formatText(String text, DecimalFormatSymbols formatSymbols){
+		StringBuilder formatted = new StringBuilder();
+		StringBuilder number = new StringBuilder();
+		for(char c : text.toCharArray()){
+			if(c >= '0' && c <= '9' || c == formatSymbols.getDecimalSeparator())
+				number.append( c );
+			else if(c != formatSymbols.getGroupingSeparator()){
+				formatted
+						//.append( mDecimalFormat.format( mDecimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) ) )
+						.append( formatNumber( number.toString(), formatSymbols ) )
+						.append( c );
+				number.setLength( 0 );
+			}
+		}
+		if(number.length() > 0)
+			formatted
+					.append( formatNumber( number.toString(), formatSymbols ) );
+		//.append( mDecimalFormat.format( mDecimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) ) );
+		return formatted.toString();
+	}
+
+	public static String formatNumber(String number, DecimalFormatSymbols formatSymbols){
+		int dotPos = number.indexOf( formatSymbols.getDecimalSeparator() );
+		StringBuilder sb = new StringBuilder();
+		if(dotPos != -1){
+			for(int i = number.length() - 1; i > dotPos; i--){
+				char c = number.charAt( i );
+				if(c >= '0' && c <= '9')
+					sb.append( c );
+			}
+			sb.append( formatSymbols.getDecimalSeparator() );
+		}
+		int insertedCount = 0;
+		if(dotPos == -1)
+			dotPos = number.length();
+		for(int i = dotPos - 1; i >= 0; i--){
+			char c = number.charAt( i );
+			if(c >= '0' && c <= '9'){
+				sb.append( c );
+				insertedCount++;
+				if(insertedCount % 3 == 0)
+					sb.append( formatSymbols.getGroupingSeparator() );
+			}
+		}
+		if(sb.charAt( sb.length() - 1 ) == formatSymbols.getGroupingSeparator())
+			sb.deleteCharAt( sb.length() - 1 );
+		return sb
+				.reverse()
+				.toString();
+	}
+
 }

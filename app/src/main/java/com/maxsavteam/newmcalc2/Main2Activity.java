@@ -76,8 +76,10 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -825,13 +827,22 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void insertDot(View v) {
+		Locale locale;
+		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ) {
+			locale = getResources().getConfiguration().getLocales().get( 0 );
+		}else{
+			locale = getResources().getConfiguration().locale;
+		}
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(locale);
+		char decimalSeparator = decimalFormatSymbols.getDecimalSeparator();
+		char groupingSeparator = decimalFormatSymbols.getGroupingSeparator();
 		EditText editText = findViewById( R.id.ExampleStr );
 		String text = editText.getText().toString();
 		int selection = editText.getSelectionStart();
 		boolean wasDot = false;
 		int i = selection - 1;
-		while ( i >= 0 && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == '.' || text.charAt( i ) == ' ' ) ) {
-			if ( text.charAt( i ) == '.' ) {
+		while ( i >= 0 && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == decimalSeparator || text.charAt( i ) == groupingSeparator ) ) {
+			if ( text.charAt( i ) == decimalSeparator ) {
 				wasDot = true;
 				break;
 			}
@@ -839,15 +850,15 @@ public class Main2Activity extends ThemeActivity {
 		}
 		if ( !wasDot ) {
 			i = selection + 1;
-			while ( i < text.length() && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == '.' || text.charAt( i ) == ' ' ) ) {
-				if ( text.charAt( i ) == '.' ) {
+			while ( i < text.length() && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == decimalSeparator || text.charAt( i ) == groupingSeparator ) ) {
+				if ( text.charAt( i ) == decimalSeparator ) {
 					wasDot = true;
 					break;
 				}
 				i++;
 			}
 			if ( !wasDot ) {
-				insert( "." );
+				insert( String.valueOf( decimalSeparator ) );
 			}
 		}
 	}
@@ -857,7 +868,6 @@ public class Main2Activity extends ThemeActivity {
 		Editable e = editText.getText();
 		int selection = editText.getSelectionStart();
 		e.insert( selection, s );
-		editText.setSelection( selection + s.length() );
 		editText.requestFocus();
 		calculate( CalculateMode.PRE_ANSWER );
 	}
