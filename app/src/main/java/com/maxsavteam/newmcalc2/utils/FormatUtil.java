@@ -8,7 +8,10 @@ import android.widget.TextView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParsePosition;
 
 public class FormatUtil {
 	public final static String TAG = Main2Activity.TAG + " Format";
@@ -114,11 +117,13 @@ public class FormatUtil {
 			if(c >= '0' && c <= '9' || c == formatSymbols.getDecimalSeparator())
 				number.append( c );
 			else if(c != formatSymbols.getGroupingSeparator()){
-				formatted
-						//.append( mDecimalFormat.format( mDecimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) ) )
-						.append( formatNumber( number.toString(), formatSymbols ) )
-						.append( c );
-				number.setLength( 0 );
+				if(number.length() > 0) {
+					formatted
+							//.append( mDecimalFormat.format( mDecimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) ) )
+							.append( formatNumber( number.toString(), formatSymbols ) )
+							.append( c );
+					number.setLength( 0 );
+				}
 			}
 		}
 		if(number.length() > 0)
@@ -151,11 +156,57 @@ public class FormatUtil {
 					sb.append( formatSymbols.getGroupingSeparator() );
 			}
 		}
-		if(sb.charAt( sb.length() - 1 ) == formatSymbols.getGroupingSeparator())
+		if(sb.length() > 0 && sb.charAt( sb.length() - 1 ) == formatSymbols.getGroupingSeparator())
 			sb.deleteCharAt( sb.length() - 1 );
 		return sb
 				.reverse()
 				.toString();
+	}
+
+	public static String normalizeNumbersInExample(String ex, DecimalFormat decimalFormat){
+		decimalFormat.setParseBigDecimal( true );
+		DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
+		StringBuilder formatted = new StringBuilder();
+		StringBuilder number = new StringBuilder();
+		for(char c : ex.toCharArray()){
+			if(c >= '0' && c <= '9' || c == symbols.getDecimalSeparator())
+				number
+						.append( c );
+			else if(c != symbols.getGroupingSeparator()){
+				if(number.length() > 0) {
+					formatted
+							.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) )
+							.append( c );
+					number.setLength( 0 );
+				}
+			}
+		}
+		if(number.length() > 0)
+			formatted
+					.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) );
+		return formatted.toString();
+	}
+
+	public static String formatNumbersInExpression(String ex, DecimalFormat decimalFormat){
+		StringBuilder formatted = new StringBuilder();
+		StringBuilder number = new StringBuilder();
+		for(char c : ex.toCharArray()){
+			if(c >= '0' && c <= '9' || c == '.'){
+				number
+						.append( c );
+			}else{
+				if(number.length() > 0) {
+					formatted
+							.append( decimalFormat.format( new BigDecimal( number.toString() ) ) )
+							.append( c );
+					number.setLength( 0 );
+				}
+			}
+		}
+		if(number.length() > 0)
+			formatted
+					.append( decimalFormat.format( new BigDecimal( number.toString() ) ) );
+		return formatted.toString();
 	}
 
 }

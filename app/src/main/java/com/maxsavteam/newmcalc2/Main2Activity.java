@@ -63,6 +63,7 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
+import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
@@ -76,6 +77,7 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,6 +113,8 @@ public class Main2Activity extends ThemeActivity {
 	private final static int ROUND_SCALE = 8;
 
 	private ProgressDialog mThreadControllerProgressDialog;
+
+	private DecimalFormat mDecimalFormat;
 
 	enum CalculateMode {
 		PRE_ANSWER,
@@ -451,6 +455,9 @@ public class Main2Activity extends ThemeActivity {
 		} );
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
+
+		mDecimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(MCalcApplication.getInstance().getAppLocale() ));
+		mDecimalFormat.setParseBigDecimal( true );
 
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
 		DIVISION_SIGN = getResources().getString( R.string.div );
@@ -1052,19 +1059,25 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
+	private String formatNumber(BigDecimal num){
+		return mDecimalFormat.format( num );
+	}
+
 	private void writeResult(CalculateMode mode, BigDecimal result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
 		if ( mode == CalculateMode.PRE_ANSWER ) {
-			answerTextView.setText( result.toPlainString() );
+			answerTextView.setText( formatNumber( result ) );
 		} else {
 			clearAnswer();
 			answerTextView.setText( formattedExample );
-			editText.setText( result.toPlainString() );
+			editText.setText( formatNumber( result ) );
+
+			String example = FormatUtil.normalizeNumbersInExample( formattedExample, mDecimalFormat );
 
 			HistoryManager.getInstance()
-					.put( new HistoryEntry( formattedExample, result.toPlainString() ) )
+					.put( new HistoryEntry( example, result.toPlainString() ) )
 					.save();
 		}
 	}

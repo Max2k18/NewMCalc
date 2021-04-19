@@ -18,11 +18,8 @@ import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.FormatUtil;
 
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 
 public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditText {
@@ -51,7 +48,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		mMaximumTextSize = a.getDimension( R.styleable.CalculatorEditText_maxTextSize, getTextSize() );
 		mMinimumTextSize = a.getDimension( R.styleable.CalculatorEditText_minTextSize, getTextSize() );
 		mStepTextSize = a.getDimension( R.styleable.CalculatorEditText_stepTextSize,
-				(mMaximumTextSize - mMinimumTextSize) / 3 );
+				( mMaximumTextSize - mMinimumTextSize ) / 3 );
 		boolean showKeyboard = a.getBoolean( R.styleable.CalculatorEditText_showKeyboardOnFocus, false );
 		setShowSoftInputOnFocus( showKeyboard );
 		a.recycle();
@@ -59,7 +56,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		Locale locale;
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
 			locale = context.getResources().getConfiguration().getLocales().get( 0 );
-		}else{
+		} else {
 			locale = context.getResources().getConfiguration().locale;
 		}
 		mFormatSymbols = new DecimalFormatSymbols( locale );
@@ -67,7 +64,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 
 	@Override
 	public boolean onTextContextMenuItem(int id) {
-		switch ( id ){
+		switch ( id ) {
 			case android.R.id.paste:
 			case android.R.id.cut:
 				return false;
@@ -77,17 +74,17 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	}
 
 	@FunctionalInterface
-	public interface TextListener{
+	public interface TextListener {
 		void onTextChanged();
 	}
 
-	public void addListener(TextListener listener){
+	public void addListener(TextListener listener) {
 		mTextListeners.add( listener );
 	}
 
 	@Override
 	protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-		if(mTextListeners != null && !isEditing) {
+		if ( mTextListeners != null && !isEditing ) {
 			for (TextListener listener : mTextListeners) {
 				if ( listener != null ) {
 					listener.onTextChanged();
@@ -95,6 +92,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 			}
 			isEditing = true;
 			String oldText = getText().toString();
+			Log.i( TAG, "onTextChanged: " + oldText );
 			String newText = formatText( oldText );
 			int oldSelection = getSelectionStart();
 			setText( newText );
@@ -104,14 +102,14 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		}
 	}
 
-	private int findNewSelection(String oldText, String newText, int oldSelection){
-		return newText.length() - (oldText.length() - oldSelection);
+	private int findNewSelection(String oldText, String newText, int oldSelection) {
+		return newText.length() - ( oldText.length() - oldSelection );
 	}
 
 	@Override
 	protected void onSelectionChanged(int selStart, int selEnd) {
-		if(selStart == selEnd){
-			if(selStart > 0 && getText().charAt( selStart - 1 ) == mFormatSymbols.getGroupingSeparator()) {
+		if ( selStart == selEnd ) {
+			if ( selStart > 0 && getText().charAt( selStart - 1 ) == mFormatSymbols.getGroupingSeparator() ) {
 				setSelection( selStart - 1 );
 			}
 		}
@@ -127,12 +125,13 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	@Override
 	public Editable getText() {
 		Editable sup = super.getText();
-		if(sup == null)
-			return new SpannableStringBuilder("");
+		if ( sup == null ) {
+			return new SpannableStringBuilder( "" );
+		}
 		return sup;
 	}
 
-	private String formatText(String text){
+	private String formatText(String text) {
 		return FormatUtil.formatText( text, mFormatSymbols );
 	}
 
@@ -141,21 +140,23 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		int width = MeasureSpec.getSize( widthMeasureSpec ) - getPaddingStart() - getPaddingEnd();
 
 		float size = getVariableTextSize( getText(), width );
-		if(size != getTextSize())
+		if ( size != getTextSize() ) {
 			setTextSize( TypedValue.COMPLEX_UNIT_PX, size );
+		}
 
 		super.onMeasure( widthMeasureSpec, heightMeasureSpec );
 	}
 
-	private float getVariableTextSize(CharSequence text, float width){
+	private float getVariableTextSize(CharSequence text, float width) {
 		TextPaint paint = new TextPaint();
 		paint.set( getPaint() );
 
 		float lastFitTextSize = mMinimumTextSize;
-		while(lastFitTextSize < mMaximumTextSize){
+		while ( lastFitTextSize < mMaximumTextSize ) {
 			paint.setTextSize( Math.min( lastFitTextSize + mStepTextSize, mMaximumTextSize ) );
-			if( Layout.getDesiredWidth(text, paint) > width)
+			if ( Layout.getDesiredWidth( text, paint ) > width ) {
 				break;
+			}
 			lastFitTextSize = paint.getTextSize();
 		}
 

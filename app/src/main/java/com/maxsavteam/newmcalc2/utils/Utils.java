@@ -12,11 +12,16 @@ import android.widget.Button;
 import androidx.annotation.IdRes;
 import androidx.appcompat.app.AlertDialog;
 
+import com.maxsavteam.newmcalc2.MCalcApplication;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.types.Pair;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.util.regex.Pattern;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.extras.PromptFocal;
@@ -93,7 +98,7 @@ public final class Utils {
 		return res;
 	}
 
-	public static BigDecimal deleteZeros(BigDecimal x){
+	public static BigDecimal deleteZeros(BigDecimal x) {
 		return new BigDecimal( deleteZeros( x.toPlainString() ) );
 	}
 
@@ -168,13 +173,10 @@ public final class Utils {
 	 * Returns true if string is number (spaces and dot includes)
 	 */
 	public static boolean isNumber(String source) {
-		String s = deleteSpaces( source );
-		try {
-			new BigDecimal( s );
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( MCalcApplication.getInstance().getAppLocale() );
+		String p = String.format( "-?([0-9]|\\%c)+(\\%c[0-9]*)?", decimalFormatSymbols.getGroupingSeparator(), decimalFormatSymbols.getDecimalSeparator() );
+		Pattern pattern = Pattern.compile( p );
+		return pattern.matcher( source ).matches();
 	}
 
 	/**
@@ -183,7 +185,7 @@ public final class Utils {
 	public static Pair<String, Integer> trimBrackets(String source) {
 		String s = source;
 		Integer cnt = 0;
-		while(s.startsWith( "(" ) && s.endsWith( ")" )){
+		while ( s.startsWith( "(" ) && s.endsWith( ")" ) ) {
 			s = s.substring( 1, s.length() - 1 );
 			cnt++;
 		}

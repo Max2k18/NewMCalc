@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,12 +25,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
+import com.maxsavteam.newmcalc2.MCalcApplication;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
@@ -37,11 +40,14 @@ import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
+import com.maxsavteam.newmcalc2.utils.FormatUtil;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
@@ -91,11 +97,13 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			cancelTimer();
 			startHideAnimation();
 		}
-		//history_action = new Intent(BuildConfig.APPLICATION_ID + ".HISTORY_ACTION");
-		mHistoryAction.putExtra( "example", mEntries.get( position ).getExample() ).putExtra( "result", mEntries.get( position ).getAnswer() );
+		String example = mEntries.get( position ).getExample();
+		String answer = mEntries.get( position ).getAnswer();
+		mHistoryAction
+				.putExtra( "example", example )
+				.putExtra( "result", answer );
 		setResult( ResultCodesConstants.RESULT_NORMAL, mHistoryAction );
 		super.onBackPressed();
-		//Toast.makeText(this, "You clicked " + adapter.getItem(position).get(0) + " " + adapter.getItem(position).get(0) + " on row number " + position, Toast.LENGTH_SHORT).show();
 	}
 
 	public void onDelete(int position) {
@@ -447,7 +455,16 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		} );
 
 		mStartType = getIntent().getStringExtra( "start_type" );
-		mEntries = HistoryManager.getInstance().getHistory();
+		mEntries = new ArrayList<>();
+		DecimalFormat decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(MCalcApplication.getInstance().getAppLocale() ));
+		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
+			mEntries
+					.add( new HistoryEntry(
+							FormatUtil.formatNumbersInExpression( entry.getExample(), decimalFormat ),
+							FormatUtil.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols() ),
+							entry.getDescription()
+					) );
+		}
 		setupRecyclerView();
 	}
 
