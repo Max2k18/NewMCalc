@@ -68,7 +68,7 @@ android {
             versionNameSuffix "-FIREBASETESTLAB"
         }
     }
-    buildToolsVersion '30.0.3'
+    buildToolsVersion '31.0.0 rc2'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
