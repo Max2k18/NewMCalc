@@ -1,8 +1,6 @@
 package com.maxsavteam.newmcalc2.utils;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.math.BigDecimal;
 

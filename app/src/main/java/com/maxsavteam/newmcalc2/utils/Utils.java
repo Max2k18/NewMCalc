@@ -18,9 +18,7 @@ import com.maxsavteam.newmcalc2.types.Pair;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
 import java.util.regex.Pattern;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
@@ -177,19 +175,6 @@ public final class Utils {
 		String p = String.format( "-?([0-9]|\\%c)+(\\%c[0-9]*)?", decimalFormatSymbols.getGroupingSeparator(), decimalFormatSymbols.getDecimalSeparator() );
 		Pattern pattern = Pattern.compile( p );
 		return pattern.matcher( source ).matches();
-	}
-
-	/**
-	 * Function returns string without ( at the start and ) at the end and number of deleted pairs of brackets
-	 */
-	public static Pair<String, Integer> trimBrackets(String source) {
-		String s = source;
-		Integer cnt = 0;
-		while ( s.startsWith( "(" ) && s.endsWith( ")" ) ) {
-			s = s.substring( 1, s.length() - 1 );
-			cnt++;
-		}
-		return new Pair<>( s, cnt );
 	}
 
 	public static MaterialTapTargetPrompt getGuideTip(Activity activity, String primary, String secondary, @IdRes int id, PromptFocal promptFocal) {
