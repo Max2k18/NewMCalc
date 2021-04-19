@@ -92,7 +92,6 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 			}
 			isEditing = true;
 			String oldText = getText().toString();
-			Log.i( TAG, "onTextChanged: " + oldText );
 			String newText = formatText( oldText );
 			int oldSelection = getSelectionStart();
 			setText( newText );

@@ -458,6 +458,7 @@ public class Main2Activity extends ThemeActivity {
 
 		mDecimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(MCalcApplication.getInstance().getAppLocale() ));
 		mDecimalFormat.setParseBigDecimal( true );
+		mDecimalFormat.setMaximumFractionDigits( 8 );
 
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
 		DIVISION_SIGN = getResources().getString( R.string.div );
