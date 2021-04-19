@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,7 +38,7 @@ import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
-import com.maxsavteam.newmcalc2.utils.FormatUtil;
+import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -460,8 +458,8 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
 			mEntries
 					.add( new HistoryEntry(
-							FormatUtil.formatNumbersInExpression( entry.getExample(), decimalFormat ),
-							FormatUtil.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols() ),
+							FormatUtils.formatNumbersInExpression( entry.getExample(), decimalFormat ),
+							FormatUtils.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols() ),
 							entry.getDescription()
 					) );
 		}

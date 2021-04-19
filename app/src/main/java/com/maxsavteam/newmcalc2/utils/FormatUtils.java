@@ -5,7 +5,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
 
-public class FormatUtil {
+public class FormatUtils {
 
 	public static String formatText(String text, DecimalFormatSymbols formatSymbols){
 		StringBuilder formatted = new StringBuilder();

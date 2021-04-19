@@ -63,7 +63,7 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
-import com.maxsavteam.newmcalc2.utils.FormatUtil;
+import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
@@ -1074,7 +1074,7 @@ public class Main2Activity extends ThemeActivity {
 			answerTextView.setText( formattedExample );
 			editText.setText( formatNumber( result ) );
 
-			String example = FormatUtil.normalizeNumbersInExample( formattedExample, mDecimalFormat );
+			String example = FormatUtils.normalizeNumbersInExample( formattedExample, mDecimalFormat );
 
 			HistoryManager.getInstance()
 					.put( new HistoryEntry( example, result.toPlainString() ) )

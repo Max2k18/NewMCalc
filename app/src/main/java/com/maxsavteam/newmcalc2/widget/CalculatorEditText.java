@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.utils.FormatUtil;
+import com.maxsavteam.newmcalc2.utils.FormatUtils;
 
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	}
 
 	private String formatText(String text) {
-		return FormatUtil.formatText( text, mFormatSymbols );
+		return FormatUtils.formatText( text, mFormatSymbols );
 	}
 
 	@Override
