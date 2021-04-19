@@ -25,7 +25,8 @@
         <activity android:name=".ui.PasswordGeneratorActivity" />
         <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ThemeActivity" />
-        <activity android:name=".Main2Activity">
+        <activity android:name=".Main2Activity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
