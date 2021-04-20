@@ -1073,7 +1073,9 @@ public class Main2Activity extends ThemeActivity {
 		} else {
 			clearAnswer();
 			answerTextView.setText( formattedExample );
-			editText.setText( formatNumber( result ) );
+			String formattedNum = formatNumber( result );
+			editText.setText( formattedNum );
+			editText.setSelection( formattedNum.length() );
 
 			String example = FormatUtils.normalizeNumbersInExample( formattedExample, mDecimalFormat );
 

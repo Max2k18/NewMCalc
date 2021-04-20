@@ -16,10 +16,11 @@ public class FormatUtils {
 			else if(c != formatSymbols.getGroupingSeparator()){
 				if(number.length() > 0) {
 					formatted
-							.append( formatNumber( number.toString(), formatSymbols ) )
-							.append( c );
+							.append( formatNumber( number.toString(), formatSymbols ) );
 					number.setLength( 0 );
 				}
+				formatted
+						.append( c );
 			}
 		}
 		if(number.length() > 0)
@@ -70,10 +71,11 @@ public class FormatUtils {
 			else if(c != symbols.getGroupingSeparator()){
 				if(number.length() > 0) {
 					formatted
-							.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) )
-							.append( c );
+							.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) );
 					number.setLength( 0 );
 				}
+				formatted
+						.append( c );
 			}
 		}
 		if(number.length() > 0)
@@ -92,10 +94,11 @@ public class FormatUtils {
 			}else{
 				if(number.length() > 0) {
 					formatted
-							.append( decimalFormat.format( new BigDecimal( number.toString() ) ) )
-							.append( c );
+							.append( decimalFormat.format( new BigDecimal( number.toString() ) ) );
 					number.setLength( 0 );
 				}
+				formatted
+						.append( c );
 			}
 		}
 		if(number.length() > 0)
