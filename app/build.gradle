@@ -5,16 +5,10 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-ext {
-    var = 'D:\\_code\\android_projects\\_signing\\newmcalcbundle.jks'
-}
 import java.text.SimpleDateFormat
 
 android {
     compileSdkVersion 30
-    String apptype = "mid"
-
-    String time_zone = "UTC" //you can modify this
 
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
@@ -29,7 +23,7 @@ android {
         multiDexEnabled true
 
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
-        buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
+        buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime()}\""
         buildConfigField "String", "CoreVersion", "\"v3.7.210302\""
     }
 
@@ -62,10 +56,10 @@ def static getBuildDate(String format) {
 }
 
 
-static String getBuildTime(String tzone) {
+static String getBuildTime() {
     def df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-    df.setTimeZone(TimeZone.getTimeZone(tzone))
-    return df.format(new Date())
+    df.setTimeZone(TimeZone.getTimeZone("UTC"))
+    return df.format(new Date()) + " UTC"
 }
 
 dependencies {
