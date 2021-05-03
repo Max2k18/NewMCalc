@@ -56,6 +56,7 @@ public class HistoryManager {
 			for (int i = 0; i < historyArray.length(); i++) {
 				JSONObject element = historyArray.getJSONObject( i );
 				String example = element.getString( "example" );
+				Log.i( TAG, example );
 				try {
 					BigDecimal result = CalculatorWrapper.getInstance().calculate( example );
 					HistoryEntry entry = new HistoryEntry(
@@ -65,7 +66,7 @@ public class HistoryManager {
 					);
 					mHistoryEntries.add( entry );
 				}catch (Exception e){
-					Log.i( TAG, "HistoryManager: " + e );
+					Log.i( TAG, "" + e );
 				}
 
 			}

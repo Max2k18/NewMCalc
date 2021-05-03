@@ -47,6 +47,7 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
@@ -459,7 +460,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mEntries
 					.add( new HistoryEntry(
 							FormatUtils.formatNumbersInExpression( entry.getExample(), decimalFormat ),
-							FormatUtils.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols() ),
+							FormatUtils.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols(), DecimalFormatSymbols.getInstance( Locale.ROOT) ),
 							entry.getDescription()
 					) );
 		}

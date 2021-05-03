@@ -1,11 +1,17 @@
 package com.maxsavteam.newmcalc2.utils;
 
+import android.util.Log;
+
+import com.maxsavteam.newmcalc2.Main2Activity;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
 
 public class FormatUtils {
+
+	private static final String TAG = Main2Activity.TAG + " FormatUtils";
 
 	public static String formatText(String text, DecimalFormatSymbols formatSymbols){
 		StringBuilder formatted = new StringBuilder();
@@ -29,8 +35,8 @@ public class FormatUtils {
 		return formatted.toString();
 	}
 
-	public static String formatNumber(String number, DecimalFormatSymbols formatSymbols){
-		int dotPos = number.indexOf( formatSymbols.getDecimalSeparator() );
+	public static String formatNumber(String number, DecimalFormatSymbols formatSymbols, DecimalFormatSymbols sourceSymbols){
+		int dotPos = number.indexOf( sourceSymbols.getDecimalSeparator() );
 		StringBuilder sb = new StringBuilder();
 		if(dotPos != -1){
 			for(int i = number.length() - 1; i > dotPos; i--){
@@ -57,6 +63,10 @@ public class FormatUtils {
 		return sb
 				.reverse()
 				.toString();
+	}
+
+	public static String formatNumber(String number, DecimalFormatSymbols symbols){
+		return formatNumber( number, symbols, symbols );
 	}
 
 	public static String normalizeNumbersInExample(String ex, DecimalFormat decimalFormat){
