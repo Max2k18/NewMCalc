@@ -28,8 +28,6 @@ android {
 
         multiDexEnabled true
 
-        buildConfigField "Boolean", "WhatNewIsExisting", "true"
-        buildConfigField "Boolean", "UCModuleActivated", "false"
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
         buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime(time_zone) + " " + time_zone}\""
         buildConfigField "String", "CoreVersion", "\"v3.7.210302\""
@@ -38,8 +36,6 @@ android {
     buildTypes {
         release {
             buildConfigField("Boolean", "ISDEBUG", "false")
-            apptype = "stable"
-            buildConfigField "String", "APPTYPE", "\"stable\""
             minifyEnabled true
             shrinkResources true
             aaptOptions {
@@ -50,22 +46,8 @@ android {
         debug {
             applicationIdSuffix ".beta"
             buildConfigField("Boolean", "ISDEBUG", "true")
-            apptype = "dev"
-            buildConfigField "String", "APPTYPE", "\"dev\""
             debuggable true
-            jniDebuggable true
-            zipAlignEnabled true
             versionNameSuffix "-DEBUG"
-        }
-        forFirebaseTestLab {
-            minifyEnabled true
-            shrinkResources true
-            apptype = "dev"
-            buildConfigField "String", "APPTYPE", "\"${apptype}\""
-            aaptOptions {
-                cruncherEnabled = false
-            }
-            versionNameSuffix "-FIREBASETESTLAB"
         }
     }
     buildToolsVersion '31.0.0 rc3'

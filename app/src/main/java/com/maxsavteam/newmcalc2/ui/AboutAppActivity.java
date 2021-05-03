@@ -27,7 +27,6 @@ public class AboutAppActivity extends ThemeActivity {
 			"Build number: " + BuildConfig.VERSION_CODE + "\n" +
 			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
 			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
-			"App type: " + BuildConfig.APPTYPE + "\n" +
 			"Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
 			"Core version: v" + Calculator.VERSION;
 

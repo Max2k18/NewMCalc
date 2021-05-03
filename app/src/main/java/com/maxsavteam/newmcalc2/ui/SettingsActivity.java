@@ -39,7 +39,6 @@ import java.util.Set;
 public class SettingsActivity extends ThemeActivity {
 
 	private SharedPreferences sp;
-	private final String mAppType = BuildConfig.APPTYPE;
 
 	private static final int IMPORT_STORAGE_REQUEST = 0;
 	private static final int EXPORT_STORAGE_REQUEST = 1;
@@ -138,7 +137,7 @@ public class SettingsActivity extends ThemeActivity {
 
 	public void initializeImport(View v) {
 		if ( checkSelfPermission( Manifest.permission.READ_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED ) {
-			String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+			String fileName = "MCalc.imc";
 			File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 			if ( !f.exists() ) {
 				Toast.makeText( getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG ).show();
@@ -164,7 +163,7 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	private void importSettings() {
-		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+		String fileName = "MCalc.imc";
 		File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 		try {
 			FileReader fr = new FileReader( f );
@@ -259,7 +258,7 @@ public class SettingsActivity extends ThemeActivity {
 		if ( !f.isDirectory() ) {
 			f.mkdir();
 		}
-		String fileName = "MCalc" + ( mAppType.equals( "dev" ) ? "Dev" : "" ) + ".imc";
+		String fileName = "MCalc.imc";
 		f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
 		pd.show();
 		try {
