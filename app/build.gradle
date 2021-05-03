@@ -23,8 +23,8 @@ android {
         targetSdkVersion 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 2003
-        versionName "2.1.1"
+        versionCode 2004
+        versionName "2.1.2"
 
         multiDexEnabled true
 
@@ -68,7 +68,7 @@ android {
             versionNameSuffix "-FIREBASETESTLAB"
         }
     }
-    buildToolsVersion '31.0.0 rc2'
+    buildToolsVersion '31.0.0 rc3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11

@@ -4,12 +4,14 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class HistoryManager {
@@ -53,12 +55,19 @@ public class HistoryManager {
 			JSONArray historyArray = jsonObject.getJSONArray( "history" );
 			for (int i = 0; i < historyArray.length(); i++) {
 				JSONObject element = historyArray.getJSONObject( i );
-				HistoryEntry entry = new HistoryEntry(
-						element.getString( "example" ),
-						element.getString( "answer" ),
-						element.optString( "description", "" )
-				);
-				mHistoryEntries.add( entry );
+				String example = element.getString( "example" );
+				try {
+					BigDecimal result = CalculatorWrapper.getInstance().calculate( example );
+					HistoryEntry entry = new HistoryEntry(
+							element.getString( "example" ),
+							result.toPlainString(),
+							element.optString( "description", "" )
+					);
+					mHistoryEntries.add( entry );
+				}catch (Exception e){
+					Log.i( TAG, "HistoryManager: " + e );
+				}
+
 			}
 
 		} catch (JSONException e) {
