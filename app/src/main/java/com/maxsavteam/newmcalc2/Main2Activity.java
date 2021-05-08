@@ -45,6 +45,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
@@ -928,11 +929,13 @@ public class Main2Activity extends ThemeActivity {
 
 		String finalFormatted = formatted;
 		mCoreThread = new Thread( ()->{
+			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted  );
 			try {
 				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
 				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
 				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
 			} catch (CalculatingException e) {
+				FirebaseCrashlytics.getInstance().recordException( e );
 				wasError = true;
 				if ( mode == CalculateMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
