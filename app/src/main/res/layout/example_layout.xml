@@ -46,6 +46,7 @@
             android:textColor="?textColor"
             android:textSize="46sp"
             android:textStyle="bold"
+            android:inputType="textNoSuggestions"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/example_right"
             app:layout_constraintHorizontal_bias="1.0"

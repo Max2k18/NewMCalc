@@ -44,6 +44,7 @@
             app:maxTextSize="34sp"
             app:minTextSize="28sp"
             app:stepTextSize="2sp"
+            android:inputType="textNoSuggestions"
             android:background="@null"
             android:cursorVisible="false"
             android:textStyle="bold" />
