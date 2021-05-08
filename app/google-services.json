@@ -33,35 +33,6 @@
           ]
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:564646474322:android:e4d049139f2e008519e58b",
-        "android_client_info": {
-          "package_name": "com.maxsavteam.newmcalc2.dev"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAZw7T2R6ogn9ZZ0HXE920XDG4YzJrTi5c"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
     }
   ],
   "configuration_version": "1"
