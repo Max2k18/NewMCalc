@@ -1,140 +1,33 @@
 {
   "project_info": {
-    "project_number": "669428254565",
-    "firebase_url": "https://new-mcalc.firebaseio.com",
-    "project_id": "new-mcalc",
-    "storage_bucket": "new-mcalc.appspot.com"
+    "project_number": "564646474322",
+    "project_id": "mcalc-217a1",
+    "storage_bucket": "mcalc-217a1.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:669428254565:android:52711dec8d0c69d1",
-        "android_client_info": {
-          "package_name": "com.maxsavteam.newmcalc"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "669428254565-a3fisfrf3hugmuiseqtqvp14sc8q959v.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc",
-            "certificate_hash": "ce45a34897b3da80d7237282806b06420b6f2953"
-          }
-        },
-        {
-          "client_id": "669428254565-t1d37g1utdomb42okkfiocv6k3dn5kkf.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc",
-            "certificate_hash": "7b370d76955fe4d76d86143ddf0e85b5a6b68a2b"
-          }
-        },
-        {
-          "client_id": "669428254565-p79m56jgj4a5oml28l23e08jc25ljaed.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc",
-            "certificate_hash": "3de35663d0102ee176a03582099160bc8c2c293b"
-          }
-        },
-        {
-          "client_id": "669428254565-kflgbltv4a4o8hrhm6e9kna3vqvd4i3g.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc",
-            "certificate_hash": "ff75d9294e409764b72d8089397084fd575897f6"
-          }
-        },
-        {
-          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:669428254565:android:900fe28de250f5fc28838c",
-        "android_client_info": {
-          "package_name": "com.maxsavteam.newmcalc.beta"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "669428254565-2rrsfpcuebdlsp1mpdo2fli6p3cfcu2a.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc.beta",
-            "certificate_hash": "573f5c15bbe352f202e8f9c01deb3bceccd8c1d1"
-          }
-        },
-        {
-          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:669428254565:android:8ea2fc641bd6b6c128838c",
+        "mobilesdk_app_id": "1:564646474322:android:7f2255eac0de5fc519e58b",
         "android_client_info": {
           "package_name": "com.maxsavteam.newmcalc2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "669428254565-lno3789psqhbr66qoai88ghrc5oaiund.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.maxsavteam.newmcalc2",
-            "certificate_hash": "7623b72e212f1d7ecd4024666abc047fbb69ecc3"
-          }
-        },
-        {
-          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+          "current_key": "AIzaSyAZw7T2R6ogn9ZZ0HXE920XDG4YzJrTi5c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -143,27 +36,27 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:669428254565:android:6d36fc6c224bc75828838c",
+        "mobilesdk_app_id": "1:564646474322:android:e4d049139f2e008519e58b",
         "android_client_info": {
-          "package_name": "com.maxsavteam.newmcalc2.beta"
+          "package_name": "com.maxsavteam.newmcalc2.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+          "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCLlaJKHxTkN6729SXPiKSyOCsw48j-X7g"
+          "current_key": "AIzaSyAZw7T2R6ogn9ZZ0HXE920XDG4YzJrTi5c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "669428254565-5afbk8f242f2bjufmfokpqpb0jfnkbb9.apps.googleusercontent.com",
+              "client_id": "564646474322-lq11dq9pdq2tk7psu74ooqnl8o84b0t6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

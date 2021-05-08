@@ -6,7 +6,7 @@
         <item>Please check if there is an application update.</item>
     </string-array>
 
-    <string name="app_name" translatable="false">MCalc</string>
+    <!--string name="app_name" translatable="false">MCalc</string-->
 
     <string name="settings">Settings</string>
 
