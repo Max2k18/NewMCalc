@@ -63,7 +63,7 @@ static String getBuildTime() {
 }
 
 dependencies {
-    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.1.0'
+    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.1.1'
     implementation 'ch.obermuhlner:big-math:2.3.0'
 
     implementation 'com.google.firebase:firebase-core:18.0.3'
@@ -82,7 +82,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.0'
-    implementation 'com.github.MaxSavTeam:calculator-core:1.7.1'
+    implementation 'com.github.MaxSavTeam:calculator-core:1.7.2'
 
     implementation 'org.jetbrains:annotations:20.1.0'
 
