@@ -108,6 +108,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	@Override
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		if ( selStart == selEnd ) {
+			selStart = Math.min(getText().length(), selStart);
 			if ( selStart > 0 && getText().charAt( selStart - 1 ) == mFormatSymbols.getGroupingSeparator() ) {
 				setSelection( selStart - 1 );
 			}
