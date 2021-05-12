@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
-        minSdkVersion 19
+        minSdkVersion 23
 
         targetSdkVersion 30
 
