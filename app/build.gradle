@@ -17,8 +17,8 @@ android {
         targetSdkVersion 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 2006
-        versionName "2.1.3"
+        versionCode 2007
+        versionName "2.1.4"
 
         multiDexEnabled true
 
