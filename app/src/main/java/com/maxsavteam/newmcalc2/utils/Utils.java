@@ -12,9 +12,8 @@ import android.widget.Button;
 import androidx.annotation.IdRes;
 import androidx.appcompat.app.AlertDialog;
 
-import com.maxsavteam.newmcalc2.MCalcApplication;
+import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.types.Pair;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -171,7 +170,7 @@ public final class Utils {
 	 * Returns true if string is number (spaces and dot includes)
 	 */
 	public static boolean isNumber(String source) {
-		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( MCalcApplication.getInstance().getAppLocale() );
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( App.getInstance().getAppLocale() );
 		String p = String.format( "-?([0-9]|\\%c)+(\\%c[0-9]*)?", decimalFormatSymbols.getGroupingSeparator(), decimalFormatSymbols.getDecimalSeparator() );
 		Pattern pattern = Pattern.compile( p );
 		return pattern.matcher( source ).matches();

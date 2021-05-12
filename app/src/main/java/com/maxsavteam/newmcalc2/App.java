@@ -7,16 +7,16 @@ import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 
 import java.util.Locale;
 
-public class MCalcApplication extends Application {
+public class App extends Application {
 
-	private static MCalcApplication instance;
+	private static App instance;
 	private Locale appLocale;
 
 	public Locale getAppLocale() {
 		return appLocale;
 	}
 
-	public static MCalcApplication getInstance() {
+	public static App getInstance() {
 		return instance;
 	}
 

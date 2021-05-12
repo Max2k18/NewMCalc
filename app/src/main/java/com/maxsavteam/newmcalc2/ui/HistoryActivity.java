@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
-import com.maxsavteam.newmcalc2.MCalcApplication;
+import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
@@ -455,7 +455,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 		mStartType = getIntent().getStringExtra( "start_type" );
 		mEntries = new ArrayList<>();
-		DecimalFormat decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(MCalcApplication.getInstance().getAppLocale() ));
+		DecimalFormat decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ));
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
 			mEntries
 					.add( new HistoryEntry(

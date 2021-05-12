@@ -457,7 +457,7 @@ public class Main2Activity extends ThemeActivity {
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
-		mDecimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(MCalcApplication.getInstance().getAppLocale() ));
+		mDecimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ));
 		mDecimalFormat.setParseBigDecimal( true );
 		mDecimalFormat.setMaximumFractionDigits( 8 );
 
