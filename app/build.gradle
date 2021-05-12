@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
-        minSdkVersion 23
+        minSdkVersion 19
 
         targetSdkVersion 30
 
@@ -85,7 +85,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.5'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
-    implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.0'
+    implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.1.2'
     implementation 'com.github.MaxSavTeam:calculator-core:1.7.2'
 
     implementation 'org.jetbrains:annotations:20.1.0'
