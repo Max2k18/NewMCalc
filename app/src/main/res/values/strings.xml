@@ -134,4 +134,9 @@
     <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
     <string name="error">Error</string>
     <string name="some_error_occurred">Some error occurred</string>
+    
+    <string name="unexpected_error_occurred">Unexpected error occurred</string>
+    <string name="after_crash_message">We will find out about it soon and fix it as soon as possible</string>
+    <string name="we_did_not_mean_to_do_it">Sorry, we did not mean to do it</string>
+    <string name="restart_app">Restart app</string>
 </resources>

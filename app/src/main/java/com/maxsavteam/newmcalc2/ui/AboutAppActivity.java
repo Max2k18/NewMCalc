@@ -54,8 +54,9 @@ public class AboutAppActivity extends ThemeActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if(item.getItemId() == android.R.id.home)
+		if ( item.getItemId() == android.R.id.home ) {
 			onBackPressed();
+		}
 		return super.onOptionsItemSelected( item );
 	}
 
@@ -77,6 +78,12 @@ public class AboutAppActivity extends ThemeActivity {
 			builder.setMessage( debugInfoStr )
 					.setPositiveButton( "OK", (dialogInterface, i)->dialogInterface.cancel() )
 					.setCancelable( false );
+
+			if ( BuildConfig.DEBUG ) {
+				builder.setNegativeButton( "Ba-dum!", ( (dialog, which)->{
+					throw new RuntimeException( "Test exception" );
+				} ) );
+			}
 
 			builder.create().show();
 			return true;

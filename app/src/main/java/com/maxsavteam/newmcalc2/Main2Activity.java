@@ -973,7 +973,7 @@ public class Main2Activity extends ThemeActivity {
 		mCoreTimer = new Timer();
 		mCoreThread.start();
 
-		if ( !BuildConfig.ISDEBUG ) {
+		if ( !BuildConfig.DEBUG ) {
 			mCoreTimer.schedule( new CoreController(), 0, 100 );
 		}
 	}
