@@ -37,6 +37,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -52,7 +54,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.appupdate.AppUpdateOptions;
-import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewInfo;
@@ -80,7 +81,6 @@ import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
-import com.maxsavteam.newmcalc2.utils.RequestCodesConstants;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.UpdateMessagesContainer;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -136,15 +136,67 @@ public class Main2Activity extends ThemeActivity {
 
 	private ReviewManager reviewManager;
 
-	enum CalculateMode {
+	private enum CalculateMode {
 		PRE_ANSWER,
 		FULL_ANSWER
 	}
 
+	private static class MemoryStartTypes {
+		public static final String RECALL = "rc", STORE = "st";
+	}
+
+
+	private final ActivityResultLauncher<Intent> mHistoryLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{
+				Intent data = result.getData();
+				if ( result.getResultCode() != ResultCodesConstants.RESULT_ERROR && data != null ) {
+					String example = data.getStringExtra( "example" );
+					if ( example != null && !example.equals( "" ) ) {
+						addStringExampleToTheExampleStr( data.getStringExtra( "result" ) );
+					}
+				}
+			}
+	);
+
+	private final ActivityResultLauncher<Intent> mMemoryRecallLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{
+				if ( result.getResultCode() == ResultCodesConstants.RESULT_APPEND ) {
+					Intent data = result.getData();
+					if ( data != null ) {
+						addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
+					}
+				} else if ( result.getResultCode() == ResultCodesConstants.RESULT_REFRESH ) {
+					memoryEntries = mMemorySaverReader.read();
+				}
+			}
+	);
+
+	private final ActivityResultLauncher<Intent> mVariablesEditorLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->setViewPager( ( (ViewPager) findViewById( R.id.viewpager ) ).getCurrentItem() )
+	);
+
+	private final ActivityResultLauncher<Intent> mSettingsLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{
+				if ( result.getResultCode() == ResultCodesConstants.RESULT_RESTART_APP ) {
+					Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
+					if ( intent != null ) {
+						intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+						intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+						startActivity( intent );
+						finish();
+					}
+				}
+			}
+	);
+
 	private final View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
-		Intent in = new Intent();
+		Intent in = new Intent( this, VariableEditorActivity.class );
 		in.putExtra( "tag", pos ).putExtra( "is_existing", true );
 		ArrayList<Variable> a = VariableUtils.readVariables();
 		for (int i = 0; i < a.size(); i++) {
@@ -153,7 +205,7 @@ public class Main2Activity extends ThemeActivity {
 				break;
 			}
 		}
-		goToActivity( VariableEditorActivity.class, in );
+		mVariablesEditorLauncher.launch( in );
 		return true;
 	};
 
@@ -176,12 +228,18 @@ public class Main2Activity extends ThemeActivity {
 
 	private final View.OnLongClickListener mMemoryActionsLongClick = (View v)->{
 		if ( v.getId() == R.id.btnMR ) {
-			openMemory( "rc" );
+			openMemory( MemoryStartTypes.RECALL );
 		} else {
-			openMemory( "st" );
+			openMemory( MemoryStartTypes.STORE );
 		}
 		return true;
 	};
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+		super.onActivityResult( requestCode, resultCode, data );
+	}
 
 	@Override
 	public void onBackPressed() {
@@ -201,8 +259,7 @@ public class Main2Activity extends ThemeActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if ( id == R.id.about ) {
-			goToActivity( AboutAppActivity.class, null );
-			return true;
+			startActivity( new Intent( this, AboutAppActivity.class ) );
 		} else if ( id == R.id.changelog ) {
 			Intent in = new Intent( Intent.ACTION_VIEW );
 			in.setData( Uri.parse( Utils.MCALC_SITE + "changelog#" + BuildConfig.VERSION_NAME ) );
@@ -305,16 +362,18 @@ public class Main2Activity extends ThemeActivity {
 	private void addShortcutsToApp() {
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
 			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
-			Intent t = new Intent( Intent.ACTION_VIEW, null, this, Main2Activity.class );
+			Intent t = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
+			if(t == null)
+				return;
 			t.putExtra( "shortcut_action", true );
-			t.putExtra( "to_", "numgen" );
+			t.putExtra( "to_", AdditionalActivities.NUMBER_GENERATOR );
 			ShortcutInfo shortcut1 = new ShortcutInfo.Builder( getApplicationContext(), "id1" )
 					.setLongLabel( getResources().getString( R.string.random_number_generator ) )
 					.setShortLabel( getResources().getString( R.string.random_number_generator ) )
 					.setIcon( Icon.createWithResource( this, R.drawable.ic_dice ) )
 					.setIntent( t )
 					.build();
-			t.putExtra( "to_", "pass" );
+			t.putExtra( "to_", AdditionalActivities.PASSWORD_GENERATOR );
 			ShortcutInfo shortcut2 = new ShortcutInfo.Builder( getApplicationContext(), "id2" )
 					.setLongLabel( getResources().getString( R.string.password_generator ) )
 					.setShortLabel( getResources().getString( R.string.password_generator ) )
@@ -322,14 +381,14 @@ public class Main2Activity extends ThemeActivity {
 					.setIntent( t )
 					.build();
 
-			t.putExtra( "to_", "history" );
+			t.putExtra( "to_", AdditionalActivities.HISTORY );
 			ShortcutInfo shortcut3 = new ShortcutInfo.Builder( getApplicationContext(), "id3" )
 					.setLongLabel( getResources().getString( R.string.history ) )
 					.setShortLabel( getResources().getString( R.string.history ) )
 					.setIcon( Icon.createWithResource( this, R.drawable.ic_history ) )
 					.setIntent( t )
 					.build();
-			t.putExtra( "to_", "bin" );
+			t.putExtra( "to_", AdditionalActivities.NUMBER_SYSTEMS_CONVERTER );
 			ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder( getApplicationContext(), "idNumSys" )
 					.setLongLabel( getResources().getString( R.string.number_system_converter ) )
 					.setShortLabel( getResources().getString( R.string.number_system_converter ) )
@@ -360,30 +419,30 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
+	private static class AdditionalActivities {
+		public static final String HISTORY = "history",
+				SETTINGS = "settings",
+				NUMBER_GENERATOR = "numgen",
+				PASSWORD_GENERATOR = "passgen",
+				NUMBER_SYSTEMS_CONVERTER = "bin";
+	}
+
 	private void goToAdditionalActivities(@NonNull String where) {
 		switch ( where ) {
-			case "settings":
-				goToActivity( SettingsActivity.class, new Intent()
-						.putExtra( "action", "simple" )
-						.putExtra( "start_type", "app" ) );
+			case AdditionalActivities.SETTINGS:
+				mSettingsLauncher.launch( new Intent( this, SettingsActivity.class ) );
 				break;
-			case "numgen":
-				goToActivity( NumberGeneratorActivity.class, new Intent()
-						.putExtra( "type", "number" )
-						.putExtra( "start_type", "app" ) );
+			case AdditionalActivities.NUMBER_GENERATOR:
+				startActivity( new Intent( this, NumberGeneratorActivity.class ) );
 				break;
-			case "history":
-				goToActivity( HistoryActivity.class, new Intent()
-						.putExtra( "start_type", "app" ) );
+			case AdditionalActivities.HISTORY:
+				mHistoryLauncher.launch( new Intent( this, HistoryActivity.class ) );
 				break;
-			case "pass":
-				goToActivity( PasswordGeneratorActivity.class, new Intent()
-						.putExtra( "start_type", "app" )
-						.putExtra( "type", "pass" ) );
+			case AdditionalActivities.PASSWORD_GENERATOR:
+				startActivity( new Intent( this, PasswordGeneratorActivity.class ) );
 				break;
-			case "bin":
-				goToActivity( NumberSystemConverterActivity.class, new Intent()
-						.putExtra( "start_type", "app" ) );
+			case AdditionalActivities.NUMBER_SYSTEMS_CONVERTER:
+				startActivity( new Intent( this, NumberSystemConverterActivity.class ) );
 				break;
 			default:
 				break;
@@ -459,15 +518,15 @@ public class Main2Activity extends ThemeActivity {
 		mNavigationView.setBackgroundColor( Color.BLACK );
 		mNavigationView.setNavigationItemSelectedListener( menuItem->{
 			if ( menuItem.getItemId() == R.id.nav_settings ) {
-				goToAdditionalActivities( "settings" );
+				goToAdditionalActivities( AdditionalActivities.SETTINGS );
 			} else if ( menuItem.getItemId() == R.id.nav_history ) {
-				goToAdditionalActivities( "history" );
+				goToAdditionalActivities( AdditionalActivities.HISTORY );
 			} else if ( menuItem.getItemId() == R.id.nav_numbersysconverter ) {
-				goToAdditionalActivities( "bin" );
+				goToAdditionalActivities( AdditionalActivities.NUMBER_SYSTEMS_CONVERTER );
 			} else if ( menuItem.getItemId() == R.id.nav_passgen ) {
-				goToAdditionalActivities( "pass" );
+				goToAdditionalActivities( AdditionalActivities.PASSWORD_GENERATOR );
 			} else if ( menuItem.getItemId() == R.id.nav_numgen ) {
-				goToAdditionalActivities( "numgen" );
+				goToAdditionalActivities( AdditionalActivities.NUMBER_GENERATOR );
 			}
 			menuItem.setChecked( false );
 
@@ -477,7 +536,7 @@ public class Main2Activity extends ThemeActivity {
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
-		mDecimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ));
+		mDecimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
 		mDecimalFormat.setParseBigDecimal( true );
 		mDecimalFormat.setMaximumFractionDigits( 8 );
 
@@ -512,15 +571,15 @@ public class Main2Activity extends ThemeActivity {
 
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
-		if( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
+		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
 			if ( startCount >= 10 ) {
 				s.edit().putInt( "start_count", 0 ).apply();
 				offerToRate = true;
 				reviewManager = ReviewManagerFactory.create( getApplicationContext() );
 				reviewManager.requestReviewFlow().addOnCompleteListener( task->{
-					if ( task.isSuccessful() )
+					if ( task.isSuccessful() ) {
 						reviewInfo = task.getResult();
-					else {
+					} else {
 						Log.i( TAG, "requestReviewFlow: " + task.getException() );
 					}
 				} );
@@ -531,7 +590,7 @@ public class Main2Activity extends ThemeActivity {
 			AppUpdateManager manager = AppUpdateManagerFactory.create( getApplicationContext() );
 			manager.getAppUpdateInfo()
 					.addOnSuccessListener( appUpdateInfo->{
-						if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ){
+						if ( appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ) {
 							manager.startUpdateFlow(
 									appUpdateInfo,
 									this,
@@ -606,41 +665,6 @@ public class Main2Activity extends ThemeActivity {
 		answerScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateAnswerArrows() );
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if ( requestCode == RequestCodesConstants.START_HISTORY && resultCode != ResultCodesConstants.RESULT_ERROR && data != null ) {
-			String example = data.getStringExtra( "example" );
-			if ( example != null && !example.equals( "" ) ) {
-				String result = data.getStringExtra( "result" );
-
-				addStringExampleToTheExampleStr( result );
-			}
-		}
-		if ( requestCode == RequestCodesConstants.START_MEMORY_RECALL ) {
-			if ( resultCode == ResultCodesConstants.RESULT_APPEND ) {
-				if ( data != null ) {
-					addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
-				}
-			} else if ( resultCode == ResultCodesConstants.RESULT_REFRESH ) {
-				memoryEntries = mMemorySaverReader.read();
-			}
-		}
-		if ( requestCode == RequestCodesConstants.START_ADD_VAR ) {
-			setViewPager( ( (ViewPager) findViewById( R.id.viewpager ) ).getCurrentItem() );
-		}
-		if ( resultCode == ResultCodesConstants.RESULT_RESTART_APP ) {
-			//Intent intent = new Intent( this, Main2Activity.class );
-			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
-			if(intent != null) {
-				intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-				finish();
-			}
-		}
-		super.onActivityResult( requestCode, resultCode, data );
-	}
-
 	private void showWithAlpha(int id) {
 		findViewById( id ).animate().alpha( 1f ).setDuration( 100 ).start();
 	}
@@ -713,7 +737,7 @@ public class Main2Activity extends ThemeActivity {
 			int pos = Integer.parseInt( btn.getTag().toString() );
 			String text = btn.getText().toString();
 			if ( text.equals( "+" ) ) {
-				Intent in = new Intent();
+				Intent in = new Intent( this, VariableEditorActivity.class );
 				in.putExtra( "tag", pos );
 				TextView t = findViewById( R.id.ExampleStr );
 				String ts = t.getText().toString();
@@ -723,7 +747,7 @@ public class Main2Activity extends ThemeActivity {
 						in.putExtra( "value", ts ).putExtra( "name", "" ).putExtra( "is_existing", true );
 					}
 				}
-				goToActivity( VariableEditorActivity.class, in );
+				mVariablesEditorLauncher.launch( in );
 			} else {
 				String var_arr = sp.getString( "variables", null );
 				if ( var_arr == null ) {
@@ -746,17 +770,19 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void openMemory(final String type) {
-		Intent in = new Intent();
+		Intent in = new Intent( this, MemoryActionsActivity.class );
 		in.putExtra( "type", type );
-		if ( type.equals( "st" ) ) {
+		if ( type.equals( MemoryStartTypes.STORE ) ) {
 			TextView t = findViewById( R.id.ExampleStr );
 			if ( Utils.isNumber( t.getText().toString() ) ) {
 				in.putExtra( "value", t.getText().toString() );
 			} else {
 				return;
 			}
+			startActivity( in );
+		} else {
+			mMemoryRecallLauncher.launch( in );
 		}
-		goToActivity( MemoryActionsActivity.class, in );
 	}
 
 	public void onMemoryPlusMinusButtonsClick(View v) {
@@ -804,27 +830,6 @@ public class Main2Activity extends ThemeActivity {
 	public void onMemoryRecallButtonClick(View view) {
 		String value = memoryEntries[ 0 ].toString();
 		addStringExampleToTheExampleStr( value );
-	}
-
-	private void goToActivity(Class<?> cls, Intent possibleExtras) {
-		Intent intent = new Intent( this, cls );
-		if ( possibleExtras != null && possibleExtras.getExtras() != null ) {
-			intent.putExtras( possibleExtras.getExtras() );
-		}
-		int requestCode = 0;
-		isOtherActivityOpened = true;
-		if ( cls.equals( HistoryActivity.class ) ) {
-			requestCode = RequestCodesConstants.START_HISTORY;
-		} else if ( cls.equals( MemoryActionsActivity.class ) ) {
-			if ( possibleExtras.getStringExtra( "type" ).equals( "rc" ) ) {
-				requestCode = RequestCodesConstants.START_MEMORY_RECALL;
-			} else {
-				requestCode = RequestCodesConstants.START_MEMORY_STORE;
-			}
-		} else if ( cls.equals( VariableEditorActivity.class ) ) {
-			requestCode = RequestCodesConstants.START_ADD_VAR;
-		}
-		startActivityForResult( intent, requestCode );
 	}
 
 	public void insertBinaryOperatorOnClick(View v) {
@@ -890,10 +895,10 @@ public class Main2Activity extends ThemeActivity {
 		Locale locale;
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ) {
 			locale = getResources().getConfiguration().getLocales().get( 0 );
-		}else{
+		} else {
 			locale = getResources().getConfiguration().locale;
 		}
-		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(locale);
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( locale );
 		char decimalSeparator = decimalFormatSymbols.getDecimalSeparator();
 		char groupingSeparator = decimalFormatSymbols.getGroupingSeparator();
 		EditText editText = findViewById( R.id.ExampleStr );
@@ -980,13 +985,14 @@ public class Main2Activity extends ThemeActivity {
 
 		String finalFormatted = formatted;
 		mCoreThread = new Thread( ()->{
-			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted  );
+			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
 				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
 				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
-				Log.i( TAG, "calculate: " + (offerToRate && reviewInfo != null) );
-				if(offerToRate && reviewInfo != null)
+				Log.i( TAG, "calculate: " + ( offerToRate && reviewInfo != null ) );
+				if ( offerToRate && reviewInfo != null ) {
 					startOfferRate();
+				}
 				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
 			} catch (CalculatingException e) {
 				FirebaseCrashlytics.getInstance().recordException( e );
@@ -994,10 +1000,11 @@ public class Main2Activity extends ThemeActivity {
 				if ( mode == CalculateMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
 					int stringRes;
-					if ( res != -1 )
+					if ( res != -1 ) {
 						stringRes = res;
-					else
+					} else {
 						stringRes = R.string.error;
+					}
 					runOnUiThread( ()->writeCalculationError( getString( stringRes ) ) );
 				} else {
 					runOnUiThread( Main2Activity.this::clearAnswer );
@@ -1105,7 +1112,7 @@ public class Main2Activity extends ThemeActivity {
 		@Override
 		public void run() {
 			if ( rateHandler != null ) {
-				rateHandler.removeCallbacks(this);
+				rateHandler.removeCallbacks( this );
 				rateHandler = null;
 			}
 			offerToRate = false;
@@ -1113,9 +1120,10 @@ public class Main2Activity extends ThemeActivity {
 		}
 	};
 
-	private void startOfferRate(){
-		if(rateHandler != null)
+	private void startOfferRate() {
+		if ( rateHandler != null ) {
 			rateHandler.removeCallbacks( rateRunnable );
+		}
 		rateHandler = new Handler( Looper.getMainLooper() );
 		rateHandler.postDelayed( rateRunnable, 5 * 1000 );
 	}
@@ -1137,7 +1145,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private String formatNumber(BigDecimal num){
+	private String formatNumber(BigDecimal num) {
 		return mDecimalFormat.format( num );
 	}
 

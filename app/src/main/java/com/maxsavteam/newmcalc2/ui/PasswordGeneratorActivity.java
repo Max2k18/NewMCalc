@@ -37,10 +37,7 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 
 	@Override
 	public void onBackPressed() {
-		if(getIntent().getStringExtra( "type" ).equals( "shortcut" ))
-			startActivity(new Intent(this, Main2Activity.class));
 		super.onBackPressed();
-		Utils.defaultActivityAnim( this );
 	}
 
 	@Override

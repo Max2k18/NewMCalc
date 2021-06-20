@@ -65,15 +65,11 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private boolean needToCreateMenu = false;
 	private Menu mMenu;
 	private SwipeController mSwipeController = null;
-	private String mStartType;
 	private int mPositionToDel = -1;
 
 	@Override
 	public void onBackPressed() {
 		setResult( ResultCodesConstants.RESULT_NORMAL, mHistoryAction );
-		if ( mStartType.equals( "shortcut" ) ) {
-			startActivity( new Intent( this, Main2Activity.class ) );
-		}
 		super.onBackPressed();
 	}
 
@@ -121,8 +117,8 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	private final int SECONDS_BEFORE_DELETE = 5;
 
 	private CountDownTimer mCountDownTimer;
-	TextView mCountDownTextView;
-	LinearLayout mCancelLayout;
+	private TextView mCountDownTextView;
+	private LinearLayout mCancelLayout;
 
 	@SuppressLint("DefaultLocale")
 	private void setupTimer() {
@@ -453,7 +449,6 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			}
 		} );
 
-		mStartType = getIntent().getStringExtra( "start_type" );
 		mEntries = new ArrayList<>();
 		DecimalFormat decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ));
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
