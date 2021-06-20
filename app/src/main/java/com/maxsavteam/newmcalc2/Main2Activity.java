@@ -502,7 +502,6 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Utils.setContext( this );
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		setContentView( R.layout.activity_main2 );

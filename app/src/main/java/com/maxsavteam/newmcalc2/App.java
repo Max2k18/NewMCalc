@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.Build;
 
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
+import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Locale;
@@ -26,9 +27,11 @@ public class App extends Application {
 		super.onCreate();
 		instance = this;
 
+		Utils.setContext( getApplicationContext() );
+
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
 			appLocale = getApplicationContext().getResources().getConfiguration().getLocales().get( 0 );
-		}else{
+		} else {
 			appLocale = getApplicationContext().getResources().getConfiguration().locale;
 		}
 
@@ -36,8 +39,9 @@ public class App extends Application {
 		UncaughtExceptionHandler previousHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler( (t, e)->{
 			exceptionHandler.uncaughtException( t, e );
-			if(previousHandler != null)
+			if ( previousHandler != null ) {
 				previousHandler.uncaughtException( t, e );
+			}
 		} );
 	}
 }
