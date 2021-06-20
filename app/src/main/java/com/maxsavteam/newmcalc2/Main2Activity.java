@@ -505,7 +505,7 @@ public class Main2Activity extends ThemeActivity {
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
 		Toast.makeText( this, "" + startCount, Toast.LENGTH_SHORT ).show();
-		if(startCount >= 2){
+		if(startCount >= 10){
 			s.edit().putInt( "start_count", 0 ).apply();
 			offerToRate = true;
 			reviewManager = ReviewManagerFactory.create( this );
