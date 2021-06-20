@@ -17,6 +17,8 @@ import android.graphics.Point;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
@@ -45,6 +47,9 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
@@ -117,6 +122,12 @@ public class Main2Activity extends ThemeActivity {
 
 	private DecimalFormat mDecimalFormat;
 
+	private boolean offerToRate = false;
+
+	private ReviewInfo reviewInfo;
+
+	private ReviewManager reviewManager;
+
 	enum CalculateMode {
 		PRE_ANSWER,
 		FULL_ANSWER
@@ -173,7 +184,7 @@ public class Main2Activity extends ThemeActivity {
 				.setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() )
 				.setPositiveButton( R.string.yes, (dialog, which)->{
 					dialog.cancel();
-					super.onBackPressed();
+					finishAfterTransition();
 				} );
 		builder.show();
 	}
@@ -256,6 +267,7 @@ public class Main2Activity extends ThemeActivity {
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult( requestCode, permissions, grantResults );
 		if ( requestCode == 10 && grantResults.length == 2 ) {
 			if ( grantResults[ 0 ] == PackageManager.PERMISSION_DENIED
 					|| grantResults[ 1 ] == PackageManager.PERMISSION_DENIED ) {
@@ -489,6 +501,24 @@ public class Main2Activity extends ThemeActivity {
 		initializeScrollViews();
 
 		showWhatNew();
+
+		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
+		int startCount = s.getInt( "start_count", 0 );
+		Toast.makeText( this, "" + startCount, Toast.LENGTH_SHORT ).show();
+		if(startCount >= 2){
+			s.edit().putInt( "start_count", 0 ).apply();
+			offerToRate = true;
+			reviewManager = ReviewManagerFactory.create( this );
+			reviewManager.requestReviewFlow().addOnCompleteListener( task->{
+				if ( task.isSuccessful() )
+					reviewInfo = task.getResult();
+				else {
+					Log.i( TAG, "requestReviewFlow: " + task.getException());
+				}
+			} );
+		}else{
+			s.edit().putInt( "start_count", startCount + 1 ).apply();
+		}
 	}
 
 	private void showWhatNew() {
@@ -933,6 +963,9 @@ public class Main2Activity extends ThemeActivity {
 			try {
 				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
 				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
+				Log.i( TAG, "calculate: " + (offerToRate && reviewInfo != null) );
+				if(offerToRate && reviewInfo != null)
+					startOfferRate();
 				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
 			} catch (CalculatingException e) {
 				FirebaseCrashlytics.getInstance().recordException( e );
@@ -1044,6 +1077,26 @@ public class Main2Activity extends ThemeActivity {
 				}
 			}
 		}
+	}
+
+	private Handler rateHandler;
+	private final Runnable rateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if ( rateHandler != null ) {
+				rateHandler.removeCallbacks(this);
+				rateHandler = null;
+			}
+			offerToRate = false;
+			reviewManager.launchReviewFlow( Main2Activity.this, reviewInfo );
+		}
+	};
+
+	private void startOfferRate(){
+		if(rateHandler != null)
+			rateHandler.removeCallbacks( rateRunnable );
+		rateHandler = new Handler( Looper.getMainLooper() );
+		rateHandler.postDelayed( rateRunnable, 5 * 1000 );
 	}
 
 	public void deleteSymbolOnClick(View v) {

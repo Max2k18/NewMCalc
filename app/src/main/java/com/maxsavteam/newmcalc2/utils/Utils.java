@@ -29,6 +29,8 @@ public final class Utils {
 
 	public static final String MCALC_SITE = "https://mcalc.maxsavteam.com/";
 
+	public static final String APP_PREFERENCES = "preferences";
+
 	public static void setContext(Context context) {
 		sContext = context;
 	}

@@ -3,8 +3,6 @@ package com.maxsavteam.newmcalc2;
 import android.app.Application;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
-
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 
