@@ -46,7 +46,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailabilityLight;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.appupdate.AppUpdateOptions;
+import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
@@ -504,20 +512,33 @@ public class Main2Activity extends ThemeActivity {
 
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
-		Toast.makeText( this, "" + startCount, Toast.LENGTH_SHORT ).show();
-		if(startCount >= 10){
-			s.edit().putInt( "start_count", 0 ).apply();
-			offerToRate = true;
-			reviewManager = ReviewManagerFactory.create( this );
-			reviewManager.requestReviewFlow().addOnCompleteListener( task->{
-				if ( task.isSuccessful() )
-					reviewInfo = task.getResult();
-				else {
-					Log.i( TAG, "requestReviewFlow: " + task.getException());
-				}
-			} );
-		}else{
-			s.edit().putInt( "start_count", startCount + 1 ).apply();
+		if( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
+			if ( startCount >= 10 ) {
+				s.edit().putInt( "start_count", 0 ).apply();
+				offerToRate = true;
+				reviewManager = ReviewManagerFactory.create( getApplicationContext() );
+				reviewManager.requestReviewFlow().addOnCompleteListener( task->{
+					if ( task.isSuccessful() )
+						reviewInfo = task.getResult();
+					else {
+						Log.i( TAG, "requestReviewFlow: " + task.getException() );
+					}
+				} );
+			} else {
+				s.edit().putInt( "start_count", startCount + 1 ).apply();
+			}
+
+			AppUpdateManager manager = AppUpdateManagerFactory.create( getApplicationContext() );
+			manager.getAppUpdateInfo()
+					.addOnSuccessListener( appUpdateInfo->{
+						if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ){
+							manager.startUpdateFlow(
+									appUpdateInfo,
+									this,
+									AppUpdateOptions.newBuilder( AppUpdateType.FLEXIBLE ).build()
+							);
+						}
+					} );
 		}
 	}
 
