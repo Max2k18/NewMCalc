@@ -3,9 +3,9 @@ package com.maxsavteam.newmcalc2;
 import android.app.Application;
 import android.os.Build;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
 
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Locale;
 
 public class App extends Application {
@@ -33,10 +33,11 @@ public class App extends Application {
 		}
 
 		ExceptionHandler exceptionHandler = new ExceptionHandler( getApplicationContext(), AfterCrashActivity.class, false );
+		UncaughtExceptionHandler previousHandler = Thread.getDefaultUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler( (t, e)->{
-			FirebaseCrashlytics.getInstance().recordException( e );
-			FirebaseCrashlytics.getInstance().sendUnsentReports();
 			exceptionHandler.uncaughtException( t, e );
+			if(previousHandler != null)
+				previousHandler.uncaughtException( t, e );
 		} );
 	}
 }
