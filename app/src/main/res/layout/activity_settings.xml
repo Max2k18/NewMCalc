@@ -29,7 +29,7 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:context=".ui.SettingsActivity">
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchSaveOnExit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
             android:text="@string/switchSaveOff"
             android:textSize="16sp"
             android:textColor="?textColor"
-            android:thumbTint="@color/colorAccent" />
+            app:thumbTint="@color/colorAccent" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
 
         </LinearLayout>
 
-        <Switch
+        <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchKeepScreenOn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
             android:text="@string/keep_screen_on"
             android:textColor="?textColor"
             android:textSize="18sp"
-            android:thumbTint="@color/colorAccent" />
+            app:thumbTint="@color/colorAccent" />
 
         <LinearLayout
             android:id="@+id/import_export"

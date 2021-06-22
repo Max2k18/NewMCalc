@@ -11,15 +11,16 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
@@ -78,7 +79,7 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	public void switchSave(View v) {
-		Switch sw = (Switch) v;
+		SwitchMaterial sw = (SwitchMaterial) v;
 		if ( v.getId() == R.id.switchSaveOnExit ) {
 			if ( sw.isChecked() ) {
 				sw.setText( R.string.switchSaveOn );
@@ -102,7 +103,10 @@ public class SettingsActivity extends ThemeActivity {
 
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+
+		ActionBar actionBar = getSupportActionBar();
+		if(actionBar != null)
+			actionBar.setDisplayHomeAsUpEnabled( true );
 
 		ButtonWithDropdown button = findViewById( R.id.theme_dropdown_button );
 		button.setElements( getResources().getStringArray( R.array.theme_states ) );
@@ -116,7 +120,7 @@ public class SettingsActivity extends ThemeActivity {
 	@Override
 	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
 		super.onPostCreate( savedInstanceState );
-		Switch sw = findViewById( R.id.switchSaveOnExit );
+		SwitchMaterial sw = findViewById( R.id.switchSaveOnExit );
 		sw.setChecked( sp.getBoolean( "saveResult", false ) );
 		if ( sw.isChecked() ) {
 			sw.setText( R.string.switchSaveOn );
