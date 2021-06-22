@@ -3,23 +3,30 @@ package com.maxsavteam.newmcalc2.ui;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
+import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.types.Tuple;
@@ -27,9 +34,17 @@ import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,10 +53,22 @@ import java.util.Set;
 
 public class SettingsActivity extends ThemeActivity {
 
+	private static final String TAG = Main2Activity.TAG + " Settings";
 	private SharedPreferences sp;
 
 	private static final int IMPORT_STORAGE_REQUEST = 0;
-	private static final int EXPORT_STORAGE_REQUEST = 1;
+
+	private final ActivityResultLauncher<Intent> mCreateBackupLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result -> {
+				if(result.getResultCode() == RESULT_OK){
+					Intent data = result.getData();
+					if(data != null){
+						createSettingsBackupToFile( data.getData() );
+					}
+				}
+			}
+	);
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -249,56 +276,79 @@ public class SettingsActivity extends ThemeActivity {
 		}
 	}
 
-	private void export() {
-		ProgressDialog pd;
-		pd = new ProgressDialog( this );
-		pd.setProgressStyle( ProgressDialog.STYLE_SPINNER );
-		pd.setCancelable( false );
-		File f = new File( Environment.getExternalStorageDirectory() + "/MST files" );
-		if ( !f.isDirectory() ) {
-			f.mkdir();
-		}
-		String fileName = "MCalc.imc";
-		f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
-		pd.show();
+	private void createSettingsBackupToFile(Uri uri) {
+		String data;
 		try {
-			FileWriter fw = new FileWriter( f, false );
-			Map<String, ?> m = sp.getAll();
-			fw.write( "" );
-			Set<String> se = m.keySet();
-			List<String> l = new ArrayList<>( se );
-			for (int i = 0; i < l.size(); i++) {
-				String ty = m.get( l.get( i ) ).getClass().getName();
-				ty = ty.replace( "java.lang.", "" );
-				ty = Character.toString( ty.charAt( 0 ) );
-				fw.append( ty ).append( l.get( i ) ).append( "=" ).append( String.valueOf( m.get( l.get( i ) ) ) ).append( (char) 23 );
-			}
-			pd.dismiss();
-			fw.append( "\n#Please do not change the values yourself.\n#This can lead to malfunctions or even to malfunction" );
-			fw.flush();
-			Toast.makeText( getApplicationContext(), R.string.exported, Toast.LENGTH_SHORT ).show();
-		} catch (Exception e) {
-			pd.dismiss();
-			Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
+			JSONObject jsonObject = createSettingsBackupJSON();
+			data = jsonObject.toString();
+		} catch (JSONException e) {
 			e.printStackTrace();
+			Log.i( TAG, "createSettingsBackupToFile: " + e );
+			Toast.makeText( this, e.toString(), Toast.LENGTH_SHORT ).show();
+			return;
 		}
+		try(OutputStream os = getContentResolver().openOutputStream(uri)){
+			if(os != null)
+				os.write( data.getBytes( StandardCharsets.UTF_8 ) );
+		}catch (IOException e){
+			e.printStackTrace();
+			Toast.makeText( this, e.toString(), Toast.LENGTH_SHORT ).show();
+			return;
+		}
+		Toast.makeText( this, R.string.successfully, Toast.LENGTH_SHORT ).show();
+	}
+
+	private JSONObject createSettingsBackupJSON() throws JSONException {
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
+		Map<String, ?> map = sp.getAll();
+		JSONArray jsonArray = new JSONArray();
+		for (String s : map.keySet()) {
+			Object value = map.get( s );
+			if ( value == null ) {
+				continue;
+			}
+			String type = getObjectType( value );
+			if ( type == null ) {
+				continue;
+			}
+			JSONObject jsonObject = new JSONObject();
+			jsonObject
+					.put( "type", type )
+					.put( "value", value );
+			jsonArray.put( jsonObject );
+		}
+		return new JSONObject()
+				.put( "data", jsonArray );
+	}
+
+	private String getObjectType(Object o) {
+		if ( o instanceof Integer ) {
+			return "int";
+		} else if ( o instanceof String ) {
+			return "string";
+		} else if ( o instanceof Double ) {
+			return "double";
+		} else if ( o instanceof Float ) {
+			return "float";
+		} else if ( o instanceof Long ) {
+			return "long";
+		}
+		return null;
+	}
+
+	private void export() {
+		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+		intent.setType( "text/plain" );
+		intent.putExtra( Intent.EXTRA_TITLE, "MCalc Backup.txt" );
+		mCreateBackupLauncher.launch( intent );
 	}
 
 	public void initializeExport(View v) {
-		if ( checkSelfPermission( Manifest.permission.WRITE_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED ) {
-			export();
-		} else {
-			requestPermissions( new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, EXPORT_STORAGE_REQUEST );
-		}
+		export();
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if ( requestCode == EXPORT_STORAGE_REQUEST ) {
-			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
-				export();
-			}
-		}
 		if ( requestCode == IMPORT_STORAGE_REQUEST ) {
 			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
 				initializeImport( null );
