@@ -140,4 +140,6 @@
     <string name="we_did_not_mean_to_do_it">Sorry, we did not mean to do it</string>
     <string name="restart_app">Restart app</string>
     <string name="successfully">Successfully</string>
+    <string name="failed_to_read_file">Failed to read file</string>
+    <string name="failed_to_import_settings">Failed to import settings</string>
 </resources>

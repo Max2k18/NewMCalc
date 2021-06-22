@@ -1,16 +1,12 @@
 package com.maxsavteam.newmcalc2.ui;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -21,50 +17,52 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
-import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.types.Tuple;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
-import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public class SettingsActivity extends ThemeActivity {
 
 	private static final String TAG = Main2Activity.TAG + " Settings";
 	private SharedPreferences sp;
 
-	private static final int IMPORT_STORAGE_REQUEST = 0;
-
 	private final ActivityResultLauncher<Intent> mCreateBackupLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
-			result -> {
-				if(result.getResultCode() == RESULT_OK){
+			result->{
+				if ( result.getResultCode() == RESULT_OK ) {
 					Intent data = result.getData();
-					if(data != null){
+					if ( data != null ) {
 						createSettingsBackupToFile( data.getData() );
+					}
+				}
+			}
+	);
+
+	private final ActivityResultLauncher<Intent> mChooseBackupFileLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{
+				if ( result.getResultCode() == RESULT_OK ) {
+					Intent data = result.getData();
+					if ( data != null ) {
+						importSettings( data.getData() );
 					}
 				}
 			}
@@ -73,7 +71,6 @@ public class SettingsActivity extends ThemeActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
-		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
 		if ( id == android.R.id.home ) {
 			onBackPressed();
 		}
@@ -106,10 +103,6 @@ public class SettingsActivity extends ThemeActivity {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
 		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-
-		if ( sp.getBoolean( "storage_denied", false ) ) {
-			findViewById( R.id.import_export ).setVisibility( View.GONE );
-		}
 
 		ButtonWithDropdown button = findViewById( R.id.theme_dropdown_button );
 		button.setElements( getResources().getStringArray( R.array.theme_states ) );
@@ -163,117 +156,156 @@ public class SettingsActivity extends ThemeActivity {
 	}
 
 	public void initializeImport(View v) {
-		if ( checkSelfPermission( Manifest.permission.READ_EXTERNAL_STORAGE ) == PackageManager.PERMISSION_GRANTED ) {
-			String fileName = "MCalc.imc";
-			File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
-			if ( !f.exists() ) {
-				Toast.makeText( getApplicationContext(), R.string.export_file_not_found, Toast.LENGTH_LONG ).show();
-				return;
-			}
-			showImportDialog();
-		} else {
-			requestPermissions( new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, IMPORT_STORAGE_REQUEST );
-		}
+		Intent intent = new Intent( Intent.ACTION_OPEN_DOCUMENT );
+		intent.setType( "text/plain" );
+		mChooseBackupFileLauncher.launch( intent );
 	}
 
-	private void showImportDialog() {
-		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-		builder
-				.setMessage( getResources().getString( R.string.to_continue_need_to_restart_app ) + "\n" + getResources().getString( R.string.want_to_continue_question ) )
-				.setCancelable( false )
-				.setPositiveButton( R.string.restart, (dialog, which)->{
-					importSettings();
-					dialog.cancel();
-				} )
-				.setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() );
-		builder.show();
-	}
-
-	private void importSettings() {
-		String fileName = "MCalc.imc";
-		File f = new File( Environment.getExternalStorageDirectory() + "/MST files/" + fileName );
-		try {
-			FileReader fr = new FileReader( f );
-			Map<String, ?> m = sp.getAll();
-			Set<String> se = m.keySet();
-			List<String> l = new ArrayList<>( se );
-			ArrayList<Tuple<String, String, String>> a = new ArrayList<>();
-			for (int i = 0; i < l.size(); i++) {
-				String type = m.get( l.get( i ) ).getClass().getName();
-				if ( type.contains( "java.lang." ) ) {
-					type = type.replaceAll( "java.lang.", "" );
-					a.add( Tuple.create( type, l.get( i ), String.valueOf( m.get( l.get( i ) ) ) ) );
-				}
-			}
-			sp.edit().clear().apply();
-			while ( fr.ready() ) {
-				char t = (char) fr.read();
-				if ( t == '#' ) {
-					break;
-				}
-
-				if ( t == '\n' ) {
-					continue;
-				}
-
-				if ( t != 'I' && t != 'B' && t != 'S' ) {
-					fr.close();
-					sp.edit().clear().apply();
-					for (Tuple<String, String, String> p : a) {
-						String type = p.first;
-						String key = p.second;
-						String value = p.third;
-						switch ( type ) {
-							case "String":
-								sp.edit().putString( key, value ).apply();
-								break;
-							case "Integer":
-								sp.edit().putInt( key, Integer.parseInt( value ) ).apply();
-								break;
-							case "Boolean":
-								sp.edit().putBoolean( key, Boolean.parseBoolean( value ) ).apply();
-								break;
-							case "Float":
-								sp.edit().putFloat( key, Float.parseFloat( value ) ).apply();
-								break;
-							case "Long":
-								sp.edit().putLong( key, Long.parseLong( value ) ).apply();
-								break;
-							default:
-								break;
-						}
-					}
-					// TODO: 12.08.2020 somethingWentWrong Activity
-					finish();
-					return;
-				}
-				String tag = "";
-				char read = (char) fr.read();
-				while ( read != '=' ) {
-					tag = String.format( "%s%s", tag, read );
-					read = (char) fr.read();
-				}
-				String value = "";
-				read = (char) fr.read();
-				while ( fr.ready() && read != ( (char) 23 ) ) {
-					value = String.format( "%s%c", value, read );
-					read = (char) fr.read();
-				}
-				if ( t == 'S' ) {
-					sp.edit().putString( tag, value ).apply();
-				} else if ( t == 'I' ) {
-					sp.edit().putInt( tag, Integer.parseInt( value ) ).apply();
-				} else {
-					sp.edit().putBoolean( tag, Boolean.parseBoolean( value ) ).apply();
-				}
-			}
-			fr.close();
-			//postcreate();
+	private void importSettings(Uri uri) {
+		if ( importFromFile( uri ) ) {
 			restartApp();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText( getApplicationContext(), e.toString(), Toast.LENGTH_LONG ).show();
+		} else {
+			Toast.makeText( this, R.string.failed_to_import_settings, Toast.LENGTH_SHORT ).show();
 		}
+	}
+
+	private boolean importFromFile(Uri uri) {
+		String data;
+		try (InputStream is = getContentResolver().openInputStream( uri ); ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			if ( is == null ) {
+				throw new IOException();
+			}
+			int len;
+			byte[] buffer = new byte[ 1024 ];
+			while ( ( len = is.read( buffer ) ) != -1 ) {
+				os.write( buffer, 0, len );
+			}
+			data = os.toString();
+		} catch (IOException e) {
+			return false;
+		}
+		SharedPreferences sp = null;
+		SharedPreferences mainPrefs = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
+		try {
+			sp = importFromJSON( data );
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		if ( sp == null ) {
+			boolean success;
+			try {
+				sp = importSettingsLegacy( data );
+				success = sp != null;
+			} catch (IOException e) {
+				e.printStackTrace();
+				success = false;
+			}
+			if ( !success ) {
+				return false;
+			}
+		}
+		copySharedPrefs( sp, mainPrefs );
+		return true;
+	}
+
+	private void copySharedPrefs(SharedPreferences from, SharedPreferences to) {
+		Map<String, ?> map = from.getAll();
+		for (String key : map.keySet()) {
+			Object val = map.get( key );
+			if ( val == null ) {
+				continue;
+			}
+			String type = getObjectType( val );
+			if ( type != null ) {
+				putObjectToSharedPreferences( to, type, key, val );
+			}
+		}
+	}
+
+	private SharedPreferences importFromJSON(String json) throws JSONException {
+		SharedPreferences sp = getSharedPreferences( "temp_prefs", MODE_PRIVATE );
+		sp.edit().clear().apply();
+		JSONObject jsonObject = new JSONObject( json );
+		JSONArray jsonArray = jsonObject.getJSONArray( "data" );
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject j = jsonArray.getJSONObject( i );
+			String type = j.getString( "type" );
+			String key = j.getString( "key" );
+			Object value = j.get( "value" );
+			putObjectToSharedPreferences( sp, type, key, value );
+		}
+		return sp;
+	}
+
+	private void putObjectToSharedPreferences(SharedPreferences sp, String type, String key, Object value) {
+		Editor e = sp.edit();
+		switch ( type ) {
+			case "string": {
+				e.putString( key, String.valueOf( value ) );
+				break;
+			}
+			case "int": {
+				e.putInt( key, Integer.parseInt( String.valueOf( value ) ) );
+				break;
+			}
+			case "long": {
+				e.putLong( key, Long.parseLong( String.valueOf( value ) ) );
+				break;
+			}
+			case "float": {
+				e.putFloat( key, Float.parseFloat( String.valueOf( value ) ) );
+				break;
+			}
+			case "bool": {
+				e.putBoolean( key, Boolean.parseBoolean( String.valueOf( value ) ) );
+				break;
+			}
+			default:
+				break;
+		}
+		e.apply();
+	}
+
+	private SharedPreferences importSettingsLegacy(String data) throws IOException {
+		SharedPreferences sp = getSharedPreferences( "temp_prefs", MODE_PRIVATE );
+		sp.edit().clear().apply();
+		StringReader fr = new StringReader( data );
+		while ( fr.ready() ) {
+			char t = (char) fr.read();
+			if ( t == '#' ) {
+				break;
+			}
+
+			if ( t == '\n' ) {
+				continue;
+			}
+
+			if ( t != 'I' && t != 'B' && t != 'S' ) {
+				fr.close();
+				return null;
+			}
+			String tag = "";
+			char read = (char) fr.read();
+			while ( read != '=' ) {
+				tag = String.format( "%s%s", tag, read );
+				read = (char) fr.read();
+			}
+			String value = "";
+			read = (char) fr.read();
+			while ( fr.ready() && read != ( (char) 23 ) ) {
+				value = String.format( "%s%c", value, read );
+				read = (char) fr.read();
+			}
+			if ( t == 'S' ) {
+				sp.edit().putString( tag, value ).apply();
+			} else if ( t == 'I' ) {
+				sp.edit().putInt( tag, Integer.parseInt( value ) ).apply();
+			} else {
+				sp.edit().putBoolean( tag, Boolean.parseBoolean( value ) ).apply();
+			}
+		}
+		fr.close();
+		return sp;
 	}
 
 	private void createSettingsBackupToFile(Uri uri) {
@@ -287,10 +319,11 @@ public class SettingsActivity extends ThemeActivity {
 			Toast.makeText( this, e.toString(), Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		try(OutputStream os = getContentResolver().openOutputStream(uri)){
-			if(os != null)
+		try (OutputStream os = getContentResolver().openOutputStream( uri )) {
+			if ( os != null ) {
 				os.write( data.getBytes( StandardCharsets.UTF_8 ) );
-		}catch (IOException e){
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 			Toast.makeText( this, e.toString(), Toast.LENGTH_SHORT ).show();
 			return;
@@ -314,7 +347,8 @@ public class SettingsActivity extends ThemeActivity {
 			JSONObject jsonObject = new JSONObject();
 			jsonObject
 					.put( "type", type )
-					.put( "value", value );
+					.put( "value", value )
+					.put( "key", s );
 			jsonArray.put( jsonObject );
 		}
 		return new JSONObject()
@@ -326,18 +360,18 @@ public class SettingsActivity extends ThemeActivity {
 			return "int";
 		} else if ( o instanceof String ) {
 			return "string";
-		} else if ( o instanceof Double ) {
-			return "double";
 		} else if ( o instanceof Float ) {
 			return "float";
 		} else if ( o instanceof Long ) {
 			return "long";
+		} else if ( o instanceof Boolean ) {
+			return "bool";
 		}
 		return null;
 	}
 
 	private void export() {
-		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+		Intent intent = new Intent( Intent.ACTION_CREATE_DOCUMENT );
 		intent.setType( "text/plain" );
 		intent.putExtra( Intent.EXTRA_TITLE, "MCalc Backup.txt" );
 		mCreateBackupLauncher.launch( intent );
@@ -347,13 +381,4 @@ public class SettingsActivity extends ThemeActivity {
 		export();
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if ( requestCode == IMPORT_STORAGE_REQUEST ) {
-			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
-				initializeImport( null );
-			}
-		}
-		super.onRequestPermissionsResult( requestCode, permissions, grantResults );
-	}
 }

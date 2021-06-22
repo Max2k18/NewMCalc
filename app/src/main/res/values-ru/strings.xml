@@ -129,4 +129,6 @@
     <string name="we_did_not_mean_to_do_it">Извините, мы не специально</string>
     <string name="restart_app">Перезапустить приложение</string>
     <string name="successfully">Успешно</string>
+    <string name="failed_to_read_file">Не удалось прочитать файл</string>
+    <string name="failed_to_import_settings">Не удалось импортировать настройки</string>
 </resources>
