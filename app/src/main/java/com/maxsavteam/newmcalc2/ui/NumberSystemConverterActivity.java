@@ -1,7 +1,6 @@
 package com.maxsavteam.newmcalc2.ui;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -18,10 +17,8 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.math.BigDecimal;
 
@@ -32,22 +29,6 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 	private int toSys = 2;
 	private EditText fromText;
 	private EditText toText;
-	private String mStartType;
-
-	protected void backPressed() {
-		super.onBackPressed();
-		Utils.defaultActivityAnim( this );
-	}
-
-	@Override
-	public void onBackPressed() {
-		if ( mStartType.equals( "app" ) ) {
-			backPressed();
-		} else if ( mStartType.equals( "shortcut" ) ) {
-			startActivity( new Intent( this, Main2Activity.class ) );
-			backPressed();
-		}
-	}
 
 	private int positionInSet(int sys) {
 		for (int i = 0; i < data.length; i++) {
@@ -72,7 +53,8 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 	private void applyTheme() {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		if(getSupportActionBar() != null)
+			getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
 		setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
 		EditText e = findViewById( R.id.edNumTo );
@@ -89,7 +71,6 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		Spinner from = findViewById( R.id.chooseFromWhichSys );
 		Spinner to = findViewById( R.id.chooseToWhichSys );
 
-		mStartType = getIntent().getStringExtra( "start_type" );
 		applyTheme();
 		ArrayAdapter<String> ar = new ArrayAdapter<>( this, android.R.layout.simple_spinner_item, data );
 		ar.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
