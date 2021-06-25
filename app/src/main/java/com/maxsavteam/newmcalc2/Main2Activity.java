@@ -17,8 +17,6 @@ import android.graphics.Point;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
@@ -56,7 +54,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.appupdate.AppUpdateOptions;
 import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
-import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -129,10 +126,6 @@ public class Main2Activity extends ThemeActivity {
 	private ProgressDialog mThreadControllerProgressDialog;
 
 	private DecimalFormat mDecimalFormat;
-
-	private boolean offerToRate = false;
-
-	private ReviewInfo reviewInfo;
 
 	private ReviewManager reviewManager;
 
@@ -571,13 +564,12 @@ public class Main2Activity extends ThemeActivity {
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
 		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
-			if ( startCount >= 10 ) {
+			if ( startCount >= 8 ) {
 				s.edit().putInt( "start_count", 0 ).apply();
-				offerToRate = true;
 				reviewManager = ReviewManagerFactory.create( getApplicationContext() );
 				reviewManager.requestReviewFlow().addOnCompleteListener( task->{
 					if ( task.isSuccessful() ) {
-						reviewInfo = task.getResult();
+						reviewManager.launchReviewFlow( this, task.getResult() );
 					} else {
 						Log.i( TAG, "requestReviewFlow: " + task.getException() );
 					}
@@ -988,13 +980,8 @@ public class Main2Activity extends ThemeActivity {
 			try {
 				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
 				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
-				Log.i( TAG, "calculate: " + ( offerToRate && reviewInfo != null ) );
-				if ( offerToRate && reviewInfo != null ) {
-					startOfferRate();
-				}
 				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
 			} catch (CalculatingException e) {
-				FirebaseCrashlytics.getInstance().recordException( e );
 				wasError = true;
 				if ( mode == CalculateMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
@@ -1104,27 +1091,6 @@ public class Main2Activity extends ThemeActivity {
 				}
 			}
 		}
-	}
-
-	private Handler rateHandler;
-	private final Runnable rateRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if ( rateHandler != null ) {
-				rateHandler.removeCallbacks( this );
-				rateHandler = null;
-			}
-			offerToRate = false;
-			reviewManager.launchReviewFlow( Main2Activity.this, reviewInfo );
-		}
-	};
-
-	private void startOfferRate() {
-		if ( rateHandler != null ) {
-			rateHandler.removeCallbacks( rateRunnable );
-		}
-		rateHandler = new Handler( Looper.getMainLooper() );
-		rateHandler.postDelayed( rateRunnable, 5 * 1000 );
 	}
 
 	public void deleteSymbolOnClick(View v) {
