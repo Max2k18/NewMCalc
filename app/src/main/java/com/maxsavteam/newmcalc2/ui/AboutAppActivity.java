@@ -16,7 +16,6 @@ import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 public class AboutAppActivity extends ThemeActivity {
@@ -42,14 +41,10 @@ public class AboutAppActivity extends ThemeActivity {
 			in.setData( Uri.parse( "https://maxsavteam.com" ) );
 		} else if ( v.getId() == R.id.playMarketBtn ) {
 			in.setData( Uri.parse( getResources().getString( R.string.link_app_in_google_play ) ) );
+		} else if( v.getId() == R.id.githubBtn ){
+			in.setData( Uri.parse( "https://github.com/MaxSavTeam/MCalc" ) );
 		}
 		startActivity( in );
-	}
-
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		Utils.defaultActivityAnim( this );
 	}
 
 	@Override
@@ -68,7 +63,6 @@ public class AboutAppActivity extends ThemeActivity {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
 		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-		//toolbar.getNavigationIcon().setColorFilter( super.textColor, PorterDuff.Mode.SRC_ATOP );
 
 		( (TextView) findViewById( R.id.version ) ).setText( BuildConfig.VERSION_NAME );
 

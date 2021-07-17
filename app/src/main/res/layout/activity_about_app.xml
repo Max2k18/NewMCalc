@@ -83,6 +83,15 @@
             app:srcCompat="@drawable/ic_external_link" />
 
         <ImageButton
+            android:id="@+id/githubBtn"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:onClick="social"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_github" />
+
+        <ImageButton
             android:id="@+id/playMarketBtn"
             android:layout_width="70dp"
             android:layout_height="70dp"
