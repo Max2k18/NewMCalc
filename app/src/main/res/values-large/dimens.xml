@@ -37,4 +37,8 @@
 
     <dimen name="converter_arrow_size">100dp</dimen>
 
+    <dimen name="variable_editor_text_size">30sp</dimen>
+    <dimen name="variable_editor_warning_text_size">28sp</dimen>
+    <dimen name="variable_editor_edit_text_size">28sp</dimen>
+
 </resources>

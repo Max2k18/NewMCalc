@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.VariableEditorActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -11,12 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:theme="@style/ActionBarStyle"
-        app:title="@string/variable_editor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        app:title="@string/variable_editor" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,42 +32,43 @@
             android:id="@+id/lblNameOfVar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/name_of_var"
             android:layout_marginBottom="7dp"
-            android:textSize="20sp" />
+            android:text="@string/name_of_var"
+            android:textSize="@dimen/variable_editor_text_size" />
 
         <EditText
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:textColor="?textColor"
-            android:gravity="center_horizontal"
             android:backgroundTint="@color/colorAccent"
+            android:ems="10"
+            android:gravity="center_horizontal"
             android:inputType="textPersonName"
-            android:singleLine="true"
             android:maxLength="20"
-            android:textSize="18sp" />
+            android:singleLine="true"
+            android:textColor="?textColor"
+            android:textSize="@dimen/variable_editor_edit_text_size" />
 
         <TextView
             android:id="@+id/lblValueOfVar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:text="@string/value"
             android:layout_marginBottom="7dp"
-            android:textSize="20sp" />
+            android:text="@string/value"
+            android:textSize="@dimen/variable_editor_text_size" />
 
         <EditText
             android:id="@+id/value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:textColor="?textColor"
             android:backgroundTint="@color/colorAccent"
+            android:ems="10"
             android:gravity="center_horizontal"
+            android:inputType="numberDecimal"
             android:maxLength="20"
-            android:inputType="numberDecimal" />
+            android:textSize="@dimen/variable_editor_edit_text_size"
+            android:textColor="?textColor" />
 
         <TextView
             android:id="@+id/lblWarn"
@@ -75,28 +76,37 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:textColor="@color/red"
-            android:textSize="18sp"
+            android:textSize="@dimen/variable_editor_warning_text_size"
             android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/btnSaveVar"
-            style="@style/Widget.AppCompat.Button.Colored"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:onClick="applyVariable"
-            android:text="@string/apply" />
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btnDelVar"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/red"
-            android:onClick="deleteVariable"
-            android:layout_marginTop="10dp"
-            android:text="@string/delete"
-            android:textColor="@color/white"
-            android:visibility="invisible" />
+            <Button
+                android:id="@+id/btnSaveVar"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="applyVariable"
+                android:text="@string/apply"
+                android:textColor="@color/white" />
+
+            <Button
+                android:id="@+id/btnDelVar"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/red"
+                android:onClick="deleteVariable"
+                android:text="@string/delete"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
