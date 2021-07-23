@@ -26,6 +26,14 @@ public class VariablesFragment extends Fragment {
 	public VariablesFragment() {
 	}
 
+	public void setMemoryActionsLongClickListener(View.OnLongClickListener memoryActionsLongClickListener) {
+		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
+	}
+
+	public void setVariableButtonsLongClickListener(View.OnLongClickListener variableButtonsLongClickListener) {
+		mVariableButtonsLongClickListener = variableButtonsLongClickListener;
+	}
+
 	public VariablesFragment(View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
 		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
 		mVariableButtonsLongClickListener = variableButtonsLongClickListener;

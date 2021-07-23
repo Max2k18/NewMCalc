@@ -25,7 +25,7 @@ public class NumPadFragment extends Fragment {
 	public NumPadFragment() {
 	}
 
-	public NumPadFragment(View.OnLongClickListener calculateButtonLongClickListener) {
+	public void setCalculateButtonLongClickListener(View.OnLongClickListener calculateButtonLongClickListener) {
 		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
 	}
 

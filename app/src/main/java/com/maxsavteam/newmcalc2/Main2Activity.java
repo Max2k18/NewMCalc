@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
@@ -43,9 +42,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailabilityLight;
@@ -62,7 +60,7 @@ import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
-import com.maxsavteam.newmcalc2.adapters.MyFragmentPagerAdapter;
+import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
 import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
@@ -169,7 +167,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private final ActivityResultLauncher<Intent> mVariablesEditorLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
-			result->setViewPager( ( (ViewPager) findViewById( R.id.viewpager ) ).getCurrentItem() )
+			result->setViewPager( ( (ViewPager2) findViewById( R.id.viewpager ) ).getCurrentItem() )
 	);
 
 	private final ActivityResultLauncher<Intent> mSettingsLauncher = registerForActivityResult(
@@ -319,21 +317,6 @@ public class Main2Activity extends ThemeActivity {
 				toolbar.setBackgroundColor( Color.WHITE );
 				toolbar.setTitleTextColor( Color.BLACK );
 				toolbar.setNavigationIcon( R.drawable.ic_menu );
-			}
-		}
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult( requestCode, permissions, grantResults );
-		if ( requestCode == 10 && grantResults.length == 2 ) {
-			if ( grantResults[ 0 ] == PackageManager.PERMISSION_DENIED
-					|| grantResults[ 1 ] == PackageManager.PERMISSION_DENIED ) {
-				sp.edit().putBoolean( "storage_denied", true ).apply();
-			}
-			if ( grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED
-					&& grantResults[ 1 ] == PackageManager.PERMISSION_GRANTED ) {
-				sp.edit().remove( "storage_denied" ).remove( "never_request_permissions" ).apply();
 			}
 		}
 	}
@@ -665,40 +648,40 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void setViewPager(int which) {
-		ArrayList<Fragment> fragments = new ArrayList<>();
-		fragments.add( new NumPadFragment( mReturnBack ) );
-		fragments.add( new MathOperationsFragment() );
-		fragments.add( new VariablesFragment( mMemoryActionsLongClick, mOnVariableLongClick ) );
+		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
+		factories.add( ()->{
+			NumPadFragment fragment = new NumPadFragment();
+			fragment.setCalculateButtonLongClickListener( mReturnBack );
+			return fragment;
+		} );
+		factories.add( MathOperationsFragment::new );
+		factories.add( ()->{
+			VariablesFragment fragment = new VariablesFragment();
+			fragment.setMemoryActionsLongClickListener( mMemoryActionsLongClick );
+			fragment.setVariableButtonsLongClickListener( mOnVariableLongClick );
+			return fragment;
+		} );
 
-		MyFragmentPagerAdapter myFragmentPagerAdapter =
-				new MyFragmentPagerAdapter( getSupportFragmentManager(), fragments );
 
-		ViewPager viewPager = findViewById( R.id.viewpager );
-		viewPager.setAdapter( myFragmentPagerAdapter );
+		ViewPagerAdapter viewPagerAdapter =
+				new ViewPagerAdapter( this, factories );
+
+		ViewPager2 viewPager = findViewById( R.id.viewpager );
+		viewPager.setAdapter( viewPagerAdapter );
 		viewPager.setCurrentItem( which );
-		viewPager.addOnPageChangeListener( new ViewPager.OnPageChangeListener() {
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-			}
-
+		viewPager.registerOnPageChangeCallback( new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
 				if ( position == 0 ) {
 					hideWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
-				} else if ( position == fragments.size() - 1 ) {
+				} else if ( position == factories.size() - 1 ) {
 					showWithAlpha( R.id.image_view_left );
 					hideWithAlpha( R.id.image_view_right );
 				} else {
 					showWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
 				}
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int state) {
-
 			}
 		} );
 	}
