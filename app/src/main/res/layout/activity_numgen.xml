@@ -36,7 +36,7 @@
             android:gravity="center"
             android:text="@string/select_number"
             android:textAlignment="center"
-            android:textSize="21sp"
+            android:textSize="@dimen/num_gen_text_size"
             android:layout_marginBottom="15sp"
             android:textStyle="bold" />
 
@@ -57,7 +57,7 @@
                 android:gravity="center"
                 android:text="@string/from"
                 android:textAlignment="center"
-                android:textSize="20sp" />
+                android:textSize="@dimen/num_gen_text_size" />
 
             <EditText
                 android:id="@+id/edTextMin"
@@ -65,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
+                android:textSize="@dimen/num_gen_text_size"
                 android:textColor="?textColor"
                 android:backgroundTint="@color/colorAccent"
                 android:inputType="numberSigned|number" />
@@ -78,7 +79,7 @@
                 android:text="@string/to"
                 android:layout_marginStart="10dp"
                 android:textAlignment="center"
-                android:textSize="20sp" />
+                android:textSize="@dimen/num_gen_text_size" />
 
             <EditText
                 android:id="@+id/edTextMax"
@@ -87,6 +88,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:textColor="?textColor"
+                android:textSize="@dimen/num_gen_text_size"
                 android:backgroundTint="@color/colorAccent"
                 android:inputType="numberSigned|number"
                 android:importantForAutofill="no" />

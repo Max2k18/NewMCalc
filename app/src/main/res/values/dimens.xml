@@ -33,4 +33,7 @@
     <dimen name="password_generator_buttons_text_size">24sp</dimen>
     <dimen name="password_generator_text_size">30sp</dimen>
 
+    <dimen name="num_gen_text_size">20sp</dimen>
+    <dimen name="num_gen_answer_text_size">30sp</dimen>
+
 </resources>
