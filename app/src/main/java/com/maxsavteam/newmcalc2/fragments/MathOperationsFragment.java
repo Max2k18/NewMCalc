@@ -1,32 +1,28 @@
 package com.maxsavteam.newmcalc2.fragments;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 
-public class MathOperationsFragment extends Fragment {
+public class MathOperationsFragment implements ViewPagerAdapter.ViewPagerFragmentFactory {
 
-	private View mView;
+	public static final int TYPE = 2;
 
-	@Nullable
-	@org.jetbrains.annotations.Nullable
 	@Override
-	public View getView() {
-		return mView;
+	public View justCreateView(ViewGroup parent) {
+		return LayoutInflater.from( parent.getContext() ).inflate( R.layout.math_operations_fragment, parent, false );
 	}
 
-	@Nullable
-	@org.jetbrains.annotations.Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-		mView = inflater.inflate( R.layout.math_operations_fragment, container, false );
-		return mView;
+	public void bindView(View view) {
+
+	}
+
+	@Override
+	public int getType() {
+		return TYPE;
 	}
 }

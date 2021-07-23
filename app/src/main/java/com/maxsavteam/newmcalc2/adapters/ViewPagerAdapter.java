@@ -1,25 +1,41 @@
 package com.maxsavteam.newmcalc2.adapters;
 
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class ViewPagerAdapter extends FragmentStateAdapter {
+public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
 
 	private final ArrayList<ViewPagerFragmentFactory> mFactories;
 
-	public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity, ArrayList<ViewPagerFragmentFactory> f) {
-		super( fragmentActivity );
+	public ViewPagerAdapter(ArrayList<ViewPagerFragmentFactory> f) {
 		mFactories = f;
 	}
 
 	@NonNull
 	@Override
-	public Fragment createFragment(int position) {
-		return mFactories.get( position ).createFragment();
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		ViewPagerFragmentFactory factory = mFactories.get( 0 );
+		for (var f : mFactories) {
+			if ( f.getType() == viewType ) {
+				factory = f;
+			}
+		}
+		return new ViewHolder( factory.justCreateView(parent) );
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+		mFactories.get( position ).bindView( holder.itemView );
+	}
+
+	@Override
+	public int getItemViewType(int position) {
+		return mFactories.get( position ).getType();
 	}
 
 	@Override
@@ -27,9 +43,20 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 		return mFactories.size();
 	}
 
+	public static class ViewHolder extends RecyclerView.ViewHolder {
+
+		public ViewHolder(@NonNull View itemView) {
+			super( itemView );
+		}
+	}
+
 	public interface ViewPagerFragmentFactory {
 
-		Fragment createFragment();
+		View justCreateView(ViewGroup parent);
+
+		void bindView(View view);
+
+		int getType();
 
 	}
 }
