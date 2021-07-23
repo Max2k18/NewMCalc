@@ -269,7 +269,6 @@ public class Main2Activity extends ThemeActivity {
 			Display d = windowManager.getDefaultDisplay();
 			d.getSize( displaySize );
 		}
-		setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
 		View header = mNavigationView.getHeaderView( 0 );
 		ViewGroup.LayoutParams headerLayoutParams = header.getLayoutParams();
 		headerLayoutParams.height = displaySize.y / 3;

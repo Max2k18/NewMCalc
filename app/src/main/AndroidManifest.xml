@@ -27,7 +27,6 @@
         <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ThemeActivity" />
         <activity
-            android:screenOrientation="fullSensor"
             android:name=".Main2Activity"
             android:exported="true">
             <intent-filter>
