@@ -34,11 +34,6 @@ public class VariablesFragment extends Fragment {
 		mVariableButtonsLongClickListener = variableButtonsLongClickListener;
 	}
 
-	public VariablesFragment(View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
-		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
-		mVariableButtonsLongClickListener = variableButtonsLongClickListener;
-	}
-
 	@Nullable
 	@Override
 	public View getView() {
@@ -74,6 +69,7 @@ public class VariablesFragment extends Fragment {
 		for (int i = 0; i < a.size(); i++) {
 			Button b = view.findViewById( findButtonByTag( a.get( i ).getTag() ) );
 			b.setText( a.get( i ).getName() );
+			b.setTextSize( TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize( R.dimen.variables_buttons_text_size ) );
 			b.setContentDescription( a.get( i ).getValue() );
 			b.setOnLongClickListener( mVariableButtonsLongClickListener );
 			b.setTransformationMethod( null );
@@ -84,7 +80,7 @@ public class VariablesFragment extends Fragment {
 		for(int i = 1; i <= 8; i++){
 			Button button = view.findViewById(findButtonByTag(i));
 			button.setText("+");
-			button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+			button.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize( R.dimen.variables_buttons_text_size_default ));
 		}
 	}
 

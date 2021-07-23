@@ -27,7 +27,7 @@
 
     <style name="VariableButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:text">@string/plus</item>
-        <item name="android:textSize">@dimen/variables_buttons_text_size</item>
+        <item name="android:textSize">@dimen/variables_buttons_text_size_default</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">0.25</item>
         <item name="android:layout_height">wrap_content</item>

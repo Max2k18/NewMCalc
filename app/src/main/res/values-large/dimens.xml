@@ -18,7 +18,8 @@
 
     <dimen name="memory_action_buttons_text_size">36sp</dimen>
     <dimen name="memory_plus_minus_buttons_text_size">39sp</dimen>
-    <dimen name="variables_buttons_text_size">30sp</dimen>
+    <dimen name="variables_buttons_text_size_default">30sp</dimen>
+    <dimen name="variables_buttons_text_size">28sp</dimen>
 
     <dimen name="view_pager_arrow_size">22dp</dimen>
 

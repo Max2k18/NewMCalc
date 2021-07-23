@@ -24,7 +24,8 @@
 
     <dimen name="memory_action_buttons_text_size">24sp</dimen>
     <dimen name="memory_plus_minus_buttons_text_size">26sp</dimen>
-    <dimen name="variables_buttons_text_size">20sp</dimen>
+    <dimen name="variables_buttons_text_size_default">20sp</dimen>
+    <dimen name="variables_buttons_text_size">18sp</dimen>
 
     <dimen name="nav_icon_size">95dp</dimen>
 
