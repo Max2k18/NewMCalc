@@ -18,14 +18,14 @@ import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-public class NumPadFragment implements ViewPagerAdapter.ViewPagerFragmentFactory {
+public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragmentFactory {
 
 	public static final int TYPE = 1;
 
 	private final View.OnLongClickListener mCalculateButtonLongClickListener;
 	private final Context mContext;
 
-	public NumPadFragment(Context context, View.OnLongClickListener calculateButtonLongClickListener) {
+	public NumPadFragmentFactory(Context context, View.OnLongClickListener calculateButtonLongClickListener) {
 		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
 		mContext = context;
 	}

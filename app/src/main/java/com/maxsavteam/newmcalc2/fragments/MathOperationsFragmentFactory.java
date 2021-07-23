@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 
-public class MathOperationsFragment implements ViewPagerAdapter.ViewPagerFragmentFactory {
+public class MathOperationsFragmentFactory implements ViewPagerAdapter.ViewPagerFragmentFactory {
 
 	public static final int TYPE = 2;
 

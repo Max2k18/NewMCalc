@@ -60,8 +60,8 @@ import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
-import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
-import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
+import com.maxsavteam.newmcalc2.fragments.MathOperationsFragmentFactory;
+import com.maxsavteam.newmcalc2.fragments.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragments.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
@@ -647,8 +647,8 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
-		factories.add( new NumPadFragment( this, mReturnBack ) );
-		factories.add( new MathOperationsFragment() );
+		factories.add( new NumPadFragmentFactory( this, mReturnBack ) );
+		factories.add( new MathOperationsFragmentFactory() );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPagerAdapter viewPagerAdapter =
