@@ -20,8 +20,11 @@ import java.util.ArrayList;
 public class VariablesFragment extends Fragment {
 	private View view;
 
-	private final View.OnLongClickListener mMemoryActionsLongClickListener;
-	private final View.OnLongClickListener mVariableButtonsLongClickListener;
+	private View.OnLongClickListener mMemoryActionsLongClickListener;
+	private View.OnLongClickListener mVariableButtonsLongClickListener;
+
+	public VariablesFragment() {
+	}
 
 	public VariablesFragment(View.OnLongClickListener memoryActionsLongClickListener, View.OnLongClickListener variableButtonsLongClickListener) {
 		mMemoryActionsLongClickListener = memoryActionsLongClickListener;
@@ -63,7 +66,6 @@ public class VariablesFragment extends Fragment {
 		for (int i = 0; i < a.size(); i++) {
 			Button b = view.findViewById( findButtonByTag( a.get( i ).getTag() ) );
 			b.setText( a.get( i ).getName() );
-			b.setTextSize( TypedValue.COMPLEX_UNIT_SP, 18 );
 			b.setContentDescription( a.get( i ).getValue() );
 			b.setOnLongClickListener( mVariableButtonsLongClickListener );
 			b.setTransformationMethod( null );

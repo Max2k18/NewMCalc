@@ -131,7 +131,7 @@
             android:textColor="?colorAccent"
             android:text="@string/eq"
             android:onClick="onEqual"
-            android:textSize="30sp"
+            android:textSize="@dimen/numpad_buttons_text_size"
              />
 
         <androidx.appcompat.widget.AppCompatButton

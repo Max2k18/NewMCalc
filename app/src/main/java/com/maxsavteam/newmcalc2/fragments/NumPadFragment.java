@@ -1,6 +1,5 @@
 package com.maxsavteam.newmcalc2.fragments;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,13 +17,15 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
 public class NumPadFragment extends Fragment {
-	private final Context mContext;
+
 	private View view;
 
-	private final View.OnLongClickListener mCalculateButtonLongClickListener;
+	private View.OnLongClickListener mCalculateButtonLongClickListener;
 
-	public NumPadFragment(Context context, View.OnLongClickListener calculateButtonLongClickListener) {
-		mContext = context;
+	public NumPadFragment() {
+	}
+
+	public NumPadFragment(View.OnLongClickListener calculateButtonLongClickListener) {
 		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
 	}
 
@@ -36,16 +37,16 @@ public class NumPadFragment extends Fragment {
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		//view = inflater.inflate( R.layout.fragment_1, container, false );
-		view = LayoutInflater.from( mContext ).inflate( R.layout.numpad_fragment_layout, container, false );
+		view = LayoutInflater.from( getContext() ).inflate( R.layout.numpad_fragment_layout, container, false );
 
 		Button b = view.findViewById( R.id.btnCalc );
 		b.setOnLongClickListener( mCalculateButtonLongClickListener );
 
 		Locale locale;
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-			locale = mContext.getResources().getConfiguration().getLocales().get( 0 );
+			locale = getContext().getResources().getConfiguration().getLocales().get( 0 );
 		}else{
-			locale = mContext.getResources().getConfiguration().locale;
+			locale = getContext().getResources().getConfiguration().locale;
 		}
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
 		b = view.findViewById( R.id.btnDot );

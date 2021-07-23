@@ -7,7 +7,27 @@
     <dimen name="additional_tools_peek_height">55dp</dimen>
     <dimen name="bottom_sheet_triangle_params">20dp</dimen>
 
-    <dimen name="bottom_line_btn_text_size">25sp</dimen>
-
     <dimen name="view_pager_arrow_size">15dp</dimen>
+
+    <dimen name="numpad_buttons_text_size">30sp</dimen>
+
+    <dimen name="backspace_button_width">44dp</dimen>
+    <dimen name="backspace_button_height">35dp</dimen>
+
+    <dimen name="example_max_text_size">46sp</dimen>
+    <dimen name="example_min_text_size">32sp</dimen>
+
+    <dimen name="answer_max_text_size">34sp</dimen>
+    <dimen name="answer_min_text_size">28sp</dimen>
+
+    <dimen name="math_operations_text_size">25sp</dimen>
+
+    <dimen name="default_text_size">18sp</dimen>
+
+    <dimen name="memory_action_buttons_text_size">24sp</dimen>
+    <dimen name="memory_plus_minus_buttons_text_size">26sp</dimen>
+    <dimen name="variables_buttons_text_size">20sp</dimen>
+
+    <dimen name="nav_icon_size">95dp</dimen>
+
 </resources>

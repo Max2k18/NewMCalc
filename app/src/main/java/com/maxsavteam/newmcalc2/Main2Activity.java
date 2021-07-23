@@ -44,6 +44,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -666,7 +667,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<Fragment> fragments = new ArrayList<>();
-		fragments.add( new NumPadFragment( this, mReturnBack ) );
+		fragments.add( new NumPadFragment( mReturnBack ) );
 		fragments.add( new MathOperationsFragment() );
 		fragments.add( new VariablesFragment( mMemoryActionsLongClick, mOnVariableLongClick ) );
 
@@ -676,7 +677,7 @@ public class Main2Activity extends ThemeActivity {
 		ViewPager viewPager = findViewById( R.id.viewpager );
 		ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
 		lay.height = displaySize.y / 2;
-		viewPager.setLayoutParams( lay );
+		//viewPager.setLayoutParams( lay );
 		viewPager.setAdapter( myFragmentPagerAdapter );
 		viewPager.setCurrentItem( which );
 		viewPager.addOnPageChangeListener( new ViewPager.OnPageChangeListener() {

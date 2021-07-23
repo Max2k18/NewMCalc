@@ -26,7 +26,7 @@
             android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textAllCaps="false"
-            android:textSize="20sp" />
+            android:textSize="@dimen/memory_action_buttons_text_size" />
 
         <Button
             android:id="@+id/btnMR"
@@ -39,7 +39,7 @@
             android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
             android:textAllCaps="false"
-            android:textSize="20sp" />
+            android:textSize="@dimen/memory_action_buttons_text_size" />
 
         <Button
             android:id="@+id/btnMemMinus"
@@ -51,7 +51,7 @@
             android:text="M-"
             android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
-            android:textSize="24sp" />
+            android:textSize="@dimen/memory_plus_minus_buttons_text_size" />
 
 
         <Button
@@ -64,7 +64,7 @@
             android:text="M+"
             android:textColor="?colorAccent"
             android:background="?selectableItemBackgroundBorderless"
-            android:textSize="24sp" />
+            android:textSize="@dimen/memory_plus_minus_buttons_text_size" />
 
     </LinearLayout>
 
@@ -75,7 +75,7 @@
         android:gravity="center"
         android:text="@string/variables"
         android:textColor="?textColor"
-        android:textSize="18sp" />
+        android:textSize="@dimen/default_text_size" />
 
     <LinearLayout
         android:layout_width="match_parent"

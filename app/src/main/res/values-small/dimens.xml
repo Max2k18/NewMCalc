@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="view_pager_arrow_size">15dp</dimen>
+
+    <dimen name="numpad_buttons_text_size">20sp</dimen>
+
+    <dimen name="backspace_button_width">29dp</dimen>
+    <dimen name="backspace_button_height">23dp</dimen>
+
+    <dimen name="example_max_text_size">26sp</dimen>
+    <dimen name="example_min_text_size">14sp</dimen>
+
+    <dimen name="answer_max_text_size">20sp</dimen>
+    <dimen name="answer_min_text_size">12sp</dimen>
+
+    <dimen name="math_operations_text_size">17sp</dimen>
+
+    <dimen name="default_text_size">16sp</dimen>
+
+    <dimen name="memory_action_buttons_text_size">18sp</dimen>
+    <dimen name="memory_plus_minus_buttons_text_size">20sp</dimen>
+    <dimen name="variables_buttons_text_size">14sp</dimen>
+
+    <dimen name="nav_icon_size">50dp</dimen>
+
+</resources>

@@ -44,7 +44,7 @@
             android:layout_marginBottom="8dp"
             android:background="@null"
             android:textColor="?textColor"
-            android:textSize="46sp"
+            android:textSize="@dimen/example_max_text_size"
             android:textStyle="bold"
             android:inputType="textNoSuggestions"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -52,8 +52,8 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@+id/example_left"
             app:layout_constraintTop_toTopOf="parent"
-            app:maxTextSize="46sp"
-            app:minTextSize="32sp"
+            app:maxTextSize="@dimen/example_max_text_size"
+            app:minTextSize="@dimen/example_min_text_size"
             app:stepTextSize="4sp" />
 
     </HorizontalScrollView>
