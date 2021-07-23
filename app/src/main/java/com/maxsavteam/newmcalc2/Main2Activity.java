@@ -674,9 +674,6 @@ public class Main2Activity extends ThemeActivity {
 				new MyFragmentPagerAdapter( getSupportFragmentManager(), fragments );
 
 		ViewPager viewPager = findViewById( R.id.viewpager );
-		ViewGroup.LayoutParams lay = viewPager.getLayoutParams();
-		lay.height = displaySize.y / 2;
-		//viewPager.setLayoutParams( lay );
 		viewPager.setAdapter( myFragmentPagerAdapter );
 		viewPager.setCurrentItem( which );
 		viewPager.addOnPageChangeListener( new ViewPager.OnPageChangeListener() {
