@@ -64,25 +64,6 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 			checkBox.setTag( characters[ i ] );
 		}
 
-		int[] ids = new int[]{
-				R.id.btnPass6,
-				R.id.btnPass8,
-				R.id.btnPass12,
-				R.id.btnPass16
-		};
-		WindowManager windowManager = (WindowManager) getSystemService( Context.WINDOW_SERVICE );
-		if ( windowManager != null ) {
-			Display d = windowManager.getDefaultDisplay();
-			Point size = new Point();
-			d.getSize( size );
-			for (int id : ids) {
-				Button btn = findViewById( id );
-				ViewGroup.LayoutParams lay = btn.getLayoutParams();
-				lay.height = size.x / 5;
-				lay.width = size.x / 5;
-				btn.setLayoutParams( lay );
-			}
-		}
 		setBackground();
 		buttonOnClick( findViewById( R.id.btnPass8 ) );
 
@@ -94,7 +75,7 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 		textSwitcher.setFactory( ()->{
 			TextView textView = new TextView( this );
 			textView.setTextColor( super.textColor );
-			textView.setTextSize( TypedValue.COMPLEX_UNIT_SP, 30 );
+			textView.setTextSize( TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize( R.dimen.password_generator_text_size ) );
 			textView.setGravity( Gravity.CENTER );
 			textView.setTextIsSelectable( true );
 			return textView;

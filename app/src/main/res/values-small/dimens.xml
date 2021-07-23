@@ -24,4 +24,9 @@
 
     <dimen name="nav_icon_size">50dp</dimen>
 
+    <dimen name="password_generator_buttons_size">50dp</dimen>
+    <dimen name="password_generator_checkbox_text_size">12sp</dimen>
+    <dimen name="password_generator_buttons_text_size">18sp</dimen>
+    <dimen name="password_generator_text_size">20sp</dimen>
+
 </resources>
