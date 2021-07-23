@@ -92,14 +92,11 @@ public class SettingsActivity extends ThemeActivity {
 
 	}
 
-	@SuppressLint("SourceLockedOrientationActivity")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_settings );
-
-		setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
 
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
