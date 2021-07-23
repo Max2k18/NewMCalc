@@ -49,14 +49,12 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		return super.onOptionsItemSelected( item );
 	}
 
-	@SuppressLint("SourceLockedOrientationActivity")
 	private void applyTheme() {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
 		if(getSupportActionBar() != null)
 			getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
-		setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
 		EditText e = findViewById( R.id.edNumTo );
 		e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
 		e = findViewById( R.id.edNumFrom );

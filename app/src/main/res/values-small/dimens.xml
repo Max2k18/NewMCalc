@@ -29,4 +29,6 @@
     <dimen name="password_generator_buttons_text_size">18sp</dimen>
     <dimen name="password_generator_text_size">20sp</dimen>
 
+    <dimen name="converter_text_size_header">22sp</dimen>
+
 </resources>

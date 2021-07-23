@@ -4,9 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/cursor_drawable.xml" value="0.34444444444444444" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_arrow_right.xml" value="0.33489583333333334" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_backspace_black.xml" value="0.1" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_backspace_black_1.xml" value="0.3529111338100102" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_backspace_white.xml" value="0.3529111338100102" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_baseline_arrow_right_alt.xml" value="0.33489583333333334" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/ic_google_play.xml" value="0.2075" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/drawable/numpad_buttons_ripple.xml" value="1.4071428571428573" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout-land/activity_main.xml" value="0.33" />
@@ -15,6 +17,7 @@
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_history.xml" value="0.15237134207870837" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_main2.xml" value="0.16448032290615539" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_number_system.xml" value="0.25" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_numgen.xml" value="0.15237134207870837" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_password_generator.xml" value="0.25" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_settings.xml" value="0.16448032290615539" />
