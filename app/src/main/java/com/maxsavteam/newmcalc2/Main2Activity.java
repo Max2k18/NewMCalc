@@ -575,7 +575,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private void showWhatNew() {
 		String version = BuildConfig.VERSION_NAME;
-		if ( UpdateMessagesContainer.isReleaseNoteExists( version ) && !UpdateMessagesContainer.isReleaseNoteShown( version ) ) {
+		if ( !App.getInstance().isFirstStart() && UpdateMessagesContainer.isReleaseNoteExists( version ) && !UpdateMessagesContainer.isReleaseNoteShown( version ) ) {
 			Spanned spanned = Html.fromHtml( getString( UpdateMessagesContainer.getStringIdForNote( version ) ) );
 			CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 			builder.setTitle( R.string.whats_new )

@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
@@ -13,6 +14,7 @@ public class App extends Application {
 
 	private static App instance;
 	private Locale appLocale;
+	private boolean isFirstStart;
 
 	public Locale getAppLocale() {
 		return appLocale;
@@ -22,12 +24,21 @@ public class App extends Application {
 		return instance;
 	}
 
+	public boolean isFirstStart() {
+		return isFirstStart;
+	}
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		instance = this;
 
 		Utils.setContext( getApplicationContext() );
+
+		SharedPreferences sp = Utils.getDefaultSP();
+		isFirstStart = sp.getBoolean( "isFirstStart", true );
+		if(isFirstStart)
+			sp.edit().putBoolean( "isFirstStart", false ).apply();
 
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
 			appLocale = getApplicationContext().getResources().getConfiguration().getLocales().get( 0 );
