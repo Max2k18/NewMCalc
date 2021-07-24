@@ -38,7 +38,7 @@
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:text="@string/switchSaveOff"
-            android:textSize="16sp"
+            android:textSize="@dimen/default_text_size"
             android:textColor="?textColor"
             app:thumbTint="@color/colorAccent" />
 
@@ -59,7 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?textColor"
-                android:textSize="20sp"
+                android:textSize="@dimen/default_text_size"
                 android:id="@+id/theme_dropdown_button"
                 android:background="@android:color/transparent" />
 
@@ -72,7 +72,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/keep_screen_on"
             android:textColor="?textColor"
-            android:textSize="18sp"
+            android:textSize="@dimen/default_text_size"
             app:thumbTint="@color/colorAccent" />
 
         <LinearLayout
@@ -91,7 +91,7 @@
                 android:gravity="center"
                 android:text="@string/ex_im_label"
                 android:textAlignment="gravity"
-                android:textSize="18sp" />
+                android:textSize="@dimen/default_text_size" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -14,7 +14,7 @@
 
     <dimen name="math_operations_text_size">40sp</dimen>
 
-    <dimen name="default_text_size">27sp</dimen>
+    <dimen name="default_text_size">20sp</dimen>
 
     <dimen name="memory_action_buttons_text_size">36sp</dimen>
     <dimen name="memory_plus_minus_buttons_text_size">39sp</dimen>
