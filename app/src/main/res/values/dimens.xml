@@ -45,4 +45,6 @@
     <dimen name="variable_editor_warning_text_size">18sp</dimen>
     <dimen name="variable_editor_edit_text_size">18sp</dimen>
 
+    <dimen name="memory_text_size">24sp</dimen>
+
 </resources>

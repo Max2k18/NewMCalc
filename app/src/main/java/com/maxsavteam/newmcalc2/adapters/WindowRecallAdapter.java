@@ -1,8 +1,5 @@
 package com.maxsavteam.newmcalc2.adapters;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,28 +13,18 @@ import com.maxsavteam.newmcalc2.R;
 import java.math.BigDecimal;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final Context mContext;
-	private final LayoutInflater mLayoutInflater;
 	private final BigDecimal[] mData;
-	private WindowRecallAdapterCallback mCallback;
-	private final boolean DarkMode;
+	private final WindowRecallAdapterCallback mCallback;
 
-	public void setInterface(WindowRecallAdapterCallback T){
-		this.mCallback = T;
-	}
-
-	public WindowRecallAdapter(Context c, BigDecimal[] bd_arr){
-		this.mContext = c;
+	public WindowRecallAdapter(BigDecimal[] bd_arr, WindowRecallAdapterCallback callback){
 		this.mData = bd_arr;
-		this.mLayoutInflater = LayoutInflater.from(c);
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( c.getApplicationContext() );
-		DarkMode = sp.getBoolean("dark_mode", false);
+		mCallback = callback;
 	}
 
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = mLayoutInflater.inflate(R.layout.recall_recycle_raw, parent, false);
+		View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.recall_recycle_raw, parent, false);
 		return new ViewHolder(view);
 	}
 
@@ -51,8 +38,7 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 		String result = mData[position].toString();
 		holder.mResult.setText(result);
 		holder.mNumber.setText(pos);
-		if(DarkMode)
-			holder.mResult.setTextColor( mContext.getResources().getColor(R.color.white));
+		holder.itemView.setOnClickListener( view->mCallback.onRecallClick( holder.itemView, position ) );
 	}
 
 	@Override
@@ -60,20 +46,14 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 		return this.mData.length;
 	}
 
-	public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-		final TextView mNumber;
-		final TextView mResult;
+	public static class ViewHolder extends RecyclerView.ViewHolder {
+		private final TextView mNumber;
+		private final TextView mResult;
 
-		ViewHolder(View itemView) {
+		private ViewHolder(View itemView) {
 			super(itemView);
 			mNumber = itemView.findViewById(R.id.recall_text_number);
 			mResult = itemView.findViewById(R.id.recall_text_result);
-			itemView.setOnClickListener(this);
-		}
-
-		@Override
-		public void onClick(View view) {
-			mCallback.onRecallClick(view, getAdapterPosition());
 		}
 	}
 
