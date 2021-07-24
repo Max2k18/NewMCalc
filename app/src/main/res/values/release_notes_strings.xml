@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="release_note_2_4"><![CDATA[
+Version 2.4.0<br>
+<br>
+Added support for landscape orientation and multi-window mode.
+    ]]></string>
+
     <string name="release_note_2_3"><![CDATA[Version 2.3.0. What\'s new?<br><br>Now you can choose where to save the backup file of the application settings, as well as choose from which file to restore.<br><br>Fixed system navigation coloring depending on the app theme.]]></string>
 
     <string name="release_note_2_1"><![CDATA[Version 2.1.0. What\'s new?<br><br>Now you can enter numbers and other operations anywhere in the example.<br>Just put the cursor there.<br><br>Now the decimal and integer separator and the digit group separator are localized for each language.]]></string>
