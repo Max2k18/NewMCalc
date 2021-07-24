@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
@@ -42,7 +41,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -62,9 +60,9 @@ import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
-import com.maxsavteam.newmcalc2.fragments.MathOperationsFragment;
-import com.maxsavteam.newmcalc2.fragments.NumPadFragment;
-import com.maxsavteam.newmcalc2.fragments.VariablesFragment;
+import com.maxsavteam.newmcalc2.fragments.MathOperationsFragmentFactory;
+import com.maxsavteam.newmcalc2.fragments.NumPadFragmentFactory;
+import com.maxsavteam.newmcalc2.fragments.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
@@ -649,22 +647,12 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
-		factories.add( ()->{
-			NumPadFragment fragment = new NumPadFragment();
-			fragment.setCalculateButtonLongClickListener( mReturnBack );
-			return fragment;
-		} );
-		factories.add( MathOperationsFragment::new );
-		factories.add( ()->{
-			VariablesFragment fragment = new VariablesFragment();
-			fragment.setMemoryActionsLongClickListener( mMemoryActionsLongClick );
-			fragment.setVariableButtonsLongClickListener( mOnVariableLongClick );
-			return fragment;
-		} );
-
+		factories.add( new NumPadFragmentFactory( this, mReturnBack ) );
+		factories.add( new MathOperationsFragmentFactory() );
+		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPagerAdapter viewPagerAdapter =
-				new ViewPagerAdapter( this, factories );
+				new ViewPagerAdapter( factories );
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
 		viewPager.setAdapter( viewPagerAdapter );
