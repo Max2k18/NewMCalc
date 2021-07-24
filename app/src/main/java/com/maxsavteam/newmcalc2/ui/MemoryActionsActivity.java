@@ -2,10 +2,11 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,11 +25,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 	private String type;
 	private MemorySaverReader memorySaverReader;
 
-	public void cancelAll(View v) {
-		onBackPressed();
-	}
-
-	public void clearAll(View v) {
+	private void clearAll() {
 		new CustomAlertDialogBuilder( this )
 				.setMessage( R.string.delete_all_memories_quest )
 				.setPositiveButton( R.string.yes, (dialogInterface1, i)->{
@@ -50,8 +47,16 @@ public class MemoryActionsActivity extends ThemeActivity {
 		int id = item.getItemId();
 		if ( id == android.R.id.home ) {
 			onBackPressed();
+		}else if(id == R.id.item_delete){
+			clearAll();
 		}
 		return super.onOptionsItemSelected( item );
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate( R.menu.memory_actions_menu, menu );
+		return super.onCreateOptionsMenu( menu );
 	}
 
 	@Override
@@ -64,9 +69,11 @@ public class MemoryActionsActivity extends ThemeActivity {
 		type = getIntent().getStringExtra( "type" );
 
 		Toolbar toolbar = findViewById( R.id.toolbar );
-		toolbar.setTitle( ( type.equals( "rc" ) ? "Recall Memory" : "Store Memory" ) );
+		toolbar.setTitle( type.equals( "rc" ) ? R.string.get_from_memory : R.string.put_in_memory );
 		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		ActionBar actionBar = getSupportActionBar();
+		if(actionBar != null)
+			actionBar.setDisplayHomeAsUpEnabled( true );
 
 		barr = memorySaverReader.read();
 		RecyclerView rv = findViewById( R.id.memory_actions_rv );

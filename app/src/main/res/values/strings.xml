@@ -142,4 +142,6 @@
     <string name="successfully">Successfully</string>
     <string name="failed_to_read_file">Failed to read file</string>
     <string name="failed_to_import_settings">Failed to import settings</string>
+    <string name="put_in_memory">Put in memory</string>
+    <string name="get_from_memory">Get from memory</string>
 </resources>

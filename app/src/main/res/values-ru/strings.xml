@@ -131,4 +131,6 @@
     <string name="successfully">Успешно</string>
     <string name="failed_to_read_file">Не удалось прочитать файл</string>
     <string name="failed_to_import_settings">Не удалось импортировать настройки</string>
+    <string name="put_in_memory">Поместить в память</string>
+    <string name="get_from_memory">Достать из памяти</string>
 </resources>
