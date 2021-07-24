@@ -59,7 +59,7 @@
 
     <style name="TextViewStyle" parent="Widget.AppCompat.TextView">
         <item name="android:textColor">?attr/textColor</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">@dimen/default_text_size</item>
     </style>
 
     <style name="ButtonStyle" parent="Widget.AppCompat.Button">

@@ -25,7 +25,7 @@
             android:layout_marginBottom="10dp"
             android:gravity="center"
             android:text="@string/unexpected_error_occurred"
-            android:textSize="20sp"
+            android:textSize="@dimen/after_crash_activity_header_text_size"
             android:textStyle="bold" />
 
         <TextView

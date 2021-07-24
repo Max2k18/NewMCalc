@@ -16,7 +16,7 @@
 
     <dimen name="math_operations_text_size">17sp</dimen>
 
-    <dimen name="default_text_size">16sp</dimen>
+    <dimen name="default_text_size">14sp</dimen>
 
     <dimen name="memory_action_buttons_text_size">18sp</dimen>
     <dimen name="memory_plus_minus_buttons_text_size">20sp</dimen>
@@ -30,5 +30,7 @@
     <dimen name="password_generator_text_size">20sp</dimen>
 
     <dimen name="converter_text_size_header">22sp</dimen>
+
+    <dimen name="after_crash_activity_header_text_size">16sp</dimen>
 
 </resources>

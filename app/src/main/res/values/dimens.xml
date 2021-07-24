@@ -47,4 +47,6 @@
 
     <dimen name="memory_text_size">24sp</dimen>
 
+    <dimen name="after_crash_activity_header_text_size">20sp</dimen>
+
 </resources>
