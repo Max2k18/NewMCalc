@@ -545,7 +545,7 @@ public class Main2Activity extends ThemeActivity {
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
 		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
-			if ( startCount >= 8 ) {
+			if ( startCount >= 3 ) {
 				s.edit().putInt( "start_count", 0 ).apply();
 				reviewManager = ReviewManagerFactory.create( getApplicationContext() );
 				reviewManager.requestReviewFlow().addOnCompleteListener( task->{
