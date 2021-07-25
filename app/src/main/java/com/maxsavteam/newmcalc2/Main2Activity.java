@@ -971,7 +971,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void startThreadController() {
-		mThreadControllerProgressDialog = new ProgressDialog( this );
+		mThreadControllerProgressDialog = new ProgressDialog( this, R.style.DarkAlertDialog );
 		mThreadControllerProgressDialog.setCancelable( false );
 		mThreadControllerProgressDialog.setMessage( Html.fromHtml( getResources().getString( R.string.in_calc_process_message ) ) );
 		mThreadControllerProgressDialog.setButton( ProgressDialog.BUTTON_NEUTRAL, getResources().getString( R.string.cancel ), (dialog, which)->{
@@ -986,11 +986,10 @@ public class Main2Activity extends ThemeActivity {
 			mCoreTimer.purge();
 		}
 		mCoreTimer = new Timer();
-		mCoreThread.start();
-
 		if ( !BuildConfig.DEBUG ) {
 			mCoreTimer.schedule( new CoreController(), 0, 100 );
 		}
+		mCoreThread.start();
 	}
 
 	private void killCoreTimer() {
