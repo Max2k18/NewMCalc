@@ -41,7 +41,7 @@
         <Button
             style="@style/MathOperationButtonStyle"
             android:onClick="insertFunction"
-            android:text="@string/tan" />
+            android:text="@string/tangent" />
 
         <Button
             style="@style/MathOperationButtonStyle"

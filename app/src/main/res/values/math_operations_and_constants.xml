@@ -14,8 +14,9 @@
     <string name="cos" translatable="false">cos</string>
     <string name="log" translatable="false">log</string>
     <string name="ln" translatable="false">ln</string>
-    <string name="tan" translatable="false">tan</string>
     <string name="abs" translatable="false">abs</string>
+
+    <string name="tangent">tan</string>
 
     <string name="factorial" translatable="false">!</string>
     <string name="average_function" translatable="false">A</string>
