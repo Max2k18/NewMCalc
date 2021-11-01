@@ -57,6 +57,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
+import com.maxsavteam.calculator.results.ListResult;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
@@ -753,7 +754,7 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		BigDecimal temp;
+		ListResult temp;
 		try {
 			temp = CalculatorWrapper.getInstance().calculate( text );
 		} catch (CalculatingException | NumberFormatException e) {
@@ -761,12 +762,17 @@ public class Main2Activity extends ThemeActivity {
 			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		if ( v.getId() == R.id.btnMemPlus ) {
-			temp = temp.add( memoryEntries[ 0 ] );
-		} else if ( v.getId() == R.id.btnMemMinus ) {
-			temp = memoryEntries[ 0 ].subtract( temp );
+		if(!temp.isSingleNumber()){
+			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
+			return;
 		}
-		memoryEntries[ 0 ] = temp;
+		BigDecimal b = temp.getSingleNumberIfTrue();
+		if ( v.getId() == R.id.btnMemPlus ) {
+			b = b.add( memoryEntries[ 0 ] );
+		} else if ( v.getId() == R.id.btnMemMinus ) {
+			b = memoryEntries[ 0 ].subtract( b );
+		}
+		memoryEntries[ 0 ] = b;
 		mMemorySaverReader.save( memoryEntries );
 	}
 
@@ -776,7 +782,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( text.equals( "" ) ) {
 			return;
 		}
-		BigDecimal temp;
+		ListResult temp;
 		try {
 			temp = CalculatorWrapper.getInstance().calculate( text );
 		} catch (CalculatingException | NumberFormatException e) {
@@ -784,7 +790,11 @@ public class Main2Activity extends ThemeActivity {
 			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		memoryEntries[ 0 ] = temp;
+		if(!temp.isSingleNumber()){
+			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
+			return;
+		}
+		memoryEntries[ 0 ] = temp.getSingleNumberIfTrue();
 		mMemorySaverReader.save( memoryEntries );
 	}
 
@@ -948,9 +958,9 @@ public class Main2Activity extends ThemeActivity {
 		mCoreThread = new Thread( ()->{
 			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
-				BigDecimal res = mCalculatorWrapper.calculate( finalFormatted );
-				BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
-				runOnUiThread( ()->writeResult( mode, scaledRes, finalFormatted ) );
+				ListResult res = mCalculatorWrapper.calculate( finalFormatted );
+				//BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
+				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
 			} catch (CalculatingException e) {
 				wasError = true;
 				if ( mode == CalculateMode.FULL_ANSWER ) {
@@ -1083,23 +1093,23 @@ public class Main2Activity extends ThemeActivity {
 		return mDecimalFormat.format( num );
 	}
 
-	private void writeResult(CalculateMode mode, BigDecimal result, String formattedExample) {
+	private void writeResult(CalculateMode mode, ListResult result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
 		if ( mode == CalculateMode.PRE_ANSWER ) {
-			answerTextView.setText( formatNumber( result ) );
+			answerTextView.setText( result.format(mDecimalFormat) );
 		} else {
 			clearAnswer();
 			answerTextView.setText( formattedExample );
-			String formattedNum = formatNumber( result );
+			String formattedNum = result.format(mDecimalFormat);
 			editText.setText( formattedNum );
 			editText.setSelection( formattedNum.length() );
 
 			String example = FormatUtils.normalizeNumbersInExample( formattedExample, mDecimalFormat );
 
 			HistoryManager.getInstance()
-					.put( new HistoryEntry( example, result.toPlainString() ) )
+					.put( new HistoryEntry( example, result.format() ) )
 					.save();
 		}
 	}

@@ -67,13 +67,13 @@ static String getBuildTime() {
 dependencies {
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.0'
 
-    implementation 'com.google.firebase:firebase-core:19.0.2'
+    implementation 'com.google.firebase:firebase-core:20.0.0'
     implementation 'com.google.firebase:firebase-perf:20.0.3'
-    implementation 'com.google.firebase:firebase-analytics:19.0.2'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.3'
+    implementation 'com.google.firebase:firebase-analytics:20.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.2.4'
 
     implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'androidx.core:core:1.6.0'
+    implementation 'androidx.core:core:1.7.0'
 
     implementation 'com.google.android.play:core:1.10.2'
 
@@ -85,7 +85,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.1.2'
-    implementation 'com.maxsavteam:calculator-core:1.8.0'
+    implementation 'com.maxsavteam:calculator-core:2.0.0-beta2'
 
     implementation 'org.jetbrains:annotations:22.0.0'
 

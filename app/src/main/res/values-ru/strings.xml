@@ -133,4 +133,5 @@
     <string name="failed_to_import_settings">Не удалось импортировать настройки</string>
     <string name="put_in_memory">Поместить в память</string>
     <string name="get_from_memory">Достать из памяти</string>
+    <string name="lists_in_memory_are_not_supported">Списки в памяти не поддерживаются</string>
 </resources>

@@ -9,6 +9,7 @@ import androidx.annotation.StringRes;
 
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
+import com.maxsavteam.calculator.results.ListResult;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -78,7 +79,7 @@ public final class CalculatorWrapper {
 
 	public void prepareAndRun(@NotNull final String example, @Nullable String type, @NonNull CoreInterface coreInterface) {
 		try {
-			BigDecimal result = mCalculator.calculate( example );
+			ListResult result = mCalculator.calculate( example );
 			coreInterface.onSuccess( new CalculationResult().setResult( result ).setType( type ) );
 		} catch (CalculatingException e) {
 			int errorCode = e.getErrorCode();
@@ -93,7 +94,7 @@ public final class CalculatorWrapper {
 		}
 	}
 
-	public BigDecimal calculate(String example) {
+	public ListResult calculate(String example) {
 		return mCalculator.calculate( example );
 	}
 
