@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.TypedValue;
@@ -133,8 +134,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 			button.setPadding( 0, buttonsPadding, 0, buttonsPadding );
 
 			TypedValue typedValue = new TypedValue();
-			context.getTheme().resolveAttribute( R.attr.textColor, typedValue, true );
-			button.setTextColor( context.getColor( typedValue.resourceId ) );
+			button.setTextColor( Color.WHITE );
 
 			context.getTheme().resolveAttribute( R.attr.selectableItemBackgroundBorderless, typedValue, true );
 			button.setBackgroundResource( typedValue.resourceId );
