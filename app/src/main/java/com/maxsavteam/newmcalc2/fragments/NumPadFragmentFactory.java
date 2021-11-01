@@ -34,11 +34,6 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 
 	private final Context context;
 	private final View.OnLongClickListener mCalculateButtonLongClickListener;
-	private final View.OnClickListener justInsertOnClick;
-	private final View.OnClickListener insertBracketsOnClick;
-	private final View.OnClickListener insertFunctionOnClick;
-	private final View.OnClickListener insertBinaryOperatorOnClick;
-	private final View.OnClickListener insertSuffixOperatorOnClick;
 
 	private final List<Pair<String, View.OnClickListener>> scrollViewContent;
 
@@ -51,11 +46,6 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 								 View.OnClickListener insertSuffixOperatorOnClick) {
 		this.context = c;
 		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
-		this.justInsertOnClick = justInsertOnClick;
-		this.insertBracketsOnClick = insertBracketsOnClick;
-		this.insertFunctionOnClick = insertFunctionOnClick;
-		this.insertBinaryOperatorOnClick = insertBinaryOperatorOnClick;
-		this.insertSuffixOperatorOnClick = insertSuffixOperatorOnClick;
 
 		scrollViewContent = Arrays.asList(
 				new Pair<>( c.getString( R.string.simple_open_bracket ), insertBracketsOnClick ),
