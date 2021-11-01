@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,139 +8,172 @@
     tools:context=".Main2Activity">
 
     <LinearLayout
-        android:id="@+id/tblR1"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/scrollView2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn7"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_7" />
+        <LinearLayout
+            android:id="@+id/tblR1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn8"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_8" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn7"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_7" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn9"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_9" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn8"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_8" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnMult"
-            style="@style/NumPadButtonStyle"
-            android:onClick="insertBinaryOperatorOnClick"
-            android:text="@string/multiply" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn9"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_9" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMult"
+                style="@style/NumPadButtonStyle"
+                android:onClick="insertBinaryOperatorOnClick"
+                android:text="@string/multiply" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn4"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_4" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn5"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_5" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn6"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_6" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDiv"
+                style="@style/NumPadButtonStyle"
+                android:onClick="insertBinaryOperatorOnClick"
+                android:text="@string/div" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn1"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_1" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn2"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_2" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn3"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_3" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnPlus"
+                style="@style/NumPadButtonStyle"
+                android:onClick="insertBinaryOperatorOnClick"
+                android:text="@string/plus" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnZero"
+                style="@style/NumPadButtonStyle"
+                android:onClick="justInsert"
+                android:text="@string/digit_0" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDot"
+                style="@style/NumPadButtonStyle"
+                android:onClick="insertDot" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCalc"
+                style="@style/NumPadButtonStyle"
+                android:onClick="onEqual"
+                android:text="@string/eq"
+                android:textColor="?colorAccent"
+                android:textSize="@dimen/numpad_buttons_text_size" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMinus"
+                style="@style/NumPadButtonStyle"
+                android:onClick="insertBinaryOperatorOnClick"
+                android:text="@string/minus" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.2">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn4"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_4" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/num_pad_scroll_layout"/>
+    </ScrollView>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn5"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_5" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn6"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_6" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnDiv"
-            style="@style/NumPadButtonStyle"
-            android:onClick="insertBinaryOperatorOnClick"
-            android:text="@string/div" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:visibility="visible">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn1"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_1" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn2"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_2" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn3"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_3" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnPlus"
-            style="@style/NumPadButtonStyle"
-            android:onClick="insertBinaryOperatorOnClick"
-            android:text="@string/plus" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnZero"
-            style="@style/NumPadButtonStyle"
-            android:onClick="justInsert"
-            android:text="@string/digit_0" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnDot"
-            style="@style/NumPadButtonStyle"
-            android:onClick="insertDot" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnCalc"
-            style="@style/NumPadButtonStyle"
-            android:textColor="?colorAccent"
-            android:text="@string/eq"
-            android:onClick="onEqual"
-            android:textSize="@dimen/numpad_buttons_text_size"
-             />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnMinus"
-            style="@style/NumPadButtonStyle"
-            android:onClick="insertBinaryOperatorOnClick"
-            android:text="@string/minus" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

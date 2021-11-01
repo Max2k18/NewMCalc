@@ -2,5 +2,6 @@
 <resources>
 
     <string name="tangent">tg</string>
+    <string name="arctangent">atg</string>
 
 </resources>

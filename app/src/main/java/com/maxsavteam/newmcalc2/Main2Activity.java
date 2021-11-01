@@ -650,14 +650,26 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
-		factories.add( new NumPadFragmentFactory( this, mReturnBack ) );
+		factories.add( new NumPadFragmentFactory(
+				this,
+				mReturnBack,
+				this::justInsert,
+				this::insertBracket,
+				this::insertFunction,
+				this::insertBinaryOperatorOnClick,
+				this::insertSuffixOperatorOnClick
+		) );
 		factories.add( new MathOperationsFragmentFactory() );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
-		ViewPagerAdapter viewPagerAdapter =
-				new ViewPagerAdapter( factories );
-
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
+		ViewPagerAdapter viewPagerAdapter =
+				new ViewPagerAdapter( factories, new ViewPagerAdapter.AdapterCallback() {
+					@Override
+					public int getParentHeight() {
+						return viewPager.getHeight();
+					}
+				} );
 		viewPager.setAdapter( viewPagerAdapter );
 		viewPager.setCurrentItem( which );
 		viewPager.registerOnPageChangeCallback( new ViewPager2.OnPageChangeCallback() {

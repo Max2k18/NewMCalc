@@ -18,7 +18,7 @@
     <dimen name="answer_max_text_size">34sp</dimen>
     <dimen name="answer_min_text_size">28sp</dimen>
 
-    <dimen name="math_operations_text_size">25sp</dimen>
+    <dimen name="math_operations_text_size">26sp</dimen>
 
     <dimen name="default_text_size">18sp</dimen>
 
