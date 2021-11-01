@@ -76,6 +76,8 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 
 				new Pair<>( c.getString( R.string.abs ), insertFunctionOnClick ),
 				new Pair<>( c.getString( R.string.average_function ), insertFunctionOnClick ),
+				new Pair<>( c.getString( R.string.gcd ), insertFunctionOnClick ),
+				new Pair<>( c.getString( R.string.lcm ), insertFunctionOnClick ),
 
 				new Pair<>( c.getString( R.string.round_open_bracket ), insertBracketsOnClick ),
 				new Pair<>( c.getString( R.string.round_close_bracket ), insertBracketsOnClick ),

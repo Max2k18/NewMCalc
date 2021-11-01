@@ -62,6 +62,8 @@ public final class CalculatorWrapper {
 			put( mResources.getString( R.string.multiply ), "*" );
 			put( mResources.getString( R.string.div ), "/" );
 			put( mResources.getString( R.string.sqrt ), "R" );
+			put( "НОД", "gcd" );
+			put( "НОК", "lcm" );
 		}};
 		mReplacementMap.putAll( Calculator.defaultReplacementMap );
 		mCalculator.setAliases( mReplacementMap );
