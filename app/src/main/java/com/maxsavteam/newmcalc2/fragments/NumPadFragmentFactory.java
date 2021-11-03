@@ -112,7 +112,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 			button.setText( p.text );
 			button.setOnClickListener( p.onClickListener );
 
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, parentHeight / 5 );
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, parentHeight / 6 );
 			button.setLayoutParams( params );
 
 			button.setPadding( 0, buttonsPadding, 0, buttonsPadding );
