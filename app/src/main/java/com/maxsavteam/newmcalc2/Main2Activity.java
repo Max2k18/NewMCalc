@@ -1,5 +1,7 @@
 package com.maxsavteam.newmcalc2;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -20,6 +22,7 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +33,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -672,18 +676,47 @@ public class Main2Activity extends ThemeActivity {
 				} );
 		viewPager.setAdapter( viewPagerAdapter );
 		viewPager.setCurrentItem( which );
+		TypedValue data = new TypedValue();
+		getTheme().resolveAttribute( R.attr.textColor, data, true );
+		int defaultArrowsColor = data.data;
+		ImageView imageViewRightArrow = findViewById( R.id.image_view_right );
+		ArgbEvaluator evaluator = new ArgbEvaluator();
 		viewPager.registerOnPageChangeCallback( new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
 				if ( position == 0 ) {
 					hideWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
+
 				} else if ( position == factories.size() - 1 ) {
 					showWithAlpha( R.id.image_view_left );
 					hideWithAlpha( R.id.image_view_right );
 				} else {
 					showWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
+				}
+				if(position == 0){
+					ObjectAnimator
+							.ofObject(
+									imageViewRightArrow,
+									"colorFilter",
+									evaluator,
+									defaultArrowsColor,
+									Color.WHITE
+							)
+							.setDuration( 200L )
+							.start();
+				}else{
+					ObjectAnimator
+							.ofObject(
+									imageViewRightArrow,
+									"colorFilter",
+									evaluator,
+									Color.WHITE,
+									defaultArrowsColor
+							)
+							.setDuration( 200L )
+							.start();
 				}
 			}
 		} );
