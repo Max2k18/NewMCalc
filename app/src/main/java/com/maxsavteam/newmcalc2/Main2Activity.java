@@ -111,8 +111,10 @@ public class Main2Activity extends ThemeActivity {
 	private boolean wasError = false;
 
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
+
 	private MemorySaverReader mMemorySaverReader;
-	private BigDecimal[] memoryEntries;
+	private ArrayList<ListResult> memoryEntries;
+
 	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
 
@@ -157,10 +159,25 @@ public class Main2Activity extends ThemeActivity {
 				if ( result.getResultCode() == ResultCodesConstants.RESULT_APPEND ) {
 					Intent data = result.getData();
 					if ( data != null ) {
-						addStringExampleToTheExampleStr( data.getStringExtra( "value" ) );
+						int position = data.getIntExtra( "position", 0 );
+						addToCurrentExpression( memoryEntries.get( position ) );
 					}
-				} else if ( result.getResultCode() == ResultCodesConstants.RESULT_REFRESH ) {
-					memoryEntries = mMemorySaverReader.read();
+				}
+			}
+	);
+
+	private final ActivityResultLauncher<Intent> memoryStoreLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{
+				if(result.getResultCode() == RESULT_OK){
+					Intent data = result.getData();
+					if(data != null){
+						int position = data.getIntExtra( "position", 0 );
+						if(lastCalculatedResult != null){
+							memoryEntries.set( position, lastCalculatedResult.getResult() );
+							mMemorySaverReader.save( memoryEntries );
+						}
+					}
 				}
 			}
 	);
@@ -339,8 +356,9 @@ public class Main2Activity extends ThemeActivity {
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
 			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
 			Intent t = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
-			if(t == null)
+			if ( t == null ) {
 				return;
+			}
 			t.putExtra( "shortcut_action", true );
 			t.putExtra( "to_", AdditionalActivities.NUMBER_GENERATOR );
 			ShortcutInfo shortcut1 = new ShortcutInfo.Builder( getApplicationContext(), "id1" )
@@ -544,7 +562,7 @@ public class Main2Activity extends ThemeActivity {
 
 		showWhatNew();
 
-		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN );
 
 		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
 		int startCount = s.getInt( "start_count", 0 );
@@ -692,7 +710,7 @@ public class Main2Activity extends ThemeActivity {
 					showWithAlpha( R.id.image_view_left );
 					showWithAlpha( R.id.image_view_right );
 				}
-				if(position == 0){
+				if ( position == 0 ) {
 					ObjectAnimator
 							.ofObject(
 									imageViewRightArrow,
@@ -703,7 +721,7 @@ public class Main2Activity extends ThemeActivity {
 							)
 							.setDuration( 200L )
 							.start();
-				}else{
+				} else {
 					ObjectAnimator
 							.ofObject(
 									imageViewRightArrow,
@@ -719,13 +737,29 @@ public class Main2Activity extends ThemeActivity {
 		} );
 	}
 
-	private void addStringExampleToTheExampleStr(String s) {
+	private void addStringExampleToTheExampleStr(String s, boolean wrapIfNeeded) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		Editable e = editText.getText();
 		if ( e == null || e.toString().isEmpty() ) {
 			insert( s );
 		} else {
-			insert( "(" + s + ")" );
+			if ( wrapIfNeeded ) {
+				insert( "(" + s + ")" );
+			} else {
+				insert( s );
+			}
+		}
+	}
+
+	private void addStringExampleToTheExampleStr(String s) {
+		addStringExampleToTheExampleStr( s, true );
+	}
+
+	private void addToCurrentExpression(ListResult r) {
+		if ( r.isSingleNumber() ) {
+			addStringExampleToTheExampleStr( formatNumber( r.getSingleNumberIfTrue() ) );
+		} else {
+			addStringExampleToTheExampleStr( r.format( mDecimalFormat ), false );
 		}
 	}
 
@@ -777,56 +811,64 @@ public class Main2Activity extends ThemeActivity {
 		Intent in = new Intent( this, MemoryActionsActivity.class );
 		in.putExtra( "type", type );
 		if ( type.equals( MemoryStartTypes.STORE ) ) {
-			TextView t = findViewById( R.id.ExampleStr );
-			if ( Utils.isNumber( t.getText().toString() ) ) {
-				in.putExtra( "value", t.getText().toString() );
-			} else {
-				return;
+			if(lastCalculatedResult != null) {
+				memoryStoreLauncher.launch( in );
 			}
-			startActivity( in );
 		} else {
 			mMemoryRecallLauncher.launch( in );
 		}
 	}
 
 	public void onMemoryPlusMinusButtonsClick(View v) {
-		if(lastCalculatedResult == null){
+		if ( lastCalculatedResult == null ) {
 			return;
 		}
 
 		ListResult result = lastCalculatedResult.getResult();
 
-		if(!result.isSingleNumber()){
-			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
+		ListResult firstInMemory = memoryEntries.get( 0 );
+		if ( !result.isSingleNumber() && !firstInMemory.isSingleNumber() ) {
+			Toast.makeText( this, R.string.addition_and_substracting_of_lists_is_not_supported_yet, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		BigDecimal b = result.getSingleNumberIfTrue();
-		if ( v.getId() == R.id.btnMemPlus ) {
-			b = b.add( memoryEntries[ 0 ] );
-		} else if ( v.getId() == R.id.btnMemMinus ) {
-			b = memoryEntries[ 0 ].subtract( b );
+		ListResult finalResult;
+		if ( result.isSingleNumber() && firstInMemory.isSingleNumber() ) {
+			BigDecimal a = firstInMemory.getSingleNumberIfTrue();
+			BigDecimal b = result.getSingleNumberIfTrue();
+			if ( v.getId() == R.id.btnMemPlus ) {
+				finalResult = ListResult.of( a.add( b ) );
+			} else {
+				finalResult = ListResult.of( a.subtract( b ) );
+			}
+		} else {
+			char op = '+';
+			if ( v.getId() == R.id.btnMemMinus ) {
+				op = '-';
+			}
+			try {
+				finalResult = CalculatorWrapper.getInstance()
+						.calculate( firstInMemory.format() + op + result.format() );
+			} catch (Exception e) {
+				Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
+				return;
+			}
 		}
-		memoryEntries[ 0 ] = b;
+		memoryEntries.set( 0, finalResult );
 		mMemorySaverReader.save( memoryEntries );
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
-		if(lastCalculatedResult == null){
+		if ( lastCalculatedResult == null ) {
 			return;
 		}
 
 		ListResult result = lastCalculatedResult.getResult();
-		if(!result.isSingleNumber()){
-			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
-			return;
-		}
-		memoryEntries[ 0 ] = result.getSingleNumberIfTrue();
+		memoryEntries.set( 0, result );
 		mMemorySaverReader.save( memoryEntries );
 	}
 
 	public void onMemoryRecallButtonClick(View view) {
-		String value = memoryEntries[ 0 ].toString();
-		addStringExampleToTheExampleStr( value );
+		addToCurrentExpression( memoryEntries.get( 0 ) );
 	}
 
 	public void insertBinaryOperatorOnClick(View v) {
@@ -1129,11 +1171,11 @@ public class Main2Activity extends ThemeActivity {
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
 		if ( mode == CalculationMode.PRE_ANSWER ) {
-			answerTextView.setText( result.format(mDecimalFormat) );
+			answerTextView.setText( result.format( mDecimalFormat ) );
 		} else {
 			clearAnswer();
 			answerTextView.setText( formattedExample );
-			String formattedNum = result.format(mDecimalFormat);
+			String formattedNum = result.format( mDecimalFormat );
 			editText.setText( formattedNum );
 			editText.setSelection( formattedNum.length() );
 
