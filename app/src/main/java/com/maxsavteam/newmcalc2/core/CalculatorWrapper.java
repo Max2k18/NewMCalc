@@ -47,12 +47,6 @@ public final class CalculatorWrapper {
 		return instance;
 	}
 
-	public interface CoreInterface {
-		void onSuccess(CalculationResult calculationResult);
-
-		void onError(CalculationError calculationError);
-	}
-
 	private CalculatorWrapper() {
 		this.mResources = Utils.getContext().getResources();
 		int roundScale = Utils.getDefaultSP().getInt( "rounding_scale", 8 );
@@ -77,23 +71,6 @@ public final class CalculatorWrapper {
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(locale);
 		mCalculator.setDecimalSeparator( decimalFormatSymbols.getDecimalSeparator() );
 		mCalculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
-	}
-
-	public void prepareAndRun(@NotNull final String example, @Nullable String type, @NonNull CoreInterface coreInterface) {
-		try {
-			ListResult result = mCalculator.calculate( example );
-			coreInterface.onSuccess( new CalculationResult().setResult( result ).setType( type ) );
-		} catch (CalculatingException e) {
-			int errorCode = e.getErrorCode();
-			int res = getStringResForErrorCode( errorCode );
-			Log.i( TAG, "prepareAndRun: " + e );
-			if ( res != -1 ) {
-				coreInterface.onError( new CalculationError().setShortError( mResources.getString( res ) ) );
-			}
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-			Log.i( TAG, "prepareAndRun: " + e );
-		}
 	}
 
 	public ListResult calculate(String example) {

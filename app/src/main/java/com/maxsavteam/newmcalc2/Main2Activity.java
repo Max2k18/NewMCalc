@@ -64,8 +64,9 @@ import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.results.ListResult;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
+import com.maxsavteam.newmcalc2.core.CalculationMode;
+import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
-import com.maxsavteam.newmcalc2.fragments.MathOperationsFragmentFactory;
 import com.maxsavteam.newmcalc2.fragments.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragments.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
@@ -89,7 +90,6 @@ import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -125,16 +125,13 @@ public class Main2Activity extends ThemeActivity {
 	private int timerCountDown = 0;
 	private final static int ROUND_SCALE = 8;
 
+	private CalculationResult lastCalculatedResult;
+
 	private ProgressDialog mThreadControllerProgressDialog;
 
 	private DecimalFormat mDecimalFormat;
 
 	private ReviewManager reviewManager;
-
-	private enum CalculateMode {
-		PRE_ANSWER,
-		FULL_ANSWER
-	}
 
 	private static class MemoryStartTypes {
 		public static final String RECALL = "rc", STORE = "st";
@@ -393,7 +390,7 @@ public class Main2Activity extends ThemeActivity {
 					i++;
 				}
 				insert( ex.toString() );
-				calculate( CalculateMode.FULL_ANSWER );
+				calculate( CalculationMode.FULL_ANSWER );
 			}
 		}
 	}
@@ -793,25 +790,17 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onMemoryPlusMinusButtonsClick(View v) {
-		TextView textExample = findViewById( R.id.ExampleStr );
-		String text = textExample.getText().toString();
-		if ( text.equals( "" ) ) {
+		if(lastCalculatedResult == null){
 			return;
 		}
 
-		ListResult temp;
-		try {
-			temp = CalculatorWrapper.getInstance().calculate( text );
-		} catch (CalculatingException | NumberFormatException e) {
-			Log.i( TAG, "onMemoryPlusMinusButtonsClick: " + e );
-			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
-			return;
-		}
-		if(!temp.isSingleNumber()){
+		ListResult result = lastCalculatedResult.getResult();
+
+		if(!result.isSingleNumber()){
 			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		BigDecimal b = temp.getSingleNumberIfTrue();
+		BigDecimal b = result.getSingleNumberIfTrue();
 		if ( v.getId() == R.id.btnMemPlus ) {
 			b = b.add( memoryEntries[ 0 ] );
 		} else if ( v.getId() == R.id.btnMemMinus ) {
@@ -822,24 +811,16 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
-		TextView t = findViewById( R.id.ExampleStr );
-		String text = t.getText().toString();
-		if ( text.equals( "" ) ) {
+		if(lastCalculatedResult == null){
 			return;
 		}
-		ListResult temp;
-		try {
-			temp = CalculatorWrapper.getInstance().calculate( text );
-		} catch (CalculatingException | NumberFormatException e) {
-			Log.i( TAG, "onMemoryPlusMinusButtonsClick: " + e );
-			Toast.makeText( this, R.string.some_error_occurred, Toast.LENGTH_SHORT ).show();
-			return;
-		}
-		if(!temp.isSingleNumber()){
+
+		ListResult result = lastCalculatedResult.getResult();
+		if(!result.isSingleNumber()){
 			Toast.makeText( this, R.string.lists_in_memory_are_not_supported, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		memoryEntries[ 0 ] = temp.getSingleNumberIfTrue();
+		memoryEntries[ 0 ] = result.getSingleNumberIfTrue();
 		mMemorySaverReader.save( memoryEntries );
 	}
 
@@ -950,7 +931,7 @@ public class Main2Activity extends ThemeActivity {
 		int selection = editText.getSelectionStart();
 		e.insert( selection, s );
 		editText.requestFocus();
-		calculate( CalculateMode.PRE_ANSWER );
+		calculate( CalculationMode.PRE_ANSWER );
 	}
 
 	public void onClear(View v) {
@@ -971,13 +952,15 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onEqual(View v) {
-		calculate( CalculateMode.FULL_ANSWER );
+		calculate( CalculationMode.FULL_ANSWER );
 	}
 
-	private void calculate(CalculateMode mode) {
+	private void calculate(CalculationMode mode) {
 		EditText txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
 		wasError = false;
+
+		lastCalculatedResult = null;
 
 		if ( Utils.isNumber( example ) || example.isEmpty() ) {
 			clearAnswer();
@@ -1004,11 +987,14 @@ public class Main2Activity extends ThemeActivity {
 			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
 				ListResult res = mCalculatorWrapper.calculate( finalFormatted );
-				//BigDecimal scaledRes = res.scale() > ROUND_SCALE ? res.setScale( ROUND_SCALE, RoundingMode.HALF_EVEN ) : res;
+				lastCalculatedResult = new CalculationResult()
+						.setMode( mode )
+						.setResult( res )
+						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
 			} catch (CalculatingException e) {
 				wasError = true;
-				if ( mode == CalculateMode.FULL_ANSWER ) {
+				if ( mode == CalculationMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
 					int stringRes;
 					if ( res != -1 ) {
@@ -1130,7 +1116,7 @@ public class Main2Activity extends ThemeActivity {
 		int selection = editText.getSelectionStart();
 		if ( selection != 0 ) {
 			e.delete( selection - 1, selection );
-			calculate( CalculateMode.PRE_ANSWER );
+			calculate( CalculationMode.PRE_ANSWER );
 		}
 	}
 
@@ -1138,11 +1124,11 @@ public class Main2Activity extends ThemeActivity {
 		return mDecimalFormat.format( num );
 	}
 
-	private void writeResult(CalculateMode mode, ListResult result, String formattedExample) {
+	private void writeResult(CalculationMode mode, ListResult result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
-		if ( mode == CalculateMode.PRE_ANSWER ) {
+		if ( mode == CalculationMode.PRE_ANSWER ) {
 			answerTextView.setText( result.format(mDecimalFormat) );
 		} else {
 			clearAnswer();
