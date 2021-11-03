@@ -40,10 +40,10 @@
     <string name="simple_close_bracket" translatable="false">)</string>
     <string name="round_open_bracket" translatable="false">[</string>
     <string name="round_close_bracket" translatable="false">]</string>
-    <string name="floor_open_bracket" translatable="false">⌊</string>
-    <string name="floor_close_bracket" translatable="false">⌋</string>
-    <string name="ceil_open_bracket" translatable="false">⌈</string>
-    <string name="ceil_close_bracket" translatable="false">⌉</string>
+    <string name="floor_open_bracket" translatable="false">\u23A3</string>
+    <string name="floor_close_bracket" translatable="false">\u23A6</string>
+    <string name="ceil_open_bracket" translatable="false">\u23A1</string>
+    <string name="ceil_close_bracket" translatable="false">\u23A4</string>
 
     <string-array name="additional_chars">
         <item>sin</item>
