@@ -9,4 +9,6 @@
     <color name="ripple_color">#667F7F7F</color>
     <color name="ripple_color_on_black_theme">#7F7F7F</color>
     <color name="gray_history">#AAAAAA</color>
+
+    <color name="scrollbarColor">#80424242</color>
 </resources>
