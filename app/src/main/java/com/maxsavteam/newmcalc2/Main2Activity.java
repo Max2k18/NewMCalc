@@ -663,7 +663,7 @@ public class Main2Activity extends ThemeActivity {
 				this::insertBinaryOperatorOnClick,
 				this::insertSuffixOperatorOnClick
 		) );
-		factories.add( new MathOperationsFragmentFactory() );
+		//factories.add( new MathOperationsFragmentFactory() );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
