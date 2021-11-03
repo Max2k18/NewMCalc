@@ -2,5 +2,9 @@
 <resources>
 
     <string name="tangent">tg</string>
+    <string name="arctangent">atg</string>
+
+    <string name="gcd">НОД</string>
+    <string name="lcm">НОК</string>
 
 </resources>

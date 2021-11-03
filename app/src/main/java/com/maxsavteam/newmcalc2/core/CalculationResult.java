@@ -1,25 +1,37 @@
 package com.maxsavteam.newmcalc2.core;
 
-import java.math.BigDecimal;
+import com.maxsavteam.calculator.results.ListResult;
 
 public final class CalculationResult {
-	private String mType = null;
-	private BigDecimal mResult = null;
+	private ListResult mResult = null;
 
-	public final String getType() {
-		return mType;
+	private String expression;
+
+	private CalculationMode mode;
+
+	public CalculationMode getMode() {
+		return mode;
 	}
 
-	public final CalculationResult setType(String type) {
-		mType = type;
+	public CalculationResult setMode(CalculationMode mode) {
+		this.mode = mode;
 		return this;
 	}
 
-	public final BigDecimal getResult() {
+	public String getExpression() {
+		return expression;
+	}
+
+	public CalculationResult setExpression(String expression) {
+		this.expression = expression;
+		return this;
+	}
+
+	public ListResult getResult() {
 		return mResult;
 	}
 
-	public final CalculationResult setResult(BigDecimal result) {
+	public CalculationResult setResult(ListResult result) {
 		mResult = result;
 		return this;
 	}

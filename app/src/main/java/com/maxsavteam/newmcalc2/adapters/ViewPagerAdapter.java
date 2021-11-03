@@ -10,10 +10,16 @@ import java.util.ArrayList;
 
 public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
 
-	private final ArrayList<ViewPagerFragmentFactory> mFactories;
+	public interface AdapterCallback{
+		int getParentHeight();
+	}
 
-	public ViewPagerAdapter(ArrayList<ViewPagerFragmentFactory> f) {
-		mFactories = f;
+	private final ArrayList<ViewPagerFragmentFactory> mFactories;
+	private final AdapterCallback adapterCallback;
+
+	public ViewPagerAdapter(ArrayList<ViewPagerFragmentFactory> mFactories, AdapterCallback adapterCallback) {
+		this.mFactories = mFactories;
+		this.adapterCallback = adapterCallback;
 	}
 
 	@NonNull
@@ -30,7 +36,7 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		mFactories.get( position ).bindView( holder.itemView );
+		mFactories.get( position ).bindView( holder.itemView, adapterCallback.getParentHeight() );
 	}
 
 	@Override
@@ -54,7 +60,7 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
 
 		View justCreateView(ViewGroup parent);
 
-		void bindView(View view);
+		void bindView(View view, int parentHeight);
 
 		int getType();
 

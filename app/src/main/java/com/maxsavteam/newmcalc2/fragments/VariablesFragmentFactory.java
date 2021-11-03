@@ -38,7 +38,7 @@ public class VariablesFragmentFactory implements ViewPagerAdapter.ViewPagerFragm
 	}
 
 	@Override
-	public void bindView(View view) {
+	public void bindView(View view, int parentHeight) {
 		Button b = view.findViewById( R.id.btnMR );
 		b.setOnLongClickListener( mMemoryActionsLongClickListener );
 

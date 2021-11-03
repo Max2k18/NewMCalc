@@ -17,7 +17,7 @@ public class MathOperationsFragmentFactory implements ViewPagerAdapter.ViewPager
 	}
 
 	@Override
-	public void bindView(View view) {
+	public void bindView(View view, int parentHeight) {
 
 	}
 

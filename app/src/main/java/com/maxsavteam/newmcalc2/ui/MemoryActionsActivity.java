@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -11,17 +12,20 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.maxsavteam.calculator.results.ListResult;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 public class MemoryActionsActivity extends ThemeActivity {
-	private BigDecimal[] barr;
+	private ArrayList<ListResult> memoryEntries;
 	private String type;
 	private MemorySaverReader memorySaverReader;
 
@@ -29,11 +33,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 		new CustomAlertDialogBuilder( this )
 				.setMessage( R.string.delete_all_memories_quest )
 				.setPositiveButton( R.string.yes, (dialogInterface1, i)->{
-					barr = new BigDecimal[ 10 ];
-					for (int ii = 0; ii < 10; ii++) {
-						barr[ ii ] = BigDecimal.valueOf( 0 );
-					}
-					memorySaverReader.save( barr );
+					memorySaverReader.save( null );
 					dialogInterface1.cancel();
 					setResult( ResultCodesConstants.RESULT_REFRESH );
 					onBackPressed();
@@ -75,17 +75,14 @@ public class MemoryActionsActivity extends ThemeActivity {
 		if(actionBar != null)
 			actionBar.setDisplayHomeAsUpEnabled( true );
 
-		barr = memorySaverReader.read();
+		memoryEntries = memorySaverReader.read();
 		RecyclerView rv = findViewById( R.id.memory_actions_rv );
-		WindowRecallAdapter adapter = new WindowRecallAdapter( barr, (view, position)->{
+		WindowRecallAdapter adapter = new WindowRecallAdapter( memoryEntries, (view, position)->{
 			if ( type.equals( "st" ) ) {
-				String value = getIntent().getStringExtra( "value" );
-				barr[ position ] = new BigDecimal( value );
-				memorySaverReader.save( barr );
-				setResult( ResultCodesConstants.RESULT_REFRESH );
+				setResult( RESULT_OK, new Intent().putExtra( "position", position ) );
 			} else if ( type.equals( "rc" ) ) {
 				Intent intent = new Intent();
-				intent.putExtra( "value", barr[ position ].toString() );
+				intent.putExtra( "position", position );
 				setResult( ResultCodesConstants.RESULT_APPEND, intent );
 			}
 			onBackPressed();

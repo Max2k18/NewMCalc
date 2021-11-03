@@ -144,4 +144,6 @@
     <string name="failed_to_import_settings">Failed to import settings</string>
     <string name="put_in_memory">Put in memory</string>
     <string name="get_from_memory">Get from memory</string>
+    <string name="lists_in_memory_are_not_supported">Lists in memory are not supported</string>
+    <string name="addition_and_substracting_of_lists_is_not_supported_yet">Addition and subtraction of lists is not supported yet</string>
 </resources>

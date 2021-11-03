@@ -8,17 +8,26 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.R;
 
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final BigDecimal[] mData;
+	private final ArrayList<ListResult> data;
 	private final WindowRecallAdapterCallback mCallback;
+	private final DecimalFormat decimalFormat;
 
-	public WindowRecallAdapter(BigDecimal[] bd_arr, WindowRecallAdapterCallback callback){
-		this.mData = bd_arr;
+	public WindowRecallAdapter(ArrayList<ListResult> results, WindowRecallAdapterCallback callback){
+		this.data = results;
 		mCallback = callback;
+
+		decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
+		decimalFormat.setParseBigDecimal( true );
+		decimalFormat.setMaximumFractionDigits( 8 );
 	}
 
 	@NonNull
@@ -35,25 +44,25 @@ public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapte
 			pos = "M";
 		else
 			pos = Integer.toString(position);
-		String result = mData[position].toString();
-		holder.mResult.setText(result);
-		holder.mNumber.setText(pos);
+		String result = data.get( position ).format(decimalFormat);
+		holder.result.setText(result);
+		holder.number.setText(pos);
 		holder.itemView.setOnClickListener( view->mCallback.onRecallClick( holder.itemView, position ) );
 	}
 
 	@Override
 	public int getItemCount() {
-		return this.mData.length;
+		return data.size();
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder {
-		private final TextView mNumber;
-		private final TextView mResult;
+		private final TextView number;
+		private final TextView result;
 
 		private ViewHolder(View itemView) {
 			super(itemView);
-			mNumber = itemView.findViewById(R.id.recall_text_number);
-			mResult = itemView.findViewById(R.id.recall_text_result);
+			number = itemView.findViewById(R.id.recall_text_number);
+			result = itemView.findViewById(R.id.recall_text_result);
 		}
 	}
 
