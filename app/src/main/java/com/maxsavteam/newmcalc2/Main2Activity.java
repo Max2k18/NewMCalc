@@ -777,12 +777,10 @@ public class Main2Activity extends ThemeActivity {
 			if ( text.equals( "+" ) ) {
 				Intent in = new Intent( this, VariableEditorActivity.class );
 				in.putExtra( "tag", pos );
-				TextView t = findViewById( R.id.ExampleStr );
-				String ts = t.getText().toString();
-				if ( !ts.equals( "" ) && ts.length() < 1000 ) {
-					ts = Utils.deleteSpaces( ts );
-					if ( Utils.isNumber( ts ) ) {
-						in.putExtra( "value", ts ).putExtra( "name", "" ).putExtra( "is_existing", true );
+				if ( lastCalculatedResult != null ) {
+					ListResult r = lastCalculatedResult.getResult();
+					if ( r.isSingleNumber() ) {
+						in.putExtra( "value", r.getSingleNumberIfTrue().toPlainString() ).putExtra( "name", "" ).putExtra( "is_existing", true );
 					}
 				}
 				mVariablesEditorLauncher.launch( in );
