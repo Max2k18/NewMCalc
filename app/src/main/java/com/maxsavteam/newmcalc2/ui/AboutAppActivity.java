@@ -4,10 +4,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -82,5 +88,21 @@ public class AboutAppActivity extends ThemeActivity {
 			builder.create().show();
 			return true;
 		} );
+
+		TextView t = findViewById( R.id.text_based_on_calculator_core );
+		t.setText( String.format( getString( R.string.based_on_calculator_core_version ), Calculator.VERSION ) );
+
+		t = findViewById( R.id.calculator_core_text_view_link );
+		t.setMovementMethod( LinkMovementMethod.getInstance() );
+		String link = "https://github.com/MaxSavTeam/calculator-core";
+		String cut = link.substring( 0, 35 ) + "...";
+		Spannable spannable = new SpannableStringBuilder(cut);
+		spannable.setSpan( new ClickableSpan() {
+			@Override
+			public void onClick(@NonNull View widget) {
+				startActivity( new Intent(Intent.ACTION_VIEW, Uri.parse( link )) );
+			}
+		}, 0, cut.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE );
+		t.setText( spannable );
 	}
 }

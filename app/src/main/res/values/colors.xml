@@ -11,4 +11,6 @@
     <color name="gray_history">#AAAAAA</color>
 
     <color name="scrollbarColor">#80424242</color>
+
+    <color name="blue">#304FFE</color>
 </resources>
