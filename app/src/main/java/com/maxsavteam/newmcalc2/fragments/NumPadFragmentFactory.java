@@ -51,6 +51,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 				new ButtonConfiguration( c.getString( R.string.sin ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.cos ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.tangent ), insertFunctionOnClick ),
+				new ButtonConfiguration( c.getString( R.string.cotangent ), insertFunctionOnClick ),
 
 				new ButtonConfiguration( c.getString( R.string.rad ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.deg ), insertFunctionOnClick ),
@@ -63,6 +64,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 				new ButtonConfiguration( c.getString( R.string.asin ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.acos ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.arctangent ), insertFunctionOnClick ),
+				new ButtonConfiguration( c.getString( R.string.arccotangent ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.log ), insertFunctionOnClick ),
 				new ButtonConfiguration( c.getString( R.string.ln ), insertFunctionOnClick ),
 

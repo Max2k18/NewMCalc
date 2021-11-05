@@ -18,7 +18,11 @@
 
     <string name="asin" translatable="false">asin</string>
     <string name="acos" translatable="false">acos</string>
+
+    <string name="tangent">tan</string>
     <string name="arctangent">atan</string>
+    <string name="cotangent">cot</string>
+    <string name="arccotangent">acot</string>
 
     <string name="rad" translatable="false">rad</string>
     <string name="deg" translatable="false">deg</string>
@@ -27,8 +31,6 @@
     <string name="lcm">lcm</string>
 
     <string name="semicolon" translatable="false">;</string>
-
-    <string name="tangent">tan</string>
 
     <string name="factorial" translatable="false">!</string>
     <string name="average_function" translatable="false">A</string>
