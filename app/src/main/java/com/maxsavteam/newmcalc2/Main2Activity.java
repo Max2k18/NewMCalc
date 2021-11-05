@@ -21,6 +21,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -42,6 +43,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -608,7 +610,10 @@ public class Main2Activity extends ThemeActivity {
 						sharedPreferences.edit().putBoolean( version, true ).apply();
 						dialog.cancel();
 					} ) );
-			builder.show();
+			AlertDialog d = builder.create();
+			d.show();
+
+			((TextView) d.findViewById( android.R.id.message )).setMovementMethod( LinkMovementMethod.getInstance() );
 		}
 	}
 

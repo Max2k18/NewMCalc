@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="release_note_2_6"><![CDATA[
+Version 2.6.0<br>
+<br>
+<b>New:</b><br>
+- The panel with functions and constants has been moved to the first panel in the scrollable list<br>
+- Added cotangent, arcotangent, arcsine, arccosine, arctangent<br>
+- Added gcd and lcm<br>
+- Added the base of the root (√4(16) will show 2 means the square root of 16 base 4, but √4 or √(4) means the square root of 4 base 2) <br>
+- Added lists (several independent expressions separated by semicolons, on which operations can be performed)<br>
+You can read more about the lists at this <a href=\'https://github.com/MaxSavTeam/calculator-core/releases/tag/2.0.0\'>link</a><br>
+<br>
+<b>Corrections:</b><br>
+- Improved accuracy of calculations<br>
+    ]]></string>
+
     <string name="release_note_2_4"><![CDATA[
 Version 2.4.0<br>
 <br>
