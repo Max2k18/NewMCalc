@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Icon;
@@ -497,6 +498,37 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		super.onConfigurationChanged( newConfig );
+
+		App.getInstance().updateAppLocale();
+
+		CalculatorWrapper.getInstance().updateLocale();
+
+		DecimalFormat newDecimalFormat = getDecimalFormat();
+
+		CalculatorEditText exampleEditText = findViewById( R.id.ExampleStr );
+		exampleEditText.updateLocale();
+		reformatTextView( exampleEditText, newDecimalFormat );
+
+		CalculatorEditText answerEditText = findViewById( R.id.AnswerStr );
+		answerEditText.updateLocale();
+		reformatTextView( answerEditText, newDecimalFormat );
+
+		mDecimalFormat = newDecimalFormat;
+	}
+
+	private void reformatTextView(TextView textView, DecimalFormat newDecimalFormat){
+		String current = textView.getText().toString();
+		if(current.length() > 0){
+			String normalized = FormatUtils.normalizeNumbersInExample( current, mDecimalFormat );
+
+			String reformattedExample = FormatUtils.formatNumbersInExpression( normalized, newDecimalFormat );
+			textView.setText( reformattedExample );
+		}
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
@@ -531,9 +563,7 @@ public class Main2Activity extends ThemeActivity {
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
-		mDecimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
-		mDecimalFormat.setParseBigDecimal( true );
-		mDecimalFormat.setMaximumFractionDigits( 8 );
+		mDecimalFormat = getDecimalFormat();
 
 		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
 		DIVISION_SIGN = getResources().getString( R.string.div );
@@ -595,6 +625,13 @@ public class Main2Activity extends ThemeActivity {
 						}
 					} );
 		}
+	}
+
+	private DecimalFormat getDecimalFormat(){
+		DecimalFormat decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
+		decimalFormat.setParseBigDecimal( true );
+		decimalFormat.setMaximumFractionDigits( 8 );
+		return decimalFormat;
 	}
 
 	private void showWhatNew() {

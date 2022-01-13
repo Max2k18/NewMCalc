@@ -1,13 +1,10 @@
 package com.maxsavteam.newmcalc2.utils;
 
-import android.util.Log;
-
 import com.maxsavteam.newmcalc2.Main2Activity;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParsePosition;
 
 public class FormatUtils {
 
@@ -75,13 +72,16 @@ public class FormatUtils {
 		StringBuilder formatted = new StringBuilder();
 		StringBuilder number = new StringBuilder();
 		for(char c : ex.toCharArray()){
-			if(c >= '0' && c <= '9' || c == symbols.getDecimalSeparator())
+			if(Character.isDigit( c ))
 				number
 						.append( c );
+			else if(c == symbols.getDecimalSeparator()){
+				number.append( "." );
+			}
 			else if(c != symbols.getGroupingSeparator()){
 				if(number.length() > 0) {
 					formatted
-							.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) );
+							.append( number );
 					number.setLength( 0 );
 				}
 				formatted
@@ -90,7 +90,7 @@ public class FormatUtils {
 		}
 		if(number.length() > 0)
 			formatted
-					.append( decimalFormat.parse( number.toString(), new ParsePosition( 0 ) ) );
+					.append( number );
 		return formatted.toString();
 	}
 
@@ -98,7 +98,7 @@ public class FormatUtils {
 		StringBuilder formatted = new StringBuilder();
 		StringBuilder number = new StringBuilder();
 		for(char c : ex.toCharArray()){
-			if(c >= '0' && c <= '9' || c == '.'){
+			if(Character.isDigit( c ) || c == '.'){
 				number
 						.append( c );
 			}else{

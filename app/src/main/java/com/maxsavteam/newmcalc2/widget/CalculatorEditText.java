@@ -14,6 +14,7 @@ import android.util.TypedValue;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
@@ -31,7 +32,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	private final float mStepTextSize;
 	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
 	private boolean isEditing = false;
-	private final DecimalFormatSymbols mFormatSymbols;
+	private DecimalFormatSymbols mFormatSymbols;
 
 	public CalculatorEditText(@NonNull Context context) {
 		this( context, null );
@@ -53,13 +54,11 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		setShowSoftInputOnFocus( showKeyboard );
 		a.recycle();
 
-		Locale locale;
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-			locale = context.getResources().getConfiguration().getLocales().get( 0 );
-		} else {
-			locale = context.getResources().getConfiguration().locale;
-		}
-		mFormatSymbols = new DecimalFormatSymbols( locale );
+		updateLocale();
+	}
+
+	public void updateLocale(){
+		mFormatSymbols = new DecimalFormatSymbols( App.getInstance().getAppLocale() );
 	}
 
 	@Override

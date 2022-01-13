@@ -11,6 +11,7 @@ import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
 import com.maxsavteam.calculator.results.List;
 import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -63,13 +64,11 @@ public final class CalculatorWrapper {
 		mReplacementMap.putAll( Calculator.defaultReplacementMap );
 		mCalculator.setAliases( mReplacementMap );
 
-		Locale locale;
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-			locale = mResources.getConfiguration().getLocales().get( 0 );
-		}else{
-			locale = mResources.getConfiguration().locale;
-		}
-		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(locale);
+		updateLocale();
+	}
+
+	public void updateLocale(){
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( App.getInstance().getAppLocale() );
 		mCalculator.setDecimalSeparator( decimalFormatSymbols.getDecimalSeparator() );
 		mCalculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
 	}

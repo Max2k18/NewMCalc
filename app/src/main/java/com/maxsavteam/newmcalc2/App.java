@@ -40,11 +40,7 @@ public class App extends Application {
 		if(isFirstStart)
 			sp.edit().putBoolean( "isFirstStart", false ).apply();
 
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-			appLocale = getApplicationContext().getResources().getConfiguration().getLocales().get( 0 );
-		} else {
-			appLocale = getApplicationContext().getResources().getConfiguration().locale;
-		}
+		updateAppLocale();
 
 		ExceptionHandler exceptionHandler = new ExceptionHandler( getApplicationContext(), AfterCrashActivity.class, false );
 		UncaughtExceptionHandler previousHandler = Thread.getDefaultUncaughtExceptionHandler();
@@ -55,4 +51,13 @@ public class App extends Application {
 			}
 		} );
 	}
+
+	public void updateAppLocale(){
+		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
+			appLocale = getApplicationContext().getResources().getConfiguration().getLocales().get( 0 );
+		} else {
+			appLocale = getApplicationContext().getResources().getConfiguration().locale;
+		}
+	}
+
 }
