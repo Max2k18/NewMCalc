@@ -12,7 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.calculator.results.List;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class MemoryActionsActivity extends ThemeActivity {
-	private ArrayList<ListResult> memoryEntries;
+	private ArrayList<List> memoryEntries;
 	private String type;
 	private MemorySaverReader memorySaverReader;
 

@@ -2,7 +2,8 @@ package com.maxsavteam.newmcalc2.utils;
 
 import android.content.SharedPreferences;
 
-import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.results.List;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 
 import org.json.JSONArray;
@@ -20,13 +21,13 @@ public class MemorySaverReader {
 		sp = Utils.getDefaultSP();
 	}
 
-	public void save(ArrayList<ListResult> results) {
+	public void save(ArrayList<List> results) {
 		if(results == null){
 			sp.edit().remove( "memory" ).apply();
 			return;
 		}
 		JSONArray jsonArray = new JSONArray();
-		for(ListResult r : results){
+		for(List r : results){
 			jsonArray.put( r.format() );
 		}
 		sp.edit().putString( "memory", jsonArray.toString() ).apply();
@@ -51,19 +52,19 @@ public class MemorySaverReader {
 		return barr;
 	}
 
-	public ArrayList<ListResult> read() {
+	public ArrayList<List> read() {
 		String memory = sp.getString( "memory", null );
 		if ( memory == null ) {
-			ArrayList<ListResult> results = new ArrayList<>( MEMORY_ENTRIES_COUNT );
+			ArrayList<List> results = new ArrayList<>( MEMORY_ENTRIES_COUNT );
 			for (int i = 0; i < MEMORY_ENTRIES_COUNT; i++)
-				results.add( ListResult.of( BigDecimal.ZERO ) );
+				results.add( List.of( BigDecimal.ZERO ) );
 			return results;
 		}
 
 		try {
 			JSONArray jsonArray = new JSONArray( memory );
 
-			ArrayList<ListResult> results = new ArrayList<>();
+			ArrayList<List> results = new ArrayList<>();
 			for(int i = 0; i < Math.min(MEMORY_ENTRIES_COUNT, jsonArray.length()); i++){
 				results.add(
 						CalculatorWrapper.getInstance().calculate( jsonArray.getString( i ) // easiest way to parse list
@@ -71,22 +72,22 @@ public class MemorySaverReader {
 			}
 			// expand, because in future number of entries can be increased
 			while(results.size() < MEMORY_ENTRIES_COUNT){
-				results.add( ListResult.of( BigDecimal.ZERO ) );
+				results.add( List.of( BigDecimal.ZERO ) );
 			}
 
 			return results;
 		} catch (JSONException e) {
 			e.printStackTrace();
 
-			ArrayList<ListResult> results = new ArrayList<>();
+			ArrayList<List> results = new ArrayList<>();
 			BigDecimal[] b = readOld();
 			for(int i = 0; i < Math.min( 10, MEMORY_ENTRIES_COUNT ); i++){
-				results.add( ListResult.of( b[i] ) );
+				results.add( List.of( b[i] ) );
 			}
 
 			// expand, because in future number of entries can be increased, but old method returns only 10 entries
 			while(results.size() < MEMORY_ENTRIES_COUNT){
-				results.add( ListResult.of( BigDecimal.ZERO ) );
+				results.add( List.of( BigDecimal.ZERO ) );
 			}
 
 			return results;

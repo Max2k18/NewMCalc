@@ -1,9 +1,9 @@
 package com.maxsavteam.newmcalc2.core;
 
-import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.calculator.results.List;
 
 public final class CalculationResult {
-	private ListResult mResult = null;
+	private List mResult = null;
 
 	private String expression;
 
@@ -27,11 +27,11 @@ public final class CalculationResult {
 		return this;
 	}
 
-	public ListResult getResult() {
+	public List getResult() {
 		return mResult;
 	}
 
-	public CalculationResult setResult(ListResult result) {
+	public CalculationResult setResult(List result) {
 		mResult = result;
 		return this;
 	}

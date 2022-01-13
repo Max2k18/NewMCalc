@@ -9,7 +9,8 @@ import androidx.annotation.StringRes;
 
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
-import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.results.List;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -73,7 +74,7 @@ public final class CalculatorWrapper {
 		mCalculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
 	}
 
-	public ListResult calculate(String example) {
+	public List calculate(String example) {
 		return mCalculator.calculate( example );
 	}
 

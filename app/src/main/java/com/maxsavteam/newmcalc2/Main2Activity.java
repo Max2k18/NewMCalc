@@ -63,7 +63,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculatingException;
-import com.maxsavteam.calculator.results.ListResult;
+import com.maxsavteam.calculator.results.List;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationMode;
@@ -115,7 +115,7 @@ public class Main2Activity extends ThemeActivity {
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 
 	private MemorySaverReader mMemorySaverReader;
-	private ArrayList<ListResult> memoryEntries;
+	private ArrayList<List> memoryEntries;
 
 	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
@@ -688,12 +688,7 @@ public class Main2Activity extends ThemeActivity {
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
 		ViewPagerAdapter viewPagerAdapter =
-				new ViewPagerAdapter( factories, new ViewPagerAdapter.AdapterCallback() {
-					@Override
-					public int getParentHeight() {
-						return viewPager.getHeight();
-					}
-				} );
+				new ViewPagerAdapter( factories, viewPager::getHeight );
 		viewPager.setAdapter( viewPagerAdapter );
 		viewPager.setCurrentItem( which );
 		TypedValue data = new TypedValue();
@@ -760,7 +755,7 @@ public class Main2Activity extends ThemeActivity {
 		addStringExampleToTheExampleStr( s, true );
 	}
 
-	private void addToCurrentExpression(ListResult r) {
+	private void addToCurrentExpression(List r) {
 		if ( r.isSingleNumber() ) {
 			addStringExampleToTheExampleStr( formatNumber( r.getSingleNumberIfTrue() ) );
 		} else {
@@ -783,7 +778,7 @@ public class Main2Activity extends ThemeActivity {
 				Intent in = new Intent( this, VariableEditorActivity.class );
 				in.putExtra( "tag", pos );
 				if ( lastCalculatedResult != null ) {
-					ListResult r = lastCalculatedResult.getResult();
+					List r = lastCalculatedResult.getResult();
 					if ( r.isSingleNumber() ) {
 						in.putExtra( "value", r.getSingleNumberIfTrue().toPlainString() ).putExtra( "name", "" ).putExtra( "is_existing", true );
 					}
@@ -827,21 +822,21 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		ListResult result = lastCalculatedResult.getResult();
+		List result = lastCalculatedResult.getResult();
 
-		ListResult firstInMemory = memoryEntries.get( 0 );
+		List firstInMemory = memoryEntries.get( 0 );
 		if ( !result.isSingleNumber() && !firstInMemory.isSingleNumber() ) {
 			Toast.makeText( this, R.string.addition_and_substracting_of_lists_is_not_supported_yet, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		ListResult finalResult;
+		List finalResult;
 		if ( result.isSingleNumber() && firstInMemory.isSingleNumber() ) {
 			BigDecimal a = firstInMemory.getSingleNumberIfTrue();
 			BigDecimal b = result.getSingleNumberIfTrue();
 			if ( v.getId() == R.id.btnMemPlus ) {
-				finalResult = ListResult.of( a.add( b ) );
+				finalResult = List.of( a.add( b ) );
 			} else {
-				finalResult = ListResult.of( a.subtract( b ) );
+				finalResult = List.of( a.subtract( b ) );
 			}
 		} else {
 			char op = '+';
@@ -865,7 +860,7 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		ListResult result = lastCalculatedResult.getResult();
+		List result = lastCalculatedResult.getResult();
 		memoryEntries.set( 0, result );
 		mMemorySaverReader.save( memoryEntries );
 	}
@@ -1031,7 +1026,7 @@ public class Main2Activity extends ThemeActivity {
 		mCoreThread = new Thread( ()->{
 			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
-				ListResult res = mCalculatorWrapper.calculate( finalFormatted );
+				List res = mCalculatorWrapper.calculate( finalFormatted );
 				lastCalculatedResult = new CalculationResult()
 						.setMode( mode )
 						.setResult( res )
@@ -1169,7 +1164,7 @@ public class Main2Activity extends ThemeActivity {
 		return mDecimalFormat.format( num );
 	}
 
-	private void writeResult(CalculationMode mode, ListResult result, String formattedExample) {
+	private void writeResult(CalculationMode mode, List result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
