@@ -16,8 +16,8 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragmentFactory {
@@ -25,61 +25,79 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 	public static final int TYPE = 1;
 
 	private final Context context;
-	private final View.OnLongClickListener mCalculateButtonLongClickListener;
+	private final View.OnLongClickListener calculateButtonLongClickListener;
 
-	private final List<ButtonConfiguration> buttonConfigurations;
+	private ArrayList<ButtonConfiguration> buttonConfigurations;
 
-	public NumPadFragmentFactory(Context c,
+	private final View.OnClickListener justInsertOnClick;
+	private final View.OnClickListener insertBracketsOnClick;
+	private final View.OnClickListener insertFunctionOnClick;
+	private final View.OnClickListener insertBinaryOperatorOnClick;
+	private final View.OnClickListener insertSuffixOperatorOnClick;
+
+	public NumPadFragmentFactory(Context context,
 								 View.OnLongClickListener calculateButtonLongClickListener,
 								 View.OnClickListener justInsertOnClick,
 								 View.OnClickListener insertBracketsOnClick,
 								 View.OnClickListener insertFunctionOnClick,
 								 View.OnClickListener insertBinaryOperatorOnClick,
 								 View.OnClickListener insertSuffixOperatorOnClick) {
-		this.context = c;
-		mCalculateButtonLongClickListener = calculateButtonLongClickListener;
+		this.context = context;
+		this.calculateButtonLongClickListener = calculateButtonLongClickListener;
+		this.justInsertOnClick = justInsertOnClick;
+		this.insertBracketsOnClick = insertBracketsOnClick;
+		this.insertFunctionOnClick = insertFunctionOnClick;
+		this.insertBinaryOperatorOnClick = insertBinaryOperatorOnClick;
+		this.insertSuffixOperatorOnClick = insertSuffixOperatorOnClick;
 
-		buttonConfigurations = Arrays.asList(
-				new ButtonConfiguration( c.getString( R.string.simple_open_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.simple_close_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.semicolon ), justInsertOnClick ),
+		setupButtonConfigurations();
+	}
 
-				new ButtonConfiguration( c.getString( R.string.sqrt ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.pow_sign ), insertBinaryOperatorOnClick ),
-				new ButtonConfiguration( c.getString( R.string.percent ), insertSuffixOperatorOnClick ),
+	private void setupButtonConfigurations(){
+		if(buttonConfigurations != null)
+			buttonConfigurations.clear();
 
-				new ButtonConfiguration( c.getString( R.string.sin ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.cos ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.tangent ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.cotangent ), insertFunctionOnClick ),
+		buttonConfigurations = new ArrayList<>(Arrays.asList(
+				new ButtonConfiguration( context.getString( R.string.simple_open_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.simple_close_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.semicolon ), justInsertOnClick ),
 
-				new ButtonConfiguration( c.getString( R.string.rad ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.deg ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.sqrt ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.pow_sign ), insertBinaryOperatorOnClick ),
+				new ButtonConfiguration( context.getString( R.string.percent ), insertSuffixOperatorOnClick ),
 
-				new ButtonConfiguration( c.getString( R.string.pi ), justInsertOnClick ),
-				new ButtonConfiguration( c.getString( R.string.fi ), justInsertOnClick ),
-				new ButtonConfiguration( c.getString( R.string.euler_constant ), justInsertOnClick ),
-				new ButtonConfiguration( c.getString( R.string.factorial ), insertSuffixOperatorOnClick ),
+				new ButtonConfiguration( context.getString( R.string.sin ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.cos ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.tangent ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.cotangent ), insertFunctionOnClick ),
 
-				new ButtonConfiguration( c.getString( R.string.asin ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.acos ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.arctangent ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.arccotangent ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.log ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.ln ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.rad ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.deg ), insertFunctionOnClick ),
 
-				new ButtonConfiguration( c.getString( R.string.abs ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.average_function ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.gcd ), insertFunctionOnClick ),
-				new ButtonConfiguration( c.getString( R.string.lcm ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.pi ), justInsertOnClick ),
+				new ButtonConfiguration( context.getString( R.string.fi ), justInsertOnClick ),
+				new ButtonConfiguration( context.getString( R.string.euler_constant ), justInsertOnClick ),
+				new ButtonConfiguration( context.getString( R.string.factorial ), insertSuffixOperatorOnClick ),
 
-				new ButtonConfiguration( c.getString( R.string.round_open_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.round_close_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.floor_open_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.floor_close_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.ceil_open_bracket ), insertBracketsOnClick ),
-				new ButtonConfiguration( c.getString( R.string.ceil_close_bracket ), insertBracketsOnClick )
-		);
+				new ButtonConfiguration( context.getString( R.string.asin ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.acos ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.arctangent ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.arccotangent ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.log ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.ln ), insertFunctionOnClick ),
+
+				new ButtonConfiguration( context.getString( R.string.abs ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.average_function ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.gcd ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.lcm ), insertFunctionOnClick ),
+
+				new ButtonConfiguration( context.getString( R.string.round_open_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.round_close_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.floor_open_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.floor_close_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.ceil_open_bracket ), insertBracketsOnClick ),
+				new ButtonConfiguration( context.getString( R.string.ceil_close_bracket ), insertBracketsOnClick )
+		));
 	}
 
 	@Override
@@ -89,8 +107,10 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 
 	@Override
 	public void bindView(View view, int parentHeight) {
+		setupButtonConfigurations();
+
 		Button b = view.findViewById( R.id.btnCalc );
-		b.setOnLongClickListener( mCalculateButtonLongClickListener );
+		b.setOnLongClickListener( calculateButtonLongClickListener );
 
 		Locale locale;
 		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {

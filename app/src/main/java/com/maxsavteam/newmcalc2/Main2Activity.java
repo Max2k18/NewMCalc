@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -48,6 +49,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -516,6 +518,10 @@ public class Main2Activity extends ThemeActivity {
 		reformatTextView( answerEditText, newDecimalFormat );
 
 		mDecimalFormat = newDecimalFormat;
+
+		RecyclerView.Adapter<?> viewPagerAdapter = ((ViewPager2) findViewById( R.id.viewpager )).getAdapter();
+		if(viewPagerAdapter != null)
+			viewPagerAdapter.notifyItemChanged( 0 ); // update numpad
 	}
 
 	private void reformatTextView(TextView textView, DecimalFormat newDecimalFormat){
