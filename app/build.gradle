@@ -65,7 +65,7 @@ static String getBuildTime() {
 }
 
 dependencies {
-    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.0'
+    implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
 
     implementation 'com.google.firebase:firebase-core:20.0.2'
     implementation 'com.google.firebase:firebase-perf:20.0.4'
@@ -87,8 +87,8 @@ dependencies {
     implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.1.2'
     implementation 'com.maxsavteam:calculator-core:2.2.0'
 
-    implementation 'org.jetbrains:annotations:22.0.0'
+    implementation 'org.jetbrains:annotations:23.0.0'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
 
 }
