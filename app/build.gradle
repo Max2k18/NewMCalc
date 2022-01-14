@@ -17,7 +17,7 @@ android {
         targetSdkVersion 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 2016
+        versionCode 2017
         versionName "2.6.1"
 
         multiDexEnabled true
