@@ -3,8 +3,7 @@ package com.maxsavteam.newmcalc2.utils;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.maxsavteam.calculator.results.List;
-import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.types.HistoryEntry;
@@ -13,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class HistoryManager {
@@ -60,7 +58,7 @@ public class HistoryManager {
 				String example = element.getString( "example" );
 				Log.i( TAG, example );
 				try {
-					List result = CalculatorWrapper.getInstance().calculate( example );
+					NumberList result = CalculatorWrapper.getInstance().calculate( example );
 					HistoryEntry entry = new HistoryEntry(
 							element.getString( "example" ),
 							result.format(),

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -12,20 +11,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
-import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class MemoryActionsActivity extends ThemeActivity {
-	private ArrayList<List> memoryEntries;
 	private String type;
 	private MemorySaverReader memorySaverReader;
 
@@ -75,7 +71,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 		if(actionBar != null)
 			actionBar.setDisplayHomeAsUpEnabled( true );
 
-		memoryEntries = memorySaverReader.read();
+		ArrayList<NumberList> memoryEntries = memorySaverReader.read();
 		RecyclerView rv = findViewById( R.id.memory_actions_rv );
 		WindowRecallAdapter adapter = new WindowRecallAdapter( memoryEntries, (view, position)->{
 			if ( type.equals( "st" ) ) {

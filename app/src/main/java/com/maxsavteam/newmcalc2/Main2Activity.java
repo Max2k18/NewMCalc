@@ -31,7 +31,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -65,8 +64,8 @@ import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
-import com.maxsavteam.calculator.exceptions.CalculatingException;
-import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.exceptions.CalculationException;
+import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationMode;
@@ -118,7 +117,7 @@ public class Main2Activity extends ThemeActivity {
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 
 	private MemorySaverReader mMemorySaverReader;
-	private ArrayList<List> memoryEntries;
+	private ArrayList<NumberList> memoryEntries;
 
 	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
@@ -130,7 +129,6 @@ public class Main2Activity extends ThemeActivity {
 	private Thread mCoreThread = null;
 
 	private int timerCountDown = 0;
-	private final static int ROUND_SCALE = 8;
 
 	private CalculationResult lastCalculatedResult;
 
@@ -798,7 +796,7 @@ public class Main2Activity extends ThemeActivity {
 		addStringExampleToTheExampleStr( s, true );
 	}
 
-	private void addToCurrentExpression(List r) {
+	private void addToCurrentExpression(NumberList r) {
 		if ( r.isSingleNumber() ) {
 			addStringExampleToTheExampleStr( formatNumber( r.getSingleNumberIfTrue() ) );
 		} else {
@@ -821,7 +819,7 @@ public class Main2Activity extends ThemeActivity {
 				Intent in = new Intent( this, VariableEditorActivity.class );
 				in.putExtra( "tag", pos );
 				if ( lastCalculatedResult != null ) {
-					List r = lastCalculatedResult.getResult();
+					NumberList r = lastCalculatedResult.getResult();
 					if ( r.isSingleNumber() ) {
 						in.putExtra( "value", r.getSingleNumberIfTrue().toPlainString() ).putExtra( "name", "" ).putExtra( "is_existing", true );
 					}
@@ -865,21 +863,21 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		List result = lastCalculatedResult.getResult();
+		NumberList result = lastCalculatedResult.getResult();
 
-		List firstInMemory = memoryEntries.get( 0 );
+		NumberList firstInMemory = memoryEntries.get( 0 );
 		if ( !result.isSingleNumber() && !firstInMemory.isSingleNumber() ) {
 			Toast.makeText( this, R.string.addition_and_substracting_of_lists_is_not_supported_yet, Toast.LENGTH_SHORT ).show();
 			return;
 		}
-		List finalResult;
+		NumberList finalResult;
 		if ( result.isSingleNumber() && firstInMemory.isSingleNumber() ) {
 			BigDecimal a = firstInMemory.getSingleNumberIfTrue();
 			BigDecimal b = result.getSingleNumberIfTrue();
 			if ( v.getId() == R.id.btnMemPlus ) {
-				finalResult = List.of( a.add( b ) );
+				finalResult = NumberList.of( a.add( b ) );
 			} else {
-				finalResult = List.of( a.subtract( b ) );
+				finalResult = NumberList.of( a.subtract( b ) );
 			}
 		} else {
 			char op = '+';
@@ -903,7 +901,7 @@ public class Main2Activity extends ThemeActivity {
 			return;
 		}
 
-		List result = lastCalculatedResult.getResult();
+		NumberList result = lastCalculatedResult.getResult();
 		memoryEntries.set( 0, result );
 		mMemorySaverReader.save( memoryEntries );
 	}
@@ -1060,8 +1058,8 @@ public class Main2Activity extends ThemeActivity {
 			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
 			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
 			formatted = tokenizer.localizeExpression( formatted );
-		} catch (CalculatingException e) {
-			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculatingException.INVALID_BRACKETS_SEQUENCE ) ) );
+		} catch (CalculationException e) {
+			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculationException.INVALID_BRACKETS_SEQUENCE ) ) );
 			return;
 		}
 
@@ -1069,13 +1067,13 @@ public class Main2Activity extends ThemeActivity {
 		mCoreThread = new Thread( ()->{
 			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
-				List res = mCalculatorWrapper.calculate( finalFormatted );
+				NumberList res = mCalculatorWrapper.calculate( finalFormatted );
 				lastCalculatedResult = new CalculationResult()
 						.setMode( mode )
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
-			} catch (CalculatingException e) {
+			} catch (CalculationException e) {
 				wasError = true;
 				if ( mode == CalculationMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
@@ -1207,7 +1205,7 @@ public class Main2Activity extends ThemeActivity {
 		return mDecimalFormat.format( num );
 	}
 
-	private void writeResult(CalculationMode mode, List result, String formattedExample) {
+	private void writeResult(CalculationMode mode, NumberList result, String formattedExample) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 

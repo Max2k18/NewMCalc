@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.calculator.results.List;
+import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.R;
 
@@ -17,11 +17,11 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final ArrayList<List> data;
+	private final ArrayList<NumberList> data;
 	private final WindowRecallAdapterCallback mCallback;
 	private final DecimalFormat decimalFormat;
 
-	public WindowRecallAdapter(ArrayList<List> results, WindowRecallAdapterCallback callback){
+	public WindowRecallAdapter(ArrayList<NumberList> results, WindowRecallAdapterCallback callback){
 		this.data = results;
 		mCallback = callback;
 
