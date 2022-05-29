@@ -8,6 +8,7 @@
     tools:context=".Main2Activity">
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -157,10 +158,6 @@
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:fadeScrollbars="false"
-        android:scrollbarThumbVertical="@color/scrollbarColor"
         android:background="@drawable/numpad_scroll_view_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -171,10 +168,34 @@
         app:layout_constraintWidth_percent="0.2">
 
         <LinearLayout
+            android:id="@+id/num_pad_scroll_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:id="@+id/num_pad_scroll_layout"/>
+            android:orientation="vertical" />
     </ScrollView>
+
+    <ImageView
+        android:id="@+id/numpad_arrow_up"
+        android:layout_width="@dimen/view_pager_arrow_size"
+        android:layout_height="@dimen/view_pager_arrow_size"
+        android:src="@drawable/ic_arrow_up"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/scrollView2"
+        app:layout_constraintStart_toStartOf="@+id/scrollView2"
+        app:layout_constraintTop_toTopOf="@+id/scrollView2"
+        app:layout_constraintVertical_bias="0.0"
+        app:tint="@color/white" />
+
+    <ImageView
+        android:id="@+id/numpad_arrow_down"
+        android:layout_width="@dimen/view_pager_arrow_size"
+        android:layout_height="@dimen/view_pager_arrow_size"
+        android:src="@drawable/ic_arrow_down"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/scrollView2"
+        app:layout_constraintStart_toStartOf="@+id/scrollView2"
+        app:layout_constraintTop_toTopOf="@+id/scrollView2"
+        app:layout_constraintVertical_bias="1.0"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

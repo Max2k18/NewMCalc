@@ -3,7 +3,6 @@ package com.maxsavteam.newmcalc2.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
@@ -53,11 +53,12 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 		setupButtonConfigurations();
 	}
 
-	private void setupButtonConfigurations(){
-		if(buttonConfigurations != null)
+	private void setupButtonConfigurations() {
+		if ( buttonConfigurations != null ) {
 			buttonConfigurations.clear();
+		}
 
-		buttonConfigurations = new ArrayList<>(Arrays.asList(
+		buttonConfigurations = new ArrayList<>( Arrays.asList(
 				new ButtonConfiguration( context.getString( R.string.simple_open_bracket ), insertBracketsOnClick ),
 				new ButtonConfiguration( context.getString( R.string.simple_close_bracket ), insertBracketsOnClick ),
 				new ButtonConfiguration( context.getString( R.string.semicolon ), justInsertOnClick ),
@@ -97,7 +98,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 				new ButtonConfiguration( context.getString( R.string.floor_close_bracket ), insertBracketsOnClick ),
 				new ButtonConfiguration( context.getString( R.string.ceil_open_bracket ), insertBracketsOnClick ),
 				new ButtonConfiguration( context.getString( R.string.ceil_close_bracket ), insertBracketsOnClick )
-		));
+		) );
 	}
 
 	@Override
@@ -112,13 +113,8 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 		Button b = view.findViewById( R.id.btnCalc );
 		b.setOnLongClickListener( calculateButtonLongClickListener );
 
-		Locale locale;
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ) {
-			locale = context.getResources().getConfiguration().getLocales().get( 0 );
-		}else{
-			locale = context.getResources().getConfiguration().locale;
-		}
-		DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale);
+		Locale locale = context.getResources().getConfiguration().getLocales().get( 0 );
+		DecimalFormatSymbols symbols = new DecimalFormatSymbols( locale );
 		b = view.findViewById( R.id.btnDot );
 		b.setText( String.valueOf( symbols.getDecimalSeparator() ) );
 
@@ -129,7 +125,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 						10f,
 						context.getResources().getDisplayMetrics()
 				);
-		for(var p : buttonConfigurations){
+		for (var p : buttonConfigurations) {
 			Button button = new Button( context, null, R.style.MathOperationButtonStyle );
 			button.setText( p.text );
 			button.setOnClickListener( p.onClickListener );
@@ -151,6 +147,35 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 
 			layout.addView( button );
 		}
+
+		setupScrollViewArrows( view );
+	}
+
+	private void setupScrollViewArrows(View view) {
+		ScrollView scrollView = view.findViewById( R.id.scrollView2 );
+		View arrowUpView = view.findViewById( R.id.numpad_arrow_up );
+		View arrowDownView = view.findViewById( R.id.numpad_arrow_down );
+		hide( arrowUpView );
+		scrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->{
+			if ( scrollY == 0 ) { // up
+				hide( arrowUpView );
+				show( arrowDownView );
+			} else if ( scrollView.getChildAt( 0 ).getBottom() <= ( scrollView.getHeight() + scrollView.getScrollY() ) ) {
+				hide( arrowDownView );
+				show( arrowUpView );
+			} else {
+				show( arrowUpView );
+				show( arrowDownView );
+			}
+		} );
+	}
+
+	private void hide(View view) {
+		view.animate().alpha( 0f ).setDuration( 100 ).start();
+	}
+
+	private void show(View view) {
+		view.animate().alpha( 1f ).setDuration( 100 ).start();
 	}
 
 	@Override
@@ -158,7 +183,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 		return TYPE;
 	}
 
-	private static class ButtonConfiguration{
+	private static class ButtonConfiguration {
 		public final String text;
 		public final View.OnClickListener onClickListener;
 
