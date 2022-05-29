@@ -1,39 +1,42 @@
 package com.maxsavteam.newmcalc2.ui;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Display;
-import android.view.Gravity;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextSwitcher;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
-import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.Utils;
+import com.maxsavteam.newmcalc2.adapters.PasswordGeneratorOptionsAdapter;
+import com.maxsavteam.newmcalc2.types.PasswordGeneratorOption;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Random;
+import java.util.List;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
 
 public class PasswordGeneratorActivity extends ThemeActivity {
 
-	private final Random mRandom = new Random();
+	private static final SecureRandom RANDOM = new SecureRandom();
+
+	private static final String DEFAULT_LOWERCASE_CHARACTERS = "qwertyuiopasdfghjklzxcvbnm";
+	private static final String DEFAULT_UPPERCASE_CHARACTERS = "MNBVCXZLKJHGFDSAPOIUYTREWQ";
+	private static final String DEFAULT_DIGITS = "0123456789";
+	private static final String DEFAULT_SPECIAL_CHARACTERS = "£$&()*+[]@#^-_!?";
+
+	private int passwordLength = 12;
 
 	@Override
 	public void onBackPressed() {
@@ -42,8 +45,9 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if(item.getItemId() == android.R.id.home)
+		if ( item.getItemId() == android.R.id.home ) {
 			onBackPressed();
+		}
 		return super.onOptionsItemSelected( item );
 	}
 
@@ -54,114 +58,113 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-
-		String[] stringArray = getResources().getStringArray( R.array.switches );
-		for (int i = 0; i < mCheckBoxIds.length; i++) {
-			int id = mCheckBoxIds[ i ];
-			CheckBox checkBox = findViewById( id );
-			checkBox.setText( stringArray[ i ] );
-			checkBox.setTag( characters[ i ] );
+		ActionBar actionBar = getSupportActionBar();
+		if ( actionBar != null ) {
+			actionBar.setDisplayHomeAsUpEnabled( true );
 		}
 
-		setBackground();
-		buttonOnClick( findViewById( R.id.btnPass8 ) );
+		List<PasswordGeneratorOption> generatorOptions = List.of(
+				new PasswordGeneratorOption( "lowercase", getString( R.string.passgen_lowercase_characters ), DEFAULT_LOWERCASE_CHARACTERS ),
+				new PasswordGeneratorOption(
+						"uppercase", getString( R.string.passgen_uppercase_characters ),
+						DEFAULT_UPPERCASE_CHARACTERS, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+				),
+				new PasswordGeneratorOption(
+						"digits", getString( R.string.passgen_digits ),
+						DEFAULT_DIGITS, InputType.TYPE_CLASS_NUMBER
+				),
+				new PasswordGeneratorOption( "special", getString( R.string.passgen_special_characters ), DEFAULT_SPECIAL_CHARACTERS )
+		);
 
-		mCheckBoxes.add( findViewById( R.id.swCap ) );
-		mCheckBoxes.add( findViewById( R.id.swLowerCase ) );
-		mCheckBoxes.add( findViewById( R.id.swDigits ) );
+		PasswordGeneratorOptionsAdapter adapter = new PasswordGeneratorOptionsAdapter( generatorOptions );
+		generateOptionsLayout( adapter );
 
-		TextSwitcher textSwitcher = findViewById( R.id.textSwitcherPass );
-		textSwitcher.setFactory( ()->{
-			TextView textView = new TextView( this );
-			textView.setTextColor( super.textColor );
-			textView.setTextSize( TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize( R.dimen.password_generator_text_size ) );
-			textView.setGravity( Gravity.CENTER );
-			textView.setTextIsSelectable( true );
-			return textView;
-		} );
-		textSwitcher.setInAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_in ) );
-		textSwitcher.setOutAnimation( AnimationUtils.loadAnimation( this, android.R.anim.fade_out ) );
+		EditText editTextPasswordLength = findViewById( R.id.edittext_password_length );
+		editTextPasswordLength.setText( String.valueOf( passwordLength ) );
+		editTextPasswordLength.addTextChangedListener( new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-		findViewById( R.id.btnGenPass ).setOnClickListener( v -> {
-			if ( mPassLen != 0 ) {
-				if ( mCheckBoxes.size() != 0 ) {
-					String resource_str = "";
-					for (CheckBox checkBox : mCheckBoxes) {
-						resource_str = String.format( "%s%s", resource_str, checkBox.getTag() );
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				boolean valid = false;
+				int i = 4;
+				try {
+					i = Integer.parseInt( String.valueOf( s ) );
+					if ( i >= 4 && i <= 30 ) {
+						valid = true;
 					}
-
-					ArrayList<Character> characters = new ArrayList<>();
-					for(int i = 0; i < resource_str.length(); i++){
-						characters.add( resource_str.charAt( i ) );
-					}
-					Collections.shuffle( characters, mRandom );
-
-					String pass = "";
-					for (int i = 0, a; i < mPassLen; i++) {
-						a = mRandom.nextInt(characters.size());
-						pass = String.format( "%s%c", pass, characters.get( a ) );
-					}
-					textSwitcher.setText( pass );
+				} catch (NumberFormatException ignored) {
+				}
+				if ( valid ) {
+					passwordLength = i;
 				} else {
-					Toast.makeText( this, getString( R.string.pass_sw_all_off ), Toast.LENGTH_LONG ).show();
+					editTextPasswordLength.setError( getString( R.string.passgen_length_out_of_range ) );
 				}
 			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
 		} );
+
+		findViewById( R.id.btn_pass_length_minus ).setOnClickListener( v->{
+			if ( passwordLength > 4 ) {
+				passwordLength--;
+				editTextPasswordLength.setText( String.valueOf( passwordLength ) );
+			}
+		} );
+
+		findViewById( R.id.btn_pass_length_plus ).setOnClickListener( v->{
+			if ( passwordLength < 30 ) {
+				passwordLength++;
+				editTextPasswordLength.setText( String.valueOf( passwordLength ) );
+			}
+		} );
+
+		findViewById( R.id.btn_generate_password ).setOnClickListener( v->performPasswordGeneration( adapter.getCharactersOfSelectedCategories() ) );
+
+		List<CharSequence> allCategoriesCharactersList = new ArrayList<>();
+		for (PasswordGeneratorOption option : generatorOptions)
+			allCategoriesCharactersList.add( option.getDefaultCategoryCharacters() );
+
+		performPasswordGeneration( allCategoriesCharactersList );
+
 	}
 
-	private final int[] mCheckBoxIds = new int[]{
-			R.id.swCap,
-			R.id.swLowerCase,
-			R.id.swDigits,
-			R.id.swHyphen,
-			R.id.swUnderScore,
-			R.id.swSpace,
-			R.id.swSpecial,
-			R.id.swPar
-	};
-
-	private final String[] characters = new String[]{
-			"MNBVCXZLKJHGFDSAPOIUYTREWQ",
-			"qwertyuiopasdfghjklzxcvbnm",
-			"0123456789",
-			"-",
-			"_",
-			" ",
-			"<$@>",
-			"{[()]}"
-	};
-
-	private int mPassLen = 0;
-
-	private final ArrayList<CheckBox> mCheckBoxes = new ArrayList<>();
-
-	public void onSwClick(View v) {
-		CheckBox sw = (CheckBox) v;
-		if ( sw.isChecked() ) {
-			mCheckBoxes.add( sw );
-		} else {
-			mCheckBoxes.remove( sw );
+	private void generateOptionsLayout(PasswordGeneratorOptionsAdapter adapter) {
+		LinearLayout layout = findViewById( R.id.layout_password_generator_options );
+		for (int i = 0; i < adapter.getItemCount(); i++) {
+			PasswordGeneratorOptionsAdapter.ViewHolder holder =
+					adapter.onCreateViewHolder( layout, adapter.getItemViewType( i ) );
+			layout.addView( holder.itemView );
+			adapter.onBindViewHolder( holder, i );
 		}
 	}
 
-	public void buttonOnClick(View v) {
-		Button btn = findViewById( v.getId() );
-		setBackground();
-		btn.setTextColor( super.windowBackgroundColor );
-		btn.setBackgroundTintList( ColorStateList.valueOf( super.textColor ) );
-		mPassLen = Integer.parseInt( btn.getText().toString() );
+	private void performPasswordGeneration(List<CharSequence> categoriesCharacters) {
+		CharSequence password = generatePassword( categoriesCharacters );
+		TextView textView = findViewById( R.id.textview_generated_password );
+		textView.setText( password );
 	}
 
-	private void setBackground() {
-		ArrayList<Button> b = new ArrayList<>();
-		b.add( findViewById( R.id.btnPass6 ) );
-		b.add( findViewById( R.id.btnPass8 ) );
-		b.add( findViewById( R.id.btnPass12 ) );
-		b.add( findViewById( R.id.btnPass16 ) );
-		for(Button button : b){
-			button.setTextColor( super.textColor );
-			button.setBackgroundTintList( ColorStateList.valueOf( super.windowBackgroundColor ) );
+	// password generator supports emojis, that's why code looks so strange
+	private CharSequence generatePassword(List<CharSequence> categoriesCharacters) {
+		SpannableStringBuilder sb = new SpannableStringBuilder();
+		for (int i = 0; i < passwordLength; i++) {
+			int categoryIndex = RANDOM.nextInt( categoriesCharacters.size() );
+			CharSequence characters = categoriesCharacters.get( categoryIndex );
+			List<Integer> list = characters.codePoints().boxed().collect( Collectors.toList() );
+			int len = list.size();
+			if ( len > 0 ) {
+				int index = RANDOM.nextInt( len );
+				sb.append( new String( Character.toChars( list.get( index ) ) ) );
+			}
 		}
+		return sb;
 	}
+
 }

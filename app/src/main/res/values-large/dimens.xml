@@ -46,4 +46,8 @@
 
     <dimen name="after_crash_activity_header_text_size">30sp</dimen>
 
+    <dimen name="passgen_textview_generated_password_min_text_size">24sp</dimen>
+    <dimen name="passgen_textview_generated_password_max_text_size">30sp</dimen>
+    <dimen name="passgen_textview_generated_password_height">60dp</dimen>
+
 </resources>
