@@ -985,8 +985,35 @@ public class Main2Activity extends ThemeActivity {
 				s.equals( "^" );
 	}
 
+	private boolean isConstant(String s) {
+		return s.equals( getString( R.string.pi ) )
+				|| s.equals( getString( R.string.fi ) )
+				|| s.equals( getString( R.string.euler_constant ) );
+	}
+
+	private String getCurrentExpression() {
+		EditText editText = findViewById( R.id.ExampleStr );
+		return editText.getText().toString();
+	}
+
 	public void insertFunction(View v) {
-		justInsert( v );
+		EditText editText = findViewById( R.id.ExampleStr );
+		String functionName = ( (Button) v ).getText().toString();
+		String currentExpression = editText.getText().toString();
+		int selection = editText.getSelectionStart();
+		if ( currentExpression.isEmpty() ) {
+			insert( functionName );
+			return;
+		}
+		if(selection > 0) {
+			char last = currentExpression.charAt( selection - 1 );
+			if ( isConstant( String.valueOf( last ) ) )
+				insert( MULTIPLY_SIGN );
+			else if ( Character.isLetter( last ) ) {
+				insert( "(" );
+			}
+		}
+		insert( functionName );
 	}
 
 	public void insertBracket(View v) {
@@ -998,12 +1025,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void insertDot(View v) {
-		Locale locale;
-		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N ) {
-			locale = getResources().getConfiguration().getLocales().get( 0 );
-		} else {
-			locale = getResources().getConfiguration().locale;
-		}
+		Locale locale = getResources().getConfiguration().getLocales().get( 0 );
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( locale );
 		char decimalSeparator = decimalFormatSymbols.getDecimalSeparator();
 		char groupingSeparator = decimalFormatSymbols.getGroupingSeparator();
