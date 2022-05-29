@@ -22,7 +22,8 @@
             android:name=".AfterCrashActivity"
             android:exported="true" />
         <activity android:name=".ui.VariableEditorActivity" />
-        <activity android:name=".ui.PasswordGeneratorActivity" />
+        <activity android:name=".ui.PasswordGeneratorActivity"
+            android:configChanges="orientation|screenSize"/>
         <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ThemeActivity" />
         <activity
