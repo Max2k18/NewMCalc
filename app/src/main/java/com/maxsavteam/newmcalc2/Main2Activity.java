@@ -15,6 +15,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -101,6 +102,11 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 public class Main2Activity extends ThemeActivity {
 
@@ -172,11 +178,11 @@ public class Main2Activity extends ThemeActivity {
 	private final ActivityResultLauncher<Intent> memoryStoreLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
 			result->{
-				if(result.getResultCode() == RESULT_OK){
+				if ( result.getResultCode() == RESULT_OK ) {
 					Intent data = result.getData();
-					if(data != null){
+					if ( data != null ) {
 						int position = data.getIntExtra( "position", 0 );
-						if(lastCalculatedResult != null){
+						if ( lastCalculatedResult != null ) {
 							memoryEntries.set( position, lastCalculatedResult.getResult() );
 							mMemorySaverReader.save( memoryEntries );
 						}
@@ -517,14 +523,15 @@ public class Main2Activity extends ThemeActivity {
 
 		mDecimalFormat = newDecimalFormat;
 
-		RecyclerView.Adapter<?> viewPagerAdapter = ((ViewPager2) findViewById( R.id.viewpager )).getAdapter();
-		if(viewPagerAdapter != null)
+		RecyclerView.Adapter<?> viewPagerAdapter = ( (ViewPager2) findViewById( R.id.viewpager ) ).getAdapter();
+		if ( viewPagerAdapter != null ) {
 			viewPagerAdapter.notifyItemChanged( 0 ); // update numpad
+		}
 	}
 
-	private void reformatTextView(TextView textView, DecimalFormat newDecimalFormat){
+	private void reformatTextView(TextView textView, DecimalFormat newDecimalFormat) {
 		String current = textView.getText().toString();
-		if(current.length() > 0){
+		if ( current.length() > 0 ) {
 			String normalized = FormatUtils.normalizeNumbersInExample( current, mDecimalFormat );
 
 			String reformattedExample = FormatUtils.formatNumbersInExpression( normalized, newDecimalFormat );
@@ -629,9 +636,30 @@ public class Main2Activity extends ThemeActivity {
 						}
 					} );
 		}
+
+		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
+			GifImageView gifImageView = findViewById( R.id.gif_image_view_el_primo );
+			Drawable drawable = gifImageView.getDrawable();
+			if ( !( drawable instanceof GifDrawable ) ) {
+				return true;
+			}
+			GifDrawable gifDrawable = (GifDrawable) drawable;
+			gifDrawable.reset();
+			gifDrawable.start();
+			gifImageView.setVisibility( View.VISIBLE );
+			Executors.newSingleThreadScheduledExecutor().schedule(
+					()->runOnUiThread( ()->{
+						gifImageView.setVisibility( View.GONE );
+						gifDrawable.stop();
+					} ),
+					3,
+					TimeUnit.SECONDS
+			);
+			return true;
+		} );
 	}
 
-	private DecimalFormat getDecimalFormat(){
+	private DecimalFormat getDecimalFormat() {
 		DecimalFormat decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
 		decimalFormat.setParseBigDecimal( true );
 		decimalFormat.setMaximumFractionDigits( 8 );
@@ -654,7 +682,7 @@ public class Main2Activity extends ThemeActivity {
 			AlertDialog d = builder.create();
 			d.show();
 
-			((TextView) d.findViewById( android.R.id.message )).setMovementMethod( LinkMovementMethod.getInstance() );
+			( (TextView) d.findViewById( android.R.id.message ) ).setMovementMethod( LinkMovementMethod.getInstance() );
 		}
 	}
 
@@ -850,7 +878,7 @@ public class Main2Activity extends ThemeActivity {
 		Intent in = new Intent( this, MemoryActionsActivity.class );
 		in.putExtra( "type", type );
 		if ( type.equals( MemoryStartTypes.STORE ) ) {
-			if(lastCalculatedResult != null) {
+			if ( lastCalculatedResult != null ) {
 				memoryStoreLauncher.launch( in );
 			}
 		} else {
