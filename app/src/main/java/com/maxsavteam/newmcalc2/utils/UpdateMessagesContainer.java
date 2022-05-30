@@ -12,6 +12,7 @@ public class UpdateMessagesContainer {
 
 	private static final Map<String, Integer> releaseMessages = new HashMap<>() {{
 
+		put( "2.7.0", R.string.release_note_2_7 );
 		put( "2.6.0", R.string.release_note_2_6 );
 		put( "2.4.0", R.string.release_note_2_4 );
 		put( "2.3.1", R.string.release_note_2_3 );

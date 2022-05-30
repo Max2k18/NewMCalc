@@ -17,7 +17,7 @@ android {
         targetSdkVersion 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 2018
+        versionCode 2019
         versionName "2.7.0"
 
         multiDexEnabled true

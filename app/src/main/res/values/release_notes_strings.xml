@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="release_note_2_7"><![CDATA[
+Version 2.7.0<br>
+<br>
+<b>New:<b><br>
+- Updated password generator. Now it is customizable and generates more reliable passwords;<br>
+- Added the "Save history" setting.<br>
+<br>
+<b>Other:</b><br>
+- Bug fixes
+    ]]></string>
+
     <string name="release_note_2_6"><![CDATA[
 Version 2.6.0<br>
 <br>
