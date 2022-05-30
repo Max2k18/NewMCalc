@@ -7,6 +7,7 @@ import androidx.annotation.StringRes;
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculationException;
 import com.maxsavteam.calculator.results.NumberList;
+import com.maxsavteam.calculator.utils.MathUtils;
 import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
@@ -21,16 +22,16 @@ import java.util.Map;
  */
 public final class CalculatorWrapper {
 	private static final String TAG = Main2Activity.TAG + " CalculatorWrapper";
-	private final Resources mResources;
+	private final Resources resources;
 
-	private final Calculator mCalculator;
+	private final Calculator calculator;
 
 	private static CalculatorWrapper instance;
 
-	private final Map<String, String> mReplacementMap;
+	private final Map<String, String> replacementMap;
 
 	public Map<String, String> getReplacementMap() {
-		return mReplacementMap;
+		return replacementMap;
 	}
 
 	public static CalculatorWrapper getInstance() {
@@ -41,31 +42,34 @@ public final class CalculatorWrapper {
 	}
 
 	private CalculatorWrapper() {
-		this.mResources = Utils.getContext().getResources();
-		int roundScale = Utils.getDefaultSP().getInt( "rounding_scale", 8 );
+		this.resources = Utils.getContext().getResources();
 
-		mCalculator = new Calculator();
-		mReplacementMap = new HashMap<>() {{
-			put( mResources.getString( R.string.multiply ), "*" );
-			put( mResources.getString( R.string.div ), "/" );
-			put( mResources.getString( R.string.sqrt ), "R" );
+		calculator = new Calculator();
+		replacementMap = new HashMap<>() {{
+			put( resources.getString( R.string.multiply ), "*" );
+			put( resources.getString( R.string.div ), "/" );
+			put( resources.getString( R.string.sqrt ), "sqrt" );
 			put( "НОД", "gcd" );
 			put( "НОК", "lcm" );
 		}};
-		mReplacementMap.putAll( Calculator.defaultReplacementMap );
-		mCalculator.setAliases( mReplacementMap );
+		replacementMap.put( resources.getString( R.string.pi ), "(pi)" );
+		replacementMap.put( resources.getString( R.string.fi ), "(fi)" );
+		replacementMap.put( resources.getString( R.string.euler_constant ),
+				"(" + MathUtils.E.toPlainString() + ")"
+		);
+		calculator.setAliases( replacementMap );
 
 		updateLocale();
 	}
 
 	public void updateLocale(){
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( App.getInstance().getAppLocale() );
-		mCalculator.setDecimalSeparator( decimalFormatSymbols.getDecimalSeparator() );
-		mCalculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
+		calculator.setDecimalSeparator( decimalFormatSymbols.getDecimalSeparator() );
+		calculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
 	}
 
 	public NumberList calculate(String example) {
-		return mCalculator.calculate( example );
+		return calculator.calculate( example );
 	}
 
 	@StringRes
