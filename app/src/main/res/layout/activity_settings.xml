@@ -7,9 +7,9 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:theme="?actionBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
+        android:theme="?actionBarStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,13 +33,23 @@
             android:id="@+id/switchSaveOnExit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:gravity="center"
             android:onClick="switchSave"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
             android:text="@string/switchSaveOff"
-            android:textSize="@dimen/default_text_size"
             android:textColor="?textColor"
+            android:textSize="@dimen/default_text_size"
+            app:thumbTint="@color/colorAccent" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_save_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_save_history"
+            android:textColor="?textColor"
+            android:textSize="@dimen/default_text_size"
             app:thumbTint="@color/colorAccent" />
 
         <LinearLayout
@@ -51,17 +61,17 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
                 android:text="@string/theme"
-                android:textColor="?textColor"
-                android:layout_marginEnd="10dp" />
+                android:textColor="?textColor" />
 
             <com.maxsavteam.newmcalc2.widget.ButtonWithDropdown
+                android:id="@+id/theme_dropdown_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
                 android:textColor="?textColor"
-                android:textSize="@dimen/default_text_size"
-                android:id="@+id/theme_dropdown_button"
-                android:background="@android:color/transparent" />
+                android:textSize="@dimen/default_text_size" />
 
         </LinearLayout>
 
@@ -79,8 +89,8 @@
             android:id="@+id/import_export"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_marginTop="10dp"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -104,8 +114,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:onClick="initializeImport"
-                    android:textColor="@color/white"
-                    android:text="@string/import_se" />
+                    android:text="@string/import_se"
+                    android:textColor="@color/white" />
 
                 <Button
                     android:id="@+id/btnExport"
@@ -124,8 +134,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/txtAccurancyOfCalculations"

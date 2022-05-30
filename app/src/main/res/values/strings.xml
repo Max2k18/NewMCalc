@@ -155,4 +155,7 @@
     <string name="passgen_password_length">Password length:</string>
     <string name="passgen_generated_password">Generated password:</string>
     <string name="passgen_length_out_of_range">Length out of range (4-30)</string>
+    <string name="settings_save_history">Save history</string>
+    <string name="settings_save_history_agreement">Do you really want the history not to be saved?</string>
+    <string name="warning">Warning</string>
 </resources>

@@ -144,4 +144,7 @@
     <string name="passgen_password_length">Длина пароля:</string>
     <string name="passgen_generated_password">Сгенерированный пароль:</string>
     <string name="passgen_length_out_of_range">Длина вне диапозона (4-30)</string>
+    <string name="settings_save_history">Сохранять историю</string>
+    <string name="settings_save_history_agreement">Вы действительно хотите, чтобы история не сохранялась?</string>
+    <string name="warning">Внимание</string>
 </resources>

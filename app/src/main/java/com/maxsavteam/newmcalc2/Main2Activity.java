@@ -1126,6 +1126,7 @@ public class Main2Activity extends ThemeActivity {
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
+				saveToHistory( finalFormatted, res );
 			} catch (CalculationException e) {
 				wasError = true;
 				if ( mode == CalculationMode.FULL_ANSWER ) {
@@ -1145,6 +1146,16 @@ public class Main2Activity extends ThemeActivity {
 		} );
 
 		startThreadController();
+	}
+
+	private void saveToHistory(String expression, NumberList result){
+		String example = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
+
+		if(sp.getBoolean( "save_history", true )) {
+			HistoryManager.getInstance()
+					.put( new HistoryEntry( example, result.format() ) )
+					.save();
+		}
 	}
 
 	private void startThreadController() {
@@ -1262,20 +1273,14 @@ public class Main2Activity extends ThemeActivity {
 		EditText editText = findViewById( R.id.ExampleStr );
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 
+		clearAnswer();
 		if ( mode == CalculationMode.PRE_ANSWER ) {
 			answerTextView.setText( result.format( mDecimalFormat ) );
 		} else {
-			clearAnswer();
 			answerTextView.setText( formattedExample );
 			String formattedNum = result.format( mDecimalFormat );
 			editText.setText( formattedNum );
 			editText.setSelection( formattedNum.length() );
-
-			String example = FormatUtils.normalizeNumbersInExample( formattedExample, mDecimalFormat );
-
-			HistoryManager.getInstance()
-					.put( new HistoryEntry( example, result.format() ) )
-					.save();
 		}
 	}
 

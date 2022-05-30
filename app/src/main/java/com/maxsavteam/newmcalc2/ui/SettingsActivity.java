@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -26,6 +28,7 @@ import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
+import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -111,6 +114,28 @@ public class SettingsActivity extends ThemeActivity {
 		button.setOnItemSelectedListener( index->{
 			sp.edit().putInt( "theme_state", index ).apply();
 			restartApp();
+		} );
+
+		SwitchMaterial switchSaveHistory = findViewById( R.id.switch_save_history );
+		switchSaveHistory.setChecked( sp.getBoolean( "save_history", true ) );
+		switchSaveHistory.setOnCheckedChangeListener( (buttonView, isChecked)->{
+			if(isChecked)
+				sp.edit().putBoolean( "save_history", true ).apply();
+			else{
+				AlertDialog.Builder builder = new CustomAlertDialogBuilder( this )
+						.setTitle( R.string.warning )
+						.setMessage( R.string.settings_save_history_agreement )
+						.setNegativeButton( R.string.no, (dialog, which) ->{
+							switchSaveHistory.setChecked( true );
+							dialog.cancel();
+						} )
+						.setPositiveButton( R.string.yes, (dialog, which) -> {
+							sp.edit().putBoolean( "save_history", false ).apply();
+							dialog.cancel();
+						} )
+						.setCancelable( false );
+				builder.show();
+			}
 		} );
 	}
 

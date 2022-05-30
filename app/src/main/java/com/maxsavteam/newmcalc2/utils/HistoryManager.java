@@ -21,9 +21,9 @@ public class HistoryManager {
 	public final static char HISTORY_ENTRIES_SEPARATOR = (char) 29;
 	private static final String TAG = Main2Activity.TAG + " HistoryManager";
 
-	private final SharedPreferences mSharedPreferences;
+	private final SharedPreferences sharedPreferences;
 
-	private final ArrayList<HistoryEntry> mHistoryEntries = new ArrayList<>();
+	private final ArrayList<HistoryEntry> historyEntries = new ArrayList<>();
 
 	private static HistoryManager instance;
 
@@ -35,21 +35,21 @@ public class HistoryManager {
 	}
 
 	private HistoryManager() {
-		mSharedPreferences = Utils.getDefaultSP();
+		sharedPreferences = Utils.getDefaultSP();
 		try {
-			String historyString = mSharedPreferences.getString( "history", null );
+			String historyString = sharedPreferences.getString( "history", null );
 			JSONObject jsonObject;
 			if ( historyString != null && !historyString.isEmpty() ) {
 				if ( checkForCompatibility( historyString ) ) {
 					jsonObject = new JSONObject( historyString );
 				} else {
 					jsonObject = new JSONObject( reformat( historyString ) );
-					mSharedPreferences.edit().putString( "history", jsonObject.toString() ).apply();
+					sharedPreferences.edit().putString( "history", jsonObject.toString() ).apply();
 				}
 			} else {
 				jsonObject = new JSONObject()
 						.put( "history", new JSONArray() );
-				mSharedPreferences.edit().putString( "history", jsonObject.toString() ).apply();
+				sharedPreferences.edit().putString( "history", jsonObject.toString() ).apply();
 			}
 
 			JSONArray historyArray = jsonObject.getJSONArray( "history" );
@@ -64,7 +64,7 @@ public class HistoryManager {
 							result.format(),
 							element.optString( "description", "" )
 					);
-					mHistoryEntries.add( entry );
+					historyEntries.add( entry );
 				}catch (Exception e){
 					Log.i( TAG, "" + e );
 				}
@@ -78,26 +78,26 @@ public class HistoryManager {
 	}
 
 	public ArrayList<HistoryEntry> getHistory() {
-		return new ArrayList<>( mHistoryEntries );
+		return new ArrayList<>( historyEntries );
 	}
 
 	public HistoryManager put(HistoryEntry entry) {
-		mHistoryEntries.add( 0, entry );
+		historyEntries.add( 0, entry );
 		return this;
 	}
 
 	public HistoryManager remove(int index) {
-		mHistoryEntries.remove( index );
+		historyEntries.remove( index );
 		return this;
 	}
 
 	public HistoryManager change(int index, HistoryEntry entry) {
-		mHistoryEntries.set( index, entry );
+		historyEntries.set( index, entry );
 		return this;
 	}
 
 	public HistoryManager clear() {
-		mHistoryEntries.clear();
+		historyEntries.clear();
 		return this;
 	}
 
@@ -105,12 +105,12 @@ public class HistoryManager {
 		try {
 			JSONObject history = new JSONObject();
 			JSONArray historyArray = new JSONArray();
-			for (HistoryEntry entry : mHistoryEntries) {
+			for (HistoryEntry entry : historyEntries) {
 				historyArray.put( entry.getJSON() );
 			}
 			history.put( "history", historyArray );
 
-			mSharedPreferences.edit().putString( "history", history.toString() ).apply();
+			sharedPreferences.edit().putString( "history", history.toString() ).apply();
 		} catch (JSONException e) {
 			e.printStackTrace();
 			Log.i( TAG, "save: " + e );
