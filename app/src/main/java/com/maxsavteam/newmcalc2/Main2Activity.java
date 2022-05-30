@@ -99,6 +99,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -252,6 +253,8 @@ public class Main2Activity extends ThemeActivity {
 		}
 		return true;
 	};
+
+	private List<String> functionsWithNecessaryOpenBracket;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -576,8 +579,15 @@ public class Main2Activity extends ThemeActivity {
 
 		mDecimalFormat = getDecimalFormat();
 
-		MULTIPLY_SIGN = getResources().getString( R.string.multiply );
-		DIVISION_SIGN = getResources().getString( R.string.div );
+		MULTIPLY_SIGN = getString( R.string.multiply );
+		DIVISION_SIGN = getString( R.string.div );
+
+		functionsWithNecessaryOpenBracket = List.of(
+				"A",
+				getString( R.string.gcd ),
+				getString( R.string.lcm ),
+				getString( R.string.abs )
+		);
 
 		EditText editText = findViewById( R.id.ExampleStr );
 		editText.setShowSoftInputOnFocus( false );
@@ -991,29 +1001,23 @@ public class Main2Activity extends ThemeActivity {
 				|| s.equals( getString( R.string.euler_constant ) );
 	}
 
-	private String getCurrentExpression() {
-		EditText editText = findViewById( R.id.ExampleStr );
-		return editText.getText().toString();
-	}
-
 	public void insertFunction(View v) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		String functionName = ( (Button) v ).getText().toString();
 		String currentExpression = editText.getText().toString();
 		int selection = editText.getSelectionStart();
-		if ( currentExpression.isEmpty() ) {
-			insert( functionName );
-			return;
-		}
-		if(selection > 0) {
+		if ( !currentExpression.isEmpty() && selection > 0 ) {
 			char last = currentExpression.charAt( selection - 1 );
-			if ( isConstant( String.valueOf( last ) ) )
+			if ( isConstant( String.valueOf( last ) ) ) {
 				insert( MULTIPLY_SIGN );
-			else if ( Character.isLetter( last ) ) {
+			} else if ( Character.isLetter( last ) ) {
 				insert( "(" );
 			}
 		}
 		insert( functionName );
+		if ( functionsWithNecessaryOpenBracket.contains( functionName ) ) {
+			insert( "(" );
+		}
 	}
 
 	public void insertBracket(View v) {
