@@ -665,6 +665,7 @@ public class Main2Activity extends ThemeActivity {
 					3,
 					TimeUnit.SECONDS
 			);
+			Toast.makeText( this, "Ilyash guliash", Toast.LENGTH_SHORT ).show();
 			return true;
 		} );
 	}
@@ -1008,9 +1009,7 @@ public class Main2Activity extends ThemeActivity {
 		int selection = editText.getSelectionStart();
 		if ( !currentExpression.isEmpty() && selection > 0 ) {
 			char last = currentExpression.charAt( selection - 1 );
-			if ( isConstant( String.valueOf( last ) ) ) {
-				insert( MULTIPLY_SIGN );
-			} else if ( Character.isLetter( last ) ) {
+			if ( !isConstant( String.valueOf( last ) ) && Character.isLetter( last ) ) {
 				insert( "(" );
 			}
 		}
