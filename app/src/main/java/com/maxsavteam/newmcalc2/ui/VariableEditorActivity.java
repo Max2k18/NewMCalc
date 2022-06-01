@@ -13,23 +13,16 @@ import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
-import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 
 import java.util.ArrayList;
 
 public class VariableEditorActivity extends ThemeActivity {
-	private EditText mName, mValue;
-	private int mTag;
+	private EditText editTextVariableName, editTextVariableValue;
+	private int tag;
 
-	private ArrayList<Variable> mVariables;
-
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		Utils.defaultActivityAnim( this );
-	}
+	private ArrayList<Variable> variables;
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -48,40 +41,40 @@ public class VariableEditorActivity extends ThemeActivity {
 		setSupportActionBar( toolbar );
 		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 
-		mName = findViewById( R.id.name );
-		mValue = findViewById( R.id.value );
+		editTextVariableName = findViewById( R.id.name );
+		editTextVariableValue = findViewById( R.id.value );
 
 		Intent intent = getIntent();
 		if(intent.getBooleanExtra( "is_existing", false )){
-			mName.setText( intent.getStringExtra( "name" ) );
-			mValue.setText( intent.getStringExtra( "value" ) );
+			editTextVariableName.setText( intent.getStringExtra( "name" ) );
+			editTextVariableValue.setText( intent.getStringExtra( "value" ) );
 			findViewById(R.id.btnDelVar).setVisibility(View.VISIBLE);
 		}
 
-		mTag = intent.getIntExtra( "tag", 1 );
+		tag = intent.getIntExtra( "tag", 1 );
 
-		mVariables = VariableUtils.readVariables();
+		variables = VariableUtils.readVariables();
 	}
 
 	public void applyVariable(View v) {
-		String varName = mName.getText().toString().trim();
-		String varValue = mValue.getText().toString().trim();
+		TextView warn = findViewById( R.id.lblWarn );
+
+		String varName = editTextVariableName.getText().toString().trim();
+		String varValue = editTextVariableValue.getText().toString().trim();
 
 		if ( varName.isEmpty() || varValue.isEmpty() ) {
-			TextView warn = findViewById( R.id.lblWarn );
 			warn.setText( R.string.fill_empty_field );
 			warn.setVisibility( View.VISIBLE );
 			return;
 		}
 		if ( varName.equals( "+" ) ) {
-			TextView warn = findViewById( R.id.lblWarn );
 			warn.setText( R.string.invalid_name );
 			warn.setVisibility( View.VISIBLE );
 			return;
 		}
 
-		for (Variable variable : mVariables) {
-			if ( variable.getTag() == mTag ) {
+		for (Variable variable : variables) {
+			if ( variable.getTag() == tag ) {
 				variable.setName( varName );
 				variable.setValue( varValue );
 				saveAndExit();
@@ -90,12 +83,12 @@ public class VariableEditorActivity extends ThemeActivity {
 			}
 		}
 
-		mVariables.add( new Variable( varName, varValue, mTag ) );
+		variables.add( new Variable( varName, varValue, tag ) );
 		saveAndExit();
 	}
 
 	private void saveAndExit(){
-		VariableUtils.saveVariables( mVariables );
+		VariableUtils.saveVariables( variables );
 		Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
 		sendBroadcast( in );
 		setResult( ResultCodesConstants.RESULT_APPLY );
@@ -103,10 +96,10 @@ public class VariableEditorActivity extends ThemeActivity {
 	}
 
 	public void deleteVariable(View v){
-		for(Variable variable : mVariables){
-			if(variable.getTag() == mTag){
-				mVariables.remove( variable );
-				VariableUtils.saveVariables( mVariables );
+		for(Variable variable : variables){
+			if(variable.getTag() == tag ){
+				variables.remove( variable );
+				VariableUtils.saveVariables( variables );
 				Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
 				sendBroadcast( in );
 				setResult( ResultCodesConstants.RESULT_APPLY );

@@ -125,10 +125,6 @@ public final class Utils {
 		} );
 	}
 
-	public static void defaultActivityAnim(Activity activity) {
-		//activity.overridePendingTransition( R.anim.activity_in1, R.anim.activity_out1 );
-	}
-
 	public static void recolorAlertDialogButtons(AlertDialog alertDialog, Context context) {
 		addSwipeFeature( alertDialog );
 		recolorButtons( alertDialog, context );
