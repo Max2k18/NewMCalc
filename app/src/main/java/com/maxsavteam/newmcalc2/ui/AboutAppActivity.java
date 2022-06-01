@@ -13,12 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
@@ -33,7 +31,7 @@ public class AboutAppActivity extends ThemeActivity {
 			"CD: " + BuildConfig.COMPILE_DATE + "\n\n" +
 			"Compilation date: " + BuildConfig.COMPILE_TIME + "\n" +
 			"Build type: " + BuildConfig.BUILD_TYPE + "\n\n" +
-			"Core version: v" + Calculator.VERSION;
+			"Core version: v" + BuildConfig.CALCULATOR_CORE_VERSION;
 
 	public void social(View v) {
 		Intent in = new Intent( Intent.ACTION_VIEW );
@@ -90,7 +88,7 @@ public class AboutAppActivity extends ThemeActivity {
 		} );
 
 		TextView t = findViewById( R.id.text_based_on_calculator_core );
-		t.setText( String.format( getString( R.string.based_on_calculator_core_version ), Calculator.VERSION ) );
+		t.setText( String.format( getString( R.string.based_on_calculator_core_version ), BuildConfig.CALCULATOR_CORE_VERSION ) );
 
 		t = findViewById( R.id.calculator_core_text_view_link );
 		t.setMovementMethod( LinkMovementMethod.getInstance() );

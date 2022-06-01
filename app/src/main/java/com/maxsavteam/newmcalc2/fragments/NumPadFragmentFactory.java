@@ -72,8 +72,8 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 				new ButtonConfiguration( context.getString( R.string.tangent ), insertFunctionOnClick ),
 				new ButtonConfiguration( context.getString( R.string.cotangent ), insertFunctionOnClick ),
 
-				new ButtonConfiguration( context.getString( R.string.rad ), insertFunctionOnClick ),
-				new ButtonConfiguration( context.getString( R.string.deg ), insertFunctionOnClick ),
+				new ButtonConfiguration( context.getString( R.string.degree_sign ), insertSuffixOperatorOnClick ),
+				new ButtonConfiguration( context.getString( R.string.grad_sign ), insertSuffixOperatorOnClick ),
 
 				new ButtonConfiguration( context.getString( R.string.pi ), justInsertOnClick ),
 				new ButtonConfiguration( context.getString( R.string.fi ), justInsertOnClick ),

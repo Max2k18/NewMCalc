@@ -5,6 +5,8 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+def calculatorCoreVersion = "2.7.0"
+
 import java.text.SimpleDateFormat
 
 android {
@@ -24,6 +26,8 @@ android {
 
         buildConfigField "String", "COMPILE_DATE", "\"${getBuildDate("yyMMdd")}\""
         buildConfigField "String", "COMPILE_TIME", "\"${getBuildTime()}\""
+
+        buildConfigField "String", "CALCULATOR_CORE_VERSION", "\"$calculatorCoreVersion\""
     }
 
     buildTypes {
@@ -91,7 +95,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.1.2'
-    implementation 'com.maxsavteam:calculator-core:2.5.0'
+    implementation "com.maxsavteam:calculator-core:$calculatorCoreVersion"
 
     implementation 'org.jetbrains:annotations:23.0.0'
 

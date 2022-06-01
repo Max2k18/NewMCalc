@@ -5,6 +5,9 @@
     <string name="fi" translatable="false">φ</string>
     <string name="euler_constant" translatable="false">Ɛ</string>
 
+    <string name="degree_sign" translatable="false">\u00B0</string>
+    <string name="grad_sign" translatable="false">\u1DA2</string>
+
     <string name="plus" translatable="false">+</string>
     <string name="minus" translatable="false">-</string>
     <string name="multiply" translatable="false">×</string>

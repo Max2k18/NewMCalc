@@ -111,7 +111,6 @@
     <string name="theme">Theme</string>
 
     <string name="division_by_zero">Division by zero</string>
-    <string name="tan_of_90">Impossible to find tangent of 90</string>
     <string name="undefined">Undefined</string>
     <string name="invalid_brackets_sequence">Invalid brackets sequence</string>
     <string name="root_of_even_degree_of_even_number">Unable to find root of even degree of negative number</string>
@@ -154,8 +153,10 @@
     <string name="passgen_special_characters">Special characters:</string>
     <string name="passgen_password_length">Password length:</string>
     <string name="passgen_generated_password">Generated password:</string>
-    <string name="passgen_length_out_of_range">Length out of range (4-30)</string>
+    <string name="passgen_length_out_of_range">Length out of range (4–30)</string>
     <string name="settings_save_history">Save history</string>
     <string name="settings_save_history_agreement">Do you really want the history not to be saved?</string>
     <string name="warning">Warning</string>
+    <string name="invalid_value_for_tangent_or_cotangent">Invalid value for tangent or cotangent</string>
+    <string name="not_a_number">Not a number</string>
 </resources>

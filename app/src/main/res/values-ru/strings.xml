@@ -100,7 +100,6 @@
     <string name="theme">Тема</string>
 
     <string name="division_by_zero">Деление на ноль</string>
-    <string name="tan_of_90">Невозможно найти тангенс 90 градусов</string>
     <string name="undefined">Неопределено</string>
     <string name="invalid_brackets_sequence">Неправильная скобочная последовательность</string>
     <string name="root_of_even_degree_of_even_number">Невозможно найти корень чётной степени из отрицательного числа</string>
@@ -143,8 +142,10 @@
     <string name="passgen_special_characters">Специальные символы:</string>
     <string name="passgen_password_length">Длина пароля:</string>
     <string name="passgen_generated_password">Сгенерированный пароль:</string>
-    <string name="passgen_length_out_of_range">Длина вне диапозона (4-30)</string>
+    <string name="passgen_length_out_of_range">Длина вне диапозона (4–30)</string>
     <string name="settings_save_history">Сохранять историю</string>
     <string name="settings_save_history_agreement">Вы действительно хотите, чтобы история не сохранялась?</string>
     <string name="warning">Внимание</string>
+    <string name="invalid_value_for_tangent_or_cotangent">Неверное значения для тангенса или котангенса</string>
+    <string name="not_a_number">Не число</string>
 </resources>

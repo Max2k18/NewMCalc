@@ -76,8 +76,8 @@ public final class CalculatorWrapper {
 	public static int getStringResForErrorCode(int errorCode) {
 		int result = -1;
 		switch ( errorCode ) {
-			case CalculationException.TAN_OF_90:
-				result = R.string.tan_of_90;
+			case CalculationException.INVALID_VALUE_FOR_TANGENT_OR_COTANGENT:
+				result = R.string.invalid_value_for_tangent_or_cotangent;
 				break;
 			case CalculationException.DIVISION_BY_ZERO:
 				result = R.string.division_by_zero;
@@ -90,6 +90,9 @@ public final class CalculatorWrapper {
 				break;
 			case CalculationException.ROOT_OF_EVEN_DEGREE_OF_NEGATIVE_NUMBER:
 				result = R.string.root_of_even_degree_of_even_number;
+				break;
+			case CalculationException.NAN:
+				result = R.string.not_a_number;
 				break;
 			default:
 				break;
