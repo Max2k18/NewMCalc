@@ -29,15 +29,15 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.App;
+import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
+import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
-import com.maxsavteam.newmcalc2.entity.HistoryEntry;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
@@ -390,12 +390,10 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
 		//Toast.makeText(getApplicationContext(), Integer.toString(id) + " " + Integer.toString(R.id.home), Toast.LENGTH_SHORT).show();
-		if ( id == android.R.id.home ) {
-			onBackPressed();
-		} else if ( id == R.id.clear_history ) {
+		if ( id == R.id.clear_history ) {
 			CustomAlertDialogBuilder build = new CustomAlertDialogBuilder( this );
 			build.setMessage( R.string.confirm_cls_history )
 					.setCancelable( false )
@@ -418,9 +416,8 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_history );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		mHistoryAction = new Intent( BuildConfig.APPLICATION_ID + ".HISTORY_ACTION" );
 		mHistoryAction.putExtra( "example", "" ).putExtra( "result", "" );

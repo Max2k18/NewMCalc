@@ -1,31 +1,25 @@
 package com.maxsavteam.newmcalc2.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
@@ -72,15 +66,6 @@ public class SettingsActivity extends ThemeActivity {
 			}
 	);
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		if ( id == android.R.id.home ) {
-			onBackPressed();
-		}
-		return super.onOptionsItemSelected( item );
-	}
-
 	public void switchSave(View v) {
 		SwitchMaterial sw = (SwitchMaterial) v;
 		if ( v.getId() == R.id.switchSaveOnExit ) {
@@ -101,12 +86,8 @@ public class SettingsActivity extends ThemeActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_settings );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-
-		ActionBar actionBar = getSupportActionBar();
-		if(actionBar != null)
-			actionBar.setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		ButtonWithDropdown button = findViewById( R.id.theme_dropdown_button );
 		button.setElements( getResources().getStringArray( R.array.theme_states ) );

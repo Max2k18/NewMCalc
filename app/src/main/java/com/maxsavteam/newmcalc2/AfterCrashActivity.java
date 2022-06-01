@@ -1,13 +1,12 @@
 package com.maxsavteam.newmcalc2;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 

@@ -5,19 +5,14 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.PasswordGeneratorOptionsAdapter;
 import com.maxsavteam.newmcalc2.entity.PasswordGeneratorOption;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -41,24 +36,12 @@ public class PasswordGeneratorActivity extends ThemeActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if ( item.getItemId() == android.R.id.home ) {
-			onBackPressed();
-		}
-		return super.onOptionsItemSelected( item );
-	}
-
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_password_generator );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		ActionBar actionBar = getSupportActionBar();
-		if ( actionBar != null ) {
-			actionBar.setDisplayHomeAsUpEnabled( true );
-		}
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		List<PasswordGeneratorOption> generatorOptions = List.of(
 				new PasswordGeneratorOption( "lowercase", getString( R.string.passgen_lowercase_characters ), DEFAULT_LOWERCASE_CHARACTERS ),

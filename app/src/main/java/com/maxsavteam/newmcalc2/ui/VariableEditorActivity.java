@@ -7,11 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.Toolbar;
+import androidx.annotation.NonNull;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
@@ -25,7 +25,7 @@ public class VariableEditorActivity extends ThemeActivity {
 	private ArrayList<Variable> variables;
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if ( item.getItemId() == android.R.id.home ) {
 			onBackPressed();
 		}
@@ -37,9 +37,8 @@ public class VariableEditorActivity extends ThemeActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_variable_editor );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		editTextVariableName = findViewById( R.id.name );
 		editTextVariableValue = findViewById( R.id.value );

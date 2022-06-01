@@ -9,17 +9,15 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 public class AboutAppActivity extends ThemeActivity {
@@ -52,21 +50,12 @@ public class AboutAppActivity extends ThemeActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if ( item.getItemId() == android.R.id.home ) {
-			onBackPressed();
-		}
-		return super.onOptionsItemSelected( item );
-	}
-
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_about_app );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		( (TextView) findViewById( R.id.version ) ).setText( BuildConfig.VERSION_NAME );
 

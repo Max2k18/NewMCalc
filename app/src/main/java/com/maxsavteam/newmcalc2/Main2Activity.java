@@ -83,6 +83,7 @@ import com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity;
 import com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity;
 import com.maxsavteam.newmcalc2.ui.SettingsActivity;
 import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
@@ -277,7 +278,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
 		if ( id == R.id.about ) {
 			startActivity( new Intent( this, AboutAppActivity.class ) );

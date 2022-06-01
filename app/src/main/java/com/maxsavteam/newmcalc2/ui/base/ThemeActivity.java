@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui.base;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -7,9 +7,10 @@ import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
 import androidx.annotation.ColorInt;
-import androidx.appcompat.app.AppCompatActivity;
 
-public class ThemeActivity extends AppCompatActivity {
+import com.maxsavteam.newmcalc2.R;
+
+public class ThemeActivity extends BaseActivity {
 
 	@ColorInt
 	protected int textColor;

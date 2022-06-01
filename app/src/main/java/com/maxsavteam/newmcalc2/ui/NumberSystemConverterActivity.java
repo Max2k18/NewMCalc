@@ -1,24 +1,18 @@
 package com.maxsavteam.newmcalc2.ui;
 
-import android.annotation.SuppressLint;
-import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 
 import java.math.BigDecimal;
 
@@ -41,19 +35,9 @@ public class NumberSystemConverterActivity extends ThemeActivity {
 		return 10;
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if ( item.getItemId() == android.R.id.home ) {
-			onBackPressed();
-		}
-		return super.onOptionsItemSelected( item );
-	}
-
 	private void applyTheme() {
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		if(getSupportActionBar() != null)
-			getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
 
 		EditText e = findViewById( R.id.edNumTo );
 		e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );

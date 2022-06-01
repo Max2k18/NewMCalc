@@ -6,15 +6,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
+import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
@@ -41,9 +39,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		int id = item.getItemId();
-		if ( id == android.R.id.home ) {
-			onBackPressed();
-		}else if(id == R.id.item_delete){
+		if(id == R.id.item_delete){
 			clearAll();
 		}
 		return super.onOptionsItemSelected( item );
@@ -64,12 +60,9 @@ public class MemoryActionsActivity extends ThemeActivity {
 
 		type = getIntent().getStringExtra( "type" );
 
-		Toolbar toolbar = findViewById( R.id.toolbar );
-		toolbar.setTitle( type.equals( "rc" ) ? R.string.get_from_memory : R.string.put_in_memory );
-		setSupportActionBar( toolbar );
-		ActionBar actionBar = getSupportActionBar();
-		if(actionBar != null)
-			actionBar.setDisplayHomeAsUpEnabled( true );
+		setActionBar( R.id.toolbar );
+		displayHomeAsUp();
+		setTitle( type.equals( "rc" ) ? R.string.get_from_memory : R.string.put_in_memory );
 
 		ArrayList<NumberList> memoryEntries = memorySaverReader.read();
 		RecyclerView rv = findViewById( R.id.memory_actions_rv );
