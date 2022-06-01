@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.fragments;
+package com.maxsavteam.newmcalc2.fragment;
 
 import android.content.Context;
 import android.graphics.Color;

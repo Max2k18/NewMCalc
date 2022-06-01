@@ -1,6 +1,6 @@
 package com.maxsavteam.newmcalc2.variables;
 
-import com.maxsavteam.newmcalc2.types.Tuple;
+import com.maxsavteam.newmcalc2.entity.Tuple;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import org.json.JSONArray;

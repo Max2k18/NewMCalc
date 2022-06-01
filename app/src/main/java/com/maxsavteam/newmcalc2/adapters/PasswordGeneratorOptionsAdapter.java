@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.types.PasswordGeneratorOption;
+import com.maxsavteam.newmcalc2.entity.PasswordGeneratorOption;
 
 import java.util.ArrayList;
 import java.util.HashMap;

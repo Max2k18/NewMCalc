@@ -1,6 +1,5 @@
-package com.maxsavteam.newmcalc2.types;
+package com.maxsavteam.newmcalc2.entity;
 
-import android.renderscript.ScriptGroup;
 import android.text.InputType;
 
 public class PasswordGeneratorOption {

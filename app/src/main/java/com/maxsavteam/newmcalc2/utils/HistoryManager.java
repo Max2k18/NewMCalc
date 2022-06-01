@@ -6,7 +6,7 @@ import android.util.Log;
 import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
-import com.maxsavteam.newmcalc2.types.HistoryEntry;
+import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;

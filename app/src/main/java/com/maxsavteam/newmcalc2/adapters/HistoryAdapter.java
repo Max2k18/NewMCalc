@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.types.HistoryEntry;
+import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 
 import java.util.ArrayList;
 import java.util.Locale;

@@ -17,14 +17,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.PasswordGeneratorOptionsAdapter;
-import com.maxsavteam.newmcalc2.types.PasswordGeneratorOption;
+import com.maxsavteam.newmcalc2.entity.PasswordGeneratorOption;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 
 public class PasswordGeneratorActivity extends ThemeActivity {

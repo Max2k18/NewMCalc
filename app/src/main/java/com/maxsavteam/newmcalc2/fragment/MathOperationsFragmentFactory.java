@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.fragments;
+package com.maxsavteam.newmcalc2.fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;

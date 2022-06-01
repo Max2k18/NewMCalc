@@ -37,7 +37,7 @@ import com.maxsavteam.newmcalc2.ThemeActivity;
 import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
-import com.maxsavteam.newmcalc2.types.HistoryEntry;
+import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;

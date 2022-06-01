@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.types;
+package com.maxsavteam.newmcalc2.entity;
 
 public class Tuple<F, S, T> {
 	public final F first;
