@@ -6,6 +6,7 @@
         android:title="@string/settings_save_last_result_on_close" />
 
     <SwitchPreference
+        android:defaultValue="true"
         android:key="@string/pref_save_history"
         android:title="@string/settings_save_history" />
 
