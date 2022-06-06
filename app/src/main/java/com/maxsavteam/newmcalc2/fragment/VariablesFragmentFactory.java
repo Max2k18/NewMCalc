@@ -29,7 +29,7 @@ public class VariablesFragmentFactory implements ViewPagerAdapter.ViewPagerFragm
 
 	@Override
 	public View justCreateView(ViewGroup parent) {
-		return LayoutInflater.from( mContext ).inflate( R.layout.variables_fragment_layout, parent, false );
+		return LayoutInflater.from( mContext ).inflate( R.layout.fragment_variables, parent, false );
 	}
 
 	@Override

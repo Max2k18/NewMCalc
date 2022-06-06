@@ -300,7 +300,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		needToCreateMenu = !mEntries.isEmpty();
 		invalidateOptionsMenu();
 		if ( mEntries.size() == 0 ) {
-			setContentView( R.layout.history_not_found );
+			setContentView( R.layout.layout_history_not_found );
 			Toolbar toolbar = findViewById( R.id.toolbar );
 			toolbar.setTitle( "" );
 			setSupportActionBar( toolbar );

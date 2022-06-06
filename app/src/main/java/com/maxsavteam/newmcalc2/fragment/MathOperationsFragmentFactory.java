@@ -13,7 +13,7 @@ public class MathOperationsFragmentFactory implements ViewPagerAdapter.ViewPager
 
 	@Override
 	public View justCreateView(ViewGroup parent) {
-		return LayoutInflater.from( parent.getContext() ).inflate( R.layout.math_operations_fragment, parent, false );
+		return LayoutInflater.from( parent.getContext() ).inflate( R.layout.fragment_math_operations, parent, false );
 	}
 
 	@Override

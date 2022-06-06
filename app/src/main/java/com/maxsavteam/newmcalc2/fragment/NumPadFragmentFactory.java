@@ -103,7 +103,7 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 
 	@Override
 	public View justCreateView(ViewGroup parent) {
-		return LayoutInflater.from( context ).inflate( R.layout.numpad_fragment_layout, parent, false );
+		return LayoutInflater.from( context ).inflate( R.layout.fragment_numpad, parent, false );
 	}
 
 	@Override
