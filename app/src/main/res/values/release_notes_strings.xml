@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="release_note_2_8"><![CDATA[
+Version 2.8.0<br>
+<br>
+<b>New:</b><br>
+- Now trigonometric functions accept arguments in radians by default.<br>
+Added the degree (&deg;) and gradian (&#7586;) operators to calculate the value from the angle in degrees or gradians.<br>
+They can also be used to convert to radians (for example, 30&deg; = 0.526)<br>
+- The design of the settings has been updated
+    ]]></string>
+
     <string name="release_note_2_7"><![CDATA[
 Version 2.7.0<br>
 <br>
