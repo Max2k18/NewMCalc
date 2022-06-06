@@ -122,7 +122,6 @@ public class Main2Activity extends ThemeActivity {
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
 	private boolean progressDialogShown = false;
-	private boolean wasError = false;
 
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 
@@ -232,7 +231,7 @@ public class Main2Activity extends ThemeActivity {
 	};
 
 	private final View.OnLongClickListener mReturnBack = v->{
-		if ( !wasError ) {
+		if ( lastCalculatedResult != null ) {
 			TextView answer = findViewById( R.id.AnswerStr );
 			CalculatorEditText example = findViewById( R.id.ExampleStr );
 			if ( answer.getVisibility() == View.INVISIBLE || answer.getVisibility() == View.GONE ) {
@@ -696,7 +695,9 @@ public class Main2Activity extends ThemeActivity {
 			AlertDialog d = builder.create();
 			d.show();
 
-			( (TextView) d.findViewById( android.R.id.message ) ).setMovementMethod( LinkMovementMethod.getInstance() );
+			TextView textView = d.findViewById( android.R.id.message );
+			if(textView != null)
+				textView.setMovementMethod( LinkMovementMethod.getInstance() );
 		}
 	}
 
@@ -1095,6 +1096,7 @@ public class Main2Activity extends ThemeActivity {
 	public void onClear(View v) {
 		clearFormulaEditText();
 		clearAnswer();
+		lastCalculatedResult = null;
 	}
 
 	private void clearAnswer() {
@@ -1116,7 +1118,6 @@ public class Main2Activity extends ThemeActivity {
 	private void calculate(CalculationMode mode) {
 		EditText txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
-		wasError = false;
 
 		lastCalculatedResult = null;
 
@@ -1150,9 +1151,9 @@ public class Main2Activity extends ThemeActivity {
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
-				saveToHistory( finalFormatted, res );
+				if(mode == CalculationMode.FULL_ANSWER)
+					saveToHistory( finalFormatted, res );
 			} catch (CalculationException e) {
-				wasError = true;
 				if ( mode == CalculationMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
 					int stringRes;
