@@ -8,7 +8,9 @@ Version 2.8.0<br>
 - Now trigonometric functions accept arguments in radians by default.<br>
 Added the degree (&deg;) and gradian (&#7586;) operators to calculate the value from the angle in degrees or gradians.<br>
 They can also be used to convert to radians (for example, 30&deg; = 0.526)<br>
-- The design of the settings has been updated
+- The design of the settings has been updated<br>
+<b>Corrections:</b><br>
+- Fixed a bug where the result of the premise was added to the history
     ]]></string>
 
     <string name="release_note_2_7"><![CDATA[
