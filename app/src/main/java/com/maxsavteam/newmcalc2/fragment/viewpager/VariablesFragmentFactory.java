@@ -1,4 +1,4 @@
-package com.maxsavteam.newmcalc2.fragment;
+package com.maxsavteam.newmcalc2.fragment.viewpager;
 
 import android.content.Context;
 import android.util.TypedValue;

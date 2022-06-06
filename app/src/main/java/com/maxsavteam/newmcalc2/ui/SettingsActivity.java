@@ -5,23 +5,24 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
-import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.fragment.SettingsPreferencesFragment;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
-import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import org.json.JSONArray;
@@ -34,13 +35,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 import java.util.Map;
 
 public class SettingsActivity extends ThemeActivity {
 
 	private static final String TAG = Main2Activity.TAG + " Settings";
-	private SharedPreferences sp;
 
 	private final ActivityResultLauncher<Intent> mCreateBackupLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
@@ -66,82 +65,85 @@ public class SettingsActivity extends ThemeActivity {
 			}
 	);
 
-	public void switchSave(View v) {
-		SwitchMaterial sw = (SwitchMaterial) v;
-		if ( v.getId() == R.id.switchSaveOnExit ) {
-			if ( sw.isChecked() ) {
-				sw.setText( R.string.switchSaveOn );
-				sp.edit().putBoolean( "saveResult", true ).apply();
-			} else {
-				sw.setText( R.string.switchSaveOff );
-				sp.edit().remove( "saveResult" ).apply();
+	private final SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = (sharedPreferences, key)->{
+		if(key.equals( getString( R.string.pref_theme ) )){
+			restartApp();
+		}else if(key.equals( getString( R.string.pref_save_history ) )){
+			boolean value = sharedPreferences.getBoolean( key, true );
+			if(!value){
+				AlertDialog.Builder builder = new CustomAlertDialogBuilder( this )
+						.setTitle( R.string.warning )
+						.setMessage( R.string.settings_save_history_agreement )
+						.setNegativeButton( R.string.no, (dialog, which) ->{
+							sharedPreferences.edit().putBoolean( getString( R.string.pref_save_history ), true ).apply();
+							dialog.cancel();
+						} )
+						.setPositiveButton( R.string.yes, (dialog, which) ->dialog.cancel() )
+						.setCancelable( false );
+				runOnUiThread( builder::show );
 			}
 		}
+	};
 
+	private final Preference.OnPreferenceChangeListener onPreferenceChangeListener = (preference, newValue)->{
+		String key = preference.getKey();
+		SharedPreferences sharedPreferences = preference.getSharedPreferences();
+		if(key.equals( getString( R.string.pref_theme ) )){
+			restartApp();
+		}else if(key.equals( getString( R.string.pref_save_history ) )){
+			boolean value = (boolean) newValue;
+			if(!value){
+				AlertDialog.Builder builder = new CustomAlertDialogBuilder( this )
+						.setTitle( R.string.warning )
+						.setMessage( R.string.settings_save_history_agreement )
+						.setNegativeButton( R.string.no, (dialog, which) ->{
+							if(sharedPreferences != null) {
+								sharedPreferences.edit().putBoolean( getString( R.string.pref_save_history ), true ).apply();
+								((SwitchPreference) preference).setChecked( true );
+								preference.callChangeListener( true );
+							}
+							dialog.cancel();
+						} )
+						.setPositiveButton( R.string.yes, (dialog, which) ->dialog.cancel() )
+						.setCancelable( false );
+				runOnUiThread( builder::show );
+			}
+		}
+		return true;
+	};
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate( R.menu.menu_settings, menu );
+		return super.onCreateOptionsMenu( menu );
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		if(item.getItemId() == R.id.item_import){
+			initializeImport();
+		}else if(item.getItemId() == R.id.item_export){
+			export();
+		}
+		return super.onOptionsItemSelected( item );
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_settings );
 
 		setActionBar( R.id.toolbar );
 		displayHomeAsUp();
 
-		ButtonWithDropdown button = findViewById( R.id.theme_dropdown_button );
-		button.setElements( getResources().getStringArray( R.array.theme_states ) );
-		button.setSelection( sp.getInt( "theme_state", 2 ) );
-		button.setOnItemSelectedListener( index->{
-			sp.edit().putInt( "theme_state", index ).apply();
-			restartApp();
-		} );
-
-		SwitchMaterial switchSaveHistory = findViewById( R.id.switch_save_history );
-		switchSaveHistory.setChecked( sp.getBoolean( "save_history", true ) );
-		switchSaveHistory.setOnCheckedChangeListener( (buttonView, isChecked)->{
-			if(isChecked)
-				sp.edit().putBoolean( "save_history", true ).apply();
-			else{
-				AlertDialog.Builder builder = new CustomAlertDialogBuilder( this )
-						.setTitle( R.string.warning )
-						.setMessage( R.string.settings_save_history_agreement )
-						.setNegativeButton( R.string.no, (dialog, which) ->{
-							switchSaveHistory.setChecked( true );
-							dialog.cancel();
-						} )
-						.setPositiveButton( R.string.yes, (dialog, which) -> {
-							sp.edit().putBoolean( "save_history", false ).apply();
-							dialog.cancel();
-						} )
-						.setCancelable( false );
-				builder.show();
-			}
-		} );
-	}
-
-	@Override
-	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-		super.onPostCreate( savedInstanceState );
-		SwitchMaterial sw = findViewById( R.id.switchSaveOnExit );
-		sw.setChecked( sp.getBoolean( "saveResult", false ) );
-		if ( sw.isChecked() ) {
-			sw.setText( R.string.switchSaveOn );
-		} else {
-			sw.setText( R.string.switchSaveOff );
-		}
-		findViewById( R.id.btnExport ).setOnLongClickListener( v->{
-			sp.edit().clear().apply();
-			restartApp();
-			return true;
-		} );
-
-		sw = findViewById( R.id.switchKeepScreenOn );
-		sw.setChecked( sp.getBoolean( "keep_screen_on", false ) );
-		sw.setOnCheckedChangeListener( (compoundButton, b)->sp.edit().putBoolean( "keep_screen_on", b ).apply() );
-
-		TextView scale = findViewById( R.id.textViewScale );
-		scale.setText( String.format( Locale.ROOT, "%d", sp.getInt( "rounding_scale", 8 ) ) );
+		SettingsPreferencesFragment fragment = new SettingsPreferencesFragment();
+		PreferenceManager.getDefaultSharedPreferences( this )
+						.registerOnSharedPreferenceChangeListener( onSharedPreferenceChangeListener );
+		getSupportFragmentManager()
+				.beginTransaction()
+				.replace( R.id.fl_settings, fragment )
+				.runOnCommit( ()->fragment.registerOnPreferenceChangedListener( onPreferenceChangeListener ) )
+				.commit();
 	}
 
 	private void restartApp() {
@@ -149,20 +151,7 @@ public class SettingsActivity extends ThemeActivity {
 		onBackPressed();
 	}
 
-	public void changeScaleClickListener(View v) {
-		TextView scaleTextView = findViewById( R.id.textViewScale );
-		int scale = Integer.parseInt( scaleTextView.getText().toString() );
-		int id = v.getId();
-		if ( id == R.id.btnMinusScale && scale > 2 ) {
-			scale--;
-		} else if ( id == R.id.btnPlusScale && scale < 15 ) {
-			scale++;
-		}
-		scaleTextView.setText( String.format( Locale.ROOT, "%d", scale ) );
-		sp.edit().putInt( "rounding_scale", scale ).apply();
-	}
-
-	public void initializeImport(View v) {
+	public void initializeImport() {
 		Intent intent = new Intent( Intent.ACTION_OPEN_DOCUMENT );
 		intent.setType( "text/plain" );
 		mChooseBackupFileLauncher.launch( intent );
@@ -382,10 +371,6 @@ public class SettingsActivity extends ThemeActivity {
 		intent.setType( "text/plain" );
 		intent.putExtra( Intent.EXTRA_TITLE, "MCalc Backup.txt" );
 		mCreateBackupLauncher.launch( intent );
-	}
-
-	public void initializeExport(View v) {
-		export();
 	}
 
 }

@@ -79,6 +79,13 @@
         <item>Dark</item>
         <item>As in the system</item>
     </string-array>
+
+    <string-array name="theme_states_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+
     <string name="history_guide">This is a record of history. You can swipe left to delete an entry or right to add a description to it.</string>
     <string name="changelog">Changelog</string>
     <string name="whats_new">What\'s new</string>
@@ -109,4 +116,5 @@
     <string name="warning">Warning</string>
     <string name="invalid_value_for_tangent_or_cotangent">Invalid value for tangent or cotangent</string>
     <string name="not_a_number">Not a number</string>
+    <string name="settings_save_last_result_on_close">Save the last result after exiting the application</string>
 </resources>

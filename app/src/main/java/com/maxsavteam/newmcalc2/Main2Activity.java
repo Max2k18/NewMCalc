@@ -73,8 +73,8 @@ import com.maxsavteam.newmcalc2.core.CalculationMode;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
-import com.maxsavteam.newmcalc2.fragment.NumPadFragmentFactory;
-import com.maxsavteam.newmcalc2.fragment.VariablesFragmentFactory;
+import com.maxsavteam.newmcalc2.fragment.viewpager.NumPadFragmentFactory;
+import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -206,9 +206,8 @@ public class Main2Activity extends ThemeActivity {
 					Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
 					if ( intent != null ) {
 						intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-						intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+						intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TASK );
 						startActivity( intent );
-						finish();
 					}
 				}
 			}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_save_result" translatable="false">saveResult</string>
+    <string name="pref_save_history" translatable="false">save_history</string>
+    <string name="pref_theme" translatable="false">theme_state_string</string>
+    <string name="pref_keep_screen_on" translatable="false">keep_screen_on</string>
+</resources>

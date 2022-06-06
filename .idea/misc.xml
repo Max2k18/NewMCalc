@@ -27,6 +27,7 @@
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_numgen.xml" value="0.15237134207870837" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_password_generator.xml" value="0.25" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_settings.xml" value="0.16448032290615539" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_settings2.xml" value="0.2573749465583583" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/activity_variable_editor.xml" value="0.2019704433497537" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/app_bar_main2.xml" value="0.16448032290615539" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/bottom_line.xml" value="0.16448032290615539" />
@@ -35,6 +36,7 @@
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/example_layout.xml" value="0.16448032290615539" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/fragment_math_operations.xml" value="0.258230012825994" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/item_password_generator_option.xml" value="0.25" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/layout_settings2.xml" value="0.258230012825994" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/math_operatins_fragment.xml" value="0.22780797101449277" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/math_operation_button.xml" value="0.258230012825994" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/math_operations_fragment.xml" value="0.16448032290615539" />
@@ -48,6 +50,8 @@
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/layout/viewpager_layout.xml" value="0.1" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/menu/activity_main2_drawer.xml" value="0.33299284984678246" />
         <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/menu/memory_actions_menu.xml" value="0.3145833333333333" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/menu/menu_settings.xml" value="0.2573749465583583" />
+        <entry key="..\:/AndroidStudio/NewMCalc/app/src/main/res/xml/settings_preferences.xml" value="0.2573749465583583" />
       </map>
     </option>
   </component>

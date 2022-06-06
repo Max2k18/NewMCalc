@@ -34,10 +34,10 @@ public class ThemeActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		int state = sp.getInt( "theme_state", 2 );
-		if(state == 0)
+		String state = sp.getString( getString( R.string.pref_theme ), "light" );
+		if( "light".equals( state ))
 			applyLightTheme();
-		else if(state == 1)
+		else if( "dark".equals( state ))
 			applyDarkTheme();
 		else {
 			switch ( getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK ) {
