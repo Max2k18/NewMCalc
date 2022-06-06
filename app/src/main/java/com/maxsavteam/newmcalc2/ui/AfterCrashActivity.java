@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
-import java.io.FileReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class AfterCrashActivity extends ThemeActivity {
@@ -18,38 +20,50 @@ public class AfterCrashActivity extends ThemeActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_after_crash );
 
-		Button btn = findViewById(R.id.btnRestartApp);
+		Button btn = findViewById( R.id.btn_restart_app );
 
-		btn.setOnClickListener( v->{
-			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
-			if(intent != null) {
-				intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
-				intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
-				startActivity( intent );
-				finish();
-			}
-		} );
+		btn.setOnClickListener( v->restartApp() );
 
 		String path = getIntent().getStringExtra( "path" );
-		String msg = "";
-		try (FileReader fr = new FileReader( path )) {
-			while(fr.ready()){
-				msg = String.format( "%s%c", msg, (char) fr.read() );
+
+		String crashReport;
+		try (FileInputStream fis = new FileInputStream( path )) {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			int len;
+			byte[] buffer = new byte[ 1024 ];
+			while ( ( len = fis.read( buffer ) ) != -1 ) {
+				bos.write( buffer, 0, len );
 			}
+			crashReport = bos.toString();
 		} catch (IOException e) {
 			e.printStackTrace();
+			FirebaseCrashlytics.getInstance().log( "Failed to read crash report" );
+			FirebaseCrashlytics.getInstance().recordException( e );
+			restartApp();
+			return;
 		}
-		String finalMsg = msg;
+
 		btn.setOnLongClickListener( v->{
-			if(!finalMsg.isEmpty()){
+			if ( !crashReport.isEmpty() ) {
 				CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
 				builder
-						.setMessage( finalMsg )
-						.setPositiveButton( "OK", ((dialog, which) -> dialog.cancel()) )
+						.setMessage( crashReport )
+						.setPositiveButton( "OK", ( (dialog, which)->dialog.cancel() ) )
 						.show();
 			}
 			return true;
-		});
+		} );
 
 	}
+
+	private void restartApp() {
+		Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
+		if ( intent != null ) {
+			intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+			intent.addFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP );
+			startActivity( intent );
+			finish();
+		}
+	}
+
 }
