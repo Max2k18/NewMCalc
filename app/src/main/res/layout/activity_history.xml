@@ -20,7 +20,6 @@
         app:title="@string/history" />
 
     <LinearLayout
-        android:id="@+id/linearLayout5"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:gravity="center_horizontal"
@@ -52,7 +51,6 @@
             android:visibility="gone">
 
             <TextView
-                android:id="@+id/txtCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.7"

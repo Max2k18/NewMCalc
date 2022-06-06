@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="protocols_do_not_match">
-        <item>Unfortunately, this application cannot process the history repository protocol.</item>
-        <item>You may have imported settings from an application with a higher version, where this protocol is supported.</item>
-        <item>Please check if there is an application update.</item>
-    </string-array>
 
     <!--string name="app_name" translatable="false">MCalc</string-->
 
@@ -17,8 +12,6 @@
     <string name="select_number">Select number</string>
     <string name="generate">Generate</string>
     <string name="random_number_generator">Random Number Generator</string>
-    <string name="maxintexception">Values must be between -9,223,372,036,854,775,808 and 9,223,372,036,854,775,807.</string>
-    <string name="copied">Copied to clipboard</string>
     <string name="history">History</string>
     <string name="history_not_found">Hm…\\nThere is no history here…\\nWhere is she?</string>
     <string name="password_generator">Password Generator</string>
@@ -35,10 +28,6 @@
     <string name="import_se">Import</string>
     <string name="export">Export</string>
     <string name="ex_im_label">Import or export app\'s settings</string>
-    <string name="export_file_not_found">External configuration file not found</string>
-    <string name="exported">Exported</string>
-    <string name="pass_sw_all_off">Please select at least one option</string>
-    <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
     <string name="delete_all_memories_quest">Delete all memories?</string>
     <string name="delete">Delete</string>
@@ -48,38 +37,16 @@
     <string name="confirm_del_desc">Are you sure you want to delete the description for this entry?</string>
     <string name="enter_text">Enter text</string>
     <string name="desc">Description</string>
-    <string name="activity_requet_permissions">We need to get permission to read and write to the device memory. This is necessary so that you can import or export application settings, because the record goes to the repository. Please give us permission.</string>
-    <string name="never_show_again">Never show again</string>
     <string name="info">Info</string>
-    <string-array name="switches" format="false">
-        <item>CAPITAL</item>
-        <item>lowercase</item>
-        <item>Digits 0&#8212;9</item>
-        <item>H&#8212;y&#8212;p&#8212;h&#8212;e&#8212;n</item>
-        <item>_Underscore_</item>
-        <item>S p a c e</item>
-        <item>&lt;$peci@l&gt;</item>
-        <item>{[(Parentheses)]}</item>
-    </string-array>
     <string-array name="history_not_found">
         <item>Hm…</item>
         <item>There is no history here…</item>
         <item>Where is it?</item>
     </string-array>
 
-    <string name="chooseFromSys">from</string>
-    <string name="chooseToSys">in</string>
     <string name="chooseSysLabel">Select number systems to convert number</string>
     <string name="number_system_converter">Number System Converter</string>
-    <string name="thank_you">Thank you!</string>
-    <string name="we_will_wait">OK, we will wait</string>
-    <string name="please_rate_out_app">Please, rate the our app</string>
-    <string name="rate_message">Rate our application and leave a review. So we will understand how much you like our application and in which direction to develop it. Thank!</string>
-    <string name="rate">Rate</string>
-    <string name="no_thanks">No thanks</string>
-    <string name="later">Later</string>
     <string name="link_app_in_google_play" translatable="false">https://play.google.com/store/apps/details?id=com.maxsavteam.newmcalc2</string>
-    <string name="invalid_argument">Invalid argument</string>
     <string name="value_is_too_big">Very big value.</string>
 
     <string name="name_of_var">Variable name</string>
@@ -87,16 +54,8 @@
     <string name="apply">Apply</string>
     <string name="variables">Variables:</string>
     <string name="fill_empty_field">Fill in the blank fields</string>
-    <string name="what_new_window_text">We would like to tell you about the changes in this version. Perhaps these will be coordinating changes that, for example, change the logic of calculations.</string>
-    <string name="important">Important</string>
-    <string name="view">View</string>
-    <string name="what_new_in_this_ver">What\'s new in this version</string>
     <string name="force_delete">Force delete</string>
     <string name="force_delete_guide_text">Long press this button and the selected record will be deleted immediately.</string>
-    <string name="to_continue_need_to_restart_app">To continue, we need to restart the application.</string>
-    <string name="want_to_continue_question">Want to continue?</string>
-    <string name="restart">Restart</string>
-    <string name="confirm_history_reformat">To continue working with this function, the application needs to update the history storage protocol. Click OK to execute.</string>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
@@ -120,14 +79,7 @@
         <item>Dark</item>
         <item>As in the system</item>
     </string-array>
-    <string name="panel">Panel</string>
-    <string name="view_pager_guide1">This is a panel with numbers. The small text indicates the actions that can be entered by long pressing the button.</string>
-    <string name="view_pager_guide2">You can swipe left or right for additional tools like variables and memory.</string>
-    <string name="action_line">Action line</string>
-    <string name="action_line_guide">This is a line with additional actions that did not fit on the panel. The line also scrolls.</string>
     <string name="history_guide">This is a record of history. You can swipe left to delete an entry or right to add a description to it.</string>
-    <string name="show_guide">Show guide</string>
-    <string name="guide_will_be_shown_next_time">The guide will be shown the next time you launch the application.</string>
     <string name="changelog">Changelog</string>
     <string name="whats_new">What\'s new</string>
     <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
@@ -139,11 +91,9 @@
     <string name="we_did_not_mean_to_do_it">Sorry, we did not mean to do it</string>
     <string name="restart_app">Restart app</string>
     <string name="successfully">Successfully</string>
-    <string name="failed_to_read_file">Failed to read file</string>
     <string name="failed_to_import_settings">Failed to import settings</string>
     <string name="put_in_memory">Put in memory</string>
     <string name="get_from_memory">Get from memory</string>
-    <string name="lists_in_memory_are_not_supported">Lists in memory are not supported</string>
     <string name="addition_and_substracting_of_lists_is_not_supported_yet">Addition and subtraction of lists is not supported yet</string>
     <string name="based_on_calculator_core_version">Based on calculator-core v%s</string>
 

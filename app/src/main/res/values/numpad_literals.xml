@@ -12,6 +12,5 @@
     <string name="digit_8" translatable="false">8</string>
     <string name="digit_9" translatable="false">9</string>
     <string name="eq" translatable="false">=</string>
-    <string name="dot" translatable="false">.</string>
 
 </resources>

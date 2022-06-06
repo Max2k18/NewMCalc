@@ -8,7 +8,6 @@
     tools:context=".Main2Activity">
 
     <LinearLayout
-        android:id="@+id/linearLayout3"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -18,7 +17,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/tblR1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -26,25 +24,21 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn7"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_7" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn8"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_8" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn9"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_9" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMult"
                 style="@style/NumPadButtonStyle"
                 android:onClick="insertBinaryOperatorOnClick"
                 android:text="@string/multiply" />
@@ -59,25 +53,21 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn4"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_4" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn5"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_5" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn6"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_6" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnDiv"
                 style="@style/NumPadButtonStyle"
                 android:onClick="insertBinaryOperatorOnClick"
                 android:text="@string/div" />
@@ -93,25 +83,21 @@
             android:visibility="visible">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn1"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_1" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn2"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_2" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btn3"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_3" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnPlus"
                 style="@style/NumPadButtonStyle"
                 android:onClick="insertBinaryOperatorOnClick"
                 android:text="@string/plus" />
@@ -126,7 +112,6 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnZero"
                 style="@style/NumPadButtonStyle"
                 android:onClick="justInsert"
                 android:text="@string/digit_0" />
@@ -145,7 +130,6 @@
                 android:textSize="@dimen/numpad_buttons_text_size" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMinus"
                 style="@style/NumPadButtonStyle"
                 android:onClick="insertBinaryOperatorOnClick"
                 android:text="@string/minus" />

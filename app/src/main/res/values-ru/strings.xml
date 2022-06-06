@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="protocols_do_not_match">
-        <item>К сожалению, приложение данной не может обработать протокол хранилища истории.</item>
-        <item>Возможно, Вы импортировали настройки из приложения более высокой версии, где данный протокол поддерживается.</item>
-        <item>Пожалуйста, проверьте, есть ли обновление приложения.</item>
-    </string-array>
     <string name="settings">Настройки</string>
     <string name="from">от</string>
     <string name="to">до</string>
     <string name="select_number">Выберите число</string>
     <string name="generate">Сгенерировать</string>
     <string name="random_number_generator">Генератор целых чисел</string>
-    <string name="maxintexception">Значения должны быть в пределах от -9,223,372,036,854,775,808 до 9,223,372,036,854,775,807.</string>
-    <string name="copied">Скопировано в буфер обмена</string>
     <string name="history">История</string>
     <string name="history_not_found">Хм...\\nИстории тут нет...\\nГде же она?</string>
     <string name="password_generator">Генератор паролей</string>
@@ -29,25 +22,11 @@
     <string name="import_se">Импорт</string>
     <string name="export">Экспорт</string>
     <string name="ex_im_label">Импортировать или экспортировать настройки приложения</string>
-    <string name="export_file_not_found">Внешний файл настроек не найден</string>
-    <string name="exported">Экспортировано</string>
-    <string-array name="switches" format="false">
-        <item>ЗАГЛАВНЫЕ</item>
-        <item>строчные</item>
-        <item>Цифры 0&#8212;9</item>
-        <item>Д&#8212;е&#8212;ф&#8212;и&#8212;с</item>
-        <item>_Подчёркивание_</item>
-        <item>П р о б е л</item>
-        <item>&lt;$пеци@льные&gt;</item>
-        <item>{[(Скобки)]}</item>
-    </string-array>
     <string-array name="history_not_found">
         <item>Хм…</item>
         <item>Истории тут нет…</item>
         <item>Где же она?</item>
     </string-array>
-    <string name="pass_sw_all_off">Выберите хотя бы один параметр</string>
-    <string name="clear">Очистить</string>
     <string name="cancel">Отмена</string>
     <string name="delete_all_memories_quest">Удалить все записи?</string>
     <string name="delete">Удалить</string>
@@ -57,21 +36,9 @@
     <string name="confirm_del_desc">Вы действительно хотите удалить описание к этой записи?</string>
     <string name="enter_text">Введите текст</string>
     <string name="desc">Описание</string>
-    <string name="activity_requet_permissions">Нам нужно получить разрешение на чтение и запись в память усторойства. Это нужно для того, чтобы Вы могли импортировать или экспортировать настройки приложения, ведь запись идёт в хранилище. Предоставьте нам разрешение, пожалуйста.</string>
-    <string name="never_show_again">Не показывать снова</string>
     <string name="info">Инфо</string>
     <string name="chooseSysLabel">Выберите системы счисления для преобразования числа</string>
-    <string name="chooseToSys">в</string>
-    <string name="chooseFromSys">из</string>
     <string name="number_system_converter">Конвертер систем счисления</string>
-    <string name="thank_you">Спасибо!</string>
-    <string name="we_will_wait">Хорошо, мы подождём</string>
-    <string name="please_rate_out_app">Пожалуйста, оцените приложение</string>
-    <string name="rate_message">Поставьте оценку нашему приложению и оставьте отзыв. Так мы поймём, насколько Вам нравится наше приложение и в какую сторону его развивать. Спасибо!</string>
-    <string name="rate">Оценить</string>
-    <string name="no_thanks">Нет, спасибо</string>
-    <string name="later">Позже</string>
-    <string name="invalid_argument">Неверный аргумент</string>
     <string name="value_is_too_big">Слишком большое знач.</string>
 
     <string name="name_of_var">Имя переменной</string>
@@ -79,16 +46,8 @@
     <string name="apply">Применить</string>
     <string name="variables">Переменные:</string>
     <string name="fill_empty_field">Заполните пустые поля</string>
-    <string name="what_new_window_text">Мы бы хотели Вам рассказать об изменениях в этой версии. Возможно, это будут координальные изменения, которые, например, меняют логику подсчётов.</string>
-    <string name="important">Важно</string>
-    <string name="view">Просмотреть</string>
-    <string name="what_new_in_this_ver">Что нового в этой версии</string>
     <string name="force_delete">Принудительное удаление</string>
     <string name="force_delete_guide_text">Сделайте долгое нажатие на эту кнопку и выбранная запись удалится незамедлительно.</string>
-    <string name="to_continue_need_to_restart_app">Для продолжения нам требуется перезапустить приложение.</string>
-    <string name="want_to_continue_question">Хотите продолжить?</string>
-    <string name="restart">Перезапустить</string>
-    <string name="confirm_history_reformat">Для продолжения работы данной функции, приложению необходимо обновить протокол хранения истории. Нажмите кнопку \"ОК\" чтобы выполнить.</string>
     <string name="smth_went_wrong">Что-то пошло не так</string>
     <string name="in_calc_process_message"><![CDATA[В процессе…<br>Если Вы увидели это сообщение, значит Вы пытаетесь посчитать слишком большое число. Мы не советуем Вам продолжать, так как  это может отразиться на потреблении ресурсов. Если процесс будет продолжаться на протяжении 7 секунд, то подсчёт будет прерван.]]></string>
     <string name="calc_accuracy">Точность вычислений(количество знаков после запятой)</string>
@@ -109,14 +68,7 @@
         <item>Тёмная</item>
         <item>Как в системе</item>
     </string-array>
-    <string name="panel">Панель</string>
-    <string name="view_pager_guide1">Это панель с цифрами. Маленьким текстом указаны действия, которые можно ввести долгим нажатием на кнопку.</string>
-    <string name="view_pager_guide2">Вы можете свайпнуть вправо или влево для дополнительных инструментов таких как переменные и память.</string>
-    <string name="action_line">Линия действий</string>
-    <string name="action_line_guide">Это линия с дополнительными действиями, которые не поместились на панели. Линия также прокручивается.</string>
     <string name="history_guide">Это запись истории. Вы можете провести влево, чтобы удалить запись, или вправо, чтобы добавить описание к ней.</string>
-    <string name="show_guide">Показать гайд</string>
-    <string name="guide_will_be_shown_next_time">Гайд будет показан при следующем запуске приложения.</string>
     <string name="changelog">Журнал изменений</string>
     <string name="whats_new">Что нового</string>
     <string name="something_went_wrong_when_getting_note">Что-то пошло не так при получении заметки об обновлении</string>
@@ -128,11 +80,9 @@
     <string name="we_did_not_mean_to_do_it">Извините, мы не специально</string>
     <string name="restart_app">Перезапустить приложение</string>
     <string name="successfully">Успешно</string>
-    <string name="failed_to_read_file">Не удалось прочитать файл</string>
     <string name="failed_to_import_settings">Не удалось импортировать настройки</string>
     <string name="put_in_memory">Поместить в память</string>
     <string name="get_from_memory">Достать из памяти</string>
-    <string name="lists_in_memory_are_not_supported">Списки в памяти не поддерживаются</string>
 
     <string name="addition_and_substracting_of_lists_is_not_supported_yet">Сложение и вычитание списков пока не поддерживается</string>
     <string name="based_on_calculator_core_version">Основано на calculator-core v%s</string>

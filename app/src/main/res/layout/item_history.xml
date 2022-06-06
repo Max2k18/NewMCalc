@@ -18,7 +18,6 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/main_in_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -46,7 +45,6 @@
                 android:visibility="gone" />
 
             <TextView
-                android:id="@+id/tvWithDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />

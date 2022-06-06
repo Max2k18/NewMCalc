@@ -27,9 +27,6 @@
     <string name="cotangent">cot</string>
     <string name="arccotangent">acot</string>
 
-    <string name="rad" translatable="false">rad</string>
-    <string name="deg" translatable="false">deg</string>
-
     <string name="gcd">gcd</string>
     <string name="lcm">lcm</string>
 
@@ -49,23 +46,5 @@
     <string name="floor_close_bracket" translatable="false">\u23A6</string>
     <string name="ceil_open_bracket" translatable="false">\u23A1</string>
     <string name="ceil_close_bracket" translatable="false">\u23A4</string>
-
-    <string-array name="additional_chars">
-        <item>sin</item>
-        <item>cos</item>
-        <item>log</item>
-        <item>ln</item>
-        <item>tan</item>
-        <item>Ɛ</item>
-        <item>(</item>
-        <item>)</item>
-        <item>!</item>
-        <item>A</item>
-        <item>π</item>
-        <item>φ</item>
-        <item>√</item>
-        <item>^</item>
-        <item>%</item>
-    </string-array>
 
 </resources>

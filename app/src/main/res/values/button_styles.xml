@@ -35,19 +35,4 @@
         <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>
 
-    <style name="PasswordGeneratorButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:textSize">@dimen/password_generator_buttons_text_size</item>
-        <item name="android:layout_width">@dimen/password_generator_buttons_size</item>
-        <item name="android:layout_height">@dimen/password_generator_buttons_size</item>
-        <item name="android:layout_weight">1</item>
-    </style>
-
-    <style name="PasswordGeneratorCheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:buttonTint">@color/colorAccent</item>
-        <item name="android:textColor">?textColor</item>
-        <item name="android:textSize">@dimen/password_generator_checkbox_text_size</item>
-    </style>
-
 </resources>
