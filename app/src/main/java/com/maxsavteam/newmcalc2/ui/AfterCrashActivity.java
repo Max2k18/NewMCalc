@@ -1,9 +1,10 @@
-package com.maxsavteam.newmcalc2;
+package com.maxsavteam.newmcalc2.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
+import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 

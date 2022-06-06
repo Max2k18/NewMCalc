@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.maxsavitsky.exceptionhandler.ExceptionHandler;
+import com.maxsavteam.newmcalc2.ui.AfterCrashActivity;
 import com.maxsavteam.newmcalc2.utils.Utils;
 
 import java.lang.Thread.UncaughtExceptionHandler;

@@ -19,7 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="o">
         <activity
-            android:name=".AfterCrashActivity"
+            android:name=".ui.AfterCrashActivity"
             android:exported="true" />
         <activity android:name=".ui.VariableEditorActivity" />
         <activity android:name=".ui.PasswordGeneratorActivity"
