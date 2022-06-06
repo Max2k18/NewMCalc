@@ -72,9 +72,9 @@ import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationMode;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
+import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.fragment.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragment.VariablesFragmentFactory;
-import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -98,10 +98,12 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -150,7 +152,6 @@ public class Main2Activity extends ThemeActivity {
 		public static final String RECALL = "rc", STORE = "st";
 	}
 
-
 	private final ActivityResultLauncher<Intent> mHistoryLauncher = registerForActivityResult(
 			new ActivityResultContracts.StartActivityForResult(),
 			result->{
@@ -184,10 +185,11 @@ public class Main2Activity extends ThemeActivity {
 					Intent data = result.getData();
 					if ( data != null ) {
 						int position = data.getIntExtra( "position", 0 );
-						if ( lastCalculatedResult != null ) {
-							memoryEntries.set( position, lastCalculatedResult.getResult() );
+						Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
+						optionalNumberList.ifPresent( numberList -> {
+							memoryEntries.set( position, numberList );
 							mMemorySaverReader.save( memoryEntries );
-						}
+						} );
 					}
 				}
 			}
@@ -886,11 +888,34 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
+	private String getCurrentExpression(){
+		EditText editText = findViewById( R.id.ExampleStr );
+		Editable editable = editText.getText();
+		return editable == null ? "" : editable.toString();
+	}
+
+	/**
+	 * Returns result from {@code lastCalculatedResult} or user-entered number
+	 * */
+	private Optional<NumberList> getCurrentCalculatedValue(){
+		if(lastCalculatedResult != null)
+			return Optional.of( lastCalculatedResult.getResult() );
+		String currentExpression = getCurrentExpression();
+		if(Utils.isNumber( currentExpression, mDecimalFormat.getDecimalFormatSymbols() )) {
+			Number parsedNumber = mDecimalFormat.parse( currentExpression, new ParsePosition( 0 ) );
+			if(parsedNumber == null)
+				return Optional.empty();
+			BigDecimal bigDecimal = new BigDecimal( parsedNumber.toString() );
+			return Optional.of( NumberList.of( bigDecimal ) );
+		}
+		return Optional.empty();
+	}
+
 	private void openMemory(final String type) {
 		Intent in = new Intent( this, MemoryActionsActivity.class );
 		in.putExtra( "type", type );
 		if ( type.equals( MemoryStartTypes.STORE ) ) {
-			if ( lastCalculatedResult != null ) {
+			if ( lastCalculatedResult != null || Utils.isNumber( getCurrentExpression(), mDecimalFormat.getDecimalFormatSymbols() ) ) {
 				memoryStoreLauncher.launch( in );
 			}
 		} else {
@@ -937,13 +962,11 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
-		if ( lastCalculatedResult == null ) {
-			return;
-		}
-
-		NumberList result = lastCalculatedResult.getResult();
-		memoryEntries.set( 0, result );
-		mMemorySaverReader.save( memoryEntries );
+		Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
+		optionalNumberList.ifPresent( result -> {
+			memoryEntries.set( 0, result );
+			mMemorySaverReader.save( memoryEntries );
+		} );
 	}
 
 	public void onMemoryRecallButtonClick(View view) {
@@ -1097,7 +1120,7 @@ public class Main2Activity extends ThemeActivity {
 
 		lastCalculatedResult = null;
 
-		if ( Utils.isNumber( example ) || example.isEmpty() ) {
+		if ( Utils.isNumber( example, mDecimalFormat.getDecimalFormatSymbols() ) || example.isEmpty() ) {
 			clearAnswer();
 			return;
 		}
