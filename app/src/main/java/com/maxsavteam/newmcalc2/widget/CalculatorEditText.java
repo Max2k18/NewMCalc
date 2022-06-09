@@ -2,26 +2,24 @@ package com.maxsavteam.newmcalc2.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.os.Build;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditText {
 
@@ -32,7 +30,7 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	private final float mStepTextSize;
 	private final ArrayList<TextListener> mTextListeners = new ArrayList<>();
 	private boolean isEditing = false;
-	private DecimalFormatSymbols mFormatSymbols;
+	private DecimalFormat mDecimalFormat;
 
 	public CalculatorEditText(@NonNull Context context) {
 		this( context, null );
@@ -57,8 +55,8 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 		updateLocale();
 	}
 
-	public void updateLocale(){
-		mFormatSymbols = new DecimalFormatSymbols( App.getInstance().getAppLocale() );
+	public void updateLocale() {
+		mDecimalFormat = FormatUtils.getDecimalFormat();
 	}
 
 	@Override
@@ -106,9 +104,13 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 
 	@Override
 	protected void onSelectionChanged(int selStart, int selEnd) {
+		if ( mDecimalFormat == null ) {
+			return;
+		}
 		if ( selStart == selEnd ) {
-			selStart = Math.min(getText().length(), selStart);
-			if ( selStart > 0 && getText().charAt( selStart - 1 ) == mFormatSymbols.getGroupingSeparator() ) {
+			selStart = Math.min( getText().length(), selStart );
+			DecimalFormatSymbols symbols = mDecimalFormat.getDecimalFormatSymbols();
+			if ( selStart > 0 && getText().charAt( selStart - 1 ) == symbols.getGroupingSeparator() ) {
 				setSelection( selStart - 1 );
 			}
 		}
@@ -131,7 +133,13 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	}
 
 	private String formatText(String text) {
-		return FormatUtils.formatText( text, mFormatSymbols );
+		FormatUtils.Formatter formatter = number->{
+			String formatted = mDecimalFormat.format( new BigDecimal( number ) );
+			if(number.endsWith( "." ))
+				formatted += mDecimalFormat.getDecimalFormatSymbols().getDecimalSeparator();
+			return formatted;
+		};
+		return FormatUtils.formatExpression( text, formatter, mDecimalFormat.getDecimalFormatSymbols() );
 	}
 
 	@Override

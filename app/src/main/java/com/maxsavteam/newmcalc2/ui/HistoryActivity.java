@@ -44,6 +44,7 @@ import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -447,12 +448,12 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		} );
 
 		mEntries = new ArrayList<>();
-		DecimalFormat decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ));
+		DecimalFormat decimalFormat = FormatUtils.getDecimalFormat();
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
 			mEntries
 					.add( new HistoryEntry(
 							FormatUtils.formatNumbersInExpression( entry.getExample(), decimalFormat ),
-							FormatUtils.formatNumber( entry.getAnswer(), decimalFormat.getDecimalFormatSymbols(), DecimalFormatSymbols.getInstance( Locale.ROOT) ),
+							decimalFormat.format( new BigDecimal( entry.getAnswer() ) ),
 							entry.getDescription()
 					) );
 		}

@@ -515,7 +515,7 @@ public class Main2Activity extends ThemeActivity {
 
 		CalculatorWrapper.getInstance().updateLocale();
 
-		DecimalFormat newDecimalFormat = getDecimalFormat();
+		DecimalFormat newDecimalFormat = FormatUtils.getDecimalFormat();
 
 		CalculatorEditText exampleEditText = findViewById( R.id.ExampleStr );
 		exampleEditText.updateLocale();
@@ -578,7 +578,7 @@ public class Main2Activity extends ThemeActivity {
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
-		mDecimalFormat = getDecimalFormat();
+		mDecimalFormat = FormatUtils.getDecimalFormat();
 
 		MULTIPLY_SIGN = getString( R.string.multiply );
 		DIVISION_SIGN = getString( R.string.div );
@@ -669,13 +669,6 @@ public class Main2Activity extends ThemeActivity {
 			Toast.makeText( this, "Ilyash guliash", Toast.LENGTH_SHORT ).show();
 			return true;
 		} );
-	}
-
-	private DecimalFormat getDecimalFormat() {
-		DecimalFormat decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
-		decimalFormat.setParseBigDecimal( true );
-		decimalFormat.setMaximumFractionDigits( 8 );
-		return decimalFormat;
 	}
 
 	private void showWhatNew() {
