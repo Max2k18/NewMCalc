@@ -457,7 +457,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
 			mEntries
 					.add( new HistoryEntry(
-							FormatUtils.formatExpression( entry.getExample(), formatter, decimalFormat.getDecimalFormatSymbols() ),
+							FormatUtils.formatExpression( entry.getExample(), formatter, FormatUtils.getRootLocaleFormatSymbols() ),
 							decimalFormat.format( new BigDecimal( entry.getAnswer() ) ),
 							entry.getDescription()
 					) );
