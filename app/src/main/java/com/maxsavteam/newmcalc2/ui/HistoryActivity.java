@@ -449,10 +449,15 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 
 		mEntries = new ArrayList<>();
 		DecimalFormat decimalFormat = FormatUtils.getDecimalFormat();
+		FormatUtils.Formatter formatter = number -> {
+			if(number.equals( "." ))
+				return "0";
+			return decimalFormat.format( new BigDecimal( number ) );
+		};
 		for(HistoryEntry entry : HistoryManager.getInstance().getHistory()){
 			mEntries
 					.add( new HistoryEntry(
-							FormatUtils.formatNumbersInExpression( entry.getExample(), decimalFormat ),
+							FormatUtils.formatExpression( entry.getExample(), formatter, decimalFormat.getDecimalFormatSymbols() ),
 							decimalFormat.format( new BigDecimal( entry.getAnswer() ) ),
 							entry.getDescription()
 					) );

@@ -133,13 +133,21 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 	}
 
 	private String formatText(String text) {
+		DecimalFormatSymbols symbols = mDecimalFormat.getDecimalFormatSymbols();
+		String decimalSeparator = String.valueOf( symbols.getDecimalSeparator() );
 		FormatUtils.Formatter formatter = number->{
+			if ( number.equals( "." ) ) {
+				return decimalSeparator;
+			}
 			String formatted = mDecimalFormat.format( new BigDecimal( number ) );
-			if(number.endsWith( "." ))
-				formatted += mDecimalFormat.getDecimalFormatSymbols().getDecimalSeparator();
+			if(number.startsWith( "." )){
+				formatted = formatted.substring( 1 ); // remove leading zero
+			}else if ( number.endsWith( "." ) ) {
+				formatted += decimalSeparator;
+			}
 			return formatted;
 		};
-		return FormatUtils.formatExpression( text, formatter, mDecimalFormat.getDecimalFormatSymbols() );
+		return FormatUtils.formatExpression( text, formatter, symbols );
 	}
 
 	@Override

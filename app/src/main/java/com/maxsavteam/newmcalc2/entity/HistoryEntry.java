@@ -58,6 +58,15 @@ public final class HistoryEntry {
 				.put( "description", description );
 	}
 
+	@Override
+	public String toString() {
+		return "HistoryEntry{" +
+				"example='" + example + '\'' +
+				", answer='" + answer + '\'' +
+				", description='" + description + '\'' +
+				'}';
+	}
+
 	public static HistoryEntry create(String ex, String ans) {
 		return new HistoryEntry( ex, ans );
 	}
