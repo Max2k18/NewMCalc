@@ -1,33 +1,37 @@
 package com.maxsavteam.newmcalc2.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.calculator.results.NumberList;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.WindowRecallAdapter;
+import com.maxsavteam.newmcalc2.memory.MemoryReader;
+import com.maxsavteam.newmcalc2.memory.MemorySaver;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
+import com.maxsavteam.newmcalc2.utils.Utils;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MemoryActionsActivity extends ThemeActivity {
 	private String type;
-	private MemorySaverReader memorySaverReader;
+	private SharedPreferences sharedPreferences;
 
 	private void clearAll() {
 		new CustomAlertDialogBuilder( this )
 				.setMessage( R.string.delete_all_memories_quest )
 				.setPositiveButton( R.string.yes, (dialogInterface1, i)->{
-					memorySaverReader.save( null );
+					MemorySaver.save( sharedPreferences, null );
 					dialogInterface1.cancel();
 					setResult( ResultCodesConstants.RESULT_REFRESH );
 					onBackPressed();
@@ -56,7 +60,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_memory_actions );
 
-		memorySaverReader = new MemorySaverReader();
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences( this );
 
 		type = getIntent().getStringExtra( "type" );
 
@@ -64,7 +68,8 @@ public class MemoryActionsActivity extends ThemeActivity {
 		displayHomeAsUp();
 		setTitle( type.equals( "rc" ) ? R.string.get_from_memory : R.string.put_in_memory );
 
-		ArrayList<NumberList> memoryEntries = memorySaverReader.read();
+		List<NumberList> memoryEntries = MemoryReader.read( sharedPreferences );
+
 		RecyclerView rv = findViewById( R.id.memory_actions_rv );
 		WindowRecallAdapter adapter = new WindowRecallAdapter( memoryEntries, (view, position)->{
 			if ( type.equals( "st" ) ) {
@@ -76,9 +81,7 @@ public class MemoryActionsActivity extends ThemeActivity {
 			}
 			onBackPressed();
 		} );
-		LinearLayoutManager manager = new LinearLayoutManager( this );
-		manager.setOrientation( RecyclerView.VERTICAL );
-		rv.setLayoutManager( manager );
+		rv.setLayoutManager( new LinearLayoutManager( this ) );
 		rv.setAdapter( adapter );
 	}
 }

@@ -27,6 +27,8 @@ public final class Utils {
 	@SuppressLint("StaticFieldLeak")
 	private static Context sContext;
 
+	public static final int MEMORY_ENTRIES_COUNT = 10;
+
 	public static final String MCALC_SITE = "https://mcalc.maxsavteam.com/";
 
 	public static final String APP_PREFERENCES = "preferences";

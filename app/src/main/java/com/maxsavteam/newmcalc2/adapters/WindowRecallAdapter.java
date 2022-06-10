@@ -14,14 +14,14 @@ import com.maxsavteam.newmcalc2.R;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
+import java.util.List;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final ArrayList<NumberList> data;
+	private final List<NumberList> data;
 	private final WindowRecallAdapterCallback mCallback;
 	private final DecimalFormat decimalFormat;
 
-	public WindowRecallAdapter(ArrayList<NumberList> results, WindowRecallAdapterCallback callback){
+	public WindowRecallAdapter(List<NumberList> results, WindowRecallAdapterCallback callback){
 		this.data = results;
 		mCallback = callback;
 

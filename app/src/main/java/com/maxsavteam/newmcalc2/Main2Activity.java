@@ -75,6 +75,8 @@ import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.fragment.viewpager.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
+import com.maxsavteam.newmcalc2.memory.MemoryReader;
+import com.maxsavteam.newmcalc2.memory.MemorySaver;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
@@ -86,7 +88,6 @@ import com.maxsavteam.newmcalc2.ui.VariableEditorActivity;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.FormatUtils;
 import com.maxsavteam.newmcalc2.utils.HistoryManager;
-import com.maxsavteam.newmcalc2.utils.MemorySaverReader;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.utils.UpdateMessagesContainer;
 import com.maxsavteam.newmcalc2.utils.Utils;
@@ -117,7 +118,7 @@ public class Main2Activity extends ThemeActivity {
 	public static final String TAG = "MCalc";
 
 	private NavigationView mNavigationView;
-	private SharedPreferences sp;
+	private SharedPreferences sharedPreferences;
 
 	private boolean isOtherActivityOpened = false;
 	private boolean isBroadcastsRegistered;
@@ -125,8 +126,7 @@ public class Main2Activity extends ThemeActivity {
 
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 
-	private MemorySaverReader mMemorySaverReader;
-	private ArrayList<NumberList> memoryEntries;
+	private List<NumberList> memoryEntries;
 
 	private CalculatorWrapper mCalculatorWrapper;
 	private final Point displaySize = new Point();
@@ -187,7 +187,7 @@ public class Main2Activity extends ThemeActivity {
 						Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
 						optionalNumberList.ifPresent( numberList -> {
 							memoryEntries.set( position, numberList );
-							mMemorySaverReader.save( memoryEntries );
+							MemorySaver.save( sharedPreferences, memoryEntries );
 						} );
 					}
 				}
@@ -351,20 +351,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	@Override
-	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-		super.onPostCreate( savedInstanceState );
-
-		registerBroadcastReceivers();
-
-		mMemorySaverReader = new MemorySaverReader();
-		memoryEntries = mMemorySaverReader.read();
-
-		addShortcutsToApp();
-
-		restoreResultIfSaved();
-	}
-
 	private void addShortcutsToApp() {
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
 			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
@@ -411,8 +397,8 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void restoreResultIfSaved() {
-		if ( sp.getBoolean( "saveResult", false ) ) {
-			String text = sp.getString( "saveResultText", null );
+		if ( sharedPreferences.getBoolean( "saveResult", false ) ) {
+			String text = sharedPreferences.getString( "saveResultText", null );
 			if ( text != null ) {
 				int i = 0;
 				StringBuilder ex = new StringBuilder();
@@ -479,7 +465,7 @@ public class Main2Activity extends ThemeActivity {
 		if ( !isBroadcastsRegistered ) {
 			registerBroadcastReceivers();
 		}
-		if ( sp.getBoolean( "keep_screen_on", false ) ) {
+		if ( sharedPreferences.getBoolean( "keep_screen_on", false ) ) {
 			getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
 		}
 		super.onResume();
@@ -546,7 +532,7 @@ public class Main2Activity extends ThemeActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
-		sp = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences( getApplicationContext() );
 		setContentView( R.layout.activity_main2 );
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
@@ -669,6 +655,14 @@ public class Main2Activity extends ThemeActivity {
 			Toast.makeText( this, "Ilyash guliash", Toast.LENGTH_SHORT ).show();
 			return true;
 		} );
+
+		registerBroadcastReceivers();
+
+		memoryEntries = MemoryReader.read( sharedPreferences );
+
+		addShortcutsToApp();
+
+		restoreResultIfSaved();
 	}
 
 	private void showWhatNew() {
@@ -861,7 +855,7 @@ public class Main2Activity extends ThemeActivity {
 				}
 				mVariablesEditorLauncher.launch( in );
 			} else {
-				String var_arr = sp.getString( "variables", null );
+				String var_arr = sharedPreferences.getString( "variables", null );
 				if ( var_arr == null ) {
 					btn.setText( "+" );
 				} else {
@@ -951,14 +945,14 @@ public class Main2Activity extends ThemeActivity {
 			}
 		}
 		memoryEntries.set( 0, finalResult );
-		mMemorySaverReader.save( memoryEntries );
+		MemorySaver.save( sharedPreferences, memoryEntries );
 	}
 
 	public void onMemoryStoreButtonClick(View view) {
 		Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
 		optionalNumberList.ifPresent( result -> {
 			memoryEntries.set( 0, result );
-			mMemorySaverReader.save( memoryEntries );
+			MemorySaver.save( sharedPreferences, memoryEntries );
 		} );
 	}
 
@@ -1168,7 +1162,7 @@ public class Main2Activity extends ThemeActivity {
 	private void saveToHistory(String expression, NumberList result){
 		String example = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
 
-		if(sp.getBoolean( "save_history", true )) {
+		if( sharedPreferences.getBoolean( "save_history", true )) {
 			HistoryManager.getInstance()
 					.put( new HistoryEntry( example, result.format() ) )
 					.save();
