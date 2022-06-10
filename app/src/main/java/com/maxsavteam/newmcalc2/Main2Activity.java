@@ -43,7 +43,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
@@ -73,6 +72,7 @@ import com.maxsavteam.newmcalc2.core.CalculationMode;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
+import com.maxsavteam.newmcalc2.entity.Tuple;
 import com.maxsavteam.newmcalc2.fragment.viewpager.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.memory.MemoryReader;
@@ -101,9 +101,9 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -120,8 +120,6 @@ public class Main2Activity extends ThemeActivity {
 	private NavigationView mNavigationView;
 	private SharedPreferences sharedPreferences;
 
-	private boolean isOtherActivityOpened = false;
-	private boolean isBroadcastsRegistered;
 	private boolean progressDialogShown = false;
 
 	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
@@ -144,8 +142,6 @@ public class Main2Activity extends ThemeActivity {
 	private ProgressDialog mThreadControllerProgressDialog;
 
 	private DecimalFormat mDecimalFormat;
-
-	private ReviewManager reviewManager;
 
 	private static class MemoryStartTypes {
 		public static final String RECALL = "rc", STORE = "st";
@@ -185,7 +181,7 @@ public class Main2Activity extends ThemeActivity {
 					if ( data != null ) {
 						int position = data.getIntExtra( "position", 0 );
 						Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
-						optionalNumberList.ifPresent( numberList -> {
+						optionalNumberList.ifPresent( numberList->{
 							memoryEntries.set( position, numberList );
 							MemorySaver.save( sharedPreferences, memoryEntries );
 						} );
@@ -211,6 +207,11 @@ public class Main2Activity extends ThemeActivity {
 					}
 				}
 			}
+	);
+
+	private final ActivityResultLauncher<Intent> mDefaultActivityLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartActivityForResult(),
+			result->{}
 	);
 
 	private final View.OnLongClickListener mOnVariableLongClick = v->{
@@ -256,26 +257,6 @@ public class Main2Activity extends ThemeActivity {
 	};
 
 	private List<String> functionsWithNecessaryOpenBracket;
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-		super.onActivityResult( requestCode, resultCode, data );
-	}
-
-	@Override
-	public void onBackPressed() {
-		CustomAlertDialogBuilder builder = new CustomAlertDialogBuilder( this );
-		builder.setTitle( R.string.exit )
-				.setMessage( R.string.areyousureexit )
-				.setCancelable( false )
-				.setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() )
-				.setPositiveButton( R.string.yes, (dialog, which)->{
-					dialog.cancel();
-					finishAfterTransition();
-				} );
-		builder.show();
-	}
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -354,44 +335,30 @@ public class Main2Activity extends ThemeActivity {
 	private void addShortcutsToApp() {
 		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
 			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
-			Intent t = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
-			if ( t == null ) {
+			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
+			if ( intent == null ) {
 				return;
 			}
-			t.putExtra( "shortcut_action", true );
-			t.putExtra( "to_", AdditionalActivities.NUMBER_GENERATOR );
-			ShortcutInfo shortcut1 = new ShortcutInfo.Builder( getApplicationContext(), "id1" )
-					.setLongLabel( getResources().getString( R.string.random_number_generator ) )
-					.setShortLabel( getResources().getString( R.string.random_number_generator ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.ic_dice ) )
-					.setIntent( t )
-					.build();
-			t.putExtra( "to_", AdditionalActivities.PASSWORD_GENERATOR );
-			ShortcutInfo shortcut2 = new ShortcutInfo.Builder( getApplicationContext(), "id2" )
-					.setLongLabel( getResources().getString( R.string.password_generator ) )
-					.setShortLabel( getResources().getString( R.string.password_generator ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.ic_passgen ) )
-					.setIntent( t )
-					.build();
-
-			t.putExtra( "to_", AdditionalActivities.HISTORY );
-			ShortcutInfo shortcut3 = new ShortcutInfo.Builder( getApplicationContext(), "id3" )
-					.setLongLabel( getResources().getString( R.string.history ) )
-					.setShortLabel( getResources().getString( R.string.history ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.ic_history ) )
-					.setIntent( t )
-					.build();
-			t.putExtra( "to_", AdditionalActivities.NUMBER_SYSTEMS_CONVERTER );
-			ShortcutInfo shortCutNumSys = new ShortcutInfo.Builder( getApplicationContext(), "idNumSys" )
-					.setLongLabel( getResources().getString( R.string.number_system_converter ) )
-					.setShortLabel( getResources().getString( R.string.number_system_converter ) )
-					.setIcon( Icon.createWithResource( this, R.drawable.ic_binary ) )
-					.setIntent( t )
-					.build();
-
-
+			intent.putExtra( "shortcut_action", true );
+			List<Tuple<String, Integer, Integer>> shortcutsConfig = List.of(
+					new Tuple<>( AdditionalActivities.HISTORY, R.drawable.ic_history, R.string.history ),
+					new Tuple<>( AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, R.drawable.ic_binary, R.string.number_system_converter ),
+					new Tuple<>( AdditionalActivities.PASSWORD_GENERATOR, R.drawable.ic_passgen, R.string.password_generator ),
+					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator )
+			);
+			List<ShortcutInfo> shortcuts = new ArrayList<>();
+			for( Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig ) {
+				intent.putExtra( "to_", shortcutConfig.first );
+				ShortcutInfo shortcut = new ShortcutInfo.Builder( this, shortcutConfig.first )
+						.setShortLabel( getString( shortcutConfig.third ) )
+						.setLongLabel( getString( shortcutConfig.third ) )
+						.setIcon( Icon.createWithResource( this, shortcutConfig.second ) )
+						.setIntent( intent )
+						.build();
+				shortcuts.add( shortcut );
+			}
 			if ( shortcutManager != null ) {
-				shortcutManager.setDynamicShortcuts( Arrays.asList( shortcut3, shortCutNumSys, shortcut2, shortcut1 ) );
+				shortcutManager.setDynamicShortcuts( shortcuts );
 			}
 		}
 	}
@@ -420,63 +387,41 @@ public class Main2Activity extends ThemeActivity {
 				NUMBER_SYSTEMS_CONVERTER = "bin";
 	}
 
-	private void goToAdditionalActivities(@NonNull String where) {
-		switch ( where ) {
-			case AdditionalActivities.SETTINGS:
-				mSettingsLauncher.launch( new Intent( this, SettingsActivity.class ) );
-				break;
-			case AdditionalActivities.NUMBER_GENERATOR:
-				startActivity( new Intent( this, NumberGeneratorActivity.class ) );
-				break;
-			case AdditionalActivities.HISTORY:
-				mHistoryLauncher.launch( new Intent( this, HistoryActivity.class ) );
-				break;
-			case AdditionalActivities.PASSWORD_GENERATOR:
-				startActivity( new Intent( this, PasswordGeneratorActivity.class ) );
-				break;
-			case AdditionalActivities.NUMBER_SYSTEMS_CONVERTER:
-				startActivity( new Intent( this, NumberSystemConverterActivity.class ) );
-				break;
-			default:
-				break;
+	private void goToAdditionalActivities(String where) {
+		Map<String, ActivityResultLauncher<Intent>> launcherMap = Map.of(
+				AdditionalActivities.SETTINGS, mSettingsLauncher,
+				AdditionalActivities.NUMBER_GENERATOR, mDefaultActivityLauncher,
+				AdditionalActivities.PASSWORD_GENERATOR, mDefaultActivityLauncher,
+				AdditionalActivities.HISTORY, mHistoryLauncher,
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, mDefaultActivityLauncher
+		);
+		Map<String, Class<?>> activityMap = Map.of(
+				AdditionalActivities.SETTINGS, SettingsActivity.class,
+				AdditionalActivities.NUMBER_GENERATOR, NumberGeneratorActivity.class,
+				AdditionalActivities.PASSWORD_GENERATOR, PasswordGeneratorActivity.class,
+				AdditionalActivities.HISTORY, HistoryActivity.class,
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, NumberSystemConverterActivity.class
+		);
+		if ( !launcherMap.containsKey( where ) || !activityMap.containsKey( where ) ) {
+			return;
 		}
+		ActivityResultLauncher<Intent> launcher = launcherMap.get( where );
+		Class<?> activity = activityMap.get( where );
+		if(launcher != null)
+			launcher.launch( new Intent( this, activity ) );
 	}
 
 	private void unregisterAllBroadcasts() {
 		for (BroadcastReceiver broadcastReceiver : registeredBroadcasts) {
 			unregisterReceiver( broadcastReceiver );
 		}
-		isBroadcastsRegistered = false;
 		registeredBroadcasts = new ArrayList<>();
 	}
 
 	@Override
-	protected void onPause() {
-		if ( !isOtherActivityOpened ) {
-			unregisterAllBroadcasts();
-		}
-		getWindow().clearFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
-		super.onPause();
-	}
-
-	@Override
-	protected void onResume() {
-		isOtherActivityOpened = false;
-		if ( !isBroadcastsRegistered ) {
-			registerBroadcastReceivers();
-		}
-		if ( sharedPreferences.getBoolean( "keep_screen_on", false ) ) {
-			getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
-		}
-		super.onResume();
-	}
-
-	@Override
-	protected void onStop() {
-		if ( !isOtherActivityOpened ) {
-			unregisterAllBroadcasts();
-		}
-		super.onStop();
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterAllBroadcasts();
 	}
 
 	private void registerBroadcastReceivers() {
@@ -490,7 +435,6 @@ public class Main2Activity extends ThemeActivity {
 				new IntentFilter( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" ) );
 		registeredBroadcasts.add( on_var_edited );
 
-		isBroadcastsRegistered = true;
 	}
 
 	@Override
@@ -537,30 +481,7 @@ public class Main2Activity extends ThemeActivity {
 		Toolbar toolbar = findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
 
-		DrawerLayout drawer = findViewById( R.id.drawer_layout );
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
-		drawer.setDrawerListener( toggle );
-		toggle.syncState();
-		mNavigationView = findViewById( R.id.nav_view );
-		mNavigationView.setBackgroundColor( Color.BLACK );
-		mNavigationView.setNavigationItemSelectedListener( menuItem->{
-			if ( menuItem.getItemId() == R.id.nav_settings ) {
-				goToAdditionalActivities( AdditionalActivities.SETTINGS );
-			} else if ( menuItem.getItemId() == R.id.nav_history ) {
-				goToAdditionalActivities( AdditionalActivities.HISTORY );
-			} else if ( menuItem.getItemId() == R.id.nav_numbersysconverter ) {
-				goToAdditionalActivities( AdditionalActivities.NUMBER_SYSTEMS_CONVERTER );
-			} else if ( menuItem.getItemId() == R.id.nav_passgen ) {
-				goToAdditionalActivities( AdditionalActivities.PASSWORD_GENERATOR );
-			} else if ( menuItem.getItemId() == R.id.nav_numgen ) {
-				goToAdditionalActivities( AdditionalActivities.NUMBER_GENERATOR );
-			}
-			menuItem.setChecked( false );
-
-			drawer.closeDrawer( GravityCompat.START );
-			return true;
-		} );
+		initializeDrawer();
 
 		mCalculatorWrapper = CalculatorWrapper.getInstance();
 
@@ -588,13 +509,7 @@ public class Main2Activity extends ThemeActivity {
 
 		applyTheme();
 
-		Intent startIntent = getIntent();
-		if ( startIntent.getBooleanExtra( "shortcut_action", false ) ) {
-			String whereWeNeedToGoToAnotherActivity = startIntent.getStringExtra( "to_" );
-			if ( whereWeNeedToGoToAnotherActivity != null ) {
-				goToAdditionalActivities( whereWeNeedToGoToAnotherActivity );
-			}
-		}
+		checkShortcutAction();
 
 		setViewPager( 0 );
 
@@ -604,41 +519,91 @@ public class Main2Activity extends ThemeActivity {
 
 		getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN );
 
-		SharedPreferences s = getSharedPreferences( Utils.APP_PREFERENCES, MODE_PRIVATE );
-		int startCount = s.getInt( "start_count", 0 );
 		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
-			if ( startCount >= 3 ) {
-				s.edit().putInt( "start_count", 0 ).apply();
-				reviewManager = ReviewManagerFactory.create( getApplicationContext() );
-				reviewManager.requestReviewFlow().addOnCompleteListener( task->{
-					if ( task.isSuccessful() ) {
-						reviewManager.launchReviewFlow( this, task.getResult() );
-					} else {
-						Log.i( TAG, "requestReviewFlow: " + task.getException() );
-					}
-				} );
-			} else {
-				s.edit().putInt( "start_count", startCount + 1 ).apply();
-			}
-
-			AppUpdateManager manager = AppUpdateManagerFactory.create( getApplicationContext() );
-			manager.getAppUpdateInfo()
-					.addOnSuccessListener( appUpdateInfo->{
-						if ( appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ) {
-							manager.startUpdateFlow(
-									appUpdateInfo,
-									this,
-									AppUpdateOptions.newBuilder( AppUpdateType.FLEXIBLE ).build()
-							);
-						}
-					} );
+			showRatePromptIfNeeded();
+			checkForUpdatesAndStartFlow();
 		}
 
-		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
+		enableElPrimoEasterEgg();
+
+		registerBroadcastReceivers();
+
+		memoryEntries = MemoryReader.read( sharedPreferences );
+
+		addShortcutsToApp();
+
+		restoreResultIfSaved();
+
+		if ( sharedPreferences.getBoolean( "keep_screen_on", false ) ) {
+			getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
+		}
+	}
+
+	private void initializeDrawer() {
+		DrawerLayout drawer = findViewById( R.id.drawer_layout );
+		Toolbar toolbar = findViewById( R.id.toolbar );
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
+		drawer.setDrawerListener( toggle );
+		toggle.syncState();
+		mNavigationView = findViewById( R.id.nav_view );
+		mNavigationView.setBackgroundColor( Color.BLACK );
+		mNavigationView.setNavigationItemSelectedListener( menuItem->{
+			Map<Integer, String> map = Map.of(
+					R.id.nav_settings, AdditionalActivities.SETTINGS,
+					R.id.nav_history, AdditionalActivities.HISTORY,
+					R.id.nav_numbersysconverter, AdditionalActivities.NUMBER_SYSTEMS_CONVERTER,
+					R.id.nav_passgen, AdditionalActivities.PASSWORD_GENERATOR,
+					R.id.nav_numgen, AdditionalActivities.NUMBER_GENERATOR
+			);
+			int itemId = menuItem.getItemId();
+			if ( map.containsKey( itemId ) ) {
+				goToAdditionalActivities( map.get( itemId ) );
+			}
+			menuItem.setChecked( false );
+
+			drawer.closeDrawer( GravityCompat.START );
+			return true;
+		} );
+	}
+
+	private void checkForUpdatesAndStartFlow() {
+		AppUpdateManager manager = AppUpdateManagerFactory.create( getApplicationContext() );
+		manager.getAppUpdateInfo()
+				.addOnSuccessListener( appUpdateInfo->{
+					if ( appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ) {
+						manager.startUpdateFlow(
+								appUpdateInfo,
+								this,
+								AppUpdateOptions.newBuilder( AppUpdateType.FLEXIBLE ).build()
+						);
+					}
+				} );
+	}
+
+	private void showRatePromptIfNeeded() {
+		int startCount = sharedPreferences.getInt( "start_count", 0 );
+		if ( startCount >= 3 ) {
+			sharedPreferences.edit().putInt( "start_count", 0 ).apply();
+			ReviewManager reviewManager = ReviewManagerFactory.create( getApplicationContext() );
+			reviewManager.requestReviewFlow().addOnCompleteListener( task->{
+				if ( task.isSuccessful() ) {
+					reviewManager.launchReviewFlow( this, task.getResult() );
+				} else {
+					Log.i( TAG, "requestReviewFlow: " + task.getException() );
+				}
+			} );
+		} else {
+			sharedPreferences.edit().putInt( "start_count", startCount + 1 ).apply();
+		}
+	}
+
+	private void enableElPrimoEasterEgg() {
+		findViewById( R.id.btnDelAll ).setOnClickListener( v->{
 			GifImageView gifImageView = findViewById( R.id.gif_image_view_el_primo );
 			Drawable drawable = gifImageView.getDrawable();
 			if ( !( drawable instanceof GifDrawable ) ) {
-				return true;
+				return;
 			}
 			GifDrawable gifDrawable = (GifDrawable) drawable;
 			gifDrawable.reset();
@@ -653,16 +618,17 @@ public class Main2Activity extends ThemeActivity {
 					TimeUnit.SECONDS
 			);
 			Toast.makeText( this, "Ilyash guliash", Toast.LENGTH_SHORT ).show();
-			return true;
 		} );
+	}
 
-		registerBroadcastReceivers();
-
-		memoryEntries = MemoryReader.read( sharedPreferences );
-
-		addShortcutsToApp();
-
-		restoreResultIfSaved();
+	private void checkShortcutAction() {
+		Intent startIntent = getIntent();
+		if ( startIntent.getBooleanExtra( "shortcut_action", false ) ) {
+			String action = startIntent.getStringExtra( "to_" );
+			if ( action != null ) {
+				goToAdditionalActivities( action );
+			}
+		}
 	}
 
 	private void showWhatNew() {
@@ -682,8 +648,9 @@ public class Main2Activity extends ThemeActivity {
 			d.show();
 
 			TextView textView = d.findViewById( android.R.id.message );
-			if(textView != null)
+			if ( textView != null ) {
 				textView.setMovementMethod( LinkMovementMethod.getInstance() );
+			}
 		}
 	}
 
@@ -875,7 +842,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private String getCurrentExpression(){
+	private String getCurrentExpression() {
 		EditText editText = findViewById( R.id.ExampleStr );
 		Editable editable = editText.getText();
 		return editable == null ? "" : editable.toString();
@@ -883,15 +850,17 @@ public class Main2Activity extends ThemeActivity {
 
 	/**
 	 * Returns result from {@code lastCalculatedResult} or user-entered number
-	 * */
-	private Optional<NumberList> getCurrentCalculatedValue(){
-		if(lastCalculatedResult != null)
+	 */
+	private Optional<NumberList> getCurrentCalculatedValue() {
+		if ( lastCalculatedResult != null ) {
 			return Optional.of( lastCalculatedResult.getResult() );
+		}
 		String currentExpression = getCurrentExpression();
-		if(Utils.isNumber( currentExpression, mDecimalFormat.getDecimalFormatSymbols() )) {
+		if ( Utils.isNumber( currentExpression, mDecimalFormat.getDecimalFormatSymbols() ) ) {
 			Number parsedNumber = mDecimalFormat.parse( currentExpression, new ParsePosition( 0 ) );
-			if(parsedNumber == null)
+			if ( parsedNumber == null ) {
 				return Optional.empty();
+			}
 			BigDecimal bigDecimal = new BigDecimal( parsedNumber.toString() );
 			return Optional.of( NumberList.of( bigDecimal ) );
 		}
@@ -950,7 +919,7 @@ public class Main2Activity extends ThemeActivity {
 
 	public void onMemoryStoreButtonClick(View view) {
 		Optional<NumberList> optionalNumberList = getCurrentCalculatedValue();
-		optionalNumberList.ifPresent( result -> {
+		optionalNumberList.ifPresent( result->{
 			memoryEntries.set( 0, result );
 			MemorySaver.save( sharedPreferences, memoryEntries );
 		} );
@@ -1137,8 +1106,9 @@ public class Main2Activity extends ThemeActivity {
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
-				if(mode == CalculationMode.FULL_ANSWER)
+				if ( mode == CalculationMode.FULL_ANSWER ) {
 					saveToHistory( finalFormatted, res );
+				}
 			} catch (CalculationException e) {
 				if ( mode == CalculationMode.FULL_ANSWER ) {
 					int res = CalculatorWrapper.getStringResForErrorCode( e.getErrorCode() );
@@ -1159,10 +1129,10 @@ public class Main2Activity extends ThemeActivity {
 		startThreadController();
 	}
 
-	private void saveToHistory(String expression, NumberList result){
+	private void saveToHistory(String expression, NumberList result) {
 		String example = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
 
-		if( sharedPreferences.getBoolean( "save_history", true )) {
+		if ( sharedPreferences.getBoolean( "save_history", true ) ) {
 			HistoryManager.getInstance()
 					.put( new HistoryEntry( example, result.format() ) )
 					.save();
