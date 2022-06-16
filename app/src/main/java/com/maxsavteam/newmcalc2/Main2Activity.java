@@ -599,7 +599,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void enableElPrimoEasterEgg() {
-		findViewById( R.id.btnDelAll ).setOnClickListener( v->{
+		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
 			GifImageView gifImageView = findViewById( R.id.gif_image_view_el_primo );
 			Drawable drawable = gifImageView.getDrawable();
 			if ( !( drawable instanceof GifDrawable ) ) {
@@ -618,6 +618,7 @@ public class Main2Activity extends ThemeActivity {
 					TimeUnit.SECONDS
 			);
 			Toast.makeText( this, "Ilyash guliash", Toast.LENGTH_SHORT ).show();
+			return true;
 		} );
 	}
 

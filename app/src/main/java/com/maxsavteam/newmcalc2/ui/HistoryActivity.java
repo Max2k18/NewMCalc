@@ -34,6 +34,7 @@ import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.HistoryAdapter;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 import com.maxsavteam.newmcalc2.swipes.SwipeController;
 import com.maxsavteam.newmcalc2.swipes.SwipeControllerActions;
@@ -458,7 +459,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mEntries
 					.add( new HistoryEntry(
 							FormatUtils.formatExpression( entry.getExample(), formatter, FormatUtils.getRootLocaleFormatSymbols() ),
-							decimalFormat.format( new BigDecimal( entry.getAnswer() ) ),
+							CalculatorWrapper.getInstance().calculate( entry.getAnswer() ).format( decimalFormat ),
 							entry.getDescription()
 					) );
 		}
