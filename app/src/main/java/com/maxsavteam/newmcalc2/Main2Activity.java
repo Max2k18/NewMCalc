@@ -603,7 +603,7 @@ public class Main2Activity extends ThemeActivity {
 			GifImageView gifImageView = findViewById( R.id.gif_image_view_el_primo );
 			Drawable drawable = gifImageView.getDrawable();
 			if ( !( drawable instanceof GifDrawable ) ) {
-				return;
+				return true;
 			}
 			GifDrawable gifDrawable = (GifDrawable) drawable;
 			gifDrawable.reset();
