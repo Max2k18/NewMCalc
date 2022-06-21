@@ -15,7 +15,7 @@ public class FormatUtils {
 	public static DecimalFormat getDecimalFormat() {
 		DecimalFormat decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
 		decimalFormat.setParseBigDecimal( true );
-		decimalFormat.setMaximumFractionDigits( 8 );
+		decimalFormat.setMaximumFractionDigits( Integer.MAX_VALUE );
 		return decimalFormat;
 	}
 
