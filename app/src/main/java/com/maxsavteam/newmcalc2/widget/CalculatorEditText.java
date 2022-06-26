@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditText {
@@ -141,15 +143,20 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 				return decimalSeparator;
 			}
 			String formatted = mDecimalFormat.format( new BigDecimal( number ) );
-			if(number.startsWith( "." )){
-				formatted = formatted.substring( 1 ); // remove leading zero
-			} else if( Pattern.compile( "^[0-9]*\\.0*$" ).matcher( number ).matches() ){
-				int zerosCount = number.length() - number.indexOf( '.' ) - 1;
-				StringBuilder zerosSb = new StringBuilder();
-				for(int i = 0; i < zerosCount; i++)
-					zerosSb.append( "0" );
-				formatted += decimalSeparator + zerosSb;
+			if( number.contains( "." ) ){
+				if ( !formatted.contains( decimalSeparator ) )
+					formatted += decimalSeparator;
+				Matcher matcher = Pattern.compile( "(0+)$" ).matcher( number );
+				if(matcher.find()) {
+					int zerosCount = Objects.requireNonNull( matcher.group( 1 ) ).length();
+					StringBuilder zerosSb = new StringBuilder();
+					for (int i = 0; i < zerosCount; i++)
+						zerosSb.append( "0" );
+					formatted += zerosSb;
+				}
 			}
+			if(number.startsWith( "." ))
+				formatted = formatted.substring( 1 );
 			return formatted;
 		};
 		return FormatUtils.formatExpression( text, formatter, symbols );
