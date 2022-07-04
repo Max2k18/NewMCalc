@@ -95,6 +95,7 @@ import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
+import com.maxsavteam.newmcalc2.widget.NumpadView;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -714,14 +715,16 @@ public class Main2Activity extends ThemeActivity {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
 		factories.add( new NumPadFragmentFactory(
 				this,
+				this::onEqual,
 				mReturnBack,
+				this::insertDigit,
+				separator -> insertDot( null ),
 				this::justInsert,
 				this::insertBracket,
 				this::insertFunction,
 				this::insertBinaryOperatorOnClick,
 				this::insertSuffixOperatorOnClick
 		) );
-		//factories.add( new MathOperationsFragmentFactory() );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
@@ -1002,6 +1005,10 @@ public class Main2Activity extends ThemeActivity {
 
 	public void insertBracket(View v) {
 		justInsert( v );
+	}
+
+	private void insertDigit(int digit){
+		insert(String.valueOf( digit ));
 	}
 
 	public void justInsert(View v) {

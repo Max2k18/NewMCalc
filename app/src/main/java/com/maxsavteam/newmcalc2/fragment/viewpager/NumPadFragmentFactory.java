@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.fragment.viewpager;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.TypedValue;
@@ -14,18 +15,20 @@ import android.widget.ScrollView;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
+import com.maxsavteam.newmcalc2.widget.NumpadView;
 
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Locale;
 
 public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragmentFactory {
 
 	public static final int TYPE = 1;
 
 	private final Context context;
+	private final View.OnClickListener calculateButtonClickListener;
 	private final View.OnLongClickListener calculateButtonLongClickListener;
+	private final NumpadView.DigitButtonOnClickListener digitButtonOnClickListener;
+	private final NumpadView.SeparatorButtonOnClickListener separatorButtonOnClickListener;
 
 	private ArrayList<ButtonConfiguration> buttonConfigurations;
 
@@ -35,15 +38,22 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 	private final View.OnClickListener insertBinaryOperatorOnClick;
 	private final View.OnClickListener insertSuffixOperatorOnClick;
 
+	// TODO: 04.07.2022 refactor
 	public NumPadFragmentFactory(Context context,
+								 View.OnClickListener calculateButtonClickListener,
 								 View.OnLongClickListener calculateButtonLongClickListener,
+								 NumpadView.DigitButtonOnClickListener digitButtonOnClickListener,
+								 NumpadView.SeparatorButtonOnClickListener separatorButtonOnClickListener,
 								 View.OnClickListener justInsertOnClick,
 								 View.OnClickListener insertBracketsOnClick,
 								 View.OnClickListener insertFunctionOnClick,
 								 View.OnClickListener insertBinaryOperatorOnClick,
 								 View.OnClickListener insertSuffixOperatorOnClick) {
 		this.context = context;
+		this.calculateButtonClickListener = calculateButtonClickListener;
 		this.calculateButtonLongClickListener = calculateButtonLongClickListener;
+		this.digitButtonOnClickListener = digitButtonOnClickListener;
+		this.separatorButtonOnClickListener = separatorButtonOnClickListener;
 		this.justInsertOnClick = justInsertOnClick;
 		this.insertBracketsOnClick = insertBracketsOnClick;
 		this.insertFunctionOnClick = insertFunctionOnClick;
@@ -110,13 +120,11 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 	public void bindView(View view, int parentHeight) {
 		setupButtonConfigurations();
 
-		Button b = view.findViewById( R.id.btnCalc );
-		b.setOnLongClickListener( calculateButtonLongClickListener );
-
-		Locale locale = context.getResources().getConfiguration().getLocales().get( 0 );
-		DecimalFormatSymbols symbols = new DecimalFormatSymbols( locale );
-		b = view.findViewById( R.id.btnDot );
-		b.setText( String.valueOf( symbols.getDecimalSeparator() ) );
+		NumpadView numpadView = view.findViewById( R.id.numpad_view );
+		numpadView.setCustomButton( createCalcButton(), NumpadView.CustomButtonPosition.RIGHT );
+		numpadView.setDigitButtonOnClickListener( digitButtonOnClickListener );
+		numpadView.setSeparatorOnClickListener( separatorButtonOnClickListener );
+		numpadView.updateLocale();
 
 		LinearLayout layout = view.findViewById( R.id.num_pad_scroll_layout );
 		int buttonsPadding = (int) TypedValue
@@ -149,6 +157,22 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 		}
 
 		setupScrollViewArrows( view );
+	}
+
+	private Button createCalcButton() {
+		Button button = new Button( context, null, 0, R.style.NumPadButtonStyle );
+		button.setText( R.string.eq );
+		button.setTextColor( getColorFromAttribute( R.attr.colorAccent ) );
+		button.setOnClickListener( calculateButtonClickListener );
+		button.setOnLongClickListener( calculateButtonLongClickListener );
+		return button;
+	}
+
+	private int getColorFromAttribute(int attrId) {
+		TypedArray array = context.getTheme().obtainStyledAttributes( new int[]{ attrId } );
+		int color = array.getColor( 0, 0 );
+		array.recycle();
+		return color;
 	}
 
 	private void setupScrollViewArrows(View view) {
