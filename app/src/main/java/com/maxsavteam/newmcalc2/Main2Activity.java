@@ -95,7 +95,6 @@ import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
-import com.maxsavteam.newmcalc2.widget.NumpadView;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -348,7 +347,7 @@ public class Main2Activity extends ThemeActivity {
 					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator )
 			);
 			List<ShortcutInfo> shortcuts = new ArrayList<>();
-			for( Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig ) {
+			for (Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig) {
 				intent.putExtra( "to_", shortcutConfig.first );
 				ShortcutInfo shortcut = new ShortcutInfo.Builder( this, shortcutConfig.first )
 						.setShortLabel( getString( shortcutConfig.third ) )
@@ -408,8 +407,9 @@ public class Main2Activity extends ThemeActivity {
 		}
 		ActivityResultLauncher<Intent> launcher = launcherMap.get( where );
 		Class<?> activity = activityMap.get( where );
-		if(launcher != null)
+		if ( launcher != null ) {
 			launcher.launch( new Intent( this, activity ) );
+		}
 	}
 
 	private void unregisterAllBroadcasts() {
@@ -713,18 +713,17 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
-		factories.add( new NumPadFragmentFactory(
-				this,
-				this::onEqual,
-				mReturnBack,
-				this::insertDigit,
-				separator -> insertDot( null ),
-				this::justInsert,
-				this::insertBracket,
-				this::insertFunction,
-				this::insertBinaryOperatorOnClick,
-				this::insertSuffixOperatorOnClick
-		) );
+		NumPadFragmentFactory.Configuration configuration = new NumPadFragmentFactory.Configuration( this )
+				.setCalculateButtonClickListener( v->calculate( CalculationMode.FULL_ANSWER ) )
+				.setCalculateButtonLongClickListener( mReturnBack )
+				.setDigitButtonClickListener( digit -> insert( String.valueOf( digit ) ) )
+				.setSeparatorButtonClickListener( separator -> insertDecimalSeparator() )
+				.setBracketButtonClickListener( this::insert )
+				.setFunctionButtonClickListener( this::insertFunction )
+				.setBinaryOperatorButtonClickListener( this::insertBinaryOperator )
+				.setSuffixOperatorButtonClickListener( this::insertSuffixOperator )
+				.setOnJustInsertButtonClickListener( this::insert );
+		factories.add( new NumPadFragmentFactory( configuration ) );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
@@ -954,10 +953,6 @@ public class Main2Activity extends ThemeActivity {
 		insert( s );
 	}
 
-	public void insertSuffixOperatorOnClick(View v) {
-		insertSuffixOperator( ( (Button) v ).getText().toString() );
-	}
-
 	private void insertSuffixOperator(String s) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		Editable e = editText.getText();
@@ -986,9 +981,8 @@ public class Main2Activity extends ThemeActivity {
 				|| s.equals( getString( R.string.euler_constant ) );
 	}
 
-	public void insertFunction(View v) {
+	public void insertFunction(String functionName) {
 		EditText editText = findViewById( R.id.ExampleStr );
-		String functionName = ( (Button) v ).getText().toString();
 		String currentExpression = editText.getText().toString();
 		int selection = editText.getSelectionStart();
 		if ( !currentExpression.isEmpty() && selection > 0 ) {
@@ -1003,19 +997,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	public void insertBracket(View v) {
-		justInsert( v );
-	}
-
-	private void insertDigit(int digit){
-		insert(String.valueOf( digit ));
-	}
-
-	public void justInsert(View v) {
-		insert( ( (Button) v ).getText().toString() );
-	}
-
-	public void insertDot(View v) {
+	private void insertDecimalSeparator() {
 		Locale locale = getResources().getConfiguration().getLocales().get( 0 );
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( locale );
 		char decimalSeparator = decimalFormatSymbols.getDecimalSeparator();
@@ -1072,10 +1054,6 @@ public class Main2Activity extends ThemeActivity {
 		EditText editText = findViewById( R.id.ExampleStr );
 		editText.setText( "" );
 		editText.setSelection( 0 );
-	}
-
-	public void onEqual(View v) {
-		calculate( CalculationMode.FULL_ANSWER );
 	}
 
 	private void calculate(CalculationMode mode) {
