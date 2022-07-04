@@ -65,26 +65,6 @@ public class SettingsActivity extends ThemeActivity {
 			}
 	);
 
-	private final SharedPreferences.OnSharedPreferenceChangeListener onSharedPreferenceChangeListener = (sharedPreferences, key)->{
-		if(key.equals( getString( R.string.pref_theme ) )){
-			restartApp();
-		}else if(key.equals( getString( R.string.pref_save_history ) )){
-			boolean value = sharedPreferences.getBoolean( key, true );
-			if(!value){
-				AlertDialog.Builder builder = new CustomAlertDialogBuilder( this )
-						.setTitle( R.string.warning )
-						.setMessage( R.string.settings_save_history_agreement )
-						.setNegativeButton( R.string.no, (dialog, which) ->{
-							sharedPreferences.edit().putBoolean( getString( R.string.pref_save_history ), true ).apply();
-							dialog.cancel();
-						} )
-						.setPositiveButton( R.string.yes, (dialog, which) ->dialog.cancel() )
-						.setCancelable( false );
-				runOnUiThread( builder::show );
-			}
-		}
-	};
-
 	private final Preference.OnPreferenceChangeListener onPreferenceChangeListener = (preference, newValue)->{
 		String key = preference.getKey();
 		SharedPreferences sharedPreferences = preference.getSharedPreferences();
@@ -137,8 +117,6 @@ public class SettingsActivity extends ThemeActivity {
 		displayHomeAsUp();
 
 		SettingsPreferencesFragment fragment = new SettingsPreferencesFragment();
-		PreferenceManager.getDefaultSharedPreferences( this )
-						.registerOnSharedPreferenceChangeListener( onSharedPreferenceChangeListener );
 		getSupportFragmentManager()
 				.beginTransaction()
 				.replace( R.id.fl_settings, fragment )
