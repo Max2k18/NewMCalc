@@ -22,10 +22,12 @@ public class NumpadView extends LinearLayout {
 
 	protected static final int LAST_ROW_ID = View.generateViewId();
 	private static final int SEPARATOR_BUTTON_ID = View.generateViewId();
+	private static final int MINUS_BUTTON_ID = View.generateViewId();
 
 	private final List<Button> digitButtons = new ArrayList<>();
 
 	private boolean isDecimalSeparatorEnabled;
+	private boolean isSigned;
 
 	public NumpadView(Context context) {
 		this( context, null );
@@ -48,6 +50,7 @@ public class NumpadView extends LinearLayout {
 				0, 0
 		);
 		isDecimalSeparatorEnabled = array.getBoolean( R.styleable.NumpadView_showDecimalSeparator, true );
+		isSigned = array.getBoolean( R.styleable.NumpadView_signed, false );
 
 		array.recycle();
 
@@ -80,7 +83,12 @@ public class NumpadView extends LinearLayout {
 		row.setLayoutParams( getDefaultParamsForElements() );
 		row.setId( LAST_ROW_ID );
 
-		row.addView( createSpace() );
+		Button minusButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
+		minusButton.setText( "-" );
+		minusButton.setId( MINUS_BUTTON_ID );
+		row.addView( minusButton, getDefaultParamsForElements() );
+		if(!isSigned)
+			minusButton.setVisibility( INVISIBLE );
 
 		Button zeroButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 		zeroButton.setLayoutParams( getDefaultParamsForElements() );
@@ -99,12 +107,6 @@ public class NumpadView extends LinearLayout {
 		container.addView( row );
 	}
 
-	private Space createSpace(){
-		Space space = new Space( getContext() );
-		space.setLayoutParams( getDefaultParamsForElements() );
-		return space;
-	}
-
 	protected LayoutParams getDefaultParamsForElements() {
 		return new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1 );
 	}
@@ -116,6 +118,23 @@ public class NumpadView extends LinearLayout {
 			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( VISIBLE );
 		else
 			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( INVISIBLE );
+	}
+
+	public void setSigned(boolean isSigned){
+		this.isSigned = isSigned;
+		findViewById( MINUS_BUTTON_ID ).setVisibility( VISIBLE );
+	}
+
+	public void setMinusButtonOnClickListener(MinusButtonOnClickListener listener){
+		Button minusButton = findViewById( MINUS_BUTTON_ID );
+		if(listener == null)
+			minusButton.setOnClickListener( null );
+		else
+			minusButton.setOnClickListener( v->listener.onClick() );
+	}
+
+	public interface MinusButtonOnClickListener {
+		void onClick();
 	}
 
 	public void setDigitButtonOnClickListener(DigitButtonOnClickListener onClickListener) {

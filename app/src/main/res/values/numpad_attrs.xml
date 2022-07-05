@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="NumpadView">
         <attr name="showDecimalSeparator" format="boolean" />
+        <attr name="signed" format="boolean" />
     </declare-styleable>
 </resources>
