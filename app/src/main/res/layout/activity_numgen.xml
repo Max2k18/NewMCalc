@@ -8,7 +8,6 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        app:title="@string/number_generator"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:theme="@style/ActionBarStyle"
@@ -16,96 +15,100 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        app:title="@string/number_generator" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/select_number"
-            android:textAlignment="center"
-            android:textSize="@dimen/num_gen_text_size"
-            android:layout_marginBottom="15sp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginBottom="15sp"
                 android:gravity="center"
-                android:text="@string/from"
+                android:text="@string/select_number"
                 android:textAlignment="center"
-                android:textSize="@dimen/num_gen_text_size" />
-
-            <EditText
-                android:id="@+id/edTextMin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
                 android:textSize="@dimen/num_gen_text_size"
-                android:textColor="?textColor"
-                android:backgroundTint="@color/colorAccent"
-                android:inputType="numberSigned|number" />
+                android:textStyle="bold" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:gravity="center"
-                android:text="@string/to"
-                android:layout_marginStart="10dp"
-                android:textAlignment="center"
-                android:textSize="@dimen/num_gen_text_size" />
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/edTextMax"
-                android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/from"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/num_gen_text_size" />
+
+                <EditText
+                    android:id="@+id/edTextMin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorAccent"
+                    android:ems="10"
+                    android:inputType="numberSigned|number"
+                    android:textColor="?textColor"
+                    android:textSize="@dimen/num_gen_text_size" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/to"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/num_gen_text_size" />
+
+                <EditText
+                    android:id="@+id/edTextMax"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorAccent"
+                    android:ems="10"
+                    android:importantForAutofill="no"
+                    android:inputType="numberSigned|number"
+                    android:textColor="?textColor"
+                    android:textSize="@dimen/num_gen_text_size" />
+
+            </LinearLayout>
+
+            <TextSwitcher
+                android:id="@+id/textSwitcherNumGen"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:textColor="?textColor"
-                android:textSize="@dimen/num_gen_text_size"
-                android:backgroundTint="@color/colorAccent"
-                android:inputType="numberSigned|number"
-                android:importantForAutofill="no" />
+                android:layout_marginTop="15dp" />
 
         </LinearLayout>
 
-        <TextSwitcher
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:id="@+id/textSwitcherNumGen" />
-
-        <Button
-            android:id="@+id/btnGen"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/colorAccent"
-            android:text="@string/generate"
-            android:textAlignment="center"
-            android:textColor="@color/white" />
+        <com.maxsavteam.newmcalc2.widget.FullNumpadView
+            android:id="@+id/numgen_numpad"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.maxsavteam.newmcalc2.widget;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,27 +27,32 @@ public class NumpadView extends LinearLayout {
 
 	private CustomButtonPosition currentCustomButtonPosition = null;
 
+	private boolean isDecimalSeparatorEnabled;
+
 	public NumpadView(Context context) {
-		super( context );
-		init();
+		this( context, null );
 	}
 
 	public NumpadView(Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs) {
-		super( context, attrs );
-		init();
+		this( context, attrs, 0 );
 	}
 
 	public NumpadView(Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs, int defStyleAttr) {
-		super( context, attrs, defStyleAttr );
-		init();
+		this( context, attrs, defStyleAttr, 0 );
 	}
 
 	public NumpadView(Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super( context, attrs, defStyleAttr, defStyleRes );
-		init();
-	}
 
-	private void init() {
+		TypedArray array = context.getTheme().obtainStyledAttributes(
+				attrs,
+				R.styleable.NumpadView,
+				0, 0
+		);
+		isDecimalSeparatorEnabled = array.getBoolean( R.styleable.NumpadView_showDecimalSeparator, true );
+
+		array.recycle();
+
 		LinearLayout container = new LinearLayout( getContext() );
 		container.setOrientation( VERTICAL );
 		container.setLayoutParams( new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT ) );
@@ -76,9 +82,7 @@ public class NumpadView extends LinearLayout {
 		row.setLayoutParams( getDefaultParamsForElements() );
 		row.setId( LAST_ROW_ID );
 
-		Space space = new Space( getContext() );
-		space.setLayoutParams( getDefaultParamsForElements() );
-		row.addView( space );
+		row.addView( createSpace() );
 
 		Button zeroButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 		zeroButton.setLayoutParams( getDefaultParamsForElements() );
@@ -91,12 +95,29 @@ public class NumpadView extends LinearLayout {
 		separatorButton.setLayoutParams( getDefaultParamsForElements() );
 		updateSeparatorButtonText(separatorButton);
 		row.addView( separatorButton );
+		if(!isDecimalSeparatorEnabled)
+			separatorButton.setVisibility( INVISIBLE );
 
 		container.addView( row );
 	}
 
+	private Space createSpace(){
+		Space space = new Space( getContext() );
+		space.setLayoutParams( getDefaultParamsForElements() );
+		return space;
+	}
+
 	private LayoutParams getDefaultParamsForElements() {
 		return new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1 );
+	}
+
+	public void setDecimalSeparatorEnabled(boolean decimalSeparatorEnabled) {
+		isDecimalSeparatorEnabled = decimalSeparatorEnabled;
+
+		if(isDecimalSeparatorEnabled)
+			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( VISIBLE );
+		else
+			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( INVISIBLE );
 	}
 
 	public void setDigitButtonOnClickListener(DigitButtonOnClickListener onClickListener) {
