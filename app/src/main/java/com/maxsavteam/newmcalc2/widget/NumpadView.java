@@ -122,7 +122,10 @@ public class NumpadView extends LinearLayout {
 
 	public void setSigned(boolean isSigned){
 		this.isSigned = isSigned;
-		findViewById( MINUS_BUTTON_ID ).setVisibility( VISIBLE );
+		if(isSigned)
+			findViewById( MINUS_BUTTON_ID ).setVisibility( VISIBLE );
+		else
+			findViewById( MINUS_BUTTON_ID ).setVisibility( INVISIBLE );
 	}
 
 	public void setMinusButtonOnClickListener(MinusButtonOnClickListener listener){

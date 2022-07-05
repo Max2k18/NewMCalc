@@ -58,6 +58,15 @@ public class FullNumpadView extends LinearLayout {
 
 		numpadView = createNumpadView();
 
+		TypedArray array = context.getTheme().obtainStyledAttributes(
+				attrs,
+				R.styleable.FullNumpadView,
+				0, 0
+		) ;
+		setSigned( array.getBoolean( R.styleable.FullNumpadView_signed, false ) );
+
+		array.recycle();
+
 		setOrientation( HORIZONTAL );
 		addView( numpadView, new LayoutParams( 0, LayoutParams.MATCH_PARENT, 1 ) );
 		addView( buttonsLayout, new LayoutParams( 0, LayoutParams.MATCH_PARENT, 0.2f ) );
@@ -142,8 +151,25 @@ public class FullNumpadView extends LinearLayout {
 			}
 			insert( String.valueOf( digit ), editText );
 		} );
+		numpadView.setMinusButtonOnClickListener( ()->{
+			EditText editText = findFocusedEditText();
+			if ( editText == null ) {
+				return;
+			}
+			insertMinus( editText );
+		} );
 
 		return numpadView;
+	}
+
+	private void insertMinus(EditText editText){
+		String text = editText.getText().toString();
+		if(text.contains( "-" ))
+			return;
+		int selection = editText.getSelectionStart();
+		if(selection > 0)
+			return;
+		insert( "-", editText );
 	}
 
 	private void insert(String text, EditText editText) {
@@ -182,6 +208,10 @@ public class FullNumpadView extends LinearLayout {
 		var params = createCommonLayoutParams();
 		params.topMargin = 0;
 		buttonsLayout.addView( button, params );
+	}
+
+	public void setSigned(boolean isSigned){
+		numpadView.setSigned( isSigned );
 	}
 
 }

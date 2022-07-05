@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="signed" format="boolean" />
     <declare-styleable name="NumpadView">
         <attr name="showDecimalSeparator" format="boolean" />
-        <attr name="signed" format="boolean" />
+        <attr name="signed" />
+    </declare-styleable>
+
+    <declare-styleable name="FullNumpadView">
+        <attr name="signed" />
     </declare-styleable>
 </resources>
