@@ -64,6 +64,7 @@ public class FullNumpadView extends LinearLayout {
 				0, 0
 		) ;
 		setSigned( array.getBoolean( R.styleable.FullNumpadView_signed, false ) );
+		setDecimalSeparatorEnabled( array.getBoolean( R.styleable.FullNumpadView_showDecimalSeparator, false ) );
 
 		array.recycle();
 
@@ -158,8 +159,22 @@ public class FullNumpadView extends LinearLayout {
 			}
 			insertMinus( editText );
 		} );
+		numpadView.setSeparatorOnClickListener( separator -> {
+			EditText editText = findFocusedEditText();
+			if ( editText == null ) {
+				return;
+			}
+			insertSeparator( separator, editText );
+		} );
 
 		return numpadView;
+	}
+
+	private void insertSeparator(char separator, EditText editText){
+		String text = editText.getText().toString();
+		if(text.contains( String.valueOf( separator ) ))
+			return;
+		insert( String.valueOf( separator ), editText );
 	}
 
 	private void insertMinus(EditText editText){
@@ -212,6 +227,10 @@ public class FullNumpadView extends LinearLayout {
 
 	public void setSigned(boolean isSigned){
 		numpadView.setSigned( isSigned );
+	}
+
+	public void setDecimalSeparatorEnabled(boolean isDecimalSeparatorEnabled){
+		numpadView.setDecimalSeparatorEnabled( isDecimalSeparatorEnabled );
 	}
 
 }
