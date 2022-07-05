@@ -30,34 +30,22 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:gravity="center"
+            android:layout_weight="0.4"
+            android:gravity="center_horizontal"
             android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="15sp"
-                android:gravity="center"
-                android:text="@string/select_number"
-                android:textAlignment="center"
-                android:textSize="@dimen/num_gen_text_size"
-                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:gravity="center"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="20dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/from"
+                    android:text="@string/numgen_minimum"
                     android:textAlignment="center"
                     android:textSize="@dimen/num_gen_text_size" />
 
@@ -68,17 +56,24 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/colorAccent"
                     android:ems="10"
+                    android:gravity="end"
                     android:inputType="numberSigned|number"
                     android:textColor="?textColor"
                     android:textSize="@dimen/num_gen_text_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="20dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/to"
+                    android:text="@string/numgen_maximum"
                     android:textAlignment="center"
                     android:textSize="@dimen/num_gen_text_size" />
 
@@ -89,6 +84,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/colorAccent"
                     android:ems="10"
+                    android:gravity="end"
                     android:importantForAutofill="no"
                     android:inputType="numberSigned|number"
                     android:textColor="?textColor"
@@ -96,11 +92,26 @@
 
             </LinearLayout>
 
-            <TextSwitcher
-                android:id="@+id/textSwitcherNumGen"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp" />
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/numgen_generated_number"
+                    android:textSize="@dimen/num_gen_text_size" />
+
+                <TextSwitcher
+                    android:id="@+id/textSwitcherNumGen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -108,7 +119,7 @@
             android:id="@+id/numgen_numpad"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.5" />
+            android:layout_weight="0.6" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

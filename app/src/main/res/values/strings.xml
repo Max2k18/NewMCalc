@@ -117,4 +117,7 @@
     <string name="invalid_value_for_tangent_or_cotangent">Invalid value for tangent or cotangent</string>
     <string name="not_a_number">Not a number</string>
     <string name="settings_save_last_result_on_close">Save the last result after exiting the application</string>
+    <string name="numgen_minimum">Minimum:</string>
+    <string name="numgen_maximum">Maximum:</string>
+    <string name="numgen_generated_number">Generated number:</string>
 </resources>

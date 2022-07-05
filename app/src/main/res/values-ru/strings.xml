@@ -99,4 +99,7 @@
     <string name="invalid_value_for_tangent_or_cotangent">Неверное значения для тангенса или котангенса</string>
     <string name="not_a_number">Не число</string>
     <string name="settings_save_last_result_on_close">Сохранять последний результат после выхода из приложения</string>
+    <string name="numgen_minimum">Минимум:</string>
+    <string name="numgen_maximum">Максимум:</string>
+    <string name="numgen_generated_number">Сгенерированное число:</string>
 </resources>
