@@ -25,8 +25,6 @@ public class NumpadView extends LinearLayout {
 
 	private final List<Button> digitButtons = new ArrayList<>();
 
-	private CustomButtonPosition currentCustomButtonPosition = null;
-
 	private boolean isDecimalSeparatorEnabled;
 
 	public NumpadView(Context context) {
@@ -162,27 +160,6 @@ public class NumpadView extends LinearLayout {
 		Locale locale = getContext().getResources().getConfiguration().getLocales().get( 0 );
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols( locale );
 		separatorButton.setText( Character.toString( symbols.getDecimalSeparator() ) );
-	}
-
-	public void setCustomButton(Button button, CustomButtonPosition position){
-		LinearLayout lastRowLayout = findViewById( LAST_ROW_ID );
-
-		if(currentCustomButtonPosition == null || currentCustomButtonPosition == CustomButtonPosition.LEFT)
-			lastRowLayout.removeViewAt( 0 );
-		else
-			lastRowLayout.removeViewAt( 2 );
-
-		currentCustomButtonPosition = position;
-
-		if(position == CustomButtonPosition.RIGHT)
-			lastRowLayout.addView( button );
-		else
-			lastRowLayout.addView( button, 0 );
-	}
-
-	public enum CustomButtonPosition {
-		LEFT,
-		RIGHT
 	}
 
 }
