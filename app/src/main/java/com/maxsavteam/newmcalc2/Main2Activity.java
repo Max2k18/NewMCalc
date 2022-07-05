@@ -15,7 +15,6 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
@@ -62,6 +61,7 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.haseebazeem.sampleGif.GifImageView;
 import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculationException;
@@ -109,9 +109,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import pl.droidsonroids.gif.GifDrawable;
-import pl.droidsonroids.gif.GifImageView;
 
 public class Main2Activity extends ThemeActivity {
 
@@ -347,7 +344,7 @@ public class Main2Activity extends ThemeActivity {
 					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator )
 			);
 			List<ShortcutInfo> shortcuts = new ArrayList<>();
-			for( Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig ) {
+			for (Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig) {
 				intent.putExtra( "to_", shortcutConfig.first );
 				ShortcutInfo shortcut = new ShortcutInfo.Builder( this, shortcutConfig.first )
 						.setShortLabel( getString( shortcutConfig.third ) )
@@ -407,8 +404,9 @@ public class Main2Activity extends ThemeActivity {
 		}
 		ActivityResultLauncher<Intent> launcher = launcherMap.get( where );
 		Class<?> activity = activityMap.get( where );
-		if(launcher != null)
+		if ( launcher != null ) {
 			launcher.launch( new Intent( this, activity ) );
+		}
 	}
 
 	private void unregisterAllBroadcasts() {
@@ -599,20 +597,15 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void enableElPrimoEasterEgg() {
+		GifImageView imageView = findViewById( R.id.gif_image_view_el_primo );
+		imageView.stop();
 		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
-			GifImageView gifImageView = findViewById( R.id.gif_image_view_el_primo );
-			Drawable drawable = gifImageView.getDrawable();
-			if ( !( drawable instanceof GifDrawable ) ) {
-				return true;
-			}
-			GifDrawable gifDrawable = (GifDrawable) drawable;
-			gifDrawable.reset();
-			gifDrawable.start();
-			gifImageView.setVisibility( View.VISIBLE );
+			imageView.setVisibility( View.VISIBLE );
+			imageView.start();
 			Executors.newSingleThreadScheduledExecutor().schedule(
 					()->runOnUiThread( ()->{
-						gifImageView.setVisibility( View.GONE );
-						gifDrawable.stop();
+						imageView.stop();
+						imageView.setVisibility( View.GONE );
 					} ),
 					3,
 					TimeUnit.SECONDS

@@ -75,7 +75,7 @@ static String getBuildTime() {
 dependencies {
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
 
-    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
+    implementation 'com.github.haseebazeem15:gif-image-view:1.5'
 
     implementation 'com.google.firebase:firebase-core:21.0.0'
     implementation 'com.google.firebase:firebase-perf:20.1.0'
