@@ -17,6 +17,7 @@ import android.widget.ScrollView;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
+import com.maxsavteam.newmcalc2.widget.CalculatorNumpadView;
 import com.maxsavteam.newmcalc2.widget.NumpadView;
 
 import java.util.ArrayList;
@@ -110,8 +111,8 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 	public void bindView(View view, int parentHeight) {
 		setupButtonConfigurations();
 
-		NumpadView numpadView = view.findViewById( R.id.numpad_view );
-		numpadView.setCustomButton( createCalcButton(), NumpadView.CustomButtonPosition.RIGHT );
+		CalculatorNumpadView numpadView = view.findViewById( R.id.numpad_view );
+		numpadView.setCalcButton( createCalcButton() );
 		numpadView.setDigitButtonOnClickListener( configuration.digitButtonClickListener );
 		numpadView.setSeparatorOnClickListener( configuration.separatorButtonClickListener );
 		numpadView.updateLocale();

@@ -20,7 +20,7 @@ import java.util.Locale;
 
 public class NumpadView extends LinearLayout {
 
-	private static final int LAST_ROW_ID = View.generateViewId();
+	protected static final int LAST_ROW_ID = View.generateViewId();
 	private static final int SEPARATOR_BUTTON_ID = View.generateViewId();
 
 	private final List<Button> digitButtons = new ArrayList<>();
@@ -76,7 +76,7 @@ public class NumpadView extends LinearLayout {
 		addView( container );
 	}
 
-	private void addLastRow(LinearLayout container) {
+	protected void addLastRow(LinearLayout container) {
 		LinearLayout row = new LinearLayout( getContext() );
 		row.setOrientation( HORIZONTAL );
 		row.setLayoutParams( getDefaultParamsForElements() );
@@ -107,7 +107,7 @@ public class NumpadView extends LinearLayout {
 		return space;
 	}
 
-	private LayoutParams getDefaultParamsForElements() {
+	protected LayoutParams getDefaultParamsForElements() {
 		return new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1 );
 	}
 
