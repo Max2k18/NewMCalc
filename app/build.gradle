@@ -95,6 +95,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.4.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.preference:preference:1.2.0'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     implementation 'com.github.MaxSavTeam:ExceptionHandler-Library:1.1.2'
     implementation "com.maxsavteam:calculator-core:$calculatorCoreVersion"
@@ -102,5 +103,9 @@ dependencies {
     implementation 'org.jetbrains:annotations:23.0.0'
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
 }

@@ -17,6 +17,7 @@ public class ButtonWithDropdown extends AppCompatButton {
 	private Context mContext;
 	private Object[] mElements = new Object[]{};
 	private OnItemSelectedListener mOnItemSelectedListener;
+	private int selectedItem = 0;
 
 	public ButtonWithDropdown(Context context) {
 		super( context );
@@ -55,7 +56,12 @@ public class ButtonWithDropdown extends AppCompatButton {
 	}
 
 	public void setSelection(int i){
+		selectedItem = i;
 		setText( String.valueOf( mElements[i] ) );
+	}
+
+	public int getSelectedItem() {
+		return selectedItem;
 	}
 
 	@Override
@@ -73,6 +79,7 @@ public class ButtonWithDropdown extends AppCompatButton {
 				menu.add( Menu.NONE, i + 1, Menu.NONE, String.valueOf( mElements[i] ) );
 			}
 			popupMenu.setOnMenuItemClickListener( item->{
+				selectedItem = item.getItemId() - 1;
 				if(mOnItemSelectedListener != null){
 					mOnItemSelectedListener.onItemSelected( item.getItemId() - 1 );
 				}

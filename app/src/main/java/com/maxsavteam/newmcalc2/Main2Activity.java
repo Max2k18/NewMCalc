@@ -78,6 +78,7 @@ import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.memory.MemoryReader;
 import com.maxsavteam.newmcalc2.memory.MemorySaver;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
+import com.maxsavteam.newmcalc2.ui.CurrencyConverterActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
 import com.maxsavteam.newmcalc2.ui.NumberGeneratorActivity;
@@ -380,11 +381,12 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private static class AdditionalActivities {
-		public static final String HISTORY = "history",
-				SETTINGS = "settings",
-				NUMBER_GENERATOR = "numgen",
-				PASSWORD_GENERATOR = "passgen",
-				NUMBER_SYSTEMS_CONVERTER = "bin";
+		public static final String HISTORY = "history";
+		public static final String SETTINGS = "settings";
+		public static final String NUMBER_GENERATOR = "numgen";
+		public static final String PASSWORD_GENERATOR = "passgen";
+		public static final String NUMBER_SYSTEMS_CONVERTER = "bin";
+		public static final String CURRENCY_CONVERTER = "cc";
 	}
 
 	private void goToAdditionalActivities(String where) {
@@ -393,14 +395,16 @@ public class Main2Activity extends ThemeActivity {
 				AdditionalActivities.NUMBER_GENERATOR, mDefaultActivityLauncher,
 				AdditionalActivities.PASSWORD_GENERATOR, mDefaultActivityLauncher,
 				AdditionalActivities.HISTORY, mHistoryLauncher,
-				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, mDefaultActivityLauncher
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, mDefaultActivityLauncher,
+				AdditionalActivities.CURRENCY_CONVERTER, mDefaultActivityLauncher
 		);
 		Map<String, Class<?>> activityMap = Map.of(
 				AdditionalActivities.SETTINGS, SettingsActivity.class,
 				AdditionalActivities.NUMBER_GENERATOR, NumberGeneratorActivity.class,
 				AdditionalActivities.PASSWORD_GENERATOR, PasswordGeneratorActivity.class,
 				AdditionalActivities.HISTORY, HistoryActivity.class,
-				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, NumberSystemConverterActivity.class
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, NumberSystemConverterActivity.class,
+				AdditionalActivities.CURRENCY_CONVERTER, CurrencyConverterActivity.class
 		);
 		if ( !launcherMap.containsKey( where ) || !activityMap.containsKey( where ) ) {
 			return;
@@ -555,7 +559,8 @@ public class Main2Activity extends ThemeActivity {
 					R.id.nav_history, AdditionalActivities.HISTORY,
 					R.id.nav_numbersysconverter, AdditionalActivities.NUMBER_SYSTEMS_CONVERTER,
 					R.id.nav_passgen, AdditionalActivities.PASSWORD_GENERATOR,
-					R.id.nav_numgen, AdditionalActivities.NUMBER_GENERATOR
+					R.id.nav_numgen, AdditionalActivities.NUMBER_GENERATOR,
+					R.id.nav_cc, AdditionalActivities.CURRENCY_CONVERTER
 			);
 			int itemId = menuItem.getItemId();
 			if ( map.containsKey( itemId ) ) {

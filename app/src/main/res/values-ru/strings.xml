@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="lang_code">ru</string>
+
     <string name="settings">Настройки</string>
     <string name="from">от</string>
     <string name="to">до</string>
@@ -102,4 +105,6 @@
     <string name="numgen_minimum">Минимум:</string>
     <string name="numgen_maximum">Максимум:</string>
     <string name="numgen_generated_number">Сгенерированное число:</string>
+    <string name="currency_converter">Конвертер валют</string>
+    <string name="currency_converter_status_text">Курс валют на %1$s</string>
 </resources>

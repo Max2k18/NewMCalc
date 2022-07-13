@@ -14,11 +14,15 @@
         android:roundIcon="@drawable/ic_mcalc"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".ui.CurrencyConverterActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.AfterCrashActivity"
             android:exported="true" />
         <activity android:name=".ui.VariableEditorActivity" />
-        <activity android:name=".ui.PasswordGeneratorActivity"
-            android:configChanges="orientation|screenSize"/>
+        <activity
+            android:name=".ui.PasswordGeneratorActivity"
+            android:configChanges="orientation|screenSize" />
         <activity android:name=".ui.AboutAppActivity" />
         <activity android:name=".ui.base.ThemeActivity" />
         <activity
