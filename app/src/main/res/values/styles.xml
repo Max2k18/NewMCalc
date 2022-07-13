@@ -27,6 +27,9 @@
 
         <item name="android:navigationBarColor">?windowBackgroundColor</item>
 
+        <item name="fullNumpadViewButtonsBackgroundColor">@color/very_light_gray</item>
+        <item name="fullNumpadViewButtonsRippleColor">@color/ripple_color</item>
+
     </style>
 
     <style name="AppTheme.Dark">
@@ -40,6 +43,9 @@
         <item name="android:itemBackground">@color/black</item>
 
         <item name="colorControlHighlight">@color/ripple_color_on_black_theme</item>
+
+        <item name="fullNumpadViewButtonsBackgroundColor">@color/gray</item>
+        <item name="fullNumpadViewButtonsRippleColor">@color/ripple_color_on_black_theme</item>
     </style>
 
     <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">
