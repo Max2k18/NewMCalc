@@ -89,8 +89,6 @@ public class CurrencyConverterActivity extends ThemeActivity {
 
 		setupButtons();
 		setupEditTexts();
-
-		editText1.requestFocus();
 	}
 
 	private void setupButtons(){
@@ -121,7 +119,10 @@ public class CurrencyConverterActivity extends ThemeActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if(editText1.hasFocus()) convert( 0 );
+				if(editText1.hasFocus()) {
+					convert( 0 );
+					saveCurrentAmount();
+				}
 			}
 
 			@Override
@@ -137,7 +138,10 @@ public class CurrencyConverterActivity extends ThemeActivity {
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if(editText2.hasFocus()) convert( 1 );
+				if(editText2.hasFocus()) {
+					convert( 1 );
+					saveCurrentAmount();
+				}
 			}
 
 			@Override
@@ -145,6 +149,18 @@ public class CurrencyConverterActivity extends ThemeActivity {
 
 			}
 		} );
+	}
+
+	private void saveCurrentAmount(){
+		EditText focusedEditText = editText1.hasFocus() ? editText1 : editText2;
+		String amount = focusedEditText.getText().toString();
+		if(amount.isEmpty())
+			amount = "1";
+		int index = focusedEditText == editText1 ? 0 : 1;
+		sharedPreferences.edit()
+				.putInt( "lastSourceIndex", index )
+				.putString( "lastAmount", amount )
+				.apply();
 	}
 
 	private void convert(int sourceIndex){
@@ -254,8 +270,25 @@ public class CurrencyConverterActivity extends ThemeActivity {
 		String formattedDate = new SimpleDateFormat( "dd MMMM yyyy, HH:mm", locale ).format( new Date( data.getTimestamp() ) );
 		setStatus( getString( R.string.currency_converter_status_text, formattedDate ) );
 
+		String amount = sharedPreferences.getString( "lastAmount", "1" );
+		int sourceIndex = sharedPreferences.getInt( "lastSourceIndex", 0 );
+		setAmountToIndex( sourceIndex, amount );
+
 		(( SwipeRefreshLayout ) findViewById( R.id.currency_converter_refreshLayout )).setRefreshing( false );
 		findViewById( R.id.flexboxLayout ).setVisibility( View.VISIBLE );
+	}
+
+	private void setAmountToIndex(int index, String amount){
+		EditText editText = getEditTextForIndex( index );
+		editText.requestFocus();
+		editText.setText( amount );
+		editText.setSelection( amount.length() );
+	}
+
+	private EditText getEditTextForIndex(int index){
+		if(index == 0)
+			return editText1;
+		return editText2;
 	}
 
 	private void loadData(boolean forceReload){
