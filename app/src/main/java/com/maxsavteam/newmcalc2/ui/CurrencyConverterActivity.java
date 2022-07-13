@@ -2,21 +2,11 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.entity.CurrencyConverterData;
 import com.maxsavteam.newmcalc2.entity.Rates;
-import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
-import com.maxsavteam.newmcalc2.widget.ButtonWithDropdown;
-import com.maxsavteam.newmcalc2.widget.FullNumpadView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class CurrencyConverterActivity extends ThemeActivity {
+public class CurrencyConverterActivity extends BaseConverterActivity {
 
 	private static final String CURRENCY_CONVERTER_URL = "https://mcalc.maxsavteam.com/api/currency";
 	private static final String TAG = "CurrencyConverterActivity";
@@ -53,242 +43,91 @@ public class CurrencyConverterActivity extends ThemeActivity {
 	private CurrencyConverterData.Currencies currencies;
 	private int dataLoadingFailureCount = 0;
 
-	private List<String> sortedCurrenciesList;
-
 	private final DecimalFormat decimalFormat = new DecimalFormat("0.##");
-
-	private EditText editText1;
-	private EditText editText2;
-
-	private SharedPreferences sharedPreferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
-		setContentView( R.layout.activity_currency_converter );
-
-		setActionBar( R.id.toolbar );
-		displayHomeAsUp();
-
-		sharedPreferences = getSharedPreferences( "currency_converter", MODE_PRIVATE );
 
 		decimalFormat.setParseBigDecimal( true );
 		decimalFormat.setDecimalFormatSymbols( new DecimalFormatSymbols( getResources().getConfiguration().getLocales().get( 0 ) ) );
 
-		editText1 = findViewById( R.id.currency_converter_editText1 );
-		editText2 = findViewById( R.id.currency_converter_editText2 );
-
-		SwipeRefreshLayout refreshLayout = findViewById( R.id.currency_converter_refreshLayout );
-		refreshLayout.setOnRefreshListener( ()->startDataLoading(true) );
-
-		FullNumpadView numpadView = findViewById( R.id.currency_converter_numpad_view );
-		numpadView.linkWith( editText1 );
-		numpadView.linkWith( editText2 );
-
-		startDataLoading(false);
-
-		setupButtons();
-		setupEditTexts();
+		setNumpadViewDecimalSeparatorEnabled( true );
 	}
 
-	private void setupButtons(){
-		ButtonWithDropdown button1 = findViewById( R.id.currency_converter_button1 );
-		ButtonWithDropdown button2 = findViewById( R.id.currency_converter_button2 );
-		button1.setOnItemSelectedListener( index -> {
-			sharedPreferences.edit().putString( "lastSelectedCurrency1", sortedCurrenciesList.get( index ) ).apply();
-			if(editText1.hasFocus())
-				convert( 0 );
-			else
-				convert( 1 );
-		} );
-		button2.setOnItemSelectedListener( index -> {
-			sharedPreferences.edit().putString( "lastSelectedCurrency2", sortedCurrenciesList.get( index ) ).apply();
-			if(editText1.hasFocus())
-				convert( 0 );
-			else
-				convert( 1 );
-		} );
-	}
-
-	private void setupEditTexts(){
-		editText1.addTextChangedListener( new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if(editText1.hasFocus()) {
-					convert( 0 );
-					saveCurrentAmount();
-				}
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
-		} );
-		editText2.addTextChangedListener( new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if(editText2.hasFocus()) {
-					convert( 1 );
-					saveCurrentAmount();
-				}
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
-		} );
-	}
-
-	private void saveCurrentAmount(){
-		EditText focusedEditText = editText1.hasFocus() ? editText1 : editText2;
-		String amount = focusedEditText.getText().toString();
-		if(amount.isEmpty())
-			amount = "1";
-		int index = focusedEditText == editText1 ? 0 : 1;
-		sharedPreferences.edit()
-				.putInt( "lastSourceIndex", index )
-				.putString( "lastAmount", amount )
-				.apply();
-	}
-
-	private void convert(int sourceIndex){
-		ButtonWithDropdown sourceButton;
-		ButtonWithDropdown targetButton;
-		EditText sourceEditText;
-		EditText targetEditText;
-		if(sourceIndex == 0){
-			sourceButton = findViewById( R.id.currency_converter_button1 );
-			targetButton = findViewById( R.id.currency_converter_button2 );
-			sourceEditText = editText1;
-			targetEditText = editText2;
-		}else{
-			sourceButton = findViewById( R.id.currency_converter_button2 );
-			targetButton = findViewById( R.id.currency_converter_button1 );
-			sourceEditText = editText2;
-			targetEditText = editText1;
-		}
-		if(sourceEditText.getText().toString().isEmpty()) {
-			targetEditText.getText().clear();
-			return;
-		}
-		String sourceCurrency = sortedCurrenciesList.get( sourceButton.getSelectedItem() );
-		String targetCurrency = sortedCurrenciesList.get( targetButton.getSelectedItem() );
+	@Override
+	protected String convert(String sourceItemId, String targetItemId, String amountString){
 		BigDecimal amount;
 		try {
-			amount = (BigDecimal) decimalFormat.parse( sourceEditText.getText().toString() );
+			amount = (BigDecimal) decimalFormat.parse( amountString );
 			if(amount == null)
-				return;
+				return "";
 		} catch (ParseException e) {
 			e.printStackTrace();
 			Toast.makeText( this, "" + e, Toast.LENGTH_SHORT ).show();
-			return;
+			return "";
 		}
 
-		double exchangeRate = data.getRates().getExchangeRate( sourceCurrency, targetCurrency );
+		double exchangeRate = data.getRates().getExchangeRate( sourceItemId, targetItemId );
 		BigDecimal result = amount.multiply( new BigDecimal( exchangeRate ) );
 
-		targetEditText.clearFocus();
-		targetEditText.setText( decimalFormat.format( result ) );
+		return decimalFormat.format( result );
 	}
 
-	private void setStatus(String status){
-		TextView textView = findViewById( R.id.currency_converter_status );
-		textView.setText( status );
-	}
+	@Override
+	protected void startDataLoading(boolean isUserInitiated){
+		super.startDataLoading( isUserInitiated );
 
-	private void startDataLoading(boolean forceReload){
-		(( SwipeRefreshLayout ) findViewById( R.id.currency_converter_refreshLayout )).setRefreshing( true );
+		setStatusText( "" );
 
-		findViewById( R.id.flexboxLayout ).setVisibility( View.INVISIBLE );
-
-		setStatus( "" );
-
-		new Thread(()->loadData( forceReload )).start();
+		new Thread(()->loadData( isUserInitiated )).start();
 	}
 
 	private void displayData(){
-		List<String> buttonsElements = new ArrayList<>();
+		List<String> displayItems = new ArrayList<>();
 		for(var entry : currencies.getCurrencies().entrySet()){
-			buttonsElements.add( entry.getKey().toUpperCase() + " " + entry.getValue() );
+			displayItems.add( entry.getKey().toUpperCase() + " " + entry.getValue() );
 		}
-		buttonsElements.sort( String::compareTo );
+		displayItems.sort( String::compareTo );
 
-		sortedCurrenciesList = new ArrayList<>();
-		for(String s : buttonsElements) {
-			sortedCurrenciesList.add( s.substring( 0, s.indexOf( " " ) ).toLowerCase() );
-		}
-
-		Locale locale = getResources().getConfiguration().getLocales().get(0);
-		Currency currency = Currency.getInstance( locale );
-		String localeCurrency = currency.getCurrencyCode().toUpperCase();
-
-		String lastSelectedCurrency1 = sharedPreferences
-				.getString( "lastSelectedCurrency1", "USD" )
-				.toUpperCase();
-		String lastSelectedCurrency2 = sharedPreferences
-				.getString( "lastSelectedCurrency2", localeCurrency )
-				.toUpperCase();
-
-		int i1 = 0;
-		for(int i = 0; i < buttonsElements.size(); i++){
-			String element = buttonsElements.get( i );
-			if(element.startsWith( lastSelectedCurrency1 + " " )){
-				i1 = i;
-				break;
-			}
+		List<String> ids = new ArrayList<>();
+		for(String s : displayItems) {
+			ids.add( s.substring( 0, s.indexOf( " " ) ).toLowerCase() );
 		}
 
-		ButtonWithDropdown button1 = findViewById( R.id.currency_converter_button1 );
-		button1.setElements( buttonsElements.toArray() );
-		button1.setSelection( i1 );
+		displayData(displayItems, ids);
 
-		int i2 = 0;
-		for(int i = 0; i < buttonsElements.size(); i++){
-			String element = buttonsElements.get( i );
-			if(element.startsWith( lastSelectedCurrency2 + " " )){
-				i2 = i;
-				break;
-			}
-		}
-
-		ButtonWithDropdown button2 = findViewById( R.id.currency_converter_button2);
-		button2.setElements( buttonsElements.toArray() );
-		button2.setSelection( i2 );
-
+		Locale locale = getResources().getConfiguration().getLocales().get( 0 );
 		String formattedDate = new SimpleDateFormat( "dd MMMM yyyy, HH:mm", locale ).format( new Date( data.getTimestamp() ) );
-		setStatus( getString( R.string.currency_converter_status_text, formattedDate ) );
-
-		String amount = sharedPreferences.getString( "lastAmount", "1" );
-		int sourceIndex = sharedPreferences.getInt( "lastSourceIndex", 0 );
-		setAmountToIndex( sourceIndex, amount );
-
-		(( SwipeRefreshLayout ) findViewById( R.id.currency_converter_refreshLayout )).setRefreshing( false );
-		findViewById( R.id.flexboxLayout ).setVisibility( View.VISIBLE );
+		setStatusText( getString( R.string.currency_converter_status_text, formattedDate ) );
 	}
 
-	private void setAmountToIndex(int index, String amount){
-		EditText editText = getEditTextForIndex( index );
-		editText.requestFocus();
-		editText.setText( amount );
-		editText.setSelection( amount.length() );
+	@Override
+	protected String getDefaultItemId(int index) {
+		if(index == 0){
+			return "usd";
+		}
+		if(index == 1) {
+			Locale locale = getResources().getConfiguration().getLocales().get( 0 );
+			Currency currency = Currency.getInstance( locale );
+			return currency.getCurrencyCode().toLowerCase();
+		}
+		throw new IllegalArgumentException( "index must be 0 or 1" );
 	}
 
-	private EditText getEditTextForIndex(int index){
-		if(index == 0)
-			return editText1;
-		return editText2;
+	@Override
+	protected String getSharedPrefsName() {
+		return "currency_converter";
+	}
+
+	@Override
+	protected int getFieldsCount() {
+		return 2;
+	}
+
+	@Override
+	protected String getLastAmountDefaultValue() {
+		return "1";
 	}
 
 	private void loadData(boolean forceReload){
@@ -305,7 +144,7 @@ public class CurrencyConverterActivity extends ThemeActivity {
 			runOnUiThread( this::displayData );
 		} catch (IOException | JSONException e){
 			e.printStackTrace();
-			setStatus( e.getMessage() );
+			setStatusText( e.getMessage() );
 			if ( dataLoadingFailureCount < 5 ) {
 				dataLoadingFailureCount++;
 				loadData(forceReload);

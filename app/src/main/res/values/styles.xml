@@ -85,8 +85,10 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="CurrencyConverterEditTextStyle" parent="Widget.AppCompat.EditText">
+    <style name="ConverterEditTextStyle" parent="Widget.AppCompat.EditText">
         <item name="android:textSize">25sp</item>
+        <item name="android:textColor">?textColor</item>
+        <item name="android:gravity">end</item>
     </style>
 
 </resources>
