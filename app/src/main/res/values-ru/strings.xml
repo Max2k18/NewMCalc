@@ -107,4 +107,8 @@
     <string name="numgen_generated_number">Сгенерированное число:</string>
     <string name="currency_converter">Конвертер валют</string>
     <string name="currency_converter_status_text">Курс валют на %1$s</string>
+    <string name="number_system_converter_binary">Двоичная</string>
+    <string name="number_system_converter_octal">Восьмиричная</string>
+    <string name="number_system_converter_decimal">Десятиричная</string>
+    <string name="number_system_converter_hexadecimal">Шестнадцатеричная</string>
 </resources>

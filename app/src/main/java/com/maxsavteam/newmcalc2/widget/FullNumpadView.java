@@ -233,4 +233,12 @@ public class FullNumpadView extends LinearLayout {
 		numpadView.setDecimalSeparatorEnabled( isDecimalSeparatorEnabled );
 	}
 
+	public void setFirstNDigitButtonsEnabled(int count, boolean enabled) {
+		numpadView.setFirstNDigitButtonsEnabled( count, enabled );
+	}
+
+	public void setDigitButtonEnabled(int digit, boolean enabled) {
+		numpadView.setDigitButtonEnabled( digit, enabled );
+	}
+
 }

@@ -1,203 +1,193 @@
 package com.maxsavteam.newmcalc2.ui;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.LinearLayout;
 
 import com.maxsavteam.newmcalc2.R;
-import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
+import com.maxsavteam.newmcalc2.widget.NumpadView;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
-public class NumberSystemConverterActivity extends ThemeActivity {
-	private final String[] data = { "2", "8", "10", "16" };
-	private String[] translated_from;
-	private int fromSys = 10;
-	private int toSys = 2;
-	private EditText fromText;
-	private EditText toText;
+public class NumberSystemConverterActivity extends BaseConverterActivity {
 
-	private int positionInSet(int sys) {
-		for (int i = 0; i < data.length; i++) {
-			String s = data[ i ];
-			if ( s.equals( Integer.toString( sys ) ) ) {
-				return i;
-			}
-		}
+	private final List<Button> letterButtons = new ArrayList<>();
 
-		return 10;
-	}
-
-	private void applyTheme() {
-		setActionBar( R.id.toolbar );
-		displayHomeAsUp();
-
-		EditText e = findViewById( R.id.edNumTo );
-		e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
-		e = findViewById( R.id.edNumFrom );
-		e.setBackgroundTintList( ColorStateList.valueOf( getResources().getColor( R.color.colorAccent ) ) );
-	}
+	private static final String BIN = "BIN";
+	private static final String OCT = "OCT";
+	private static final String DEC = "DEC";
+	private static final String HEX = "HEX";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
-		setContentView( R.layout.activity_number_system );
-		translated_from = new String[ data.length ];
-		Spinner from = findViewById( R.id.chooseFromWhichSys );
-		Spinner to = findViewById( R.id.chooseToWhichSys );
 
-		applyTheme();
-		ArrayAdapter<String> ar = new ArrayAdapter<>( this, android.R.layout.simple_spinner_item, data );
-		ar.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+		setTitle( R.string.number_system_converter );
 
-		from.setAdapter( ar );
-		from.setSelection( 2 );
-		from.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				int choice = Integer.parseInt( data[ position ] );
-				if ( choice == toSys ) {
-					toSys = fromSys;
-					to.setSelection( positionInSet( toSys ) );
-				}
-				fromSys = choice;
-				if ( fromSys <= 10 ) {
-					fromText.setInputType( InputType.TYPE_CLASS_NUMBER );
-				} else {
-					fromText.setInputType( InputType.TYPE_CLASS_TEXT );
-				}
-				fromText.setText( translated_from[ positionInSet( fromSys ) ] );
-			}
+		setNumpadViewDecimalSeparatorEnabled( false );
+		setStatusVisible( false );
+		setRefreshLayoutEnabled( false );
 
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
+		setButtonsWeight( .3f );
 
-			}
-		} );
-		to.setAdapter( ar );
-		to.setSelection( 0 );
-		to.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				//toSys = Integer.valueOf(data[position]);
-				int choice = Integer.parseInt( data[ position ] );
-				if ( choice == fromSys ) {
-					fromSys = toSys;
-					from.setSelection( positionInSet( fromSys ) );
-					fromText.setText( translated_from[ positionInSet( fromSys ) ] );
-				}
-				toSys = choice;
-				//toText.setText(translated_to[position_in_set(toSys)]);
-				translate();
-			}
+		LinearLayout numpadContainer = findViewById( R.id.numpad_view_container );
+		numpadContainer.addView( createLettersLayout(), 0 );
 
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
+		List<String> items = List.of(BIN, OCT, DEC, HEX);
+		List<String> dropdownItems = List.of(
+				BIN + " " + getString( R.string.number_system_converter_binary ),
+				OCT + " " + getString( R.string.number_system_converter_octal ),
+				DEC + " " + getString( R.string.number_system_converter_decimal ),
+				HEX + " " + getString( R.string.number_system_converter_hexadecimal )
+		);
 
-			}
-		} );
-
-		fromText = findViewById( R.id.edNumFrom );
-		toText = findViewById( R.id.edNumTo );
-		toText.setTextIsSelectable( true );
-		fromText.setFocusable( true );
-		fromText.addTextChangedListener( new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if ( count > 0 ) {
-					char last = s.charAt( start );
-					if ( ( fromSys == 16 && !( last >= '0' && last <= '9' ) && !( ( last >= 'a' && last <= 'f' ) || ( last >= 'A' && last <= 'F' ) ) )
-							|| ( fromSys == 2 && !( last >= '0' && last <= '1' ) )
-							|| ( fromSys == 10 && !( last >= '0' && last <= '9' ) )
-							|| ( fromSys == 8 && !( last >= '0' && last <= '7' ) ) ) {
-						if ( fromText.getText().length() == 1 ) {
-							fromText.setText( "" );
-							return;
-						}
-						int curPos = fromText.getSelectionEnd() - 1;
-						fromText.setText( s.subSequence( 0, start ).toString().concat( s.subSequence( start + 1, s.length() ).toString() ) );
-						if ( curPos > fromText.getText().length() ) {
-							curPos = fromText.getText().length();
-						}
-						fromText.setSelection( curPos );
-					}
-				}
-				translate();
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
-		} );
+		displayData( items, dropdownItems, items );
 	}
 
-	private void translate() {
-		String from = fromText.getText().toString();
-		if ( !from.equals( "" ) ) {
-			String result;
-			translated_from[ positionInSet( fromSys ) ] = from;
-			if ( fromSys == 10 ) {
-				result = from;
-			} else {
-				result = toDecimal( from, fromSys ).toPlainString();
-			}
+	private LinearLayout createLettersLayout(){
+		LinearLayout layout = new LinearLayout( this );
+		layout.setOrientation( LinearLayout.HORIZONTAL );
+		layout.setLayoutParams( new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT ) );
+		for(char i = 'A'; i <= 'F'; i++){
+			Button button = new Button( this, null, 0, R.style.NumberSystemConverterLetterButtonStyle );
+			button.setText( String.valueOf( i ) );
+			button.setLayoutParams( new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+			button.setTextColor( NumpadView.createColorStateListForDigitButton( this ) );
+			char finalI = i;
+			button.setOnClickListener( v->{
+				EditText editText = findFocusedEditText();
+				if(editText != null){
+					insertLetter( editText, finalI );
+				}
+			} );
+			layout.addView( button );
+			letterButtons.add( button );
+		}
+		return layout;
+	}
 
-			result = fromDecimal( new BigDecimal( result ), toSys );
-			toText.setText( result );
-		} else {
-			toText.setText( "" );
+	private void insertLetter(EditText editText, char letter){
+		Editable editable = editText.getText();
+		editable.insert( editText.getSelectionStart(), String.valueOf( letter ) );
+	}
+
+	private void setLetterButtonsEnabled(boolean enabled){
+		for(Button button : letterButtons)
+			button.setEnabled( enabled );
+	}
+
+	@Override
+	protected void onItemSelected(int index, String itemId) {
+		if(index == getCurrentIndex()){
+			findFocusedEditText().setText( "0" );
+			updateNumpad( itemId );
 		}
 	}
 
-	private int returnNumber(char c) {
-		char upperC = Character.toUpperCase( c );
-		if ( upperC >= '0' && upperC <= '9' ) {
-			return Integer.parseInt( Character.toString( upperC ) );
-		} else if ( upperC >= 'A' && upperC <= 'Z' ) {
-			return 10 + ( ( (int) upperC ) - ( (int) 'A' ) );
+	@Override
+	protected void onFocusChanged(int index, String itemId) {
+		updateNumpad( itemId );
+	}
+
+	private void updateNumpad(String itemId){
+		setLetterButtonsEnabled( itemId.equals( HEX ) );
+		int enabledButtonsCount;
+		if(itemId.equals( HEX ) || itemId.equals( DEC ))
+			enabledButtonsCount = 10;
+		else if(itemId.equals( OCT ))
+			enabledButtonsCount = 8;
+		else
+			enabledButtonsCount = 2;
+		getFullNumpadView().setFirstNDigitButtonsEnabled( enabledButtonsCount, true );
+	}
+
+	private BigInteger convertFromBaseToDec(String amount, int base){
+		if(base == 10)
+			return new BigInteger( amount );
+		BigInteger result = BigInteger.ZERO;
+		BigInteger baseBig = BigInteger.valueOf( base );
+		for(int i = 0; i < amount.length(); i++){
+			char c = amount.charAt( i );
+			int x;
+			if(c >= '0' && c <= '9')
+				x = c - '0';
+			else
+				x = c - 'A' + 10;
+
+			result = result.multiply( baseBig ).add( BigInteger.valueOf( x ) );
 		}
-		return '0';
+		return result;
 	}
 
-	private char returnCharFromNum(int n) {
-		if ( n >= 0 && n <= 9 ) {
-			return ( (char) ( ( (int) '0' ) + n ) );
-		} else {
-			return ( (char) ( ( (int) 'A' ) + ( n - 10 ) ) );
+	private String convertFromDecToBase(BigInteger integer, int base){
+		if(base == 10)
+			return integer.toString();
+		if(integer.compareTo( BigInteger.ZERO ) == 0)
+			return "0";
+		StringBuilder result = new StringBuilder();
+		BigInteger baseBig = BigInteger.valueOf( base );
+		while(integer.signum() > 0){
+			BigInteger remainder = integer.remainder( baseBig );
+			int x = remainder.intValue();
+			char c;
+			if(x < 10)
+				c = (char)(x + '0');
+			else
+				c = (char)('A' + x - 10);
+			integer = integer.divide( baseBig );
+			result.append( c );
+		}
+		return result.reverse().toString();
+	}
+
+	@Override
+	protected String convert(String sourceItemId, String targetItemId, String amount) {
+		int sourceBase = getBase( sourceItemId );
+		int targetBase = getBase( targetItemId );
+
+		if(sourceBase == targetBase)
+			return amount;
+
+		BigInteger integer = convertFromBaseToDec( amount, sourceBase );
+		return convertFromDecToBase( integer, targetBase );
+	}
+
+	private int getBase(String id){
+		switch ( id ) {
+			case BIN:
+				return 2;
+			case OCT:
+				return 8;
+			case DEC:
+				return 10;
+			default:
+				return 16;
 		}
 	}
 
-	private BigDecimal toDecimal(String s, final int k) {
-		BigDecimal x = BigDecimal.ZERO;
-		for (int i = 0; i < s.length(); i++) {
-			x = x.multiply( BigDecimal.valueOf( k ) );
-			x = x.add( BigDecimal.valueOf( returnNumber( s.charAt( i ) ) ) );
-		}
-		return x;
+	@Override
+	protected int getFieldsCount() {
+		return 2;
 	}
 
-	public String fromDecimal(BigDecimal dec, final int k) {
-		String ans = "";
-		BigDecimal bd = dec;
-		do {
-			BigDecimal[] bg = bd.divideAndRemainder( BigDecimal.valueOf( k ) );
-			ans = String.format( "%s%s", returnCharFromNum( bg[ 1 ].intValue() ), ans );
-			bd = bg[ 0 ];
-		} while ( bd.signum() > 0 );
-
-		return ans;
+	@Override
+	protected String getSharedPrefsName() {
+		return "number_system_converter";
 	}
+
+	@Override
+	protected String getDefaultItemId(int index) {
+		return null;
+	}
+
+	@Override
+	protected String getLastAmountDefaultValue() {
+		return "0";
+	}
+
 }

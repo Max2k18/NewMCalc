@@ -16,6 +16,7 @@ import com.maxsavteam.newmcalc2.R;
 public class ButtonWithDropdown extends AppCompatButton {
 	private Context mContext;
 	private Object[] mElements = new Object[]{};
+	private Object[] mDropdownElements = new Object[]{};
 	private OnItemSelectedListener mOnItemSelectedListener;
 	private int selectedItem = 0;
 
@@ -51,7 +52,12 @@ public class ButtonWithDropdown extends AppCompatButton {
 	}
 
 	public void setElements(Object[] elements){
+		setElements( elements, elements );
+	}
+
+	public void setElements(Object[] elements, Object[] dropdownElements){
 		mElements = elements;
+		mDropdownElements = dropdownElements;
 		super.setOnClickListener( mOnClickListener );
 	}
 
@@ -60,7 +66,7 @@ public class ButtonWithDropdown extends AppCompatButton {
 		setText( String.valueOf( mElements[i] ) );
 	}
 
-	public int getSelectedItem() {
+	public int getSelectedItemIndex() {
 		return selectedItem;
 	}
 
@@ -75,15 +81,15 @@ public class ButtonWithDropdown extends AppCompatButton {
 		public void onClick(View view) {
 			PopupMenu popupMenu = new PopupMenu( mContext, ButtonWithDropdown.this );
 			Menu menu = popupMenu.getMenu();
-			for(int i = 0; i < mElements.length; i++){
-				menu.add( Menu.NONE, i + 1, Menu.NONE, String.valueOf( mElements[i] ) );
+			for(int i = 0; i < mDropdownElements.length; i++){
+				menu.add( Menu.NONE, i + 1, Menu.NONE, String.valueOf( mDropdownElements[i] ) );
 			}
 			popupMenu.setOnMenuItemClickListener( item->{
 				selectedItem = item.getItemId() - 1;
 				if(mOnItemSelectedListener != null){
 					mOnItemSelectedListener.onItemSelected( item.getItemId() - 1 );
 				}
-				setText( item.getTitle() );
+				setText( String.valueOf( mElements[selectedItem] ) );
 				return true;
 			} );
 			popupMenu.show();

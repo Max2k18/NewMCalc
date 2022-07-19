@@ -1,13 +1,13 @@
 package com.maxsavteam.newmcalc2.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Space;
 
 import androidx.annotation.Nullable;
 
@@ -15,6 +15,7 @@ import com.maxsavteam.newmcalc2.R;
 
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +25,7 @@ public class NumpadView extends LinearLayout {
 	private static final int SEPARATOR_BUTTON_ID = View.generateViewId();
 	private static final int MINUS_BUTTON_ID = View.generateViewId();
 
-	private final List<Button> digitButtons = new ArrayList<>();
+	private final List<Button> digitButtons;
 
 	private boolean isDecimalSeparatorEnabled;
 	private boolean isSigned;
@@ -43,6 +44,10 @@ public class NumpadView extends LinearLayout {
 
 	public NumpadView(Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super( context, attrs, defStyleAttr, defStyleRes );
+
+		digitButtons = new ArrayList<>( 10 );
+		for (int i = 0; i < 10; i++)
+			digitButtons.add( null );
 
 		TypedArray array = context.getTheme().obtainStyledAttributes(
 				attrs,
@@ -66,8 +71,9 @@ public class NumpadView extends LinearLayout {
 				Button button = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 				button.setText( String.valueOf( i ) );
 				button.setLayoutParams( getDefaultParamsForElements() );
+				button.setTextColor( createColorStateListForDigitButton( getContext() ) );
 				row.addView( button );
-				digitButtons.add( button );
+				digitButtons.set( i, button );
 			}
 			container.addView( row );
 		}
@@ -75,6 +81,22 @@ public class NumpadView extends LinearLayout {
 		addLastRow( container );
 
 		addView( container );
+	}
+
+	public void setFirstNDigitButtonsEnabled(int count, boolean enabled) {
+		int c = Math.min( count, digitButtons.size() );
+		for (int i = 0; i < digitButtons.size(); i++) {
+			Button button = digitButtons.get( i );
+			if ( i < c ) {
+				button.setEnabled( enabled );
+			} else {
+				button.setEnabled( false );
+			}
+		}
+	}
+
+	public void setDigitButtonEnabled(int digit, boolean enabled) {
+		digitButtons.get( digit ).setEnabled( enabled );
 	}
 
 	protected void addLastRow(LinearLayout container) {
@@ -87,22 +109,24 @@ public class NumpadView extends LinearLayout {
 		minusButton.setText( "-" );
 		minusButton.setId( MINUS_BUTTON_ID );
 		row.addView( minusButton, getDefaultParamsForElements() );
-		if(!isSigned)
+		if ( !isSigned ) {
 			minusButton.setVisibility( INVISIBLE );
+		}
 
 		Button zeroButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 		zeroButton.setLayoutParams( getDefaultParamsForElements() );
 		zeroButton.setText( "0" );
 		row.addView( zeroButton );
-		digitButtons.add( zeroButton );
+		digitButtons.set( 0, zeroButton );
 
 		Button separatorButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 		separatorButton.setId( SEPARATOR_BUTTON_ID );
 		separatorButton.setLayoutParams( getDefaultParamsForElements() );
-		updateSeparatorButtonText(separatorButton);
+		updateSeparatorButtonText( separatorButton );
 		row.addView( separatorButton );
-		if(!isDecimalSeparatorEnabled)
+		if ( !isDecimalSeparatorEnabled ) {
 			separatorButton.setVisibility( INVISIBLE );
+		}
 
 		container.addView( row );
 	}
@@ -114,26 +138,29 @@ public class NumpadView extends LinearLayout {
 	public void setDecimalSeparatorEnabled(boolean decimalSeparatorEnabled) {
 		isDecimalSeparatorEnabled = decimalSeparatorEnabled;
 
-		if(isDecimalSeparatorEnabled)
+		if ( isDecimalSeparatorEnabled ) {
 			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( VISIBLE );
-		else
+		} else {
 			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( INVISIBLE );
+		}
 	}
 
-	public void setSigned(boolean isSigned){
+	public void setSigned(boolean isSigned) {
 		this.isSigned = isSigned;
-		if(isSigned)
+		if ( isSigned ) {
 			findViewById( MINUS_BUTTON_ID ).setVisibility( VISIBLE );
-		else
+		} else {
 			findViewById( MINUS_BUTTON_ID ).setVisibility( INVISIBLE );
+		}
 	}
 
-	public void setMinusButtonOnClickListener(MinusButtonOnClickListener listener){
+	public void setMinusButtonOnClickListener(MinusButtonOnClickListener listener) {
 		Button minusButton = findViewById( MINUS_BUTTON_ID );
-		if(listener == null)
+		if ( listener == null ) {
 			minusButton.setOnClickListener( null );
-		else
+		} else {
 			minusButton.setOnClickListener( v->listener.onClick() );
+		}
 	}
 
 	public interface MinusButtonOnClickListener {
@@ -175,13 +202,32 @@ public class NumpadView extends LinearLayout {
 
 	public void updateLocale() {
 		Button separatorButton = findViewById( SEPARATOR_BUTTON_ID );
-		updateSeparatorButtonText(separatorButton);
+		updateSeparatorButtonText( separatorButton );
 	}
 
 	private void updateSeparatorButtonText(Button separatorButton) {
 		Locale locale = getContext().getResources().getConfiguration().getLocales().get( 0 );
 		DecimalFormatSymbols symbols = new DecimalFormatSymbols( locale );
 		separatorButton.setText( Character.toString( symbols.getDecimalSeparator() ) );
+	}
+
+	public static ColorStateList createColorStateListForDigitButton(Context context) {
+		int[][] states = new int[][]{
+				new int[]{ android.R.attr.state_enabled },
+				new int[]{ -android.R.attr.state_enabled }
+		};
+
+		TypedArray array = context.obtainStyledAttributes(
+				new int[]{ R.attr.textColor }
+		);
+		int color = array.getColor( 0, 0 );
+		array.recycle();
+
+		int[] colors = new int[]{
+				color,
+				context.getResources().getColor( R.color.light_gray )
+		};
+		return new ColorStateList( states, colors );
 	}
 
 }

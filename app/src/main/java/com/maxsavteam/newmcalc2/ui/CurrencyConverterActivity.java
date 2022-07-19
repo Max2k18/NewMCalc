@@ -49,6 +49,8 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate( savedInstanceState );
 
+		setTitle( R.string.currency_converter );
+
 		decimalFormat.setParseBigDecimal( true );
 		decimalFormat.setDecimalFormatSymbols( new DecimalFormatSymbols( getResources().getConfiguration().getLocales().get( 0 ) ) );
 
