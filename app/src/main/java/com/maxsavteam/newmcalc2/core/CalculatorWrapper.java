@@ -76,8 +76,11 @@ public final class CalculatorWrapper {
 	public static int getStringResForErrorCode(int errorCode) {
 		int result = -1;
 		switch ( errorCode ) {
-			case CalculationException.INVALID_VALUE_FOR_TANGENT_OR_COTANGENT:
-				result = R.string.invalid_value_for_tangent_or_cotangent;
+			case CalculationException.INVALID_VALUE_FOR_TANGENT:
+				result = R.string.invalid_value_for_tangent;
+				break;
+			case CalculationException.INVALID_VALUE_FOR_COTANGENT:
+				result = R.string.invalid_value_for_cotangent;
 				break;
 			case CalculationException.DIVISION_BY_ZERO:
 				result = R.string.division_by_zero;

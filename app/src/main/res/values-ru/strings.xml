@@ -111,4 +111,6 @@
     <string name="number_system_converter_octal">Восьмиричная</string>
     <string name="number_system_converter_decimal">Десятиричная</string>
     <string name="number_system_converter_hexadecimal">Шестнадцатеричная</string>
+    <string name="invalid_value_for_tangent">Неверное значение аргумента для тангенса</string>
+    <string name="invalid_value_for_cotangent">Неверное значение аргумента для контангенса</string>
 </resources>

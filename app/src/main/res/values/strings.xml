@@ -126,4 +126,6 @@
     <string name="number_system_converter_octal">Octal</string>
     <string name="number_system_converter_decimal">Decimal</string>
     <string name="number_system_converter_hexadecimal">Hexadecimal</string>
+    <string name="invalid_value_for_tangent">Invalid argument value for tangent</string>
+    <string name="invalid_value_for_cotangent">Invalid argument value for cotangent</string>
 </resources>
