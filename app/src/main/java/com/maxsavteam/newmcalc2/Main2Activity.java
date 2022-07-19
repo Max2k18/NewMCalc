@@ -118,6 +118,8 @@ public class Main2Activity extends ThemeActivity {
 
 	public static final String TAG = "MCalc";
 
+	private static final String LAST_EXPRESSION_SHARED_PREFS_KEY = "last_expression";
+
 	private NavigationView mNavigationView;
 	private SharedPreferences sharedPreferences;
 
@@ -365,18 +367,20 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void restoreResultIfSaved() {
-		if ( sharedPreferences.getBoolean( "saveResult", false ) ) {
-			String text = sharedPreferences.getString( "saveResultText", null );
-			if ( text != null ) {
-				int i = 0;
-				StringBuilder ex = new StringBuilder();
-				while ( i < text.length() && text.charAt( i ) != ';' ) {
-					ex.append( text.charAt( i ) );
-					i++;
-				}
-				insert( ex.toString() );
-				calculate( CalculationMode.FULL_ANSWER );
-			}
+		if ( sharedPreferences.getBoolean( getString( R.string.pref_save_result ), false ) ) {
+			String expression = sharedPreferences.getString( LAST_EXPRESSION_SHARED_PREFS_KEY, "" );
+			FormatUtils.Formatter formatter = number -> {
+				if(number.equals( "." ))
+					return "0";
+				return mDecimalFormat.format( new BigDecimal( number ) );
+			};
+			String formatted;
+			if(expression == null || expression.isEmpty())
+				formatted = "";
+			else
+				formatted = FormatUtils.formatExpression( expression, formatter, FormatUtils.getRootLocaleFormatSymbols() );
+
+			insert( formatted );
 		}
 	}
 
@@ -721,8 +725,8 @@ public class Main2Activity extends ThemeActivity {
 		NumPadFragmentFactory.Configuration configuration = new NumPadFragmentFactory.Configuration( this )
 				.setCalculateButtonClickListener( v->calculate( CalculationMode.FULL_ANSWER ) )
 				.setCalculateButtonLongClickListener( mReturnBack )
-				.setDigitButtonClickListener( digit -> insert( String.valueOf( digit ) ) )
-				.setSeparatorButtonClickListener( separator -> insertDecimalSeparator() )
+				.setDigitButtonClickListener( digit->insert( String.valueOf( digit ) ) )
+				.setSeparatorButtonClickListener( separator->insertDecimalSeparator() )
 				.setBracketButtonClickListener( this::insert )
 				.setFunctionButtonClickListener( this::insertFunction )
 				.setBinaryOperatorButtonClickListener( this::insertBinaryOperator )
@@ -1047,6 +1051,7 @@ public class Main2Activity extends ThemeActivity {
 		clearFormulaEditText();
 		clearAnswer();
 		lastCalculatedResult = null;
+		sharedPreferences.edit().remove( LAST_EXPRESSION_SHARED_PREFS_KEY ).apply();
 	}
 
 	private void clearAnswer() {
@@ -1064,6 +1069,8 @@ public class Main2Activity extends ThemeActivity {
 	private void calculate(CalculationMode mode) {
 		EditText txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
+
+		saveExpressionIfEnabled( example );
 
 		lastCalculatedResult = null;
 
@@ -1097,8 +1104,13 @@ public class Main2Activity extends ThemeActivity {
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
-				if ( mode == CalculationMode.FULL_ANSWER ) {
+				if ( mode == CalculationMode.FULL_ANSWER && sharedPreferences.getBoolean( getString( R.string.pref_save_history ), true ) ) {
 					saveToHistory( finalFormatted, res );
+				}
+				if(mode == CalculationMode.FULL_ANSWER){
+					// important to call with decimalFormat,
+					// because normalization method will be called in saveExpressionIfEnabled
+					saveExpressionIfEnabled( res.format( mDecimalFormat ) );
 				}
 			} catch (CalculationException e) {
 				if ( mode == CalculationMode.FULL_ANSWER ) {
@@ -1120,14 +1132,18 @@ public class Main2Activity extends ThemeActivity {
 		startThreadController();
 	}
 
+	private void saveExpressionIfEnabled(String expression) {
+		String normalizedExpression = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
+		sharedPreferences.edit()
+				.putString( LAST_EXPRESSION_SHARED_PREFS_KEY, normalizedExpression )
+				.apply();
+	}
+
 	private void saveToHistory(String expression, NumberList result) {
 		String example = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
-
-		if ( sharedPreferences.getBoolean( "save_history", true ) ) {
-			HistoryManager.getInstance()
-					.put( new HistoryEntry( example, result.format() ) )
-					.save();
-		}
+		HistoryManager.getInstance()
+				.put( new HistoryEntry( example, result.format() ) )
+				.save();
 	}
 
 	private void startThreadController() {
