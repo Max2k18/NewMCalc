@@ -126,7 +126,7 @@ public class SettingsActivity extends ThemeActivity {
 
 	private void restartApp() {
 		setResult( ResultCodesConstants.RESULT_RESTART_APP );
-		onBackPressed();
+		finish();
 	}
 
 	public void initializeImport() {

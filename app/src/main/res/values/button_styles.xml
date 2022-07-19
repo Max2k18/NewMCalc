@@ -14,9 +14,16 @@
         <item name="android:background">?selectableItemBackgroundBorderless</item>
         <item name="textAllCaps">false</item>
         <item name="android:textSize">@dimen/numpad_buttons_text_size</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">0.25</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">?textColor</item>
+    </style>
+
+    <style name="NumPadButtonStyle2" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">@dimen/numpad_buttons_text_size</item>
         <item name="android:textColor">?textColor</item>
     </style>
 
@@ -26,12 +33,26 @@
         <item name="android:textSize">@dimen/numpad_buttons_text_size</item>
     </style>
 
+    <style name="FullNumpadViewButtonsStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:background">@drawable/full_numpad_view_buttons_background</item>
+        <item name="android:textColor">?colorAccent</item>
+        <item name="android:tint">?colorAccent</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <style name="VariableButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:text">@string/plus</item>
         <item name="android:textSize">@dimen/variables_buttons_text_size_default</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">0.25</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="NumberSystemConverterLetterButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">?textColor</item>
+        <item name="android:textSize">@dimen/numpad_buttons_text_size</item>
         <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>
 

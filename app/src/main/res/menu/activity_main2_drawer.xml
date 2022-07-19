@@ -20,6 +20,11 @@
             android:id="@+id/nav_numgen"
             android:icon="@drawable/ic_dice"
             android:title="@string/number_generator" />
+
+        <item
+            android:id="@+id/nav_cc"
+            android:icon="@drawable/currency_converter"
+            android:title="@string/currency_converter" />
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"

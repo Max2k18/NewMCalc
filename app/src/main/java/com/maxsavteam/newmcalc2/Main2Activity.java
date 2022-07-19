@@ -78,6 +78,7 @@ import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.memory.MemoryReader;
 import com.maxsavteam.newmcalc2.memory.MemorySaver;
 import com.maxsavteam.newmcalc2.ui.AboutAppActivity;
+import com.maxsavteam.newmcalc2.ui.CurrencyConverterActivity;
 import com.maxsavteam.newmcalc2.ui.HistoryActivity;
 import com.maxsavteam.newmcalc2.ui.MemoryActionsActivity;
 import com.maxsavteam.newmcalc2.ui.NumberGeneratorActivity;
@@ -113,6 +114,8 @@ import java.util.concurrent.TimeUnit;
 public class Main2Activity extends ThemeActivity {
 
 	public static final String TAG = "MCalc";
+
+	private static final String LAST_EXPRESSION_SHARED_PREFS_KEY = "last_expression";
 
 	private NavigationView mNavigationView;
 	private SharedPreferences sharedPreferences;
@@ -361,27 +364,30 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void restoreResultIfSaved() {
-		if ( sharedPreferences.getBoolean( "saveResult", false ) ) {
-			String text = sharedPreferences.getString( "saveResultText", null );
-			if ( text != null ) {
-				int i = 0;
-				StringBuilder ex = new StringBuilder();
-				while ( i < text.length() && text.charAt( i ) != ';' ) {
-					ex.append( text.charAt( i ) );
-					i++;
-				}
-				insert( ex.toString() );
-				calculate( CalculationMode.FULL_ANSWER );
-			}
+		if ( sharedPreferences.getBoolean( getString( R.string.pref_save_result ), false ) ) {
+			String expression = sharedPreferences.getString( LAST_EXPRESSION_SHARED_PREFS_KEY, "" );
+			FormatUtils.Formatter formatter = number -> {
+				if(number.equals( "." ))
+					return "0";
+				return mDecimalFormat.format( new BigDecimal( number ) );
+			};
+			String formatted;
+			if(expression == null || expression.isEmpty())
+				formatted = "";
+			else
+				formatted = FormatUtils.formatExpression( expression, formatter, FormatUtils.getRootLocaleFormatSymbols() );
+
+			insert( formatted );
 		}
 	}
 
 	private static class AdditionalActivities {
-		public static final String HISTORY = "history",
-				SETTINGS = "settings",
-				NUMBER_GENERATOR = "numgen",
-				PASSWORD_GENERATOR = "passgen",
-				NUMBER_SYSTEMS_CONVERTER = "bin";
+		public static final String HISTORY = "history";
+		public static final String SETTINGS = "settings";
+		public static final String NUMBER_GENERATOR = "numgen";
+		public static final String PASSWORD_GENERATOR = "passgen";
+		public static final String NUMBER_SYSTEMS_CONVERTER = "bin";
+		public static final String CURRENCY_CONVERTER = "cc";
 	}
 
 	private void goToAdditionalActivities(String where) {
@@ -390,14 +396,16 @@ public class Main2Activity extends ThemeActivity {
 				AdditionalActivities.NUMBER_GENERATOR, mDefaultActivityLauncher,
 				AdditionalActivities.PASSWORD_GENERATOR, mDefaultActivityLauncher,
 				AdditionalActivities.HISTORY, mHistoryLauncher,
-				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, mDefaultActivityLauncher
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, mDefaultActivityLauncher,
+				AdditionalActivities.CURRENCY_CONVERTER, mDefaultActivityLauncher
 		);
 		Map<String, Class<?>> activityMap = Map.of(
 				AdditionalActivities.SETTINGS, SettingsActivity.class,
 				AdditionalActivities.NUMBER_GENERATOR, NumberGeneratorActivity.class,
 				AdditionalActivities.PASSWORD_GENERATOR, PasswordGeneratorActivity.class,
 				AdditionalActivities.HISTORY, HistoryActivity.class,
-				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, NumberSystemConverterActivity.class
+				AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, NumberSystemConverterActivity.class,
+				AdditionalActivities.CURRENCY_CONVERTER, CurrencyConverterActivity.class
 		);
 		if ( !launcherMap.containsKey( where ) || !activityMap.containsKey( where ) ) {
 			return;
@@ -552,7 +560,8 @@ public class Main2Activity extends ThemeActivity {
 					R.id.nav_history, AdditionalActivities.HISTORY,
 					R.id.nav_numbersysconverter, AdditionalActivities.NUMBER_SYSTEMS_CONVERTER,
 					R.id.nav_passgen, AdditionalActivities.PASSWORD_GENERATOR,
-					R.id.nav_numgen, AdditionalActivities.NUMBER_GENERATOR
+					R.id.nav_numgen, AdditionalActivities.NUMBER_GENERATOR,
+					R.id.nav_cc, AdditionalActivities.CURRENCY_CONVERTER
 			);
 			int itemId = menuItem.getItemId();
 			if ( map.containsKey( itemId ) ) {
@@ -705,16 +714,17 @@ public class Main2Activity extends ThemeActivity {
 
 	private void setViewPager(int which) {
 		ArrayList<ViewPagerAdapter.ViewPagerFragmentFactory> factories = new ArrayList<>();
-		factories.add( new NumPadFragmentFactory(
-				this,
-				mReturnBack,
-				this::justInsert,
-				this::insertBracket,
-				this::insertFunction,
-				this::insertBinaryOperatorOnClick,
-				this::insertSuffixOperatorOnClick
-		) );
-		//factories.add( new MathOperationsFragmentFactory() );
+		NumPadFragmentFactory.Configuration configuration = new NumPadFragmentFactory.Configuration( this )
+				.setCalculateButtonClickListener( v->calculate( CalculationMode.FULL_ANSWER ) )
+				.setCalculateButtonLongClickListener( mReturnBack )
+				.setDigitButtonClickListener( digit->insert( String.valueOf( digit ) ) )
+				.setSeparatorButtonClickListener( separator->insertDecimalSeparator() )
+				.setBracketButtonClickListener( this::insert )
+				.setFunctionButtonClickListener( this::insertFunction )
+				.setBinaryOperatorButtonClickListener( this::insertBinaryOperator )
+				.setSuffixOperatorButtonClickListener( this::insertSuffixOperator )
+				.setOnJustInsertButtonClickListener( this::insert );
+		factories.add( new NumPadFragmentFactory( configuration ) );
 		factories.add( new VariablesFragmentFactory( this, mMemoryActionsLongClick, mOnVariableLongClick ) );
 
 		ViewPager2 viewPager = findViewById( R.id.viewpager );
@@ -944,10 +954,6 @@ public class Main2Activity extends ThemeActivity {
 		insert( s );
 	}
 
-	public void insertSuffixOperatorOnClick(View v) {
-		insertSuffixOperator( ( (Button) v ).getText().toString() );
-	}
-
 	private void insertSuffixOperator(String s) {
 		EditText editText = findViewById( R.id.ExampleStr );
 		Editable e = editText.getText();
@@ -976,9 +982,8 @@ public class Main2Activity extends ThemeActivity {
 				|| s.equals( getString( R.string.euler_constant ) );
 	}
 
-	public void insertFunction(View v) {
+	public void insertFunction(String functionName) {
 		EditText editText = findViewById( R.id.ExampleStr );
-		String functionName = ( (Button) v ).getText().toString();
 		String currentExpression = editText.getText().toString();
 		int selection = editText.getSelectionStart();
 		if ( !currentExpression.isEmpty() && selection > 0 ) {
@@ -993,15 +998,7 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	public void insertBracket(View v) {
-		justInsert( v );
-	}
-
-	public void justInsert(View v) {
-		insert( ( (Button) v ).getText().toString() );
-	}
-
-	public void insertDot(View v) {
+	private void insertDecimalSeparator() {
 		Locale locale = getResources().getConfiguration().getLocales().get( 0 );
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols( locale );
 		char decimalSeparator = decimalFormatSymbols.getDecimalSeparator();
@@ -1046,6 +1043,7 @@ public class Main2Activity extends ThemeActivity {
 		clearFormulaEditText();
 		clearAnswer();
 		lastCalculatedResult = null;
+		sharedPreferences.edit().remove( LAST_EXPRESSION_SHARED_PREFS_KEY ).apply();
 	}
 
 	private void clearAnswer() {
@@ -1060,13 +1058,11 @@ public class Main2Activity extends ThemeActivity {
 		editText.setSelection( 0 );
 	}
 
-	public void onEqual(View v) {
-		calculate( CalculationMode.FULL_ANSWER );
-	}
-
 	private void calculate(CalculationMode mode) {
 		EditText txt = findViewById( R.id.ExampleStr );
 		String example = txt.getText().toString();
+
+		saveExpressionIfEnabled( example );
 
 		lastCalculatedResult = null;
 
@@ -1100,8 +1096,13 @@ public class Main2Activity extends ThemeActivity {
 						.setResult( res )
 						.setExpression( finalFormatted );
 				runOnUiThread( ()->writeResult( mode, res, finalFormatted ) );
-				if ( mode == CalculationMode.FULL_ANSWER ) {
+				if ( mode == CalculationMode.FULL_ANSWER && sharedPreferences.getBoolean( getString( R.string.pref_save_history ), true ) ) {
 					saveToHistory( finalFormatted, res );
+				}
+				if(mode == CalculationMode.FULL_ANSWER){
+					// important to call with decimalFormat,
+					// because normalization method will be called in saveExpressionIfEnabled
+					saveExpressionIfEnabled( res.format( mDecimalFormat ) );
 				}
 			} catch (CalculationException e) {
 				if ( mode == CalculationMode.FULL_ANSWER ) {
@@ -1123,14 +1124,18 @@ public class Main2Activity extends ThemeActivity {
 		startThreadController();
 	}
 
+	private void saveExpressionIfEnabled(String expression) {
+		String normalizedExpression = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
+		sharedPreferences.edit()
+				.putString( LAST_EXPRESSION_SHARED_PREFS_KEY, normalizedExpression )
+				.apply();
+	}
+
 	private void saveToHistory(String expression, NumberList result) {
 		String example = FormatUtils.normalizeNumbersInExample( expression, mDecimalFormat );
-
-		if ( sharedPreferences.getBoolean( "save_history", true ) ) {
-			HistoryManager.getInstance()
-					.put( new HistoryEntry( example, result.format() ) )
-					.save();
-		}
+		HistoryManager.getInstance()
+				.put( new HistoryEntry( example, result.format() ) )
+				.save();
 	}
 
 	private void startThreadController() {

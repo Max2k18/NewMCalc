@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--string name="app_name" translatable="false">MCalc</string-->
+    <string name="lang_code">en</string>
 
     <string name="settings">Settings</string>
 
@@ -92,7 +92,7 @@
     <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
     <string name="error">Error</string>
     <string name="some_error_occurred">Some error occurred</string>
-    
+
     <string name="unexpected_error_occurred">Unexpected error occurred</string>
     <string name="after_crash_message">We will find out about it soon and fix it as soon as possible</string>
     <string name="we_did_not_mean_to_do_it">Sorry, we did not mean to do it</string>
@@ -117,4 +117,15 @@
     <string name="invalid_value_for_tangent_or_cotangent">Invalid value for tangent or cotangent</string>
     <string name="not_a_number">Not a number</string>
     <string name="settings_save_last_result_on_close">Save the last result after exiting the application</string>
+    <string name="numgen_minimum">Minimum:</string>
+    <string name="numgen_maximum">Maximum:</string>
+    <string name="numgen_generated_number">Generated number:</string>
+    <string name="currency_converter">Currency converter</string>
+    <string name="currency_converter_status_text">Exchange rate as of %1$s</string>
+    <string name="number_system_converter_binary">Binary</string>
+    <string name="number_system_converter_octal">Octal</string>
+    <string name="number_system_converter_decimal">Decimal</string>
+    <string name="number_system_converter_hexadecimal">Hexadecimal</string>
+    <string name="invalid_value_for_tangent">Invalid argument value for tangent</string>
+    <string name="invalid_value_for_cotangent">Invalid argument value for cotangent</string>
 </resources>
