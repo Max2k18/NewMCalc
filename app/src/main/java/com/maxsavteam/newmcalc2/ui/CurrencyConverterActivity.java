@@ -147,18 +147,45 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 				}
 			}
 			dataLoadingFailureCount = 0;
-			currencies = data.getCurrencies( getString( R.string.lang_code ) );
-			runOnUiThread( this::displayData );
+			endDataLoading();
 		} catch (IOException | JSONException e){
 			e.printStackTrace();
 			setStatusText( e.getMessage() + ". " + getString( R.string.please_contact_us ) );
-			if ( dataLoadingFailureCount < 5 ) {
-				dataLoadingFailureCount++;
-				loadData(forceReload);
-			}else {
-				runOnUiThread( ()->Toast.makeText( this, "Data loading failed 5 times\nPlease, try again later", Toast.LENGTH_SHORT ).show());
+			onDataLoadingFailure( forceReload );
+		}
+	}
+
+	private void onDataLoadingFailure(boolean forceReload){
+		if ( dataLoadingFailureCount < 5 ) {
+			dataLoadingFailureCount++;
+			loadData( forceReload );
+			return;
+		}
+		Toast toast = Toast.makeText( this, "Data loading failed 5 times\nPlease, try again later", Toast.LENGTH_SHORT );
+		if(forceReload) {
+			runOnUiThread( ()->{
+				toast.show();
+				// if we are forcing reload, then it is user initiated,
+				// that's why we already have loaded data, so we can show it again
+				displayData();
+			} );
+		} else {
+			try {
+				data = loadDataFromCache();
+				if(data != null)
+					endDataLoading();
+				else
+					runOnUiThread( toast::show );
+			} catch (JSONException e) {
+				e.printStackTrace();
+				runOnUiThread( toast::show );
 			}
 		}
+	}
+
+	private void endDataLoading(){
+		currencies = data.getCurrencies( getString( R.string.lang_code ) );
+		runOnUiThread( this::displayData );
 	}
 
 	private CurrencyConverterData loadDataFromCache() throws JSONException {
