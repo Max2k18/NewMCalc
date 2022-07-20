@@ -19,8 +19,8 @@ android {
         targetSdkVersion 32
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 2029
-        versionName "2.8.7"
+        versionCode 3000
+        versionName "3.0.0"
 
         multiDexEnabled true
 
