@@ -344,7 +344,8 @@ public class Main2Activity extends ThemeActivity {
 					new Tuple<>( AdditionalActivities.HISTORY, R.drawable.ic_history, R.string.history ),
 					new Tuple<>( AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, R.drawable.ic_binary, R.string.number_system_converter ),
 					new Tuple<>( AdditionalActivities.PASSWORD_GENERATOR, R.drawable.ic_passgen, R.string.password_generator ),
-					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator )
+					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator ),
+					new Tuple<>( AdditionalActivities.CURRENCY_CONVERTER, R.drawable.currency_converter, R.string.currency_converter )
 			);
 			List<ShortcutInfo> shortcuts = new ArrayList<>();
 			for (Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig) {
