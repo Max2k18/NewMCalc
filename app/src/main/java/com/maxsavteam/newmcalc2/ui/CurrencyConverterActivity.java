@@ -140,6 +140,11 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 				saveData( data );
 			} else {
 				data = loadDataFromCache();
+				if(data == null) {
+					sharedPreferences.edit().remove( "local_timestamp" ).apply();
+					loadData( false );
+					return;
+				}
 			}
 			dataLoadingFailureCount = 0;
 			currencies = data.getCurrencies( getString( R.string.lang_code ) );
@@ -158,14 +163,20 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 
 	private CurrencyConverterData loadDataFromCache() throws JSONException {
 		long timestamp = sharedPreferences.getLong( "timestamp", 0 );
+		if(timestamp == 0)
+			return null;
 
 		SharedPreferences sharedPreferencesCurrencies = getSharedPreferences( "currency_converter_currencies", MODE_PRIVATE );
 		JSONArray currenciesArray = new JSONArray( sharedPreferencesCurrencies.getString( "currencies", "[]" ) );
+		if(currenciesArray.length() == 0)
+			return null;
 		List<CurrencyConverterData.Currencies> currencies = getCurrenciesListFromJson( currenciesArray );
 
 		SharedPreferences sharedPreferencesRates = getSharedPreferences( "currency_converter_rates", MODE_PRIVATE );
-		//noinspection ConstantConditions
-		JSONObject ratesJson = new JSONObject( sharedPreferencesRates.getString( "rates", "{}" ) );
+		String ratesString = sharedPreferencesRates.getString( "rates", "{}" );
+		if(ratesString == null || ratesString.equals( "{}" ))
+			return null;
+		JSONObject ratesJson = new JSONObject( ratesString );
 		Rates rates = getRatesFromJson( ratesJson );
 
 		return new CurrencyConverterData( timestamp, currencies, rates );
