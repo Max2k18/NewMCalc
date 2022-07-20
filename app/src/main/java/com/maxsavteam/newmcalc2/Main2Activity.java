@@ -332,38 +332,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private void addShortcutsToApp() {
-		if ( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N_MR1 ) {
-			ShortcutManager shortcutManager = getSystemService( ShortcutManager.class );
-			Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage( getPackageName() );
-			if ( intent == null ) {
-				return;
-			}
-			intent.putExtra( "shortcut_action", true );
-			List<Tuple<String, Integer, Integer>> shortcutsConfig = List.of(
-					new Tuple<>( AdditionalActivities.HISTORY, R.drawable.ic_history, R.string.history ),
-					new Tuple<>( AdditionalActivities.NUMBER_SYSTEMS_CONVERTER, R.drawable.ic_binary, R.string.number_system_converter ),
-					new Tuple<>( AdditionalActivities.PASSWORD_GENERATOR, R.drawable.ic_passgen, R.string.password_generator ),
-					new Tuple<>( AdditionalActivities.NUMBER_GENERATOR, R.drawable.ic_dice, R.string.random_number_generator ),
-					new Tuple<>( AdditionalActivities.CURRENCY_CONVERTER, R.drawable.currency_converter, R.string.currency_converter )
-			);
-			List<ShortcutInfo> shortcuts = new ArrayList<>();
-			for (Tuple<String, Integer, Integer> shortcutConfig : shortcutsConfig) {
-				intent.putExtra( "to_", shortcutConfig.first );
-				ShortcutInfo shortcut = new ShortcutInfo.Builder( this, shortcutConfig.first )
-						.setShortLabel( getString( shortcutConfig.third ) )
-						.setLongLabel( getString( shortcutConfig.third ) )
-						.setIcon( Icon.createWithResource( this, shortcutConfig.second ) )
-						.setIntent( intent )
-						.build();
-				shortcuts.add( shortcut );
-			}
-			if ( shortcutManager != null ) {
-				shortcutManager.setDynamicShortcuts( shortcuts );
-			}
-		}
-	}
-
 	private void restoreResultIfSaved() {
 		if ( sharedPreferences.getBoolean( getString( R.string.pref_save_result ), false ) ) {
 			String expression = sharedPreferences.getString( LAST_EXPRESSION_SHARED_PREFS_KEY, "" );
@@ -536,8 +504,6 @@ public class Main2Activity extends ThemeActivity {
 		registerBroadcastReceivers();
 
 		memoryEntries = MemoryReader.read( sharedPreferences );
-
-		addShortcutsToApp();
 
 		restoreResultIfSaved();
 
@@ -1266,7 +1232,7 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		getMenuInflater().inflate( R.menu.menu_main, menu );
 		return true;
 	}

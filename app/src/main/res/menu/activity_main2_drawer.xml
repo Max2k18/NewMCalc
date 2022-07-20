@@ -10,7 +10,7 @@
             android:title="@string/history" />
         <item
             android:id="@+id/nav_numbersysconverter"
-            android:icon="@drawable/ic_binary"
+            android:icon="@drawable/ic_number_system_converter"
             android:title="@string/number_system_converter" />
         <item
             android:id="@+id/nav_passgen"

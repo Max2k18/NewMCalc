@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="numberSystemConverter"
+        android:icon="@drawable/ic_number_system_converter"
+        android:shortcutShortLabel="@string/number_system_converter">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.Main2Activity" />
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.ui.NumberSystemConverterActivity" />
+
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="passwordGenerator"
+        android:icon="@drawable/ic_passgen"
+        android:shortcutShortLabel="@string/password_generator">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.Main2Activity" />
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.ui.PasswordGeneratorActivity" />
+
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="numberGenerator"
+        android:icon="@drawable/ic_dice"
+        android:shortcutShortLabel="@string/password_generator">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.Main2Activity" />
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.ui.NumberGeneratorActivity" />
+
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="currencyConverter"
+        android:icon="@drawable/currency_converter"
+        android:shortcutShortLabel="@string/currency_converter">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.Main2Activity" />
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.maxsavteam.newmcalc2.dev"
+            android:targetClass="com.maxsavteam.newmcalc2.ui.CurrencyConverterActivity" />
+
+    </shortcut>
+
+</shortcuts>
