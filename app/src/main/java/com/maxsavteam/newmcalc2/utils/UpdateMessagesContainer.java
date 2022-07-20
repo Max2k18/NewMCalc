@@ -1,27 +1,30 @@
 package com.maxsavteam.newmcalc2.utils;
 
+import static java.util.Map.entry;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.maxsavteam.newmcalc2.R;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateMessagesContainer {
 
-	private static final Map<String, Integer> releaseMessages = new HashMap<>() {{
+	private static final Map<String, Integer> releaseMessages = Map.ofEntries(
 
-		put( "2.8.0", R.string.release_note_2_8 );
-		put( "2.7.0", R.string.release_note_2_7 );
-		put( "2.6.0", R.string.release_note_2_6 );
-		put( "2.4.0", R.string.release_note_2_4 );
-		put( "2.3.1", R.string.release_note_2_3 );
-		put( "2.3.0", R.string.release_note_2_3 );
-		put( "2.1.0", R.string.release_note_2_1 );
-		put( "2.0.0", R.string.release_note_2_0 );
+		entry( "3.0.0", R.string.release_note_3_0 ),
 
-	}};
+		entry( "2.8.0", R.string.release_note_2_8 ),
+		entry( "2.7.0", R.string.release_note_2_7 ),
+		entry( "2.6.0", R.string.release_note_2_6 ),
+		entry( "2.4.0", R.string.release_note_2_4 ),
+		entry( "2.3.1", R.string.release_note_2_3 ),
+		entry( "2.3.0", R.string.release_note_2_3 ),
+		entry( "2.1.0", R.string.release_note_2_1 ),
+		entry( "2.0.0", R.string.release_note_2_0 )
+
+	);
 
 	public static boolean isReleaseNoteExists(String version) {
 		return releaseMessages.containsKey( version );
