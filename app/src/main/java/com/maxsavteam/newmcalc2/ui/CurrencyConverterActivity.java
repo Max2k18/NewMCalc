@@ -146,7 +146,7 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 			runOnUiThread( this::displayData );
 		} catch (IOException | JSONException e){
 			e.printStackTrace();
-			setStatusText( e.getMessage() );
+			setStatusText( e.getMessage() + ". " + getString( R.string.please_contact_us ) );
 			if ( dataLoadingFailureCount < 5 ) {
 				dataLoadingFailureCount++;
 				loadData(forceReload);

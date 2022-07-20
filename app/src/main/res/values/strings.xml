@@ -128,4 +128,5 @@
     <string name="number_system_converter_hexadecimal">Hexadecimal</string>
     <string name="invalid_value_for_tangent">Invalid argument value for tangent</string>
     <string name="invalid_value_for_cotangent">Invalid argument value for cotangent</string>
+    <string name="please_contact_us">Please contact us</string>
 </resources>
