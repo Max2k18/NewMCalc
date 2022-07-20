@@ -121,7 +121,7 @@
     <string name="numgen_maximum">Maximum:</string>
     <string name="numgen_generated_number">Generated number:</string>
     <string name="currency_converter">Currency converter</string>
-    <string name="currency_converter_status_text">Exchange rate as of %1$s</string>
+    <string name="currency_converter_status_text">Exchange rates as of %1$s</string>
     <string name="number_system_converter_binary">Binary</string>
     <string name="number_system_converter_octal">Octal</string>
     <string name="number_system_converter_decimal">Decimal</string>
