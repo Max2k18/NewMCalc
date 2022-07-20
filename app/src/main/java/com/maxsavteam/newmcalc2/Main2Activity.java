@@ -4,18 +4,13 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -72,7 +67,6 @@ import com.maxsavteam.newmcalc2.core.CalculationMode;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
 import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
-import com.maxsavteam.newmcalc2.entity.Tuple;
 import com.maxsavteam.newmcalc2.fragment.viewpager.NumPadFragmentFactory;
 import com.maxsavteam.newmcalc2.fragment.viewpager.VariablesFragmentFactory;
 import com.maxsavteam.newmcalc2.memory.MemoryReader;
@@ -121,8 +115,6 @@ public class Main2Activity extends ThemeActivity {
 	private SharedPreferences sharedPreferences;
 
 	private boolean progressDialogShown = false;
-
-	private ArrayList<BroadcastReceiver> registeredBroadcasts = new ArrayList<>();
 
 	private List<NumberList> memoryEntries;
 
@@ -386,32 +378,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 	}
 
-	private void unregisterAllBroadcasts() {
-		for (BroadcastReceiver broadcastReceiver : registeredBroadcasts) {
-			unregisterReceiver( broadcastReceiver );
-		}
-		registeredBroadcasts = new ArrayList<>();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		unregisterAllBroadcasts();
-	}
-
-	private void registerBroadcastReceivers() {
-		BroadcastReceiver on_var_edited = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				setViewPager( 1 );
-			}
-		};
-		registerReceiver( on_var_edited,
-				new IntentFilter( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" ) );
-		registeredBroadcasts.add( on_var_edited );
-
-	}
-
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged( newConfig );
@@ -500,8 +466,6 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		enableElPrimoEasterEgg();
-
-		registerBroadcastReceivers();
 
 		memoryEntries = MemoryReader.read( sharedPreferences );
 

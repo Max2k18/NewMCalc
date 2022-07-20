@@ -76,21 +76,16 @@ public class VariableEditorActivity extends ThemeActivity {
 			if ( variable.getTag() == tag ) {
 				variable.setName( varName );
 				variable.setValue( varValue );
-				saveAndExit();
+
+				VariableUtils.saveVariables( variables );
+				onBackPressed();
 
 				return;
 			}
 		}
 
 		variables.add( new Variable( varName, varValue, tag ) );
-		saveAndExit();
-	}
-
-	private void saveAndExit(){
 		VariableUtils.saveVariables( variables );
-		Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
-		sendBroadcast( in );
-		setResult( ResultCodesConstants.RESULT_APPLY );
 		onBackPressed();
 	}
 
@@ -98,10 +93,9 @@ public class VariableEditorActivity extends ThemeActivity {
 		for(Variable variable : variables){
 			if(variable.getTag() == tag ){
 				variables.remove( variable );
+
 				VariableUtils.saveVariables( variables );
-				Intent in = new Intent( BuildConfig.APPLICATION_ID + ".VARIABLES_SET_CHANGED" );
-				sendBroadcast( in );
-				setResult( ResultCodesConstants.RESULT_APPLY );
+
 				onBackPressed();
 
 				break;
