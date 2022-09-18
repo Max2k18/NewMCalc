@@ -537,6 +537,8 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void enableElPrimoEasterEgg() {
+		if(getResources().getConfiguration().orientation != Configuration.ORIENTATION_PORTRAIT)
+			return;
 		GifImageView imageView = findViewById( R.id.gif_image_view_el_primo );
 		imageView.stop();
 		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
