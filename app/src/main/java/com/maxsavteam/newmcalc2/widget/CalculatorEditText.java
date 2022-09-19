@@ -142,7 +142,12 @@ public class CalculatorEditText extends androidx.appcompat.widget.AppCompatEditT
 			if ( number.equals( "." ) ) {
 				return decimalSeparator;
 			}
-			String formatted = mDecimalFormat.format( new BigDecimal( number ) );
+			String formatted;
+			try {
+				formatted = mDecimalFormat.format( new BigDecimal( number ) );
+			} catch (NumberFormatException e) {
+				return number.replace( '.', symbols.getDecimalSeparator() ); // replace only decimal separators
+			}
 			if( number.contains( "." ) ){
 				if ( !formatted.contains( decimalSeparator ) )
 					formatted += decimalSeparator;

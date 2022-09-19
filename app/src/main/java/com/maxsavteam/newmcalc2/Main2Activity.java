@@ -537,8 +537,9 @@ public class Main2Activity extends ThemeActivity {
 	}
 
 	private void enableElPrimoEasterEgg() {
-		if(getResources().getConfiguration().orientation != Configuration.ORIENTATION_PORTRAIT)
+		if ( getResources().getConfiguration().orientation != Configuration.ORIENTATION_PORTRAIT ) {
 			return;
+		}
 		GifImageView imageView = findViewById( R.id.gif_image_view_el_primo );
 		imageView.stop();
 		findViewById( R.id.btnDelAll ).setOnLongClickListener( v->{
@@ -939,28 +940,27 @@ public class Main2Activity extends ThemeActivity {
 		EditText editText = findViewById( R.id.ExampleStr );
 		String text = editText.getText().toString();
 		int selection = editText.getSelectionStart();
-		boolean wasDot = false;
-		int i = selection - 1;
-		while ( i >= 0 && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == decimalSeparator || text.charAt( i ) == groupingSeparator ) ) {
-			if ( text.charAt( i ) == decimalSeparator ) {
-				wasDot = true;
-				break;
-			}
-			i--;
+		int numberStart = selection; // number in that case can include grouping separators and multiple(!) decimal separators
+		int numberEnd = Math.min(text.length(), selection + 1);
+		while ( numberStart > 0
+				&& ( Character.isDigit( text.charAt( numberStart - 1 ) )
+				|| text.charAt( numberStart - 1 ) == groupingSeparator
+				|| text.charAt( numberStart - 1 ) == decimalSeparator ) ) {
+			numberStart--;
 		}
-		if ( !wasDot ) {
-			i = selection + 1;
-			while ( i < text.length() && ( CalculatorUtils.isDigit( text.charAt( i ) ) || text.charAt( i ) == decimalSeparator || text.charAt( i ) == groupingSeparator ) ) {
-				if ( text.charAt( i ) == decimalSeparator ) {
-					wasDot = true;
-					break;
-				}
-				i++;
-			}
-			if ( !wasDot ) {
-				insert( String.valueOf( decimalSeparator ) );
-			}
+		while ( numberEnd < text.length()
+				&& ( Character.isDigit( text.charAt( numberEnd ) )
+				|| text.charAt( numberEnd ) == groupingSeparator
+				|| text.charAt( numberEnd ) == decimalSeparator ) ) {
+			numberEnd++;
 		}
+
+		String number = text.substring( numberStart, numberEnd );
+		if(number.chars().filter( ch -> ch == decimalSeparator ).count() >= 2)
+			// maximum two separators can be allowed, because two separators can be used to split number in two
+			// example, "5.2" -> "25.2" -> "255.2" -> "2.55.2" -> "2.5*5.2"
+			return;
+		insert( String.valueOf( decimalSeparator ) );
 	}
 
 	private void insert(String s) {
@@ -1032,7 +1032,7 @@ public class Main2Activity extends ThemeActivity {
 				if ( mode == CalculationMode.FULL_ANSWER && sharedPreferences.getBoolean( getString( R.string.pref_save_history ), true ) ) {
 					saveToHistory( finalFormatted, res );
 				}
-				if(mode == CalculationMode.FULL_ANSWER){
+				if ( mode == CalculationMode.FULL_ANSWER ) {
 					// important to call with decimalFormat,
 					// because normalization method will be called in saveExpressionIfEnabled
 					saveExpressionIfEnabled( res.format( mDecimalFormat ) );
