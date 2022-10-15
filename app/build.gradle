@@ -19,8 +19,8 @@ android {
         targetSdkVersion 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionCode 3002
-        versionName "3.0.1"
+        versionCode 3003
+        versionName "3.0.2"
 
         multiDexEnabled true
 
