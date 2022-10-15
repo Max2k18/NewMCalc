@@ -109,7 +109,7 @@
             android:backgroundTint="@android:color/transparent"
             android:onClick="social"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/ic_external_link" />
+            app:srcCompat="@drawable/web" />
 
         <ImageButton
             android:id="@+id/githubBtn"
