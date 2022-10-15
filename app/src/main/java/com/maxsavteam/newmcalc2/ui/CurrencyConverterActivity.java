@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -161,10 +162,10 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 			loadData( forceReload );
 			return;
 		}
-		Toast toast = Toast.makeText( this, "Data loading failed 5 times\nPlease, try again later", Toast.LENGTH_SHORT );
+		Supplier<Toast> toastSupplier = () -> Toast.makeText( this, "Data loading failed 5 times\nPlease, try again later", Toast.LENGTH_SHORT );
 		if(forceReload) {
 			runOnUiThread( ()->{
-				toast.show();
+				toastSupplier.get().show();
 				// if we are forcing reload, then it is user initiated,
 				// that's why we already have loaded data, so we can show it again
 				displayData();
@@ -175,10 +176,10 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 				if(data != null)
 					endDataLoading();
 				else
-					runOnUiThread( toast::show );
+					runOnUiThread( toastSupplier.get()::show );
 			} catch (JSONException e) {
 				e.printStackTrace();
-				runOnUiThread( toast::show );
+				runOnUiThread( toastSupplier.get()::show );
 			}
 		}
 	}
