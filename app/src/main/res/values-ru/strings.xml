@@ -114,4 +114,7 @@
     <string name="invalid_value_for_tangent">Неверное значение аргумента для тангенса</string>
     <string name="invalid_value_for_cotangent">Неверное значение аргумента для контангенса</string>
     <string name="please_contact_us">Пожалуйста, сообщите нам</string>
+    <string name="number_of_decimal_places_preference_title">Количество знаков после запятой</string>
+    <string name="number_of_decimal_places_preference_summary">Влияет на скорость и точность вычислений</string>
+    <string name="unreasonable_number_of_decimal_places">Неразумное количество знаков после запятой</string>
 </resources>

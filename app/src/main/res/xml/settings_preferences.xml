@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreference
         android:key="@string/pref_save_result"
         android:title="@string/settings_save_last_result_on_close" />
@@ -20,4 +19,12 @@
         android:entryValues="@array/theme_states_values"
         android:key="@string/pref_theme"
         android:title="@string/theme" />
+
+    <com.maxsavteam.newmcalc2.widget.NumberEditTextPreference
+        android:defaultValue="8"
+        android:key="@string/pref_round_scale"
+        android:inputType="numberSigned"
+        android:title="@string/number_of_decimal_places_preference_title"
+        android:summary="@string/number_of_decimal_places_preference_summary" />
+
 </PreferenceScreen>

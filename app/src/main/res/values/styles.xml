@@ -46,6 +46,8 @@
 
         <item name="fullNumpadViewButtonsBackgroundColor">@color/gray</item>
         <item name="fullNumpadViewButtonsRippleColor">@color/ripple_color_on_black_theme</item>
+
+        <item name="android:textColorSecondary">@color/light_gray</item>
     </style>
 
     <style name="ActionBarStyle" parent="Widget.AppCompat.ActionBar">

@@ -1,8 +1,10 @@
 package com.maxsavteam.newmcalc2.core;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 
 import androidx.annotation.StringRes;
+import androidx.preference.PreferenceManager;
 
 import com.maxsavteam.calculator.Calculator;
 import com.maxsavteam.calculator.exceptions.CalculationException;
@@ -22,6 +24,9 @@ import java.util.Map;
  */
 public final class CalculatorWrapper {
 	private static final String TAG = Main2Activity.TAG + " CalculatorWrapper";
+
+	public static final int MAX_ROUND_SCALE = 20;
+
 	private final Resources resources;
 
 	private final Calculator calculator;
@@ -60,6 +65,15 @@ public final class CalculatorWrapper {
 		calculator.setAliases( replacementMap );
 
 		updateLocale();
+		loadRoundScale();
+	}
+
+	public void loadRoundScale(){
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( Utils.getContext() );
+		String roundScaleString = sp.getString( resources.getString( R.string.pref_round_scale ), null );
+		if(roundScaleString != null){
+			Calculator.setRoundScale( Integer.parseInt( roundScaleString ) );
+		}
 	}
 
 	public void updateLocale(){

@@ -20,6 +20,7 @@ import androidx.preference.SwitchPreference;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.fragment.SettingsPreferencesFragment;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
 import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
@@ -88,6 +89,13 @@ public class SettingsActivity extends ThemeActivity {
 						.setCancelable( false );
 				runOnUiThread( builder::show );
 			}
+		}else if(key.equals( getString( R.string.pref_round_scale ) )){
+			int value = Integer.parseInt( (String) newValue );
+			if(value > CalculatorWrapper.MAX_ROUND_SCALE ){
+				runOnUiThread( ()->Toast.makeText( this, R.string.unreasonable_number_of_decimal_places, Toast.LENGTH_SHORT ).show() );
+				return false;
+			}
+			CalculatorWrapper.getInstance().loadRoundScale();
 		}
 		return true;
 	};

@@ -129,4 +129,7 @@
     <string name="invalid_value_for_tangent">Invalid argument value for tangent</string>
     <string name="invalid_value_for_cotangent">Invalid argument value for cotangent</string>
     <string name="please_contact_us">Please contact us</string>
+    <string name="number_of_decimal_places_preference_title">Number of decimal places</string>
+    <string name="number_of_decimal_places_preference_summary">Affects the speed and accuracy of calculations</string>
+    <string name="unreasonable_number_of_decimal_places">Unreasonable number of decimal places</string>
 </resources>
