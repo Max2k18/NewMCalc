@@ -61,7 +61,6 @@ import com.maxsavteam.calculator.CalculatorExpressionFormatter;
 import com.maxsavteam.calculator.CalculatorExpressionTokenizer;
 import com.maxsavteam.calculator.exceptions.CalculationException;
 import com.maxsavteam.calculator.results.NumberList;
-import com.maxsavteam.calculator.utils.CalculatorUtils;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.core.CalculationMode;
 import com.maxsavteam.newmcalc2.core.CalculationResult;
@@ -144,9 +143,13 @@ public class Main2Activity extends ThemeActivity {
 			result->{
 				Intent data = result.getData();
 				if ( result.getResultCode() != ResultCodesConstants.RESULT_ERROR && data != null ) {
+					CalculatorEditText exampleEditText = findViewById( R.id.ExampleStr );
 					String example = data.getStringExtra( "example" );
 					if ( example != null && !example.equals( "" ) ) {
-						addStringExampleToTheExampleStr( data.getStringExtra( "result" ) );
+						if(exampleEditText.getText().length() == 0)
+							addStringExampleToTheExampleStr( example );
+						else
+							addStringExampleToTheExampleStr( data.getStringExtra( "result" ) );
 					}
 				}
 			}
@@ -333,7 +336,7 @@ public class Main2Activity extends ThemeActivity {
 				return mDecimalFormat.format( new BigDecimal( number ) );
 			};
 			String formatted;
-			if(expression == null || expression.isEmpty())
+			if( expression.isEmpty() )
 				formatted = "";
 			else
 				formatted = FormatUtils.formatExpression( expression, formatter, FormatUtils.getRootLocaleFormatSymbols() );
