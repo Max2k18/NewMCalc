@@ -5,7 +5,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-def calculatorCoreVersion = "3.3.0"
+def calculatorCoreVersion = "3.3.1"
 
 import java.text.SimpleDateFormat
 

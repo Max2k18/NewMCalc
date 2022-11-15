@@ -25,7 +25,7 @@ import java.util.Map;
 public final class CalculatorWrapper {
 	private static final String TAG = Main2Activity.TAG + " CalculatorWrapper";
 
-	public static final int MAX_ROUND_SCALE = 20;
+	public static final int MAX_ROUND_SCALE = 1000;
 
 	private final Resources resources;
 
@@ -74,6 +74,10 @@ public final class CalculatorWrapper {
 		if(roundScaleString != null){
 			Calculator.setRoundScale( Integer.parseInt( roundScaleString ) );
 		}
+	}
+
+	public void setRoundScale(int roundScale){
+		Calculator.setRoundScale( roundScale );
 	}
 
 	public void updateLocale(){
