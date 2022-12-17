@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 public final class HistoryEntry {
 	private String example;
 	private String answer;
@@ -65,6 +67,34 @@ public final class HistoryEntry {
 				", answer='" + answer + '\'' +
 				", description='" + description + '\'' +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if ( this == o ) {
+			return true;
+		}
+		if ( o == null || getClass() != o.getClass() ) {
+			return false;
+		}
+
+		HistoryEntry that = (HistoryEntry) o;
+
+		if ( !Objects.equals( example, that.example ) ) {
+			return false;
+		}
+		if ( !Objects.equals( answer, that.answer ) ) {
+			return false;
+		}
+		return Objects.equals( description, that.description );
+	}
+
+	@Override
+	public int hashCode() {
+		int result = example != null ? example.hashCode() : 0;
+		result = 31 * result + ( answer != null ? answer.hashCode() : 0 );
+		result = 31 * result + ( description != null ? description.hashCode() : 0 );
+		return result;
 	}
 
 	public static HistoryEntry create(String ex, String ans) {

@@ -25,11 +25,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.maxsavteam.newmcalc2.App;
 import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
@@ -47,9 +47,8 @@ import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Locale;
+import java.util.List;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
@@ -152,7 +151,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 		delete();
 		startHideAnimation();
 		cancelTimer();
-		setupRecyclerView();
+		updateUI();
 		return true;
 	};
 
@@ -294,11 +293,46 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 				.remove( mPositionToDel )
 				.save();
 		adapter.setWaitingToDelete( -1 );
-		adapter.remove( mPositionToDel );
 		mPositionToDel = -1;
 	}
 
-	private void setupRecyclerView() {
+	private void setupRecyclerView(HistoryAdapter.ExampleCalculator exampleCalculator) {
+		LinearLayoutManager lay = new LinearLayoutManager( this );
+		lay.setOrientation( RecyclerView.VERTICAL );
+		adapter = new HistoryAdapter( this, mEntries, this, exampleCalculator );
+		rv.setAdapter( adapter );
+		rv.setLayoutManager( lay );
+
+		RecyclerView.ItemDecoration itemDecoration = new RecyclerView.ItemDecoration() {
+			@Override
+			public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+				mSwipeController.onDraw( c );
+				super.onDraw( c, parent, state );
+			}
+		};
+
+		mSwipeController = new SwipeController( new SwipeControllerActions() {
+			@Override
+			public void onRightClicked(int position) {
+				if ( position != mPositionToDel ) {
+					onDelete( position );
+				}
+			}
+
+			@Override
+			public void onLeftClicked(int position) {
+				if ( position != mPositionToDel ) {
+					adapter.toggleDescriptionLayoutVisibility( position );
+				}
+			}
+		}, this );
+
+		ItemTouchHelper itemTouchHelper = new ItemTouchHelper( mSwipeController );
+		itemTouchHelper.attachToRecyclerView( rv );
+		rv.addItemDecoration( itemDecoration );
+	}
+
+	private void updateUI(){
 		needToCreateMenu = !mEntries.isEmpty();
 		invalidateOptionsMenu();
 		if ( mEntries.size() == 0 ) {
@@ -311,40 +345,35 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			String[] strings = getResources().getStringArray( R.array.history_not_found );
 			t.setText( String.format( "%s\n%s\n%s", strings[ 0 ], strings[ 1 ], strings[ 2 ] ) );
 		} else {
-			LinearLayoutManager lay = new LinearLayoutManager( this );
-			lay.setOrientation( RecyclerView.VERTICAL );
-			adapter = new HistoryAdapter( this, mEntries, this );
-			rv.setAdapter( adapter );
-			rv.setLayoutManager( lay );
-
-			RecyclerView.ItemDecoration itemDecoration = new RecyclerView.ItemDecoration() {
-				@Override
-				public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-					mSwipeController.onDraw( c );
-					super.onDraw( c, parent, state );
-				}
-			};
-
-			mSwipeController = new SwipeController( new SwipeControllerActions() {
-				@Override
-				public void onRightClicked(int position) {
-					if ( position != mPositionToDel ) {
-						onDelete( position );
-					}
-				}
-
-				@Override
-				public void onLeftClicked(int position) {
-					if ( position != mPositionToDel ) {
-						adapter.toggleDescriptionLayoutVisibility( position );
-					}
-				}
-			}, this );
-
-			ItemTouchHelper itemTouchHelper = new ItemTouchHelper( mSwipeController );
-			itemTouchHelper.attachToRecyclerView( rv );
-			rv.addItemDecoration( itemDecoration );
+			updateRecyclerView();
 		}
+	}
+
+	private void updateRecyclerView(){
+		List<HistoryEntry> oldData = adapter.getHistoryEntries();
+		DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff( new DiffUtil.Callback() {
+			@Override
+			public int getOldListSize() {
+				return adapter.getHistoryEntries().size();
+			}
+
+			@Override
+			public int getNewListSize() {
+				return mEntries.size();
+			}
+
+			@Override
+			public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+				return oldData.get( oldItemPosition ) == mEntries.get( newItemPosition );
+			}
+
+			@Override
+			public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+				return oldData.get( oldItemPosition ).equals( mEntries.get( newItemPosition ) );
+			}
+		} );
+		adapter.setHistoryEntries( mEntries );
+		diffResult.dispatchUpdatesTo( adapter );
 	}
 
 	public void cancel(View v) {
@@ -404,7 +433,7 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 						sp.edit().remove( "history" ).apply();
 						mEntries = new ArrayList<>();
 						HistoryManager.getInstance().clear().save();
-						setupRecyclerView();
+						updateUI();
 					} ).setNegativeButton( R.string.no, (dialog, which)->dialog.cancel() );
 			build.create().show();
 		}
@@ -459,11 +488,11 @@ public class HistoryActivity extends ThemeActivity implements HistoryAdapter.Ada
 			mEntries
 					.add( new HistoryEntry(
 							FormatUtils.formatExpression( entry.getExample(), formatter, FormatUtils.getRootLocaleFormatSymbols() ),
-							CalculatorWrapper.getInstance().calculate( entry.getAnswer() ).format( decimalFormat ),
+							null, // calculate later if necessary
 							entry.getDescription()
 					) );
 		}
-		setupRecyclerView();
+		setupRecyclerView(example -> CalculatorWrapper.getInstance().calculate( example ).format( decimalFormat ) );
 	}
 
 	@Override

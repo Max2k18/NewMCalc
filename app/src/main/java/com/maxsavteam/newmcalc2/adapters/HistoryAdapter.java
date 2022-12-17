@@ -17,9 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.maxsavteam.newmcalc2.Main2Activity;
 import com.maxsavteam.newmcalc2.R;
+import com.maxsavteam.newmcalc2.core.CalculatorWrapper;
 import com.maxsavteam.newmcalc2.entity.HistoryEntry;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
@@ -27,13 +29,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 	private final ArrayList<HistoryEntry> mData;
 	private final AdapterCallback mAdapterCallback;
 	private final Context mContext;
+	private final ExampleCalculator exampleCalculator;
 	private final ArrayList<ViewHolder> mViewHolders = new ArrayList<>();
 	public static final String TAG = Main2Activity.TAG + " HistoryAdapter";
 	private int mWaitingToDelete = -1;
 
-	public HistoryAdapter(Context context, ArrayList<HistoryEntry> data, AdapterCallback callback) {
+	public HistoryAdapter(Context context, ArrayList<HistoryEntry> data, AdapterCallback callback, ExampleCalculator exampleCalculator) {
 		mAdapterCallback = callback;
 		this.mData = new ArrayList<>( data );
+		this.exampleCalculator = exampleCalculator;
 		mContext = context;
 		for (int i = 0; i < data.size(); i++)
 			mViewHolders.add( null );
@@ -49,15 +53,18 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 		}
 	}
 
-	public void remove(int position) {
-		mData.remove( position );
-		mViewHolders.remove( position );
-		notifyItemRemoved( position );
-	}
-
 	public void updateDescription(String newDesc, int position) {
 		mData.get( position ).setDescription( newDesc );
 		notifyItemChanged( position );
+	}
+
+	public List<HistoryEntry> getHistoryEntries(){
+		return mData;
+	}
+
+	public void setHistoryEntries(List<HistoryEntry> historyEntries){
+		mData.clear();
+		mData.addAll( historyEntries );
 	}
 
 	@NonNull
@@ -97,7 +104,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 		mViewHolders.set( position, holder );
 		HistoryEntry entry = mData.get( position );
 		String ex = entry.getExample();
-		String ans = entry.getAnswer();
+		String ans;
+		if(entry.getAnswer() == null) {
+			ans = exampleCalculator.calculate( ex );
+			entry.setAnswer( ans );
+		}else {
+			ans = entry.getAnswer();
+		}
 		if ( entry.getDescription() != null ) {
 			String desc = entry.getDescription();
 			if ( desc.length() != 0 ) {
@@ -131,6 +144,10 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 	@Override
 	public int getItemCount() {
 		return mData.size();
+	}
+
+	public interface ExampleCalculator {
+		String calculate(String example);
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder {

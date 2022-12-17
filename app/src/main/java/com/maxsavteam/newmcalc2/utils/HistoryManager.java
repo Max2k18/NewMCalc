@@ -58,10 +58,9 @@ public class HistoryManager {
 				String example = element.getString( "example" );
 				Log.i( TAG, example );
 				try {
-					NumberList result = CalculatorWrapper.getInstance().calculate( example );
 					HistoryEntry entry = new HistoryEntry(
 							element.getString( "example" ),
-							result.format(),
+							null,
 							element.optString( "description", "" )
 					);
 					historyEntries.add( entry );
