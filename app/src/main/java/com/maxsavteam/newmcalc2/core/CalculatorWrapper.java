@@ -86,6 +86,10 @@ public final class CalculatorWrapper {
 		calculator.setGroupingSeparator( decimalFormatSymbols.getGroupingSeparator() );
 	}
 
+	public Calculator getCalculator() {
+		return calculator;
+	}
+
 	public NumberList calculate(String example) {
 		return calculator.calculate( example );
 	}

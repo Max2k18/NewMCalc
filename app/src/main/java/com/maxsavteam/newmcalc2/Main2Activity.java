@@ -1008,15 +1008,8 @@ public class Main2Activity extends ThemeActivity {
 		}
 
 		String formatted;
-
 		try {
-			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
-			formatted = formatter.tryToCloseExpressionBrackets( example );
-			formatted = formatter.formatNearBrackets( formatted );
-
-			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
-			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
-			formatted = tokenizer.localizeExpression( formatted );
+			formatted = mCalculatorWrapper.getCalculator().formatExpression( example );
 		} catch (CalculationException e) {
 			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculationException.INVALID_BRACKETS_SEQUENCE ) ) );
 			return;
