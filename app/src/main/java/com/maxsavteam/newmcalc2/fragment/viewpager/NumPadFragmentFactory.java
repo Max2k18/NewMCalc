@@ -15,13 +15,17 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
+import androidx.annotation.DrawableRes;
+
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.adapters.ViewPagerAdapter;
 import com.maxsavteam.newmcalc2.widget.CalculatorNumpadView;
+import com.maxsavteam.newmcalc2.widget.MultipleInOneButton;
 import com.maxsavteam.newmcalc2.widget.NumpadView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragmentFactory {
 
@@ -68,23 +72,24 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 				create( context.getString( R.string.pow_sign ), insertBinaryOperatorOnClick ),
 				create( context.getString( R.string.percent ), insertSuffixOperatorOnClick ),
 
-				create( context.getString( R.string.sin ), insertFunctionOnClick ),
-				create( context.getString( R.string.cos ), insertFunctionOnClick ),
-				create( context.getString( R.string.tangent ), insertFunctionOnClick ),
-				create( context.getString( R.string.cotangent ), insertFunctionOnClick ),
+				create( context.getString( R.string.sin ), insertFunctionOnClick,
+						create( context.getString( R.string.asin ), insertFunctionOnClick ),
+						create( context.getString( R.string.csc ), insertFunctionOnClick ) ),
+				create( context.getString( R.string.cos ), insertFunctionOnClick,
+						create( context.getString( R.string.acos ), insertFunctionOnClick ),
+						create( context.getString( R.string.sec ), insertFunctionOnClick ) ),
+				create( context.getString( R.string.tangent ), insertFunctionOnClick,
+						create( context.getString( R.string.arctangent ), insertFunctionOnClick ) ),
+				create( context.getString( R.string.cotangent ), insertFunctionOnClick,
+						create( context.getString( R.string.arccotangent ), insertFunctionOnClick ) ),
 
-				create( context.getString( R.string.degree_sign ), insertSuffixOperatorOnClick ),
-				create( context.getString( R.string.grad_sign ), insertSuffixOperatorOnClick ),
+				create( context.getString( R.string.degree_sign ), insertSuffixOperatorOnClick, create( context.getString( R.string.grad_sign ), insertSuffixOperatorOnClick ) ),
 
-				create( context.getString( R.string.pi ), justInsertOnClick ),
-				create( context.getString( R.string.fi ), justInsertOnClick ),
-				create( context.getString( R.string.euler_constant ), justInsertOnClick ),
+				create( context.getString( R.string.pi ), justInsertOnClick,
+						create( context.getString( R.string.fi ), justInsertOnClick ),
+						create( context.getString( R.string.euler_constant ), justInsertOnClick ) ),
 				create( context.getString( R.string.factorial ), insertSuffixOperatorOnClick ),
 
-				create( context.getString( R.string.asin ), insertFunctionOnClick ),
-				create( context.getString( R.string.acos ), insertFunctionOnClick ),
-				create( context.getString( R.string.arctangent ), insertFunctionOnClick ),
-				create( context.getString( R.string.arccotangent ), insertFunctionOnClick ),
 				create( context.getString( R.string.log ), insertFunctionOnClick ),
 				create( context.getString( R.string.ln ), insertFunctionOnClick ),
 
@@ -124,30 +129,43 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 						10f,
 						context.getResources().getDisplayMetrics()
 				);
+		TypedValue typedValue = new TypedValue();
+		context.getTheme().resolveAttribute( R.attr.selectableItemBackgroundBorderless, typedValue, true );
+		int backgroundResource = typedValue.resourceId;
 		for (var p : buttonConfigurations) {
-			Button button = new Button( context, null, R.style.MathOperationButtonStyle );
-			button.setText( p.text );
-			button.setOnClickListener( p.onClickListener );
-
+			MultipleInOneButton button = createButtonFromConfiguration( p, buttonsPadding, backgroundResource );
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( ViewGroup.LayoutParams.MATCH_PARENT, parentHeight / 6 );
 			button.setLayoutParams( params );
-
-			button.setPadding( 0, buttonsPadding, 0, buttonsPadding );
-
-			TypedValue typedValue = new TypedValue();
-			button.setTextColor( Color.WHITE );
-
-			context.getTheme().resolveAttribute( R.attr.selectableItemBackgroundBorderless, typedValue, true );
-			button.setBackgroundResource( typedValue.resourceId );
-
-			button.setTextSize( TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimensionPixelSize( R.dimen.math_operations_text_size ) );
-			button.setGravity( Gravity.CENTER );
-			button.setTypeface( Typeface.DEFAULT_BOLD );
 
 			layout.addView( button );
 		}
 
 		setupScrollViewArrows( view );
+	}
+
+	private MultipleInOneButton createButtonFromConfiguration(ButtonConfiguration configuration, int buttonsPadding, @DrawableRes int backgroundResource) {
+		MultipleInOneButton button = new MultipleInOneButton( context, null, R.style.MathOperationButtonStyle );
+		button.setText( configuration.text );
+		button.setOnClickListener( configuration.onClickListener );
+
+		button.setPadding( 0, buttonsPadding, 0, buttonsPadding );
+
+		button.setTextColor( Color.WHITE );
+
+		button.setBackgroundResource( backgroundResource );
+
+		button.setTextSize( TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimensionPixelSize( R.dimen.math_operations_text_size ) );
+		button.setGravity( Gravity.CENTER );
+		button.setTypeface( Typeface.DEFAULT_BOLD );
+
+		if(configuration.configurations.size() > 0){
+			List<MultipleInOneButton> buttons = new ArrayList<>();
+			for(var p : configuration.configurations)
+				buttons.add( createButtonFromConfiguration( p, buttonsPadding, backgroundResource ) );
+			button.setButtons( buttons );
+		}
+
+		return button;
 	}
 
 	private Button createCalcButton() {
@@ -201,14 +219,16 @@ public class NumPadFragmentFactory implements ViewPagerAdapter.ViewPagerFragment
 	public static class ButtonConfiguration {
 		public final String text;
 		public final View.OnClickListener onClickListener;
+		public final List<ButtonConfiguration> configurations;
 
-		public ButtonConfiguration(String text, View.OnClickListener onClickListener) {
+		public ButtonConfiguration(String text, View.OnClickListener onClickListener, ButtonConfiguration... configurations) {
 			this.text = text;
 			this.onClickListener = onClickListener;
+			this.configurations = Arrays.asList( configurations );
 		}
 		
-		public static ButtonConfiguration create(String text, View.OnClickListener onClickListener){
-			return new ButtonConfiguration( text, onClickListener );
+		public static ButtonConfiguration create(String text, View.OnClickListener onClickListener, ButtonConfiguration... configurations) {
+			return new ButtonConfiguration( text, onClickListener, configurations );
 		}		
 	}
 

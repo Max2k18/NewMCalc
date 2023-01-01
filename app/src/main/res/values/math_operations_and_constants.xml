@@ -18,6 +18,8 @@
     <string name="log" translatable="false">log</string>
     <string name="ln" translatable="false">ln</string>
     <string name="abs" translatable="false">abs</string>
+    <string name="csc" translatable="false">csc</string>
+    <string name="sec" translatable="false">sec</string>
 
     <string name="asin" translatable="false">asin</string>
     <string name="acos" translatable="false">acos</string>
