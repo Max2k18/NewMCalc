@@ -632,6 +632,8 @@ public class Main2Activity extends ThemeActivity {
 
 		HorizontalScrollView exampleScrollView = findViewById( R.id.scrollview );
 		exampleScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateExampleArrows() );
+		findViewById( R.id.example_left ).setOnClickListener( v->exampleScrollView.fullScroll( HorizontalScrollView.FOCUS_LEFT ) );
+		findViewById( R.id.example_right ).setOnClickListener( v->exampleScrollView.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
 
 		CalculatorEditText answerTextView = findViewById( R.id.AnswerStr );
 		answerTextView.addListener( this::updateAnswerArrows );
@@ -639,6 +641,8 @@ public class Main2Activity extends ThemeActivity {
 
 		HorizontalScrollView answerScrollView = findViewById( R.id.scrollViewAns );
 		answerScrollView.setOnScrollChangeListener( (v, scrollX, scrollY, oldScrollX, oldScrollY)->updateAnswerArrows() );
+		findViewById( R.id.answer_left ).setOnClickListener( v->answerScrollView.fullScroll( HorizontalScrollView.FOCUS_LEFT ) );
+		findViewById( R.id.answer_right ).setOnClickListener( v->answerScrollView.fullScroll( HorizontalScrollView.FOCUS_RIGHT ) );
 	}
 
 	private void showWithAlpha(int id) {
