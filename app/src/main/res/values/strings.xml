@@ -72,7 +72,6 @@
     <string name="division_by_zero">Division by zero</string>
     <string name="undefined">Undefined</string>
     <string name="invalid_brackets_sequence">Invalid brackets sequence</string>
-    <string name="root_of_even_degree_of_even_number">Unable to find root of even degree of negative number</string>
 
     <string-array name="theme_states">
         <item>Light</item>
@@ -132,4 +131,10 @@
     <string name="number_of_decimal_places_preference_title">Number of decimal places</string>
     <string name="number_of_decimal_places_preference_summary">Affects the speed and accuracy of calculations</string>
     <string name="unreasonable_number_of_decimal_places">Unreasonable number of decimal places</string>
+    <string name="root_of_negative_number">Root of negative number</string>
+    <string name="binary_operator_cannot_be_applied_to_lists">Binary operator cannot be applied to lists</string>
+    <string name="invalid_value_for_cosecant">Invalid value for cosecant</string>
+    <string name="invalid_value_for_secant">Invalid value for secant</string>
+    <string name="invalid_asin_acos_value">Invalid value for asin or acos</string>
+    <string name="invalid_value_for_asec_acsc">Invalid value for asec or acsc</string>
 </resources>

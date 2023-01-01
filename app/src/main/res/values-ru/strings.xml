@@ -64,7 +64,6 @@
     <string name="division_by_zero">Деление на ноль</string>
     <string name="undefined">Неопределено</string>
     <string name="invalid_brackets_sequence">Неправильная скобочная последовательность</string>
-    <string name="root_of_even_degree_of_even_number">Невозможно найти корень чётной степени из отрицательного числа</string>
 
     <string-array name="theme_states">
         <item>Светлая</item>
@@ -117,4 +116,10 @@
     <string name="number_of_decimal_places_preference_title">Количество знаков после запятой</string>
     <string name="number_of_decimal_places_preference_summary">Влияет на скорость и точность вычислений</string>
     <string name="unreasonable_number_of_decimal_places">Неразумное количество знаков после запятой</string>
+    <string name="root_of_negative_number">Корень из отрицательного числа</string>
+    <string name="binary_operator_cannot_be_applied_to_lists">Бинарный оператор не может быть применён к спискам</string>
+    <string name="invalid_value_for_cosecant">Неверное значение для косеканса</string>
+    <string name="invalid_value_for_secant">Неверное значение для секанса</string>
+    <string name="invalid_asin_acos_value">Неверное значение для арксинуса или арккосинуса</string>
+    <string name="invalid_value_for_asec_acsc">Неверное значение для арксеканса или арккосеканса</string>
 </resources>

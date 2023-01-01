@@ -113,8 +113,23 @@ public final class CalculatorWrapper {
 			case CalculationException.INVALID_BRACKETS_SEQUENCE:
 				result = R.string.invalid_brackets_sequence;
 				break;
-			case CalculationException.ROOT_OF_EVEN_DEGREE_OF_NEGATIVE_NUMBER:
-				result = R.string.root_of_even_degree_of_even_number;
+			case CalculationException.ROOT_OF_NEGATIVE_NUMBER:
+				result = R.string.root_of_negative_number;
+				break;
+			case CalculationException.BINARY_OPERATOR_CANNOT_BE_APPLIED_TO_LISTS:
+				result = R.string.binary_operator_cannot_be_applied_to_lists;
+				break;
+			case CalculationException.INVALID_VALUE_FOR_COSECANT:
+				result = R.string.invalid_value_for_cosecant;
+				break;
+			case CalculationException.INVALID_VALUE_FOR_SECANT:
+				result = R.string.invalid_value_for_secant;
+				break;
+			case CalculationException.INVALID_VALUE_FOR_ASEC_ACSC:
+				result = R.string.invalid_value_for_asec_acsc;
+				break;
+			case CalculationException.INVALID_ASIN_ACOS_VALUE:
+				result = R.string.invalid_asin_acos_value;
 				break;
 			case CalculationException.NAN:
 				result = R.string.not_a_number;
