@@ -1009,7 +1009,18 @@ public class Main2Activity extends ThemeActivity {
 
 		String formatted;
 		try {
-			formatted = mCalculatorWrapper.getCalculator().formatExpression( example );
+			CalculatorExpressionFormatter formatter = new CalculatorExpressionFormatter();
+			formatter.setDecimalSeparator( mDecimalFormat.getDecimalFormatSymbols().getDecimalSeparator() );
+			formatter.setGroupingSeparator( mDecimalFormat.getDecimalFormatSymbols().getGroupingSeparator() );
+
+			CalculatorExpressionTokenizer tokenizer = new CalculatorExpressionTokenizer();
+			tokenizer.setReplacementMap( mCalculatorWrapper.getReplacementMap() );
+
+			formatted = formatter.tryToCloseExpressionBrackets( example );
+			formatted = tokenizer.tokenizeExpression( formatted );
+			formatted = formatter.normalizeExpression( formatted );
+
+			formatted = tokenizer.localizeExpression( formatted );
 		} catch (CalculationException e) {
 			writeCalculationError( getString( CalculatorWrapper.getStringResForErrorCode( CalculationException.INVALID_BRACKETS_SEQUENCE ) ) );
 			return;
@@ -1019,7 +1030,7 @@ public class Main2Activity extends ThemeActivity {
 		mCoreThread = new Thread( ()->{
 			FirebaseCrashlytics.getInstance().log( "Now calculating: " + example + "; formatted: " + finalFormatted );
 			try {
-				NumberList res = mCalculatorWrapper.calculate( finalFormatted );
+				NumberList res = mCalculatorWrapper.calculate( example );
 				lastCalculatedResult = new CalculationResult()
 						.setMode( mode )
 						.setResult( res )
