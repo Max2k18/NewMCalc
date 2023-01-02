@@ -162,7 +162,7 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 			loadData( forceReload );
 			return;
 		}
-		Supplier<Toast> toastSupplier = () -> Toast.makeText( this, "Data loading failed 5 times\nPlease, try again later", Toast.LENGTH_SHORT );
+		Supplier<Toast> toastSupplier = () -> Toast.makeText( this, "Data loading failed 5 times\nPlease, contact us and try again later", Toast.LENGTH_SHORT );
 		if(forceReload) {
 			runOnUiThread( ()->{
 				toastSupplier.get().show();
@@ -176,10 +176,14 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 				if(data != null)
 					endDataLoading();
 				else
-					runOnUiThread( toastSupplier.get()::show );
+					runOnUiThread( ()->{
+						toastSupplier.get().show();
+					} );
 			} catch (JSONException e) {
 				e.printStackTrace();
-				runOnUiThread( toastSupplier.get()::show );
+				runOnUiThread( ()->{
+					toastSupplier.get().show();
+				} );
 			}
 		}
 	}
