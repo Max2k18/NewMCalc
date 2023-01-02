@@ -13,9 +13,9 @@ public class UpdateMessagesContainer {
 
 	private static final Map<String, Integer> releaseMessages = Map.ofEntries(
 
-		entry( "3.2.0", R.string.release_note_3_2 ),
+		entry( "3.2", R.string.release_note_3_2 ),
 
-		entry( "3.0.0", R.string.release_note_3_0 ),
+		entry( "3.0", R.string.release_note_3_0 ),
 
 		entry( "2.8.0", R.string.release_note_2_8 ),
 		entry( "2.7.0", R.string.release_note_2_7 ),
@@ -28,17 +28,22 @@ public class UpdateMessagesContainer {
 
 	);
 
+	private static String getMajorVersion(String version){
+		String[] split = version.split( "\\." );
+		return split[0] + "." + split[1];
+	}
+
 	public static boolean isReleaseNoteExists(String version) {
-		return releaseMessages.containsKey( version );
+		return releaseMessages.containsKey( getMajorVersion( version ) );
 	}
 
 	public static boolean isReleaseNoteShown(String version) {
 		SharedPreferences sp = Utils.getContext().getSharedPreferences( "shown_release_notes", Context.MODE_PRIVATE );
-		return sp.getBoolean( version, false );
+		return sp.getBoolean( getMajorVersion( version ), false );
 	}
 
 	public static int getStringIdForNote(String version) {
-		Integer res = releaseMessages.get( version );
+		Integer res = releaseMessages.get( getMajorVersion( version ) );
 		if ( res == null ) {
 			return R.string.something_went_wrong_when_getting_note;
 		}
