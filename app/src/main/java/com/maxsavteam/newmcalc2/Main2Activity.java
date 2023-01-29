@@ -1184,7 +1184,26 @@ public class Main2Activity extends ThemeActivity {
 		}
 		int selection = editText.getSelectionStart();
 		if ( selection != 0 ) {
-			e.delete( selection - 1, selection );
+			String symbol = e.subSequence( selection - 1, selection ).toString();
+			int lenBefore = 1;
+			int lenAfter = 0;
+			if(!isConstant( symbol ) && Character.isLetter( symbol.charAt( 0 ) )){
+				while(selection - lenBefore >= 0){
+					symbol = e.subSequence( selection - lenBefore, selection - lenBefore + 1 ).toString();
+					if(isConstant( symbol ) || !Character.isLetter( symbol.charAt( 0 ) ))
+						break;
+					lenBefore++;
+				}
+				lenBefore--;
+
+				while ( selection + lenAfter < e.length() ) {
+					symbol = e.subSequence( selection + lenAfter, selection + lenAfter + 1 ).toString();
+					if(isConstant( symbol ) || !Character.isLetter( symbol.charAt( 0 ) ))
+						break;
+					lenAfter++;
+				}
+			}
+			e.delete( selection - lenBefore, selection + lenAfter );
 			calculate( CalculationMode.PRE_ANSWER );
 		}
 	}
