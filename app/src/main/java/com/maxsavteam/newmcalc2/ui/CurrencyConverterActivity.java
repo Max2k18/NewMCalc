@@ -18,6 +18,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Date;
@@ -38,7 +39,10 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 	private static final String CURRENCY_CONVERTER_URL = "https://mcalc.maxsavteam.com/api/currency";
 	private static final String TAG = "CurrencyConverterActivity";
 
-	private final OkHttpClient client = new OkHttpClient();
+	private final OkHttpClient client = new OkHttpClient.Builder()
+			.connectTimeout( 17, TimeUnit.SECONDS )
+			.readTimeout( 17, TimeUnit.SECONDS )
+			.build();
 
 	private CurrencyConverterData data;
 	private CurrencyConverterData.Currencies currencies;
@@ -151,7 +155,7 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 			endDataLoading();
 		} catch (IOException | JSONException e){
 			e.printStackTrace();
-			setStatusText( e.getMessage() + ". " + getString( R.string.please_contact_us ) );
+			setStatusText( e.toString() + ". " + getString( R.string.please_contact_us ) );
 			onDataLoadingFailure( forceReload );
 		}
 	}
