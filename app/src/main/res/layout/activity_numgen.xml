@@ -101,15 +101,17 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/numgen_generated_number"
+                    android:layout_weight="1"
+                    android:text="@string/numgen_result"
                     android:textSize="@dimen/num_gen_text_size" />
 
                 <TextSwitcher
                     android:id="@+id/textSwitcherNumGen"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
             </LinearLayout>
 

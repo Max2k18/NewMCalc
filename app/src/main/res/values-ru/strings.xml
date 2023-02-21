@@ -103,7 +103,6 @@
     <string name="settings_save_last_result_on_close">Сохранять последний результат после выхода из приложения</string>
     <string name="numgen_minimum">Минимум:</string>
     <string name="numgen_maximum">Максимум:</string>
-    <string name="numgen_generated_number">Сгенерированное число:</string>
     <string name="currency_converter">Конвертер валют</string>
     <string name="currency_converter_status_text">Курс валют на %1$s</string>
     <string name="number_system_converter_binary">Двоичная</string>
@@ -122,4 +121,5 @@
     <string name="invalid_value_for_secant">Неверное значение для секанса</string>
     <string name="invalid_asin_acos_value">Неверное значение для арксинуса или арккосинуса</string>
     <string name="invalid_value_for_asec_acsc">Неверное значение для арксеканса или арккосеканса</string>
+    <string name="numgen_result">Результат:</string>
 </resources>
