@@ -18,7 +18,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Currency;
 import java.util.Date;
@@ -116,8 +115,12 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 		}
 		if(index == 1) {
 			Locale locale = getResources().getConfiguration().getLocales().get( 0 );
-			Currency currency = Currency.getInstance( locale );
-			return currency.getCurrencyCode().toLowerCase();
+			try {
+				Currency currency = Currency.getInstance( locale );
+				return currency.getCurrencyCode().toLowerCase();
+			}catch (IllegalArgumentException e){ // unsupported locale
+				return "eur";
+			}
 		}
 		throw new IllegalArgumentException( "index must be 0 or 1" );
 	}
