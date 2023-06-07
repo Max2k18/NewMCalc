@@ -9,12 +9,12 @@ import java.util.Map;
 public class CurrencyConverterData {
 
 	private final long timestamp;
-	private final List<Currencies> currenciesList;
+	private final Currencies currencies;
 	private final Rates rates;
 
-	public CurrencyConverterData(long timestamp, List<Currencies> currencies, Rates rates) {
+	public CurrencyConverterData(long timestamp, Currencies currencies, Rates rates) {
 		this.timestamp = timestamp;
-		this.currenciesList = currencies;
+		this.currencies = currencies;
 		this.rates = rates;
 	}
 
@@ -22,16 +22,8 @@ public class CurrencyConverterData {
 		return timestamp;
 	}
 
-	public List<Currencies> getCurrenciesList() {
-		return currenciesList;
-	}
-
-	public Currencies getCurrencies(String langCode){
-		for(Currencies currencies : currenciesList){
-			if(currencies.getLangCode().equals(langCode))
-				return currencies;
-		}
-		throw new IllegalArgumentException("No currencies found for langCode: " + langCode);
+	public Currencies getCurrencies() {
+		return currencies;
 	}
 
 	public Rates getRates() {

@@ -12,6 +12,10 @@ import java.text.SimpleDateFormat
 android {
     compileSdkVersion 33
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "com.maxsavteam.newmcalc2"
         minSdkVersion 24
@@ -73,12 +77,17 @@ static String getBuildTime() {
 }
 
 dependencies {
+    implementation 'com.google.protobuf:protobuf-java:3.23.2'
+
     implementation 'uk.co.samuelwall:material-tap-target-prompt:3.3.2'
 
     implementation 'com.github.haseebazeem15:gif-image-view:1.5'
 
     implementation 'com.google.firebase:firebase-core:21.1.1'
-    implementation 'com.google.firebase:firebase-perf:20.3.1'
+    implementation ('com.google.firebase:firebase-perf:20.3.2'){
+        exclude group: 'com.google.protobuf'
+        exclude group: 'com.google.firebase', module: 'protolite-well-known-types'
+    }
     implementation 'com.google.firebase:firebase-analytics:21.2.0'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.4'
 

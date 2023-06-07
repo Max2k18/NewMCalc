@@ -2,17 +2,19 @@ package com.maxsavteam.newmcalc2.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.maxsavteam.currencyconverterservice.protobuf.CurrenciesDataOuterClass;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.entity.CurrencyConverterData;
 import com.maxsavteam.newmcalc2.entity.Rates;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -142,9 +144,13 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 
 	private void loadData(boolean forceReload){
 		long timestamp = sharedPreferences.getLong( "local_timestamp", 0 );
+		String savedLanguage = sharedPreferences.getString("lang", null);
+		String currentLanguage = getString(R.string.lang_code);
 		try {
-			if ( forceReload || timestamp == 0 || System.currentTimeMillis() - timestamp > TimeUnit.DAYS.toMillis( 1 ) ) {
+			if ( forceReload || timestamp == 0 || System.currentTimeMillis() - timestamp > TimeUnit.DAYS.toMillis( 1 ) || !currentLanguage.equals(savedLanguage) ) {
+				long startTime = System.currentTimeMillis();
 				data = loadNewData();
+				Log.d(TAG, "loadData: loaded in " + (System.currentTimeMillis() - startTime) + "ms");
 				saveData( data );
 			} else {
 				data = loadDataFromCache();
@@ -196,7 +202,7 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 	}
 
 	private void endDataLoading(){
-		currencies = data.getCurrencies( getString( R.string.lang_code ) );
+		currencies = data.getCurrencies();
 		runOnUiThread( this::displayData );
 	}
 
@@ -206,14 +212,14 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 			return null;
 
 		SharedPreferences sharedPreferencesCurrencies = getSharedPreferences( "currency_converter_currencies", MODE_PRIVATE );
-		JSONArray currenciesArray = new JSONArray( sharedPreferencesCurrencies.getString( "currencies", "[]" ) );
-		if(currenciesArray.length() == 0)
+		String currenciesJSONString = sharedPreferencesCurrencies.getString( "currencies", null );
+		if(currenciesJSONString == null)
 			return null;
-		List<CurrencyConverterData.Currencies> currencies = getCurrenciesListFromJson( currenciesArray );
+		CurrencyConverterData.Currencies currencies = getCurrenciesFromJSON(new JSONObject(currenciesJSONString));
 
 		SharedPreferences sharedPreferencesRates = getSharedPreferences( "currency_converter_rates", MODE_PRIVATE );
 		String ratesString = sharedPreferencesRates.getString( "rates", "{}" );
-		if(ratesString == null || ratesString.equals( "{}" ))
+		if(ratesString.equals( "{}" ))
 			return null;
 		JSONObject ratesJson = new JSONObject( ratesString );
 		Rates rates = getRatesFromJson( ratesJson );
@@ -222,16 +228,43 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 	}
 
 	private CurrencyConverterData loadNewData() throws JSONException, IOException {
-		long timestamp = loadTimestamp();
-		List<CurrencyConverterData.Currencies> currencies = loadCurrencies();
-		Rates rates = loadRates();
+		CurrenciesDataOuterClass.CurrenciesData currenciesData = loadCurrenciesData();
+		return parseCurrenciesData(currenciesData);
+	}
 
-		return new CurrencyConverterData( timestamp, currencies, rates );
+	private CurrencyConverterData parseCurrenciesData(CurrenciesDataOuterClass.CurrenciesData currenciesData){
+		CurrencyConverterData.Currencies converterCurrencies = new CurrencyConverterData.Currencies(currenciesData.getLanguage(), currenciesData.getCurrenciesMapMap());
+		Map<String, Map<String, Double>> ratesMap = new HashMap<>();
+		List<CurrenciesDataOuterClass.CurrenciesData.Rate> ratesList = currenciesData.getRatesList();
+		for(CurrenciesDataOuterClass.CurrenciesData.Rate rate : ratesList){
+			ratesMap.put(rate.getCurrencyName(), rate.getRatesMapMap());
+		}
+		Rates rates = new Rates(ratesMap);
+
+		return new CurrencyConverterData(currenciesData.getTimestamp(), converterCurrencies, rates);
+	}
+
+	private CurrenciesDataOuterClass.CurrenciesData loadCurrenciesData() throws IOException {
+		try (Response response = client
+				.newCall(
+						new Request.Builder()
+								.url(CURRENCY_CONVERTER_URL + "/data?lang=" + getString(R.string.lang_code))
+								.build()
+				)
+				.execute()) {
+			if(response.code() != 200)
+				throw new IOException( "Error loading data: " + response.code() );
+			if(response.body() == null)
+				throw new IOException("Response body is null");
+			InputStream is = response.body().byteStream();
+			return CurrenciesDataOuterClass.CurrenciesData.parseFrom(is);
+		}
 	}
 
 	private void saveData(CurrencyConverterData converterData) throws JSONException {
 		sharedPreferences.edit().putLong( "timestamp", converterData.getTimestamp() )
 				.putLong( "local_timestamp", System.currentTimeMillis() )
+				.putString("lang", getString(R.string.lang_code))
 				.apply();
 
 		SharedPreferences sharedPreferencesRates = getSharedPreferences( "currency_converter_rates", MODE_PRIVATE );
@@ -241,32 +274,8 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 
 		SharedPreferences sharedPreferencesCurrencies = getSharedPreferences( "currency_converter_currencies", MODE_PRIVATE );
 		sharedPreferencesCurrencies.edit()
-				.putString( "currencies", currenciesListToJsonString( converterData.getCurrenciesList() ) )
+				.putString( "currencies", converterData.getCurrencies().toJson().toString() )
 				.apply();
-	}
-
-	private String currenciesListToJsonString(List<CurrencyConverterData.Currencies> list) throws JSONException {
-		JSONArray jsonArray = new JSONArray();
-		for(var currencies : list){
-			jsonArray.put( currencies.toJson() );
-		}
-		return jsonArray.toString();
-	}
-
-	private Rates loadRates() throws IOException, JSONException {
-		Response response = client
-				.newCall(
-						new Request.Builder()
-								.url( CURRENCY_CONVERTER_URL + "/rates" )
-								.build()
-				)
-				.execute();
-		if(response.code() != 200)
-			throw new IOException( "Error loading rates: " + response.code() );
-		String json = response.body().string();
-		JSONObject jsonObject = new JSONObject( json );
-		JSONObject ratesJson = jsonObject.getJSONObject( "rates" );
-		return getRatesFromJson( ratesJson );
 	}
 
 	private Rates getRatesFromJson(JSONObject ratesJson) throws JSONException {
@@ -285,51 +294,15 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 		return new Rates( ratesMap );
 	}
 
-	private long loadTimestamp() throws IOException {
-		Response response = client
-				.newCall(
-						new Request.Builder()
-							.url( CURRENCY_CONVERTER_URL + "/timestamp" )
-							.build()
-				)
-				.execute();
-		if(response.code() != 200)
-			throw new IOException( "Error loading timestamp: " + response.code() );
-		return Long.parseLong( response.body().string() );
-	}
-
-	private List<CurrencyConverterData.Currencies> loadCurrencies() throws IOException, JSONException {
-		Request request = new Request.Builder()
-				.url( CURRENCY_CONVERTER_URL + "/currencies?lang=en,ru" )
-				.build();
-
-		Response response = client.newCall( request ).execute();
-		if(response.code() != 200){
-			throw new IOException("Error loading currencies: " + response.code());
+	private CurrencyConverterData.Currencies getCurrenciesFromJSON(JSONObject item) throws JSONException {
+		String langCode = item.getString( "lang" );
+		JSONObject currencies = item.getJSONObject( "currencies" );
+		Map<String, String> map = new HashMap<>();
+		for (Iterator<String> it = currencies.keys(); it.hasNext(); ) {
+			String currency = it.next();
+			map.put( currency, currencies.getString( currency ) );
 		}
-		String json = response.body().string();
-		JSONObject jsonObject = new JSONObject(json);
-		JSONArray result = jsonObject.getJSONArray( "result" );
-
-		return getCurrenciesListFromJson( result );
-	}
-
-	private List<CurrencyConverterData.Currencies> getCurrenciesListFromJson(JSONArray jsonArray) throws JSONException {
-		List<CurrencyConverterData.Currencies> list = new ArrayList<>();
-
-		for(int i = 0; i < jsonArray.length(); i++){
-			JSONObject item = jsonArray.getJSONObject( i );
-			String langCode = item.getString( "lang" );
-			JSONObject currencies = item.getJSONObject( "currencies" );
-			Map<String, String> map = new HashMap<>();
-			for (Iterator<String> it = currencies.keys(); it.hasNext(); ) {
-				String currency = it.next();
-				map.put( currency, currencies.getString( currency ) );
-			}
-			list.add( new CurrencyConverterData.Currencies( langCode, map ) );
-		}
-
-		return list;
+		return new CurrencyConverterData.Currencies(langCode, map);
 	}
 
 }
