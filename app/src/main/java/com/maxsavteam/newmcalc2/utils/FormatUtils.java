@@ -44,18 +44,28 @@ public class FormatUtils {
 			} else if ( character.equals( String.valueOf( sourceSymbols.getDecimalSeparator() ) ) ) {
 				number.append( "." );
 			} else if ( !character.equals( String.valueOf( sourceSymbols.getGroupingSeparator() ) ) ) {
+				if(formatted.length() > 0 && formatted.substring(formatted.length() - 1).equals(";")){
+					if(!character.equals(";") && !isCloseBracket(character) && !character.equals(" ")) {
+						formatted.append(" ");
+					}
+				}
 				if ( number.length() > 0 ) {
 					formatted.append( formatter.format( number.toString() ) );
 					number.setLength( 0 );
 				}
-				formatted
-						.append( character );
+				formatted.append( character );
 			}
 		}
 		if ( number.length() > 0 ) {
+			if(formatted.length() > 0 && formatted.substring(formatted.length() - 1).equals(";"))
+				formatted.append(" ");
 			formatted.append( formatter.format( number.toString() ) );
 		}
 		return formatted.toString();
+	}
+
+	private static boolean isCloseBracket(String character){
+		return character.equals(")") || character.equals("]") || character.equals("\u23A6") || character.equals("\u23A4");
 	}
 
 	public static String formatNumbersInExpression(String ex, DecimalFormat decimalFormat, DecimalFormatSymbols sourceSymbols){
