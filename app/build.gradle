@@ -24,7 +24,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         versionCode 3009
-        versionName "3.3.1"
+        versionName "3.4.0"
 
         multiDexEnabled true
 
