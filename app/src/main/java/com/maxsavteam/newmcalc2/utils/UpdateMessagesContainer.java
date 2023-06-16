@@ -13,6 +13,8 @@ public class UpdateMessagesContainer {
 
 	private static final Map<String, Integer> releaseMessages = Map.ofEntries(
 
+		entry( "3.5", R.string.release_note_3_5 ),
+
 		entry( "3.2", R.string.release_note_3_2 ),
 
 		entry( "3.0", R.string.release_note_3_0 ),
