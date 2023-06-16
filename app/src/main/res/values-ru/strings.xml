@@ -122,4 +122,6 @@
     <string name="invalid_asin_acos_value">Неверное значение для арксинуса или арккосинуса</string>
     <string name="invalid_value_for_asec_acsc">Неверное значение для арксеканса или арккосеканса</string>
     <string name="numgen_result">Результат:</string>
+    <string name="update_is_ready_to_be_installed">Обновление готово к установке</string>
+    <string name="install">Установить</string>
 </resources>

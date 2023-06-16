@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -48,10 +49,15 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailabilityLight;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.appupdate.AppUpdateOptions;
+import com.google.android.play.core.common.IntentSenderForResultStarter;
+import com.google.android.play.core.install.InstallState;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
@@ -89,6 +95,7 @@ import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
+import com.tingyik90.snackprogressbar.SnackProgressBarManager;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -209,6 +216,11 @@ public class Main2Activity extends ThemeActivity {
 			result->{}
 	);
 
+	private final ActivityResultLauncher<IntentSenderRequest> mUpdateFlowLauncher = registerForActivityResult(
+			new ActivityResultContracts.StartIntentSenderForResult(),
+			result->{}
+	);
+
 	private final View.OnLongClickListener mOnVariableLongClick = v->{
 		Button btn = (Button) v;
 		int pos = Integer.parseInt( btn.getTag().toString() );
@@ -252,6 +264,8 @@ public class Main2Activity extends ThemeActivity {
 	};
 
 	private List<String> functionsWithNecessaryOpenBracket;
+
+	private SnackProgressBarManager snackProgressBarManager;
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -463,6 +477,8 @@ public class Main2Activity extends ThemeActivity {
 
 		getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN );
 
+		configureSnackProgressBarManager();
+
 		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
 			showRatePromptIfNeeded();
 			checkForUpdatesAndStartFlow();
@@ -477,6 +493,10 @@ public class Main2Activity extends ThemeActivity {
 		if ( sharedPreferences.getBoolean( "keep_screen_on", false ) ) {
 			getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
 		}
+	}
+
+	private void configureSnackProgressBarManager(){
+		snackProgressBarManager = new SnackProgressBarManager(getWindow().getDecorView(), this);
 	}
 
 	private void initializeDrawer() {
@@ -512,10 +532,22 @@ public class Main2Activity extends ThemeActivity {
 		AppUpdateManager manager = AppUpdateManagerFactory.create( getApplicationContext() );
 		manager.getAppUpdateInfo()
 				.addOnSuccessListener( appUpdateInfo->{
-					if ( appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ) {
-						manager.startUpdateFlow(
+					if ( appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+							&& appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+						manager.registerListener(installState -> {
+							if(installState.installStatus() == InstallStatus.DOWNLOADED){
+								Snackbar.make(
+												findViewById(android.R.id.content).getRootView(),
+												getString(R.string.update_is_ready_to_be_installed),
+												Snackbar.LENGTH_INDEFINITE
+										)
+										.setAction(R.string.restart_app, v -> manager.completeUpdate())
+										.show();
+							}
+						});
+						manager.startUpdateFlowForResult(
 								appUpdateInfo,
-								this,
+								mUpdateFlowLauncher,
 								AppUpdateOptions.newBuilder( AppUpdateType.FLEXIBLE ).build()
 						);
 					}

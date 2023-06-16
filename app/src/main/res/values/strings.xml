@@ -137,4 +137,6 @@
     <string name="invalid_asin_acos_value">Invalid value for asin or acos</string>
     <string name="invalid_value_for_asec_acsc">Invalid value for asec or acsc</string>
     <string name="numgen_result">Result:</string>
+    <string name="update_is_ready_to_be_installed">Update is ready to be installed</string>
+    <string name="install">Install</string>
 </resources>
