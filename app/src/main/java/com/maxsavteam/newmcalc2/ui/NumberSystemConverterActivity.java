@@ -32,6 +32,7 @@ public class NumberSystemConverterActivity extends BaseConverterActivity {
 		setNumpadViewDecimalSeparatorEnabled( false );
 		setStatusVisible( false );
 		setRefreshLayoutEnabled( false );
+		setNumpadViewArrowButtonsEnabled( true );
 
 		setButtonsWeight( .3f );
 

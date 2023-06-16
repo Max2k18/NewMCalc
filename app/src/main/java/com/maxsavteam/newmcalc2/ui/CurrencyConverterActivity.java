@@ -61,6 +61,7 @@ public class CurrencyConverterActivity extends BaseConverterActivity {
 		decimalFormat.setDecimalFormatSymbols( new DecimalFormatSymbols( getResources().getConfiguration().getLocales().get( 0 ) ) );
 
 		setNumpadViewDecimalSeparatorEnabled( true );
+		setNumpadViewArrowButtonsEnabled( true );
 	}
 
 	@Override

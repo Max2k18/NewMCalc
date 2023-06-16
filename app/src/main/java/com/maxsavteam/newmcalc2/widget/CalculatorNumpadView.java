@@ -26,7 +26,7 @@ public class CalculatorNumpadView extends NumpadView {
 
 	public void setCalcButton(Button button){
 		LinearLayout lastRow = findViewById( LAST_ROW_ID );
-		lastRow.removeViewAt( 0 );
+		lastRow.findViewById(MINUS_BUTTON_ID).setVisibility(GONE);
 		lastRow.addView( button, getDefaultParamsForElements() );
 	}
 

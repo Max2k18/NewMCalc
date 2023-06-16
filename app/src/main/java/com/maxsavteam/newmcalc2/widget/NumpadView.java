@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
@@ -22,13 +24,16 @@ import java.util.Locale;
 public class NumpadView extends LinearLayout {
 
 	protected static final int LAST_ROW_ID = View.generateViewId();
-	private static final int SEPARATOR_BUTTON_ID = View.generateViewId();
-	private static final int MINUS_BUTTON_ID = View.generateViewId();
+	protected static final int SEPARATOR_BUTTON_ID = View.generateViewId();
+	protected static final int MINUS_BUTTON_ID = View.generateViewId();
+	protected static final int LEFT_ARROW_BUTTON_ID = View.generateViewId();
+	protected static final int RIGHT_ARROW_BUTTON_ID = View.generateViewId();
 
 	private final List<Button> digitButtons;
 
 	private boolean isDecimalSeparatorEnabled;
 	private boolean isSigned;
+	private boolean showNavigationArrows;
 
 	public NumpadView(Context context) {
 		this( context, null );
@@ -105,12 +110,20 @@ public class NumpadView extends LinearLayout {
 		row.setLayoutParams( getDefaultParamsForElements() );
 		row.setId( LAST_ROW_ID );
 
+		ImageButton leftArrowButton = new ImageButton(getContext(), null, 0, R.style.NumPadButtonStyle2);
+		leftArrowButton.setImageTintList(ColorStateList.valueOf(getContext().getColor(R.color.colorAccent)));
+		leftArrowButton.setId(LEFT_ARROW_BUTTON_ID);
+		leftArrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_left_24);
+		row.addView(leftArrowButton, getDefaultParamsForElements());
+		if(!showNavigationArrows)
+			leftArrowButton.setVisibility(GONE);
+
 		Button minusButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
 		minusButton.setText( "-" );
 		minusButton.setId( MINUS_BUTTON_ID );
 		row.addView( minusButton, getDefaultParamsForElements() );
 		if ( !isSigned ) {
-			minusButton.setVisibility( INVISIBLE );
+			minusButton.setVisibility( showNavigationArrows ? GONE : INVISIBLE );
 		}
 
 		Button zeroButton = new Button( getContext(), null, 0, R.style.NumPadButtonStyle2 );
@@ -125,8 +138,16 @@ public class NumpadView extends LinearLayout {
 		updateSeparatorButtonText( separatorButton );
 		row.addView( separatorButton );
 		if ( !isDecimalSeparatorEnabled ) {
-			separatorButton.setVisibility( INVISIBLE );
+			separatorButton.setVisibility( showNavigationArrows ? GONE : INVISIBLE );
 		}
+
+		ImageButton rightArrowButton = new ImageButton(getContext(), null, 0, R.style.NumPadButtonStyle2);
+		rightArrowButton.setImageResource(R.drawable.baseline_keyboard_arrow_right_24);
+		rightArrowButton.setImageTintList(ColorStateList.valueOf(getContext().getColor(R.color.colorAccent)));
+		rightArrowButton.setId(RIGHT_ARROW_BUTTON_ID);
+		row.addView(rightArrowButton, getDefaultParamsForElements());
+		if(!showNavigationArrows)
+			rightArrowButton.setVisibility(GONE);
 
 		container.addView( row );
 	}
@@ -143,6 +164,57 @@ public class NumpadView extends LinearLayout {
 		} else {
 			findViewById( SEPARATOR_BUTTON_ID ).setVisibility( INVISIBLE );
 		}
+	}
+
+	public boolean isDecimalSeparatorEnabled() {
+		return isDecimalSeparatorEnabled;
+	}
+
+	public void setShowNavigationArrows(boolean showNavigationArrows) {
+		this.showNavigationArrows = showNavigationArrows;
+
+		if(showNavigationArrows){
+			findViewById(LEFT_ARROW_BUTTON_ID).setVisibility(VISIBLE);
+			findViewById(RIGHT_ARROW_BUTTON_ID).setVisibility(VISIBLE);
+			if(!isSigned)
+				findViewById(MINUS_BUTTON_ID).setVisibility(GONE);
+			if(!isDecimalSeparatorEnabled)
+				findViewById(SEPARATOR_BUTTON_ID).setVisibility(GONE);
+		}else{
+			findViewById(LEFT_ARROW_BUTTON_ID).setVisibility(GONE);
+			findViewById(RIGHT_ARROW_BUTTON_ID).setVisibility(GONE);
+			if(!isSigned)
+				findViewById(MINUS_BUTTON_ID).setVisibility(INVISIBLE);
+			if(!isDecimalSeparatorEnabled)
+				findViewById(SEPARATOR_BUTTON_ID).setVisibility(INVISIBLE);
+		}
+	}
+
+	public boolean isShowNavigationArrows() {
+		return showNavigationArrows;
+	}
+
+	public void setArrowButtonOnClickListener(ArrowButtonOnClickListener onClickListener){
+		for(ImageButton button : new ImageButton[]{
+				findViewById(LEFT_ARROW_BUTTON_ID),
+				findViewById(RIGHT_ARROW_BUTTON_ID)
+		}){
+			if(onClickListener == null)
+				button.setOnClickListener(null);
+			else{
+				button.setOnClickListener(v -> onClickListener.onClick(
+						button.getId() == LEFT_ARROW_BUTTON_ID
+							? ArrowButtonOnClickListener.Direction.LEFT
+							: ArrowButtonOnClickListener.Direction.RIGHT));
+			}
+		}
+	}
+
+	public interface ArrowButtonOnClickListener {
+		enum Direction {
+			LEFT, RIGHT
+		}
+		void onClick(Direction direction);
 	}
 
 	public void setSigned(boolean isSigned) {

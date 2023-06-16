@@ -118,6 +118,10 @@ public abstract class BaseConverterActivity extends ThemeActivity {
 		fullNumpadView.setDecimalSeparatorEnabled( enabled );
 	}
 
+	protected void setNumpadViewArrowButtonsEnabled(boolean enabled){
+		fullNumpadView.setShowNavigationArrows(enabled);
+	}
+
 	private void createFields() {
 		for (int i = 0; i < getFieldsCount(); i++) {
 			LinearLayout layout = new LinearLayout( this );

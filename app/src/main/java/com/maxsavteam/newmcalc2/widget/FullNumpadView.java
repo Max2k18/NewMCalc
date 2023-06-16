@@ -166,8 +166,36 @@ public class FullNumpadView extends LinearLayout {
 			}
 			insertSeparator( separator, editText );
 		} );
+		numpadView.setArrowButtonOnClickListener(direction -> {
+			EditText editText = findFocusedEditText();
+			if ( editText == null ) {
+				return;
+			}
+			processArrowButtonClick(editText, direction);
+		});
 
 		return numpadView;
+	}
+
+	private void processArrowButtonClick(EditText editText, NumpadView.ArrowButtonOnClickListener.Direction direction){
+		int selectionStart = editText.getSelectionStart();
+		int selectionEnd = editText.getSelectionEnd();
+		if(direction == NumpadView.ArrowButtonOnClickListener.Direction.LEFT){
+			if(selectionStart == 0)
+				return;
+			if(selectionStart == selectionEnd)
+				selectionStart = selectionEnd = selectionStart - 1;
+			else
+				selectionStart--;
+		}else{
+			if(selectionEnd == editText.getText().length())
+				return;
+			if(selectionStart == selectionEnd)
+				selectionStart = selectionEnd = selectionEnd + 1;
+			else
+				selectionEnd++;
+		}
+		editText.setSelection(selectionStart, selectionEnd);
 	}
 
 	private void insertSeparator(char separator, EditText editText){
@@ -231,6 +259,18 @@ public class FullNumpadView extends LinearLayout {
 
 	public void setDecimalSeparatorEnabled(boolean isDecimalSeparatorEnabled){
 		numpadView.setDecimalSeparatorEnabled( isDecimalSeparatorEnabled );
+	}
+
+	public boolean isDecimalSeparatorEnabled(){
+		return numpadView.isDecimalSeparatorEnabled();
+	}
+
+	public void setShowNavigationArrows(boolean showNavigationArrows){
+		numpadView.setShowNavigationArrows(showNavigationArrows);
+	}
+
+	public boolean isShowNavigationArrows() {
+		return numpadView.isShowNavigationArrows();
 	}
 
 	public void setFirstNDigitButtonsEnabled(int count, boolean enabled) {
