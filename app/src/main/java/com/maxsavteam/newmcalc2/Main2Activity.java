@@ -95,7 +95,6 @@ import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 import com.maxsavteam.newmcalc2.widget.CalculatorEditText;
 import com.maxsavteam.newmcalc2.widget.CustomAlertDialogBuilder;
-import com.tingyik90.snackprogressbar.SnackProgressBarManager;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -264,8 +263,6 @@ public class Main2Activity extends ThemeActivity {
 	};
 
 	private List<String> functionsWithNecessaryOpenBracket;
-
-	private SnackProgressBarManager snackProgressBarManager;
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -477,8 +474,6 @@ public class Main2Activity extends ThemeActivity {
 
 		getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN );
 
-		configureSnackProgressBarManager();
-
 		if ( GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable( getApplicationContext() ) == ConnectionResult.SUCCESS ) {
 			showRatePromptIfNeeded();
 			checkForUpdatesAndStartFlow();
@@ -493,10 +488,6 @@ public class Main2Activity extends ThemeActivity {
 		if ( sharedPreferences.getBoolean( "keep_screen_on", false ) ) {
 			getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
 		}
-	}
-
-	private void configureSnackProgressBarManager(){
-		snackProgressBarManager = new SnackProgressBarManager(getWindow().getDecorView(), this);
 	}
 
 	private void initializeDrawer() {
