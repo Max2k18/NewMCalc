@@ -44,6 +44,11 @@ public class UpdateMessagesContainer {
 		return sp.getBoolean( getMajorVersion( version ), false );
 	}
 
+	public static void markAsShown(String version){
+		SharedPreferences sp = Utils.getContext().getSharedPreferences( "shown_release_notes", Context.MODE_PRIVATE );
+		sp.edit().putBoolean(getMajorVersion(version), true).apply();
+	}
+
 	public static int getStringIdForNote(String version) {
 		Integer res = releaseMessages.get( getMajorVersion( version ) );
 		if ( res == null ) {

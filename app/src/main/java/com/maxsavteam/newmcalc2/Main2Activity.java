@@ -612,8 +612,7 @@ public class Main2Activity extends ThemeActivity {
 					.setMessage( spanned )
 					.setCancelable( false )
 					.setPositiveButton( R.string.ok, ( (dialog, which)->{
-						SharedPreferences sharedPreferences = getSharedPreferences( "shown_release_notes", MODE_PRIVATE );
-						sharedPreferences.edit().putBoolean( version, true ).apply();
+						UpdateMessagesContainer.markAsShown(version);
 						dialog.cancel();
 					} ) );
 			AlertDialog d = builder.create();
