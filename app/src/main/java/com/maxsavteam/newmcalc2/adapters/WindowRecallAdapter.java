@@ -17,56 +17,56 @@ import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 public class WindowRecallAdapter extends RecyclerView.Adapter<WindowRecallAdapter.ViewHolder> {
-	private final List<NumberList> data;
-	private final WindowRecallAdapterCallback mCallback;
-	private final DecimalFormat decimalFormat;
+    private final List<NumberList> data;
+    private final WindowRecallAdapterCallback mCallback;
+    private final DecimalFormat decimalFormat;
 
-	public WindowRecallAdapter(List<NumberList> results, WindowRecallAdapterCallback callback){
-		this.data = results;
-		mCallback = callback;
+    public WindowRecallAdapter(List<NumberList> results, WindowRecallAdapterCallback callback) {
+        this.data = results;
+        mCallback = callback;
 
-		decimalFormat = new DecimalFormat( "#,##0.###", new DecimalFormatSymbols( App.getInstance().getAppLocale() ) );
-		decimalFormat.setParseBigDecimal( true );
-		decimalFormat.setMaximumFractionDigits( 8 );
-	}
+        decimalFormat = new DecimalFormat("#,##0.###", new DecimalFormatSymbols(App.getInstance().getAppLocale()));
+        decimalFormat.setParseBigDecimal(true);
+        decimalFormat.setMaximumFractionDigits(8);
+    }
 
-	@NonNull
-	@Override
-	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.item_memory, parent, false);
-		return new ViewHolder(view);
-	}
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_memory, parent, false);
+        return new ViewHolder(view);
+    }
 
-	@Override
-	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		String pos;
-		if(position == 0)
-			pos = "M";
-		else
-			pos = Integer.toString(position);
-		String result = data.get( position ).format(decimalFormat);
-		holder.result.setText(result);
-		holder.number.setText(pos);
-		holder.itemView.setOnClickListener( view->mCallback.onRecallClick( holder.itemView, position ) );
-	}
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        String pos;
+        if (position == 0)
+            pos = "M";
+        else
+            pos = Integer.toString(position);
+        String result = data.get(position).format(decimalFormat);
+        holder.result.setText(result);
+        holder.number.setText(pos);
+        holder.itemView.setOnClickListener(view -> mCallback.onRecallClick(holder.itemView, position));
+    }
 
-	@Override
-	public int getItemCount() {
-		return data.size();
-	}
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
 
-	public static class ViewHolder extends RecyclerView.ViewHolder {
-		private final TextView number;
-		private final TextView result;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final TextView number;
+        private final TextView result;
 
-		private ViewHolder(View itemView) {
-			super(itemView);
-			number = itemView.findViewById(R.id.recall_text_number);
-			result = itemView.findViewById(R.id.recall_text_result);
-		}
-	}
+        private ViewHolder(View itemView) {
+            super(itemView);
+            number = itemView.findViewById(R.id.recall_text_number);
+            result = itemView.findViewById(R.id.recall_text_result);
+        }
+    }
 
-	public interface WindowRecallAdapterCallback {
-		void onRecallClick(View view, int position);
-	}
+    public interface WindowRecallAdapterCallback {
+        void onRecallClick(View view, int position);
+    }
 }

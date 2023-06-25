@@ -9,97 +9,95 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.maxsavteam.newmcalc2.BuildConfig;
 import com.maxsavteam.newmcalc2.R;
 import com.maxsavteam.newmcalc2.ui.base.ThemeActivity;
-import com.maxsavteam.newmcalc2.utils.ResultCodesConstants;
 import com.maxsavteam.newmcalc2.variables.Variable;
 import com.maxsavteam.newmcalc2.variables.VariableUtils;
 
 import java.util.ArrayList;
 
 public class VariableEditorActivity extends ThemeActivity {
-	private EditText editTextVariableName, editTextVariableValue;
-	private int tag;
+    private EditText editTextVariableName, editTextVariableValue;
+    private int tag;
 
-	private ArrayList<Variable> variables;
+    private ArrayList<Variable> variables;
 
-	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if ( item.getItemId() == android.R.id.home ) {
-			onBackPressed();
-		}
-		return super.onOptionsItemSelected( item );
-	}
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate( savedInstanceState );
-		setContentView( R.layout.activity_variable_editor );
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_variable_editor);
 
-		setActionBar( R.id.toolbar );
-		displayHomeAsUp();
+        setActionBar(R.id.toolbar);
+        displayHomeAsUp();
 
-		editTextVariableName = findViewById( R.id.name );
-		editTextVariableValue = findViewById( R.id.value );
+        editTextVariableName = findViewById(R.id.name);
+        editTextVariableValue = findViewById(R.id.value);
 
-		Intent intent = getIntent();
-		if(intent.getBooleanExtra( "is_existing", false )){
-			editTextVariableName.setText( intent.getStringExtra( "name" ) );
-			editTextVariableValue.setText( intent.getStringExtra( "value" ) );
-			findViewById(R.id.btnDelVar).setVisibility(View.VISIBLE);
-		}
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra("is_existing", false)) {
+            editTextVariableName.setText(intent.getStringExtra("name"));
+            editTextVariableValue.setText(intent.getStringExtra("value"));
+            findViewById(R.id.btnDelVar).setVisibility(View.VISIBLE);
+        }
 
-		tag = intent.getIntExtra( "tag", 1 );
+        tag = intent.getIntExtra("tag", 1);
 
-		variables = VariableUtils.readVariables();
-	}
+        variables = VariableUtils.readVariables();
+    }
 
-	public void applyVariable(View v) {
-		TextView warn = findViewById( R.id.lblWarn );
+    public void applyVariable(View v) {
+        TextView warn = findViewById(R.id.lblWarn);
 
-		String varName = editTextVariableName.getText().toString().trim();
-		String varValue = editTextVariableValue.getText().toString().trim();
+        String varName = editTextVariableName.getText().toString().trim();
+        String varValue = editTextVariableValue.getText().toString().trim();
 
-		if ( varName.isEmpty() || varValue.isEmpty() ) {
-			warn.setText( R.string.fill_empty_field );
-			warn.setVisibility( View.VISIBLE );
-			return;
-		}
-		if ( varName.equals( "+" ) ) {
-			warn.setText( R.string.invalid_name );
-			warn.setVisibility( View.VISIBLE );
-			return;
-		}
+        if (varName.isEmpty() || varValue.isEmpty()) {
+            warn.setText(R.string.fill_empty_field);
+            warn.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (varName.equals("+")) {
+            warn.setText(R.string.invalid_name);
+            warn.setVisibility(View.VISIBLE);
+            return;
+        }
 
-		for (Variable variable : variables) {
-			if ( variable.getTag() == tag ) {
-				variable.setName( varName );
-				variable.setValue( varValue );
+        for (Variable variable : variables) {
+            if (variable.getTag() == tag) {
+                variable.setName(varName);
+                variable.setValue(varValue);
 
-				VariableUtils.saveVariables( variables );
-				onBackPressed();
+                VariableUtils.saveVariables(variables);
+                onBackPressed();
 
-				return;
-			}
-		}
+                return;
+            }
+        }
 
-		variables.add( new Variable( varName, varValue, tag ) );
-		VariableUtils.saveVariables( variables );
-		onBackPressed();
-	}
+        variables.add(new Variable(varName, varValue, tag));
+        VariableUtils.saveVariables(variables);
+        onBackPressed();
+    }
 
-	public void deleteVariable(View v){
-		for(Variable variable : variables){
-			if(variable.getTag() == tag ){
-				variables.remove( variable );
+    public void deleteVariable(View v) {
+        for (Variable variable : variables) {
+            if (variable.getTag() == tag) {
+                variables.remove(variable);
 
-				VariableUtils.saveVariables( variables );
+                VariableUtils.saveVariables(variables);
 
-				onBackPressed();
+                onBackPressed();
 
-				break;
-			}
-		}
-	}
+                break;
+            }
+        }
+    }
 }

@@ -10,59 +10,59 @@ import java.util.ArrayList;
 
 public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder> {
 
-	public interface AdapterCallback{
-		int getParentHeight();
-	}
+    public interface AdapterCallback {
+        int getParentHeight();
+    }
 
-	private final ArrayList<ViewPagerFragmentFactory> mFactories;
-	private final AdapterCallback adapterCallback;
+    private final ArrayList<ViewPagerFragmentFactory> mFactories;
+    private final AdapterCallback adapterCallback;
 
-	public ViewPagerAdapter(ArrayList<ViewPagerFragmentFactory> mFactories, AdapterCallback adapterCallback) {
-		this.mFactories = mFactories;
-		this.adapterCallback = adapterCallback;
-	}
+    public ViewPagerAdapter(ArrayList<ViewPagerFragmentFactory> mFactories, AdapterCallback adapterCallback) {
+        this.mFactories = mFactories;
+        this.adapterCallback = adapterCallback;
+    }
 
-	@NonNull
-	@Override
-	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		ViewPagerFragmentFactory factory = mFactories.get( 0 );
-		for (var f : mFactories) {
-			if ( f.getType() == viewType ) {
-				factory = f;
-			}
-		}
-		return new ViewHolder( factory.justCreateView(parent) );
-	}
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ViewPagerFragmentFactory factory = mFactories.get(0);
+        for (var f : mFactories) {
+            if (f.getType() == viewType) {
+                factory = f;
+            }
+        }
+        return new ViewHolder(factory.justCreateView(parent));
+    }
 
-	@Override
-	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		mFactories.get( position ).bindView( holder.itemView, adapterCallback.getParentHeight() );
-	}
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        mFactories.get(position).bindView(holder.itemView, adapterCallback.getParentHeight());
+    }
 
-	@Override
-	public int getItemViewType(int position) {
-		return mFactories.get( position ).getType();
-	}
+    @Override
+    public int getItemViewType(int position) {
+        return mFactories.get(position).getType();
+    }
 
-	@Override
-	public int getItemCount() {
-		return mFactories.size();
-	}
+    @Override
+    public int getItemCount() {
+        return mFactories.size();
+    }
 
-	public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-		public ViewHolder(@NonNull View itemView) {
-			super( itemView );
-		}
-	}
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
 
-	public interface ViewPagerFragmentFactory {
+    public interface ViewPagerFragmentFactory {
 
-		View justCreateView(ViewGroup parent);
+        View justCreateView(ViewGroup parent);
 
-		void bindView(View view, int parentHeight);
+        void bindView(View view, int parentHeight);
 
-		int getType();
+        int getType();
 
-	}
+    }
 }
