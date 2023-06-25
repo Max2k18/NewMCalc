@@ -70,7 +70,6 @@
         <item>Тёмная</item>
         <item>Как в системе</item>
     </string-array>
-    <string name="history_guide">Это запись истории. Вы можете провести влево, чтобы удалить запись, или вправо, чтобы добавить описание к ней.</string>
     <string name="changelog">Журнал изменений</string>
     <string name="whats_new">Что нового</string>
     <string name="something_went_wrong_when_getting_note">Что-то пошло не так при получении заметки об обновлении</string>
@@ -127,4 +126,11 @@
     <string name="edit_description_message_text">Введите текст (чтобы удалить описание, оставьте поле пустым)</string>
     <string name="delete_entry">Удалить запись</string>
     <string name="delete_entry_message_text">Вы действительно хотите удалить запись? Это действие нельзя отменить</string>
+
+    <string-array name="history_guide">
+        <item>Это запись истории. Она содержит в себе выражение, ответ, а также к ней можно добавить описание. Если на неё нажать, то ответ будет вставлен в текущее выражение.</item>
+        <item>Добавить описание можно нажав на эту кнопку.</item>
+        <item>Удаляется запись нажатием на эту кнопку.</item>
+    </string-array>
+    <string name="tooltip_finish">Завершить</string>
 </resources>

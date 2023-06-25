@@ -50,4 +50,6 @@
 
     <dimen name="history_item_action_buttons_size">48dp</dimen>
 
+    <dimen name="tooltip_text_size">16sp</dimen>
+
 </resources>

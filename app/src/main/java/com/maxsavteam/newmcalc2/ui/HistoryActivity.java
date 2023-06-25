@@ -35,7 +35,10 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import uk.co.samuelwall.materialtaptargetprompt.extras.focals.RectanglePromptFocal;
+import io.akndmr.ugly_tooltip.TooltipBuilder;
+import io.akndmr.ugly_tooltip.TooltipContentPosition;
+import io.akndmr.ugly_tooltip.TooltipDialog;
+import io.akndmr.ugly_tooltip.TooltipObject;
 
 public class HistoryActivity extends ThemeActivity {
 
@@ -45,7 +48,6 @@ public class HistoryActivity extends ThemeActivity {
 
     private SharedPreferences sp;
     private ArrayList<HistoryEntry> mEntries = new ArrayList<>();
-    private RecyclerView rv;
     private boolean needToCreateMenu = false;
 
     private final HistoryAdapter.AdapterCallback adapterCallback = new HistoryAdapter.AdapterCallback() {
@@ -111,8 +113,9 @@ public class HistoryActivity extends ThemeActivity {
         LinearLayoutManager lay = new LinearLayoutManager(this);
         lay.setOrientation(RecyclerView.VERTICAL);
         adapter = new HistoryAdapter(this, mEntries, adapterCallback, exampleCalculator);
-        rv.setAdapter(adapter);
-        rv.setLayoutManager(lay);
+        RecyclerView recyclerView = findViewById(R.id.rv_view);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(lay);
     }
 
     private void updateUI() {
@@ -170,24 +173,16 @@ public class HistoryActivity extends ThemeActivity {
         setActionBar(R.id.toolbar);
         displayHomeAsUp();
 
-        rv = findViewById(R.id.rv_view);
-
-        rv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        findViewById(R.id.rv_view).getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (sp.getBoolean("history_guide", true)) {
+                if (sp.getBoolean("show_history_guide_v2", true)) {
                     if (mEntries.size() > 0) {
-                        sp.edit().putBoolean("history_guide", false).apply();
-                        Utils.getGuideTip(
-                                HistoryActivity.this,
-                                getString(R.string.history),
-                                getString(R.string.history_guide),
-                                R.id.cardView,
-                                new RectanglePromptFocal()
-                        ).show();
-                        rv.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        sp.edit().putBoolean("show_history_guide_v2", false).apply();
+                        startGuide();
                     }
                 }
+                findViewById(R.id.rv_view).getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
 
@@ -209,4 +204,53 @@ public class HistoryActivity extends ThemeActivity {
         setupRecyclerView(example -> CalculatorWrapper.getInstance().calculate(example).format(decimalFormat));
         updateUI();
     }
+
+    private void startGuide(){
+        TooltipDialog dialog = new TooltipBuilder()
+                .textSizeRes(R.dimen.tooltip_text_size)
+                .backgroundContentColorRes(R.color.colorAccent)
+                .textColorRes(R.color.white)
+                .useArrow(true)
+                .shouldShowIcons(true)
+                .clickable(true)
+                .circleIndicatorBackgroundDrawableRes(R.drawable.tooltip_selector)
+                .finishString(R.string.tooltip_finish, getString(R.string.tooltip_finish))
+                .build();
+
+        String[] guideParts = getResources().getStringArray(R.array.history_guide);
+        ArrayList<TooltipObject> tooltipObjects = new ArrayList<>();
+        tooltipObjects.add(
+                new TooltipObject(
+                        findViewById(R.id.cardView),
+                        null,
+                        guideParts[0],
+                        TooltipContentPosition.BOTTOM,
+                        getColor(R.color.colorAccent),
+                        null
+                )
+        );
+        tooltipObjects.add(
+                new TooltipObject(
+                        findViewById(R.id.image_button_history_action_edit_description),
+                        null,
+                        guideParts[1],
+                        TooltipContentPosition.LEFT,
+                        getColor(R.color.colorAccent),
+                        null
+                )
+        );
+        tooltipObjects.add(
+                new TooltipObject(
+                        findViewById(R.id.image_button_history_action_delete),
+                        null,
+                        guideParts[2],
+                        TooltipContentPosition.LEFT,
+                        getColor(R.color.colorAccent),
+                        null
+                )
+        );
+
+        dialog.show(this, getSupportFragmentManager(), "history_guide_tag", tooltipObjects);
+    }
+
 }

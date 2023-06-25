@@ -85,7 +85,6 @@
         <item>system</item>
     </string-array>
 
-    <string name="history_guide">This is a record of history. You can swipe left to delete an entry or right to add a description to it.</string>
     <string name="changelog">Changelog</string>
     <string name="whats_new">What\'s new</string>
     <string name="something_went_wrong_when_getting_note">Something went wrong when getting note</string>
@@ -142,4 +141,11 @@
     <string name="edit_description_message_text">Enter the text (to delete the description, leave the field empty)</string>
     <string name="delete_entry">Delete entry</string>
     <string name="delete_entry_message_text">Do you really want to delete the record? This action cannot be undone</string>
+
+    <string-array name="history_guide">
+        <item>This is a record of history. It contains an expression, an answer, and you can also add a description to it. If you click on it, the answer will be inserted into the current expression.</item>
+        <item>You can add a description by clicking on this button.</item>
+        <item>The record is deleted by clicking on this button.</item>
+    </string-array>
+    <string name="tooltip_finish">Finish</string>
 </resources>
