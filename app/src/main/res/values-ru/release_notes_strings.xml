@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="release_note_3_6"><![CDATA[
+Версия 3.6<br>
+<br>
+Новое:<br>
+- Редизайн экрана истории. Кнопки удаления записи и редактирования описания вынесены на передний план, поэтому больше не нужно свайпать.
+    ]]></string>
+
         <string name="release_note_3_5"><![CDATA[
 Версия 3.5.0<br>
 <br>
