@@ -139,4 +139,7 @@
     <string name="numgen_result">Result:</string>
     <string name="update_is_ready_to_be_installed">Update is ready to be installed</string>
     <string name="install">Install</string>
+    <string name="edit_description_message_text">Enter the text (to delete the description, leave the field empty)</string>
+    <string name="delete_entry">Delete entry</string>
+    <string name="delete_entry_message_text">Do you really want to delete the record? This action cannot be undone</string>
 </resources>

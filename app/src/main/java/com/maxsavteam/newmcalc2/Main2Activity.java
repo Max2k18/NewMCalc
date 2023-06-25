@@ -148,7 +148,7 @@ public class Main2Activity extends ThemeActivity {
 			new ActivityResultContracts.StartActivityForResult(),
 			result->{
 				Intent data = result.getData();
-				if ( result.getResultCode() != ResultCodesConstants.RESULT_ERROR && data != null ) {
+				if ( result.getResultCode() == RESULT_OK && data != null ) {
 					CalculatorEditText exampleEditText = findViewById( R.id.ExampleStr );
 					String example = data.getStringExtra( "example" );
 					if ( example != null && !example.equals( "" ) ) {

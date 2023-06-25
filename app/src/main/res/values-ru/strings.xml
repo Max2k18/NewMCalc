@@ -124,4 +124,7 @@
     <string name="numgen_result">Результат:</string>
     <string name="update_is_ready_to_be_installed">Обновление готово к установке</string>
     <string name="install">Установить</string>
+    <string name="edit_description_message_text">Введите текст (чтобы удалить описание, оставьте поле пустым)</string>
+    <string name="delete_entry">Удалить запись</string>
+    <string name="delete_entry_message_text">Вы действительно хотите удалить запись? Это действие нельзя отменить</string>
 </resources>
